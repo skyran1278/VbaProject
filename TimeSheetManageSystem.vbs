@@ -8,6 +8,7 @@ Sub Timesheet()
 
     Set Fs = CreateObject("Scripting.FileSystemObject")
     Dim Value(100000, 4) As String
+    Dim HrType(3) As String
 
     Dim WbManage As Workbook
     Set WbManage = Workbooks("TimeSheetManageSystem")
@@ -108,29 +109,32 @@ NextEmployee:
 
     '------------------------------------------------增加功能
 
+    '工時總類
+    HrType(0) = "Normal"
+    HrType(1) = "Overtime"
+    HrType(2) = "Overtime-H"
+
     '激活ProjectList
     WbManage.Worksheets("ProjectList").Activate
 
-    '讀取第1欄時間之列數
-    ProjectListRowUsed = Cells(Rows.Count, 1).End(xlUp).Row
+    '讀取第2欄時間之列數
+    ProjectListRowUsed = Cells(Rows.Count, 2).End(xlUp).Row
 
     '從第2列到最後一列
     For ProjectRowNumber = 2 To ProjectListRowUsed
 
         '從第2列到最後一列
-        For HrTypeNumber = 1 To 3
+        For HrTypeNumber = 0 To 2
 
             '陣列記數
             ValueRowNumber = ValueRowNumber + 1
-
+         
             'Project
             Value(ValueRowNumber, 1) = Cells(ProjectRowNumber, 2)
 
             'HrType
-            Value(ValueRowNumber, 2) = Cells(ProjectRowNumber, 3)
-
+            Value(ValueRowNumber, 2) = HrType(HrTypeNumber)
         Next
-
     Next
     '------------------------------------------------
 
@@ -181,3 +185,5 @@ Sub Record()
 
     End With
 End Sub
+
+
