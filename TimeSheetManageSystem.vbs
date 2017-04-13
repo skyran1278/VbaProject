@@ -22,7 +22,7 @@ Sub Timesheet()
     '由於CurDir()會發生問題，所以由儲存格讀取路徑
     XlPath = Cells(6, 3)
 
-    '陣列記數
+    '陣列計數
     ValueRowNumber = -1
 
     '讀取第4欄時間之列數
@@ -76,7 +76,7 @@ Sub Timesheet()
                         '如果資料不為空且為數字 就記錄到陣列中
                         If Cells(CellsRowNumber, CellsColumnNumber) <> "" And IsNumeric(Cells(CellsRowNumber, CellsColumnNumber).Value) Then
 
-                            '陣列記數
+                            '陣列計數
                             ValueRowNumber = ValueRowNumber + 1
 
                             'Employee
