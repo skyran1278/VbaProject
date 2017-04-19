@@ -22,7 +22,13 @@ Sub SRCSeltor()
 
     SelectionSection = CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
 
-    Range(Cells(1, 16), Cells(UBound(SelectionSection), 18)) = SelectionSection
+    Range(Cells(2, 15), Cells(UBound(SelectionSection), 19)) = SelectionSection
+
+    Range(Columns(15), Columns(18)).Delete
+
+    Worksheets("SectionSelector").Activate
+
+    Range(Cells(2, 11), Cells(UBound(SelectionSection), 14)) = SelectionSection
 
     MsgBox "執行時間 " & Timer - Time0 & " 秒", vbOKOnly
 
@@ -45,7 +51,7 @@ Function PMMCurve(RowNumber)
     ' c = PMM(RowNumberCount, 3)
     For RowNumberCount = 1 To 19
         PMM(RowNumberCount, 2) = -(PMM(RowNumberCount, 0) - PMM(RowNumberCount - 1, 0)) / (PMM(RowNumberCount, 1) - PMM(RowNumberCount - 1, 1))
-        PMM(RowNumberCount, 3) = -PMM(RowNumberCount - 1, 0) - PMM(RowNumberCount, 0) * PMM(RowNumberCount - 1, 1)
+        PMM(RowNumberCount, 3) = -PMM(RowNumberCount - 1, 0) - PMM(RowNumberCount, 2) * PMM(RowNumberCount - 1, 1)
     Next
 
     PMMCurve = PMM()
@@ -77,8 +83,12 @@ Function CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
     
     StartNumber = 0
     SelectionSectionNumber = -1
+
     Dim SelectionSection()
-    ReDim SelectionSection(UBound(ComboPMM), 2)
+    ReDim SelectionSection(UBound(ComboPMM), 4)
+
+    ' Dim CheckSection()
+    ' ReDim CheckSection(UBound(ComboPMM) -1)
 
     For RowNumber = 0 To UBound(ComboPMM) - 1
 
@@ -97,32 +107,54 @@ Function CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
 
                     ' (x + b * y + c) * c < 0 牛頓法
                     If (ComboPMM(ColumnNumber, 1) + PMM1(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM1(LineNumber, 3)) * PMM1(LineNumber, 3) > 0 Then
-                        If FinalSelectionNumber < 1 Then
+                        SelectionSection(ColumnNumber, 4) = 1
+                        If FinalSelectionNumber <= 1 Then
                             FinalSelectionNumber = 1
+                            Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM1(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM1(LineNumber, 3)) / Sqr(1 + PMM1(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
                         End If
                     
                     ElseIf (ComboPMM(ColumnNumber, 1) + PMM2(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM2(LineNumber, 3)) * PMM2(LineNumber, 3) > 0 Then
-                        If FinalSelectionNumber < 2 Then
+                        SelectionSection(ColumnNumber, 4) = 2
+                        If FinalSelectionNumber <= 2 Then
                             FinalSelectionNumber = 2
+                            Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM2(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM2(LineNumber, 3)) / Sqr(1 + PMM2(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
+                            
                         End If
                         
                     ElseIf (ComboPMM(ColumnNumber, 1) + PMM3(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM3(LineNumber, 3)) * PMM3(LineNumber, 3) > 0 Then
-                        If FinalSelectionNumber < 3 Then
+                        SelectionSection(ColumnNumber, 4) = 3
+                        If FinalSelectionNumber <= 3 Then
                             FinalSelectionNumber = 3
+                            Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM3(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM3(LineNumber, 3)) / Sqr(1 + PMM3(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
+                            
                         End If
                             
                     ElseIf (ComboPMM(ColumnNumber, 1) + PMM4(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM4(LineNumber, 3)) * PMM4(LineNumber, 3) > 0 Then
-                        If FinalSelectionNumber < 4 Then
+                        SelectionSection(ColumnNumber, 4) = 4
+                        If FinalSelectionNumber <= 4 Then
                             FinalSelectionNumber = 4
+                            Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM4(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM4(LineNumber, 3)) / Sqr(1 + PMM4(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
+                            
                         End If
                                 
                     ElseIf (ComboPMM(ColumnNumber, 1) + PMM5(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM5(LineNumber, 3)) * PMM5(LineNumber, 3) > 0 Then
-                       If FinalSelectionNumber < 5 Then
-                           FinalSelectionNumber = 5
-                       End If
+                        SelectionSection(ColumnNumber, 4) = 5
+                        If FinalSelectionNumber <= 5 Then
+                            FinalSelectionNumber = 5
+                            Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM5(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM5(LineNumber, 3)) / Sqr(1 + PMM5(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
+                        End If
                                     
                     ElseIf (ComboPMM(ColumnNumber, 1) + PMM6(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM6(LineNumber, 3)) * PMM6(LineNumber, 3) > 0 Then
-                        FinalSelectionNumber = 7
+                        SelectionSection(ColumnNumber, 4) = 6
+                        If FinalSelectionNumber <= 6 Then
+                            FinalSelectionNumber = 6
+                            Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM6(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM6(LineNumber, 3)) / Sqr(1 + PMM6(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
+                        Else
+                            SelectionSection(ColumnNumber, 4) = 7
+                            FinalSelectionNumber = 7
+                            Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM6(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM6(LineNumber, 3)) / Sqr(1 + PMM6(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
+                            
+                        End If
 
                     End If
                 Next
@@ -156,9 +188,11 @@ Function CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
                     FinalSelection = "錯誤，超過所選斷面"
             End Select
 
+
             SelectionSection(SelectionSectionNumber, 0) = ComboPMM(RowNumber, 0)
             SelectionSection(SelectionSectionNumber, 1) = FinalSelectionNumber
             SelectionSection(SelectionSectionNumber, 2) = FinalSelection
+            SelectionSection(SelectionSectionNumber, 3) = Ratio
 
         End If
 
@@ -167,3 +201,5 @@ Function CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
     CreatFunction = SelectionSection()
 
 End Function
+
+
