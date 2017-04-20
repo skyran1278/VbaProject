@@ -13,6 +13,7 @@ Sub SRCSeltor()
 ' 增加Ratio 計算後的執行時間：
 ' 32.08s 40萬資料量
 '
+'
 
     Time0 = Timer
 
@@ -120,12 +121,14 @@ Function CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
 
                     ' (x + b * y + c) * c > 0 牛頓法
                     ' (M + b * P + c) * c > 0 牛頓法
+                    ' 判斷兩個點是否在同一邊
                     '
                     ' PMM的資料格式：
                     ' M P b c
                     '
                     ' ComboPMM的資料格式：
                     ' Name M P
+                    '
                     If (ComboPMM(ColumnNumber, 1) + PMM1(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM1(LineNumber, 3)) * (650 + PMM1(LineNumber, 2) * 2000 + PMM1(LineNumber, 3)) > 0 Or (ComboPMM(ColumnNumber, 1) + PMM1(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM1(LineNumber, 3)) * PMM1(LineNumber, 3) > 0 Then
                         If FinalSelectionNumber <= 1 Then
                             FinalSelectionNumber = 1
