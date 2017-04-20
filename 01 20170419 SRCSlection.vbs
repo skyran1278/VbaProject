@@ -35,7 +35,7 @@ Sub SRCSeltor()
 
     Worksheets("SectionSelector").Activate
 
-    Range(Cells(2, 11), Cells(UBound(SelectionSection), 14)) = SelectionSection
+    Range(Cells(2, 11), Cells(UBound(SelectionSection) + 1, 14)) = SelectionSection
 
     MsgBox "執行時間 " & Timer - Time0 & " 秒", vbOKOnly
 
