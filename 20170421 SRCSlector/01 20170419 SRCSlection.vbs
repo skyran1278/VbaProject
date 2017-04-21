@@ -1,5 +1,30 @@
 Sub SRCSeltor()
 
+
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+' 最新程式碼，不要覆蓋！！！！！！！！！！！
+
 ' 需要增加一點註釋，不然絕對看不懂
 ' 目的：
 ' 由於在ETABS不會 Design SRC斷面，所以由ETABS輸出PMM。
@@ -172,7 +197,6 @@ Function CreatFunction(ComboPMM)
                             PMM = PMM5
                         Case 6
                             PMM = PMM6
-
                     End Select
 
                     ' 19條線
@@ -194,6 +218,7 @@ Function CreatFunction(ComboPMM)
 
                             MaxRatio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM(LineNumber, 3)) / Sqr(1 + PMM(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
 
+                            ' 這一段很不和邏輯，一定要重構
                             Select Case i
                                 Case 1
                                     SelectionNumber = 1
@@ -209,16 +234,7 @@ Function CreatFunction(ComboPMM)
                                     SelectionNumber = 6
                                 Case Else
                                     SelectionNumber = 7
-
                             End Select
-                            ' If SelectionNumber < 1 Then
-                            ' SelectionNumber = 1
-                            '     MaxRatio = Ratio
-                            ' End If
-
-                            ' If Ratio > MaxRatio And SelectionNumber <= 1 Then
-                            '     MaxRatio = Ratio
-                            ' End If
 
                             GoTo NextCombo
 
@@ -283,7 +299,6 @@ NextCombo:
     Next
 
     CreatFunction = SelectionSection()
-
 
 End Function
 
