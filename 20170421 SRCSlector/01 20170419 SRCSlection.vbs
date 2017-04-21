@@ -55,6 +55,8 @@ Sub SRCSeltor()
     ' SelectionSection = CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
     SelectionSection = CreatFunction(ComboPMM)
 
+    Worksheets("EtabsPMMCombo").Activate
+
     Range(Columns(15), Columns(18)).ClearContents
 
     Range(Cells(2, 15), Cells(UBound(SelectionSection) + 1, 19)) = SelectionSection
@@ -75,6 +77,8 @@ Sub SRCSeltor()
 End Sub
 
 Function Asin(X)
+
+    Const PI = 3.14159265358979
 
     If X = -1 Then
         Asin = -Pi / 2
