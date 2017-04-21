@@ -18,32 +18,55 @@ Sub SRCSeltor()
 
     Time0 = Timer
 
-    PMM1 = PMMCurve(6)
-    PMM2 = PMMCurve(29)
-    PMM3 = PMMCurve(52)
-    PMM4 = PMMCurve(76)
-    PMM5 = PMMCurve(100)
-    PMM6 = PMMCurve(124)
+    ' PMM1 = PMMCurve(6)
+    ' PMM2 = PMMCurve(30)
+    ' PMM3 = PMMCurve(54)
+    ' PMM4 = PMMCurve(78)
+    ' PMM5 = PMMCurve(102)
+    ' PMM6 = PMMCurve(126)
 
     ComboPMM = Combo()
 
-    SelectionSection = CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
+    ' SelectionSection = CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
+    SelectionSection = CreatFunction(ComboPMM)
 
-    Range(Cells(2, 15), Cells(UBound(SelectionSection), 19)) = SelectionSection
+    Range(Columns(15), Columns(18)).ClearContents
 
-    ' Range(Columns(15), Columns(18)).Delete
+    Range(Cells(2, 15), Cells(UBound(SelectionSection) + 1, 19)) = SelectionSection
 
     Worksheets("SectionSelector").Activate
 
-    Range(Cells(2, 11), Cells(UBound(SelectionSection) + 1, 14)) = SelectionSection
+    Range(Columns(11), Columns(14)).ClearContents
+
+    Cells(1, 11) = "Column"
+    Cells(1, 12) = "NO."
+    Cells(1, 13) = "SectionName"
+    Cells(1, 14) = "Ratio"
+
+    Range(Cells(2, 11), Cells(UBound(SelectionSection), 14)) = SelectionSection
 
     MsgBox "執行時間 " & Timer - Time0 & " 秒", vbOKOnly
 
 End Sub
 
+Function Asin(X)
+
+    If X = -1 Then
+        Asin = -Pi / 2
+
+    ElseIf X = 1 Then
+        Asin = Pi / 2
+
+    Else
+        Asin = Atn(X / Sqr(1 - X ^ 2))
+
+    End If
+
+End Function
+
 Function PMMCurve(RowNumber)
 
-    Dim PMM(19, 3) As Double
+    Dim PMM(19, 4) As Double
 
     Worksheets("PMMCurve").Activate
 
@@ -53,6 +76,8 @@ Function PMMCurve(RowNumber)
         PMM(RowNumberCount, 0) = Cells(RowNumber + RowNumberCount, 4)
         ' P
         PMM(RowNumberCount, 1) = Cells(RowNumber + RowNumberCount, 3)
+        ' 角度
+        PMM(RowNumberCount, 4) = Asin(PMM(RowNumberCount, 1) / Sqr(PMM(RowNumberCount, 0) ^ 2 + PMM(RowNumberCount, 1) ^ 2))
     Next
 
     ' x + b * y + c = 0
@@ -75,14 +100,14 @@ Function Combo()
     Worksheets("EtabsPMMCombo").Activate
     Dim ComboPMM()
     ComboRowUsed = Cells(Rows.Count, 3).End(xlUp).Row
-    ReDim ComboPMM(ComboRowUsed - 1, 2)
+    ReDim ComboPMM(ComboRowUsed - 1, 3)
 
     ' 讀取所有的PMM
-
     For ComboRowNumber = 2 To ComboRowUsed
         ComboPMM(ComboRowNumber - 2, 0) = Cells(ComboRowNumber, 12)
         ComboPMM(ComboRowNumber - 2, 1) = Cells(ComboRowNumber, 13)
         ComboPMM(ComboRowNumber - 2, 2) = Cells(ComboRowNumber, 14)
+        ComboPMM(ComboRowNumber - 2, 3) = Asin(ComboPMM(ComboRowNumber - 2, 2) / Sqr(ComboPMM(ComboRowNumber - 2, 1) ^ 2 + ComboPMM(ComboRowNumber - 2, 2) ^ 2))
     Next
 
     ' 給最後一個不一樣的值，為下一步的演算法做準備，免得無法比較出不同
@@ -94,7 +119,7 @@ Function Combo()
 
 End Function
 
-Function CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
+Function CreatFunction(ComboPMM)
 
     StartNumber = 0
     SelectionSectionNumber = -1
@@ -102,8 +127,16 @@ Function CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
     Dim SelectionSection()
     ReDim SelectionSection(UBound(ComboPMM), 4)
 
-    ' Dim CheckSection()
-    ' ReDim CheckSection(UBound(ComboPMM) -1)
+    PMM1 = PMMCurve(6)
+    PMM2 = PMMCurve(30)
+    PMM3 = PMMCurve(54)
+    PMM4 = PMMCurve(78)
+    PMM5 = PMMCurve(102)
+    PMM6 = PMMCurve(126)
+
+    ' For i = 6 To 126 step 24
+    '     PMM = PMMCurve(i)
+    ' Next
 
     For RowNumber = 0 To UBound(ComboPMM) - 1
 
@@ -124,111 +157,78 @@ Function CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
                 SelectionNumber = 0
                 MaxRatio = 0
 
-                ' 19條線
-                For LineNumber = 1 To 19
+                For i = 1 To 6
 
-                    ' (x + b * y + c) * c > 0 牛頓法
-                    ' (M + b * P + c) * c > 0 牛頓法
-                    ' 判斷兩個點是否在同一邊
-                    '
-                    ' PMM的資料格式：
-                    ' M P b c
-                    '
-                    ' ComboPMM的資料格式：
-                    ' Name M P
-                    '
-                    If (ComboPMM(ColumnNumber, 1) + PMM1(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM1(LineNumber, 3)) * (650 + PMM1(LineNumber, 2) * 2000 + PMM1(LineNumber, 3)) > 0 Or (ComboPMM(ColumnNumber, 1) + PMM1(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM1(LineNumber, 3)) * PMM1(LineNumber, 3) > 0 Then
+                    Select Case i
+                        Case 1
+                            PMM = PMM1
+                        Case 2
+                            PMM = PMM2
+                        Case 3
+                            PMM = PMM3
+                        Case 4
+                            PMM = PMM4
+                        Case 5
+                            PMM = PMM5
+                        Case 6
+                            PMM = PMM6
 
-                        Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM1(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM1(LineNumber, 3)) / Sqr(1 + PMM1(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
+                    End Select
 
-                        If SelectionNumber < 1 Then
-                            SelectionNumber = 1
-                            MaxRatio = Ratio
-                        End If
+                    ' 19條線
+                    For LineNumber = 1 To 19
 
-                        If Ratio > MaxRatio And SelectionNumber <= 1 Then
-                            MaxRatio = Ratio
-                        End If
+                        ' (x + b * y + c) * c > 0 牛頓法
+                        ' (M + b * P + c) * c > 0 牛頓法
+                        ' 判斷兩個點是否在同一邊
+                        '
+                        ' PMM的資料格式：
+                        ' M P b c
+                        '
+                        ' ComboPMM的資料格式：
+                        ' Name M P
+                        '
 
-                    ElseIf (ComboPMM(ColumnNumber, 1) + PMM2(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM2(LineNumber, 3)) * (650 + PMM2(LineNumber, 2) * 2000 + PMM2(LineNumber, 3)) > 0 Or (ComboPMM(ColumnNumber, 1) + PMM2(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM2(LineNumber, 3)) * PMM2(LineNumber, 3) > 0 Then
+                        ' 判斷角度
+                        If PMM(LineNumber - 1, 4) < ComboPMM(ColumnNumber, 3) And ComboPMM(ColumnNumber, 3) <= PMM(LineNumber, 4) And (ComboPMM(ColumnNumber, 1) + PMM(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM(LineNumber, 3)) * PMM(LineNumber, 3) > 0 Then
 
-                        Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM2(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM2(LineNumber, 3)) / Sqr(1 + PMM2(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
+                            MaxRatio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM(LineNumber, 3)) / Sqr(1 + PMM(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
 
-                        If SelectionNumber < 2 Then
-                            SelectionNumber = 2
-                            MaxRatio = Ratio
-                        End If
+                            Select Case i
+                                Case 1
+                                    SelectionNumber = 1
+                                Case 2
+                                    SelectionNumber = 2
+                                Case 3
+                                    SelectionNumber = 3
+                                Case 4
+                                    SelectionNumber = 4
+                                Case 5
+                                    SelectionNumber = 5
+                                Case 6
+                                    SelectionNumber = 6
+                                Case Else
+                                    SelectionNumber = 7
 
-                        If Ratio > MaxRatio And SelectionNumber <= 2 Then
-                            MaxRatio = Ratio
-                        End If
+                            End Select
+                            ' If SelectionNumber < 1 Then
+                            ' SelectionNumber = 1
+                            '     MaxRatio = Ratio
+                            ' End If
 
-                    ElseIf (ComboPMM(ColumnNumber, 1) + PMM3(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM3(LineNumber, 3)) * (650 + PMM3(LineNumber, 2) * 2000 + PMM3(LineNumber, 3)) > 0 Or (ComboPMM(ColumnNumber, 1) + PMM3(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM3(LineNumber, 3)) * PMM3(LineNumber, 3) > 0 Then
+                            ' If Ratio > MaxRatio And SelectionNumber <= 1 Then
+                            '     MaxRatio = Ratio
+                            ' End If
 
-                        Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM3(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM3(LineNumber, 3)) / Sqr(1 + PMM3(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
-
-                        If SelectionNumber < 3 Then
-                            SelectionNumber = 3
-                            MaxRatio = Ratio
-                        End If
-
-                        If Ratio > MaxRatio And SelectionNumber <= 3 Then
-                            MaxRatio = Ratio
-                        End If
-
-                    ElseIf (ComboPMM(ColumnNumber, 1) + PMM4(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM4(LineNumber, 3)) * (650 + PMM4(LineNumber, 2) * 2000 + PMM4(LineNumber, 3)) > 0 Or (ComboPMM(ColumnNumber, 1) + PMM4(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM4(LineNumber, 3)) * PMM4(LineNumber, 3) > 0 Then
-
-                        Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM4(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM4(LineNumber, 3)) / Sqr(1 + PMM4(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
-
-                        If SelectionNumber < 4 Then
-                            SelectionNumber = 4
-                            MaxRatio = Ratio
-                        End If
-
-                        If Ratio > MaxRatio And SelectionNumber <= 4 Then
-                            MaxRatio = Ratio
-                        End If
-
-                    ElseIf (ComboPMM(ColumnNumber, 1) + PMM5(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM5(LineNumber, 3)) * (650 + PMM5(LineNumber, 2) * 2000 + PMM5(LineNumber, 3)) > 0 Or (ComboPMM(ColumnNumber, 1) + PMM5(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM5(LineNumber, 3)) * PMM5(LineNumber, 3) > 0 Then
-
-                        Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM5(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM5(LineNumber, 3)) / Sqr(1 + PMM5(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
-
-                        If SelectionNumber < 5 Then
-                            SelectionNumber = 5
-                            MaxRatio = Ratio
-                        End If
-
-                        If Ratio > MaxRatio And SelectionNumber <= 5 Then
-                            MaxRatio = Ratio
-                        End If
-
-                    ElseIf (ComboPMM(ColumnNumber, 1) + PMM6(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM6(LineNumber, 3)) * (650 + PMM6(LineNumber, 2) * 2000 + PMM6(LineNumber, 3)) > 0 Or (ComboPMM(ColumnNumber, 1) + PMM6(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM6(LineNumber, 3)) * PMM6(LineNumber, 3) > 0 Then
-
-                        Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM6(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM6(LineNumber, 3)) / Sqr(1 + PMM6(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
-
-                        If SelectionNumber < 6 Then
-                            SelectionNumber = 6
-                            MaxRatio = Ratio
-
-                        Else
-
-                            Ratio = Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2) / (Abs(ComboPMM(ColumnNumber, 1) + PMM6(LineNumber, 2) * ComboPMM(ColumnNumber, 2) + PMM6(LineNumber, 3)) / Sqr(1 + PMM6(LineNumber, 2) ^ 2) + Sqr(ComboPMM(ColumnNumber, 1) ^ 2 + ComboPMM(ColumnNumber, 2) ^ 2))
-
-                            SelectionNumber = 7
-                            MaxRatio = Ratio
-
-                            If Ratio > MaxRatio Then
-                                MaxRatio = Ratio
-                            End If
+                            GoTo NextCombo
 
                         End If
 
-                        If Ratio > MaxRatio And SelectionNumber <= 6 Then
-                            MaxRatio = Ratio
-                        End If
+                    Next
 
-                    End If
                 Next
+
+NextCombo:
 
                 SelectionSection(ColumnNumber, 4) = SelectionNumber
 
@@ -284,6 +284,12 @@ Function CreatFunction(PMM1, PMM2, PMM3, PMM4, PMM5, PMM6, ComboPMM)
 
     CreatFunction = SelectionSection()
 
+
 End Function
+
+
+
+
+
 
 
