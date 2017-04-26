@@ -5,12 +5,12 @@ Sub caculate_DD()
 
 '--------------------------------------------------基本資料
 T0D = Range("G6")
-small_dleta = 0.001
-'Number = 7
 SDS = Range("G7")
 SD1 = Range("G8")
 SaD = Range("G9")
 W = Range("G10")
+
+small_dleta = 0.001
 '--------------------------------------------------隔震墊性質
 'Kd = 558 / 9.81 * Number
 'Ku = Number * Kd
@@ -19,6 +19,8 @@ Ku = Range("G17")
 Kd = Range("G18")
 Qd = Range("G19")
 
+
+'--------------------------------------------------開始迭代
 For i = 0.001 To 5 Step 0.001
 D = i
 KeD = (Kd * D + Qd) / D
@@ -85,6 +87,7 @@ Range("G23") = KeD
 Range("G24") = TeD
 Range("G25") = B
 Range("G26") = DD
+
 End Sub
 
 
