@@ -1,3 +1,43 @@
+Dim AllCombo(10000000)
+Dim AllComboNumber
+
+
+Sub kk()
+    Dim n As Integer
+    Dim r As Integer
+    Dim a() As Integer
+    Dim GroupValue() As Integer
+    n = 7
+    r = 3
+
+    ReDim GroupValue(n - 1)
+
+    For i = 0 To n - 1
+        GroupValue(i) = i + 1
+    Next
+
+
+    ReDim a(r - 1)
+    Call Combo(a, 1, 1, n, r, GroupValue)
+
+End Sub
+
+Sub Combo(a() As Integer, digit, lower, n, r, GroupValue() As Integer)
+    Dim i As Integer
+    Dim j As Integer
+    Dim Temp As String
+
+    For i = lower To n - r + digit
+        a(digit - 1) = GroupValue(i - 1)
+        If digit <> r Then
+            Call Combo(a, digit + 1, i + 1, n, r, GroupValue)
+        Else
+            AllCombo(AllComboNumber) = a()
+            AllComboNumber = AllComboNumber + 1
+        End If
+    Next i
+End Sub
+
 Sub ZValue()
 '
 ' 排序
@@ -95,6 +135,58 @@ Sub ZValue()
 
                 Next
 
+                ' ---------------------------------------------------
+
+                ComboK = ComboMaxNumber
+                ComboLocate = ComboMaxNumber
+
+                For i = 1 To ComboMaxNumber
+                    Combo(i) = GroupValue(i)
+                Next
+
+                Reservive()
+
+                Function Reservive(ComboMaxNumber, GroupValue(), Combo(), GroupMaxNumber, ComboI, ComboK, ComboLocate)
+
+                    Do While ComboI <= GroupMaxNumber
+                        Combo(ComboMaxNumber) = GroupValue(ComboI)
+                        AllCombo(AllComboNumber) = Combo()
+                        AllComboNumber = AllComboNumber + 1
+                        ComboI = ComboI + 1
+                    Loop
+
+                    If ComboK > 38 Then
+                        ComboLocate = ComboLocate - 1
+                        ComboK = 18
+                        ' ComboI = ComboK
+                    End If
+
+                    ComboI = ComboK
+                    Combo(ComboLocate - 1) = GroupValue(ComboK)
+                    ' ComboK = ComboK + 1
+
+                    Reservive(ComboMaxNumber, GroupValue(), Combo(), GroupMaxNumber, ComboI + 1, ComboK + 1, ComboLocate)
+
+                    ' For i = ComboLocate To ComboMaxNumber
+                    '     Combo(i) = GroupValue(i + ComboK)
+                    ' Next
+
+                    ' ComboI = ComboMaxNumber + ComboK
+
+                    ' If ComboI >= GroupMaxNumber Then
+                    '     ComboLocate = ComboLocate - 1
+                    '     ComboI = ComboMaxNumber
+                    '     ComboK = 0
+                    ' End If
+
+                    ' ComboK = ComboK + 1
+
+                    ' Combo(ComboK) = GroupValue(ComboK + 1)
+
+                End Function
+
+                ' --------------------------------------------------------
+
                 Do While ComboI <= GroupMaxNumber
 
                     Combo(ComboMaxNumber) = GroupValue(ComboI)
@@ -182,40 +274,49 @@ Sub ZValue()
 
 End Sub
 
+Dim AllCombo(100000) As Integer
+Dim AllComboNumber
+Sub kk()
+    Dim n As Integer
+    Dim r As Integer
+    Dim a() As Integer
+    Dim GroupValue() As Integer
 
-' Sub kk()
-'     Dim n As Integer
-'     Dim r As Integer
-'     Dim a() As Integer
 
-'     n = 5
-'     r = 3
-'     ReDim a(r)
-'     a(1) = 1
-'     a(2) = 2
-'     a(3) = 3
-'     Call Combo(a, 1, 1, n, r)
 
-' End Sub
 
-' Sub Combo(a() As Integer, digit As Integer, lower As Integer, ByVal n As Integer, ByVal r As Integer)
-'     Dim i As Integer
-'     Dim j As Integer
-'     Dim Temp As String
 
-'     For i = lower To n - r + digit
-'         ' a(digit) = i
-'         If digit <> r Then
-'             Call Combo(a, digit + 1, i + 1, n, r)
-'         Else
-'             Temp = ""
-'             For j = 1 To r
-'                 Temp = Temp & Format(a(j), "#")
-'             Next j
-'             Debug.Print Temp
-'         End If
-'     Next i
-' End Sub
+
+    n = 40
+
+    ReDim GroupValue(n-1)
+
+    For i = 0 To 39
+        GroupValue(i) = i
+    Next
+
+    r = 20
+    ReDim a(r-1)
+    Call Combo(a, 1, 1, n, r, GroupValue)
+
+End Sub
+
+Sub Combo(a() As Integer, digit, lower, n, r, GroupValue() As Integer)
+    Dim i As Integer
+    Dim j As Integer
+    Dim Temp As String
+
+    For i = lower To n - r + digit
+        a(digit) = GroupValue(i)
+        If digit <> r Then
+            Call Combo(a, digit + 1, i + 1, n, r, GroupValue)
+        Else
+            AllCombo(AllComboNumber) = a()
+            AllComboNumber = AllComboNumber + 1
+        End If
+    Next i
+End Sub
+
 
 ' Sub Combo()
 
