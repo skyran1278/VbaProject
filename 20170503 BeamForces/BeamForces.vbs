@@ -70,25 +70,27 @@ Sub WriteDownSummery(shearForces, moment)
     Column = 6
     Range(Columns(6), Columns(21)).ClearContents
 
-    Cells(1, Column) = "Story"
-    Cells(1, Column + 1) = "Beam"
-    Cells(1, Column + 2) = "Load"
-    Cells(1, Column + 3) = "Left"
-    Cells(1, Column + 4) = "Middle"
-    Cells(1, Column + 5) = "Right"
+    Cells(1, Column) = "Shear Forces"
+    Cells(2, Column) = "Story"
+    Cells(2, Column + 1) = "Beam"
+    Cells(2, Column + 2) = "Load"
+    Cells(2, Column + 3) = "Left"
+    Cells(2, Column + 4) = "Middle"
+    Cells(2, Column + 5) = "Right"
 
-    Cells(1, Column + 7) = "Story"
-    Cells(1, Column + 8) = "Beam"
-    Cells(1, Column + 9) = "Load"
-    Cells(1, Column + 10) = "Left"
-    Cells(1, Column + 11) = "Middle"
-    Cells(1, Column + 12) = "Right"
-    Cells(1, Column + 13) = "Left"
-    Cells(1, Column + 14) = "Middle"
-    Cells(1, Column + 15) = "Right"
+    Cells(1, Column + 7) = "Moment"
+    Cells(2, Column + 7) = "Story"
+    Cells(2, Column + 8) = "Beam"
+    Cells(2, Column + 9) = "Load"
+    Cells(2, Column + 10) = "Left"
+    Cells(2, Column + 11) = "Middle"
+    Cells(2, Column + 12) = "Right"
+    Cells(2, Column + 13) = "Left"
+    Cells(2, Column + 14) = "Middle"
+    Cells(2, Column + 15) = "Right"
 
-    Range(Cells(2, Column), Cells(UBound(shearForces), Column + 5)) = shearForces
-    Range(Cells(2, Column + 7), Cells(UBound(moment), Column + 15)) = moment
+    Range(Cells(3, Column), Cells(UBound(shearForces), Column + 5)) = shearForces
+    Range(Cells(3, Column + 7), Cells(UBound(moment), Column + 15)) = moment
 
 End Sub
 
