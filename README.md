@@ -1,3 +1,22 @@
-# VbaProject
+<p align="center"><a href="/" target="_blank"><img width="150"src="https://github.com/skyran1278/20170324-Account/blob/firebase/icons/mipmap-xxxhdpi/ic_launcher.png"></a></p>
 
-## 簡單統合所有做過的VBA專案
+<p align="center"> 
+<!--   <a href="/"><img src="https://img.shields.io/github/downloads/skyran1278/20170324-Account/latest/total.svg" alt="Downloads"></a> -->
+<!--   <a href="/"><img src="https://img.shields.io/github/commits-since/skyran1278/VbaProject/390025f.svg" alt="Version"></a> -->
+  <a href="/"><img src="https://img.shields.io/github/downloads/skyran1278/VbaProject/total.svg" alt="Version"></a>
+  
+  <a href="/"><img src="https://img.shields.io/github/license/skyran1278/VbaProject.svg" alt="License"></a>  
+</p>
+
+## VbaProject
+
+> 統合VBA專案，以利相互參照程式碼，加快開發速度。
+>
+> 模組化程序，寫的越少做的越多。
+
+## Changelog
+
+Details changes for each commits are documented in the [commits notes](https://github.com/skyran1278/VbaProject/commits/master).
+
+## Contributors
+[Skyran](https://github.com/skyran1278) 
