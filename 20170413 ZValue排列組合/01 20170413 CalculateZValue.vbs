@@ -1,3 +1,141 @@
+Dim allCombo(100000000)
+Dim allComboNumber
+
+Sub ZValue()
+
+' 排序
+' 讀進陣列
+' 判斷是不是同一個Group
+' 同個Group中取40個或30個或20個做排列組合
+' 找出SUM最小的
+' 就是答案
+
+    Dim allValue()
+    Dim groupValue()
+    Dim combo()
+
+    Worksheets("Z").Activate
+
+    ' 讀取第8欄之列數
+    zRowUsed = Cells(Rows.Count, 8).End(xlUp).Row
+
+    ReDim allValue(zRowUsed - 8 + 1, 1)
+
+    ' 排序
+    Worksheets("Z").Range(Cells(7, 3), Cells(zRowUsed, 10)).Sort _
+        Key1:=Range(Cells(8, 10), Cells(zRowUsed, 10)), Order1:=xlAscending, _
+        Key2:=Range(Cells(8, 8), Cells(zRowUsed, 8)), Order2:=xlDescending, Header:=xlYes
+
+    ' 取值進陣列
+    For zRowNumber = 8 To zRowUsed
+
+        'Group
+        allValue(valueRowNumber, 0) = Cells(zRowNumber, 10)
+
+        'ZValue
+        allValue(valueRowNumber, 1) = Cells(zRowNumber, 8)
+
+        '陣列計數
+        valueRowNumber = valueRowNumber + 1
+
+    Next
+
+    Worksheets("System Contorl Centre").Activate
+
+    comboN = Cells(4, 4)
+    comboR = Cells(4, 5)
+
+    ReDim groupValue(comboN - 1)
+    ReDim combo(comboR - 1)
+
+    For valueRowNumber = 0 To zRowUsed - 9
+
+        If allValue(valueRowNumber, 0) <> allValue(valueRowNumber + 1, 0) Then
+
+            endNumber = valueRowNumber
+            zValueNumber = endNumber - startNumber
+
+            If zValueNumber > comboN Then
+
+                interval = zValueNumber / comboN
+
+                For intervalRowNumber = startNumber To endNumber - 1 Step interval
+
+                    groupValue(groupValueRowNumber) = allValue(intervalRowNumber, 1)
+                    groupValueRowNumber = groupValueRowNumber + 1
+
+                Next
+
+                ' 我有GroupValue了，40個數值，要開始選20個出來
+                Call ComboList(combo, 1, 1, comboN, comboR, groupValue)
+
+
+            End If
+
+            startNumber = endNumber + 1
+
+        End If
+
+
+    Next
+
+
+
+End Sub
+
+Sub ComboList(combo(), digit, lower, n, r, groupValue())
+
+    For i = lower To n - r + digit
+        combo(digit - 1) = groupValue(i - 1)
+        If digit <> r Then
+            Call ComboList(combo, digit + 1, i + 1, n, r, groupValue)
+        Else
+            allCombo(allComboNumber) = combo()
+            allComboNumber = allComboNumber + 1
+        End If
+    Next
+
+End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Dim AllCombo(10000000)
 Dim AllComboNumber
 
