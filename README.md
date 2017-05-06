@@ -1,4 +1,4 @@
-<p align="center"><a href="https://github.com/skyran1278/VbaProject" target="_blank"><img width="150"src="https://github.com/skyran1278/VbaProject/blob/master/icons/mipmap-xxxhdpi/ic_launcher.png"></a></p>
+<p align="center"><a href="https://github.com/skyran1278/VbaProject" target="_blank"><img width="100"src="https://github.com/skyran1278/VbaProject/blob/master/icons/mipmap-xxxhdpi/ic_launcher.png"></a></p>
 
 <p align="center"> 
   <a href="https://github.com/skyran1278/VbaProject"><img src="https://img.shields.io/github/downloads/skyran1278/VbaProject/total.svg" alt="Version"></a>  
@@ -7,9 +7,9 @@
 
 ## VbaProject
 
-> 統合VBA專案，以利相互參照程式碼，加快開發速度。
+> 統合VBA專案，相互參照程式碼，加快開發速度。
 >
-> 模組化程序，寫的越少做的越多。
+> 評估是否需要拆分專案中...
 
 ## Changelog
 
