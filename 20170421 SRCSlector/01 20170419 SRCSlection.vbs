@@ -19,9 +19,19 @@ Sub SRCSelectionSeltor()
 '
     Time0 = Timer
 
+    Call AutoFill
+
     ComboPMM = Combo()
 
     SelectionSection = SelectionSeltor(ComboPMM)
+
+    Call WriteDown(SelectionSection)
+
+    MsgBox "執行時間 " & Timer - Time0 & " 秒", vbOKOnly
+
+End Sub
+
+Function WriteDown(SelectionSection)
 
     ' 寫入資料在EtabsPMMCombo
     Worksheets("EtabsPMMCombo").Activate
@@ -37,9 +47,17 @@ Sub SRCSelectionSeltor()
     Cells(1, 13) = "SectionName"
     Cells(1, 14) = "Ratio"
 
-    MsgBox "執行時間 " & Timer - Time0 & " 秒", vbOKOnly
+End Function
 
-End Sub
+Function AutoFill()
+
+' 公式自動填滿
+
+    Worksheets("EtabsPMMCombo").Activate
+    ComboRowUsed = Cells(Rows.Count, 3).End(xlUp).Row
+    Range(Cells(2, 12), Cells(2, 14)).AutoFill Destination:=Range(Cells(2, 12), Cells(ComboRowUsed, 14))
+
+End Function
 
 Function Asin(SinValue)
 
@@ -95,6 +113,14 @@ Function PMMCurve(RowNumber)
     Next
 
     PMMCurve = PMM()
+
+End Function
+
+Function GeneratePMMCurve()
+
+    For p = 0 To 19
+
+    Next
 
 End Function
 
@@ -271,6 +297,7 @@ NextCombo:
     SelectionSeltor = SelectionSection()
 
 End Function
+
 
 
 
