@@ -16,6 +16,8 @@ Sub Timesheet()
     Dim WsEmployee As Worksheet
     Set WsEmployee = Worksheets("DateAndEmployee")
 
+    Call DeletePriorData
+
     '激活DateAndEmployee
     Workbooks("TimeSheetManageSystem").Worksheets("DateAndEmployee").Activate
 
@@ -24,6 +26,9 @@ Sub Timesheet()
 
     '陣列計數
     ValueRowNumber = -1
+
+    ' 讀取資料成功計數
+    ReadExcelSuccessRow = 6
 
     '讀取第4欄時間之列數
     TimeRowUsed = Cells(Rows.Count, 4).End(xlUp).Row
@@ -54,6 +59,10 @@ Sub Timesheet()
 
             '檢驗檔名是否存在 不存在的話就下一個人
             If Not (Fs.FileExists(DateAndEmployeePath)) Then GoTo NextEmployee
+
+            ' 讀取資料成功紀錄
+            Cells(ReadExcelSuccessRow, 11) = DateAndEmployeePath
+            ReadExcelSuccessRow = ReadExcelSuccessRow + 1
 
             '如果存在檔案就打開他 並且不更新資料
             Workbooks.Open Filename:=DateAndEmployeePath, UpdateLinks:=0
@@ -128,7 +137,7 @@ NextEmployee:
 
             '陣列記數
             ValueRowNumber = ValueRowNumber + 1
-         
+
             'Project
             Value(ValueRowNumber, 1) = Cells(ProjectRowNumber, 2)
 
@@ -137,6 +146,8 @@ NextEmployee:
         Next
     Next
     '------------------------------------------------
+
+    Call DeleteDash(Value)
 
     '全部資料讀取完後
     '激活Database
@@ -157,9 +168,36 @@ NextEmployee:
 
     '關閉螢幕更新 測試耗時12秒13
     '開啟螢幕更新 測試耗時13秒79
-    MsgBox "執行時間 " & Timer - Time0 & " 秒", vbOKOnly
+    MsgBox "執行時間 " & Application.Round((Timer - Time0) / 60, 1) & " 分鐘", vbOKOnly
 
 End Sub
+
+Function DeleteDash(Value)
+
+' 去掉 "-"
+
+    For i = 1 To UBound(Value)
+        Value(i, 1) = Replace(Value(i, 1), "-", " ")
+    Next
+
+End Function
+
+Function DeletePriorData()
+
+' 刪除之前的資料
+
+    Workbooks("TimeSheetManageSystem").Worksheets("DateAndEmployee").Activate
+    Columns(11).ClearContents
+    Cells(5, 11) = "Success Read Excel"
+    Workbooks("TimeSheetManageSystem").Worksheets("Database").Activate
+    Range(Columns(3), Columns(7)).ClearContents
+    Cells(5, 3) = "Employee"
+    Cells(5, 4) = "Project"
+    Cells(5, 5) = "HrType"
+    Cells(5, 6) = "Worktime"
+    Cells(5, 7) = "Workdate"
+
+End Function
 
 Sub Record()
 '
@@ -185,5 +223,9 @@ Sub Record()
 
     End With
 End Sub
+
+
+
+
 
 
