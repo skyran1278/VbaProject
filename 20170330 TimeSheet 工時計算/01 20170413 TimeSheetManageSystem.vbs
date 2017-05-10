@@ -168,7 +168,7 @@ NextEmployee:
 
     '關閉螢幕更新 測試耗時12秒13
     '開啟螢幕更新 測試耗時13秒79
-    MsgBox "執行時間 " & Application.Round((Timer - Time0) / 60, 1) & " 分鐘", vbOKOnly
+    MsgBox "執行時間 " & Application.Round((Timer - Time0) / 60, 1) & " Min", vbOKOnly
 
 End Sub
 
