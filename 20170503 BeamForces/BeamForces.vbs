@@ -7,7 +7,7 @@ Sub Main()
 '       Excel
 
 ' * 輸出入格式
-'       輸入：Beam_Forces Frame_Assignments_Summary
+'       輸入：Beam_Forces、Frame_Assignments_Summary
 '       輸出：Combo
 
 ' * 執行時間
@@ -28,13 +28,14 @@ Sub Main()
     shearForces = SplitArray(shearForces)
     moment = SplitArray(moment)
 
-    Call WriteDownCombo(shearForces, moment, "Combo")
+    Call WriteDownCombo(shearForces, moment)
 
-    shearForces = ConcatArray(shearForces)
-    moment = ConcatArray(moment)
+    ' shearForces = ConcatArray(shearForces)
+    ' moment = ConcatArray(moment)
     shearForces = OneShearForces(shearForces)
+    moment = OneMoment(moment)
 
-    Call WriteDownCombo(shearForces, moment, "Summary")
+    Call WriteDownSummary(shearForces, moment)
 
 
     MsgBox "Execution Time " & Application.Round((Timer - Time0) / 60, 2) & " Min", vbOKOnly
@@ -53,7 +54,7 @@ Function ConcatArray(havaToConcatArray)
 
     Do While havaToConcatArray(i, 1) <> Empty
 
-        havaToConcatArray(i,3) = havaToConcatArray(i,1) & havaToConcatArray(i,2)
+        havaToConcatArray(i, 3) = havaToConcatArray(i, 1) & havaToConcatArray(i, 2)
         i = i + 1
 
     Loop
@@ -90,11 +91,11 @@ End Function
 
 
 
-Sub WriteDownCombo(shearForces, moment, workSheetName)
+Sub WriteDownCombo(shearForces, moment)
 
 ' 寫入Combo
 
-    Worksheets(workSheetName).Activate
+    Worksheets("Combo").Activate
     Column = 6
     Range(Columns(6), Columns(21)).ClearContents
 
@@ -122,7 +123,37 @@ Sub WriteDownCombo(shearForces, moment, workSheetName)
 
 End Sub
 
+Sub WriteDownSummary(shearForces, moment)
 
+' 寫入Combo
+
+    Worksheets("Summary").Activate
+    Column = 6
+    Range(Columns(6), Columns(19)).ClearContents
+
+    Cells(1, Column) = "Shear Forces"
+    Cells(2, Column) = "Story"
+    Cells(2, Column + 1) = "Beam"
+    ' Cells(2, Column + 2) = "Load"
+    Cells(2, Column + 2) = "Left"
+    Cells(2, Column + 3) = "Middle"
+    Cells(2, Column + 4) = "Right"
+
+    Cells(1, Column + 6) = "Moment"
+    Cells(2, Column + 6) = "Story"
+    Cells(2, Column + 7) = "Beam"
+    ' Cells(2, Column + 9) = "Load"
+    Cells(2, Column + 8) = "Left"
+    Cells(2, Column + 9) = "Middle"
+    Cells(2, Column + 10) = "Right"
+    Cells(2, Column + 11) = "Left"
+    Cells(2, Column + 12) = "Middle"
+    Cells(2, Column + 13) = "Right"
+
+    Range(Cells(3, Column), Cells(UBound(shearForces), Column + 4)) = shearForces
+    Range(Cells(3, Column + 6), Cells(UBound(moment), Column + 13)) = moment
+
+End Sub
 
 Function MaxForces(lowerLength, upperLength, length, forces, priorMaxForces)
 
@@ -150,7 +181,7 @@ Function MinForces(lowerLength, upperLength, length, forces, priorMinForces)
 
 End Function
 
-Function OneMoment(moment)
+Function OneMoment(allBeamForces)
 
 ' 取M3
 
@@ -162,11 +193,11 @@ Function OneMoment(moment)
     For allBeamForcesNumber = 2 To momentRowUsed - 1
 
         For LMR = 4 To 6
-            moment(beamShearForcesNumber, LMR) = MaxValue(allBeamForces(allBeamForcesNumber, LMR), moment(beamShearForcesNumber, LMR))
+            moment(momentNumber, LMR) = MaxValue(allBeamForces(allBeamForcesNumber, LMR), moment(momentNumber, LMR))
         Next
 
         For LMR = 7 To 9
-            moment(beamShearForcesNumber, LMR) = MinValue(allBeamForces(allBeamForcesNumber, LMR), moment(beamShearForcesNumber, LMR))
+            moment(momentNumber, LMR) = MinValue(allBeamForces(allBeamForcesNumber, LMR), moment(momentNumber, LMR))
         Next
 
         If BooleanSame(allBeamForces(allBeamForcesNumber, 1), allBeamForces(allBeamForcesNumber, 2), allBeamForces(allBeamForcesNumber + 1, 1), allBeamForces(allBeamForcesNumber + 1, 2)) Then
@@ -229,6 +260,18 @@ Function MaxValue(value, priorMaxValue)
         MaxValue = value
     Else
         MaxValue = priorMaxValue
+    End If
+
+End Function
+
+Function MinValue(value, priorMinValue)
+
+' 取最小值
+
+    If value < priorMinValue Then
+        MinValue = value
+    Else
+        MinValue = priorMinValue
     End If
 
 End Function
