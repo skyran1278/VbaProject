@@ -1,14 +1,16 @@
 <p align="center"><a href="#" target="_blank"><img width="100"src="https://github.com/skyran1278/VbaProject/blob/master/icons/mipmap-xxxhdpi/ic_launcher.png"></a></p>
 
-<p align="center"> 
-  <a href="#"><img src="https://img.shields.io/github/downloads/skyran1278/VbaProject/total.svg" alt="Version"></a>  
-  <a href="#"><img src="https://img.shields.io/github/license/skyran1278/VbaProject.svg" alt="License"></a>  
-  
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/github/downloads/skyran1278/VbaProject/total.svg" alt="Version"></a>
+  <a href="#"><img src="https://img.shields.io/github/license/skyran1278/VbaProject.svg" alt="License"></a>
+
 </p>
 
 ## VbaProject
 
-> 統合VBA專案，相互參照程式碼，加快開發速度。
+> 整理各VBA專案於同一位置，相互參照程式碼，加快開發速度與更新速度。
+>
+> 統合下載平台於單一網頁，優化使用者體驗。
 >
 > 評估是否需要拆分專案中...
 
@@ -36,15 +38,13 @@
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20170503%20BeamForces/Beam%20Forces.xlsm"><img src="https://img.shields.io/badge/download-BeamForces-lightgrey.svg" alt="BeamForces"></a>
 </p>
 
-
-
 ## Changelog
 
 Details changes for each commits are documented in the [commits notes](https://github.com/skyran1278/VbaProject/commits/master).
 
 ## Contributors
 
-[Skyran](https://github.com/skyran1278) 
+[Skyran](https://github.com/skyran1278)
 
 # License
 
