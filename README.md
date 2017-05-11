@@ -40,7 +40,7 @@
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20170330%20TimeSheet%20%E5%B7%A5%E6%99%82%E8%A8%88%E7%AE%97/TimeSheetManageSystem.xlsm"><img src="https://img.shields.io/badge/download-TimeSheet%20%E5%B7%A5%E6%99%82%E8%A8%88%E7%AE%97-yellow.svg" alt="TimeSheet 工時計算"></a>
 </p>
 
-[TimeSheetManageSystem](https://drive.google.com/open?id=0B-_67YpJQsQKR1ZiVTRHUVo1Um8)
+[TimeSheetManageSystem_程式說明](https://drive.google.com/open?id=0B-_67YpJQsQKR1ZiVTRHUVo1Um8)
 
 <p>
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20170413%20ZValue%E6%8E%92%E5%88%97%E7%B5%84%E5%90%88/2017-0406_FISO%20%E5%A4%A7%E6%A2%81Z%E5%80%BC%E7%B5%B1%E8%A8%88.xlsm"><img src="https://img.shields.io/badge/download-ZValue%E6%8E%92%E5%88%97%E7%B5%84%E5%90%88-orange.svg" alt="ZValue排列組合"></a>
