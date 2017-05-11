@@ -8,13 +8,12 @@ Sub Main()
 
 ' * 輸出入格式
 '       輸入：Beam_Forces、Frame_Assignments_Summary
-'       輸出：Combo
+'       輸出：Combo、Summary
 
 ' * 執行時間
-'       1.08 Min
+'       1.18 Min、1.31 Min
 
 ' * 輸出結果的精確度與檢驗方式
-
 
     Time0 = Timer
 
@@ -30,40 +29,14 @@ Sub Main()
 
     Call WriteDownCombo(shearForces, moment)
 
-    ' shearForces = ConcatArray(shearForces)
-    ' moment = ConcatArray(moment)
     shearForces = OneShearForces(shearForces)
     moment = OneMoment(moment)
 
     Call WriteDownSummary(shearForces, moment)
 
-
     MsgBox "Execution Time " & Application.Round((Timer - Time0) / 60, 2) & " Min", vbOKOnly
 
 End Sub
-
-Function ConcatArray(havaToConcatArray)
-
-' 合併第一欄與第二欄陣列
-
-    ' Dim haveConcatArray()
-    ' uBoundhavaToConcatArray = UBound(havaToConcatArray)
-    ' ReDim haveSplitArray(2 To uBoundhavaToConcatArray,)
-
-    i = 2
-
-    Do While havaToConcatArray(i, 1) <> Empty
-
-        havaToConcatArray(i, 3) = havaToConcatArray(i, 1) & havaToConcatArray(i, 2)
-        i = i + 1
-
-    Loop
-
-    ' ReDim preserve haveSplitArray(2 To uBoundhavaToConcatArray, 3 to 9)
-
-    ConcatArray = havaToConcatArray
-
-End Function
 
 Function SplitArray(havaToSplitArray)
 
@@ -88,8 +61,6 @@ Function SplitArray(havaToSplitArray)
     SplitArray = havaToSplitArray
 
 End Function
-
-
 
 Sub WriteDownCombo(shearForces, moment)
 
@@ -134,7 +105,6 @@ Sub WriteDownSummary(shearForces, moment)
     Cells(1, Column) = "Shear Forces"
     Cells(2, Column) = "Story"
     Cells(2, Column + 1) = "Beam"
-    ' Cells(2, Column + 2) = "Load"
     Cells(2, Column + 2) = "Left"
     Cells(2, Column + 3) = "Middle"
     Cells(2, Column + 4) = "Right"
@@ -142,7 +112,6 @@ Sub WriteDownSummary(shearForces, moment)
     Cells(1, Column + 6) = "Moment"
     Cells(2, Column + 6) = "Story"
     Cells(2, Column + 7) = "Beam"
-    ' Cells(2, Column + 9) = "Load"
     Cells(2, Column + 8) = "Left"
     Cells(2, Column + 9) = "Middle"
     Cells(2, Column + 10) = "Right"
@@ -159,22 +128,24 @@ Function MaxForces(lowerLength, upperLength, length, forces, priorMaxForces)
 
 ' 取最大值
 
-    If length > lowerLength And length < upperLength And forces > priorMaxForces Then
+    If length >= lowerLength And length <= upperLength And forces > priorMaxForces Then
         MaxForces = forces
+    ElseIf length >= lowerLength And length <= upperLength And priorMaxForces = Empty Then
+        MaxForces = 0
     Else
         MaxForces = priorMaxForces
     End If
 
 End Function
 
-
-
 Function MinForces(lowerLength, upperLength, length, forces, priorMinForces)
 
 ' 取最小值
 
-    If length > lowerLength And length < upperLength And forces < priorMinForces Then
+    If length >= lowerLength And length <= upperLength And forces < priorMinForces Then
         MinForces = forces
+    ElseIf length >= lowerLength And length <= upperLength And priorMinForces = Empty Then
+        MinForces = 0
     Else
         MinForces = priorMinForces
     End If
@@ -183,7 +154,7 @@ End Function
 
 Function OneMoment(allBeamForces)
 
-' 取M3
+' 多個載重組合取一個M3
 
     momentNumber = 2
     Dim moment()
@@ -200,7 +171,7 @@ Function OneMoment(allBeamForces)
             moment(momentNumber, LMR) = MinValue(allBeamForces(allBeamForcesNumber, LMR), moment(momentNumber, LMR))
         Next
 
-        If BooleanSame(allBeamForces(allBeamForcesNumber, 1), allBeamForces(allBeamForcesNumber, 2), allBeamForces(allBeamForcesNumber + 1, 1), allBeamForces(allBeamForcesNumber + 1, 2)) Then
+        If SameName(allBeamForces(allBeamForcesNumber, 1), allBeamForces(allBeamForcesNumber, 2), allBeamForces(allBeamForcesNumber + 1, 1), allBeamForces(allBeamForcesNumber + 1, 2)) Then
             moment(momentNumber, 2) = allBeamForces(allBeamForcesNumber, 1)
             moment(momentNumber, 3) = allBeamForces(allBeamForcesNumber, 2)
             momentNumber = momentNumber + 1
@@ -213,7 +184,7 @@ End Function
 
 Function CatchMoment(allBeamForces)
 
-' 取M3
+' 所有數值中取M3
 
     momentNumber = 2
     Dim moment()
@@ -239,25 +210,14 @@ Function CatchMoment(allBeamForces)
 
 End Function
 
-' Function MaxValue(shearForces, beamShearForcesNumber, allBeamForces, allBeamForcesNumber)
-
-' ' 取最大值
-
-
-'     If allBeamForces(allBeamForcesNumber, LMR) > shearForces(beamShearForcesNumber, LMR) Then
-'         shearForces(beamShearForcesNumber, LMR) = allBeamForces(allBeamForcesNumber, LMR)
-'     End If
-
-'     MaxValue = shearForces()
-
-' End Function
-
 Function MaxValue(value, priorMaxValue)
 
 ' 取最大值
 
     If value > priorMaxValue Then
         MaxValue = value
+    ElseIf priorMaxValue = Empty Then
+        MaxValue = 0
     Else
         MaxValue = priorMaxValue
     End If
@@ -270,23 +230,25 @@ Function MinValue(value, priorMinValue)
 
     If value < priorMinValue Then
         MinValue = value
+    ElseIf priorMinValue = Empty Then
+        MinValue = 0
     Else
         MinValue = priorMinValue
     End If
 
 End Function
 
-Function BooleanSame(allBeamForces01, allBeamForces02, allBeamForces11, allBeamForces12)
+Function SameName(allBeamForces01, allBeamForces02, allBeamForces11, allBeamForces12)
 
 ' 判斷一二欄合起來是否相同
 
-    BooleanSame = allBeamForces01 & allBeamForces02 <> allBeamForces11 & allBeamForces12
+    SameName = allBeamForces01 & allBeamForces02 <> allBeamForces11 & allBeamForces12
 
 End Function
 
 Function OneShearForces(allBeamForces)
 
-' 多個載重組合取一個
+' 多個載重組合取一個V2
 
     beamShearForcesNumber = 2
     Dim shearForces()
@@ -299,7 +261,7 @@ Function OneShearForces(allBeamForces)
             shearForces(beamShearForcesNumber, LMR) = MaxValue(allBeamForces(allBeamForcesNumber, LMR), shearForces(beamShearForcesNumber, LMR))
         Next
 
-        If BooleanSame(allBeamForces(allBeamForcesNumber, 1), allBeamForces(allBeamForcesNumber, 2), allBeamForces(allBeamForcesNumber + 1, 1), allBeamForces(allBeamForcesNumber + 1, 2)) Then
+        If SameName(allBeamForces(allBeamForcesNumber, 1), allBeamForces(allBeamForcesNumber, 2), allBeamForces(allBeamForcesNumber + 1, 1), allBeamForces(allBeamForcesNumber + 1, 2)) Then
             shearForces(beamShearForcesNumber, 2) = allBeamForces(allBeamForcesNumber, 1)
             shearForces(beamShearForcesNumber, 3) = allBeamForces(allBeamForcesNumber, 2)
             beamShearForcesNumber = beamShearForcesNumber + 1
@@ -312,7 +274,7 @@ End Function
 
 Function CatchShearForces(allBeamForces)
 
-' 取V2
+' 從所有數值中取V2
 
     beamShearForcesNumber = 2
     Dim shearForces()
@@ -360,14 +322,8 @@ Function CatchBeamForces(length)
 
     For i = 2 To beamForcesRowUsed
 
-            ' "1FB1"
-            ' allBeamForces(i, 1) = Cells(i, 1) & Cells(i, 2)
-
             ' "1FB1DL"
             allBeamForces(i, 1) = Cells(i, 1) & "," & Cells(i, 2) & "," & Cells(i, 3)
-
-            ' Absolute Loc
-            ' allBeamForces(i, 3) = Cells(i, 4)
 
             ' Percentage Loc
             ' Debug.Print Application.VLookup(allBeamForces(i, 1), length, 2, False)
@@ -406,5 +362,6 @@ Function CatchBeamLength()
 
     CatchBeamLength = length()
 
-
 End Function
+
+
