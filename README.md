@@ -19,6 +19,8 @@
 <p>
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20160731%2002_1%20SOPVBA/02_1%20SOPVBA.xlsm"><img src="https://img.shields.io/badge/download-02__1%20SOPVBA-brightgreen.svg" alt="02_1 SOPVBA"></a>
 </p>
+[02_1 SOPVBA 簡介](https://drive.google.com/file/d/0B-_67YpJQsQKbk5tYWJMUVVSUXc/view?usp=sharing)
+[02_1 SOPVBA 程式碼運作邏輯](https://drive.google.com/file/d/0B-_67YpJQsQKb0pXT3dpd0ZmNzg/view?usp=sharing)
 <p>
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20161101%20%E7%B5%84%E5%B0%BC%E8%A8%AD%E8%A8%88%E4%BD%8D%E7%A7%BB/%E9%9A%94%E9%9C%87%E5%BB%BA%E7%AF%89%E7%89%A9%E9%9D%9C%E5%8A%9B%E5%88%86%E6%9E%90.xlsm"><img src="https://img.shields.io/badge/download-%E7%B5%84%E5%B0%BC%E8%A8%AD%E8%A8%88%E4%BD%8D%E7%A7%BB-green.svg" alt="組尼設計位移"></a>
 </p>
