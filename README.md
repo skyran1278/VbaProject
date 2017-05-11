@@ -20,7 +20,7 @@
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20160731%2002_1%20SOPVBA/02_1%20SOPVBA.xlsm"><img src="https://img.shields.io/badge/download-02__1%20SOPVBA-brightgreen.svg" alt="02_1 SOPVBA"></a>
 </p>
 
-[02_1 SOPVBA 簡介](https://drive.google.com/uc?export=download&confirm=V9Am&id=0B-_67YpJQsQKbk5tYWJMUVVSUXc) | [02_1 SOPVBA 程式碼運作邏輯](https://drive.google.com/uc?export=download&confirm=Nf8_&id=0B-_67YpJQsQKb0pXT3dpd0ZmNzg)
+[02_1 SOPVBA 簡介](https://drive.google.com/uc?export=download&confirm=Yl2t&id=0B-_67YpJQsQKbk5tYWJMUVVSUXc) | [02_1 SOPVBA 程式碼運作邏輯](https://drive.google.com/uc?export=download&confirm=Nf8_&id=0B-_67YpJQsQKb0pXT3dpd0ZmNzg)
 
 <br>
 <p>
@@ -43,7 +43,7 @@
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20170330%20TimeSheet%20%E5%B7%A5%E6%99%82%E8%A8%88%E7%AE%97/TimeSheetManageSystem.xlsm"><img src="https://img.shields.io/badge/download-TimeSheet%20%E5%B7%A5%E6%99%82%E8%A8%88%E7%AE%97-yellow.svg" alt="TimeSheet 工時計算"></a>
 </p>
 
-[TimeSheetManageSystem](https://drive.google.com/uc?export=download&confirm=XVcd&id=0B-_67YpJQsQKR1ZiVTRHUVo1Um8)
+[TimeSheetManageSystem](https://drive.google.com/open?id=0B-_67YpJQsQKR1ZiVTRHUVo1Um8)
 
 <br>
 <p>
