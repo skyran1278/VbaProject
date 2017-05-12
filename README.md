@@ -31,11 +31,9 @@
 <p>
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20170413%20ZValue%E6%8E%92%E5%88%97%E7%B5%84%E5%90%88/2017-0406_FISO%20%E5%A4%A7%E6%A2%81Z%E5%80%BC%E7%B5%B1%E8%A8%88.xlsm"><img src="https://img.shields.io/badge/download-ZValue%E6%8E%92%E5%88%97%E7%B5%84%E5%90%88-orange.svg" alt="ZValue排列組合"></a>
 </p>
-<br>
 <p>
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20170421%20SRCSlector/20170419%20SRCSlection.xlsm"><img src="https://img.shields.io/badge/download-SRCSlector-red.svg" alt="SRCSlector"></a>
 </p>
-<br>
 <p>
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20170503%20BeamForces/Beam%20Forces.xlsm"><img src="https://img.shields.io/badge/download-BeamForces-lightgrey.svg" alt="BeamForces"></a>
 </p>
