@@ -51,10 +51,10 @@ Sub Timesheet()
             Employee = Cells(EmployeeRowNumber, 5)
 
             '結合Time和人名
-            TimeAndEmployee = Cells(TimeRowNumber, 4) & " " & Employee
+            TimeAndEmployee = Cells(TimeRowNumber, 4) & " " & Employee & ".xlsx"
 
             '綜合以上得到檔案名稱
-            DateAndEmployeePath = XlPath & "\" & Cells(TimeRowNumber, 4) & "\" & TimeAndEmployee & ".xlsx"
+            DateAndEmployeePath = XlPath & "\" & Cells(TimeRowNumber, 4) & "\" & TimeAndEmployee
 
             '檢驗檔名是否存在 不存在的話就下一個人
             If Not (Fs.FileExists(DateAndEmployeePath)) Then GoTo NextEmployee
@@ -138,7 +138,7 @@ NextEmployee:
     Application.CutCopyMode = False
 
     '關掉業績總表
-    Workbooks("ELEMENTs 業績總表").Close SaveChanges:=False
+    Workbooks("ELEMENTs 業績總表.xlsx").Close SaveChanges:=False
 
     '讀取第2欄時間之列數
     ProjectListRowUsed = Cells(Rows.Count, 2).End(xlUp).Row
