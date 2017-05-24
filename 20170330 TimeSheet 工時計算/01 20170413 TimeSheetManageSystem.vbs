@@ -1,3 +1,6 @@
+Dim WbManage As Workbook
+
+
 Sub Timesheet()
 
     '計時
@@ -10,16 +13,12 @@ Sub Timesheet()
     Dim Value(100000, 4) As String
     Dim HrType(3) As String
 
-    Dim WbManage As Workbook
-    Set WbManage = Workbooks("TimeSheetManageSystem")
-
-    Dim WsEmployee As Worksheet
-    Set WsEmployee = Worksheets("DateAndEmployee")
+    Set WbManage = Workbooks("TimeSheetManageSystem.xlsm")
 
     Call DeletePriorData
 
     '激活DateAndEmployee
-    Workbooks("TimeSheetManageSystem").Worksheets("DateAndEmployee").Activate
+    WbManage.Worksheets("DateAndEmployee").Activate
 
     '由於CurDir()會發生問題，所以由儲存格讀取路徑
     XlPath = Cells(6, 3)
@@ -37,7 +36,7 @@ Sub Timesheet()
     For TimeRowNumber = 6 To TimeRowUsed
 
         '激活DateAndEmployee，避免出現Bug
-        Workbooks("TimeSheetManageSystem").Worksheets("DateAndEmployee").Activate
+        WbManage.Worksheets("DateAndEmployee").Activate
 
         '讀取第5欄時間之列數
         EmployeeRowUsed = Cells(Rows.Count, 5).End(xlUp).Row
@@ -46,7 +45,7 @@ Sub Timesheet()
         For EmployeeRowNumber = 6 To EmployeeRowUsed
 
             '激活DateAndEmployee，避免出現Bug
-            Workbooks("TimeSheetManageSystem").Worksheets("DateAndEmployee").Activate
+            WbManage.Worksheets("DateAndEmployee").Activate
 
             '讀取人名
             Employee = Cells(EmployeeRowNumber, 5)
@@ -123,8 +122,23 @@ NextEmployee:
     HrType(1) = "Overtime"
     HrType(2) = "Overtime-H"
 
+    ' 更新業績總表
+    Workbooks.Open Filename:="K:\110_Time Sheet\ELEMENTs 業績總表.xlsx", UpdateLinks:=0
+
+    Worksheets("Project").Activate
+
+    Cells.Copy
+
     '激活ProjectList
     WbManage.Worksheets("ProjectList").Activate
+
+    Cells.PasteSpecial Paste:=xlPasteAllUsingSourceTheme, Operation:=xlNone _
+        , SkipBlanks:=False, Transpose:=False
+
+    Application.CutCopyMode = False
+
+    '關掉業績總表
+    Workbooks("ELEMENTs 業績總表").Close SaveChanges:=False
 
     '讀取第2欄時間之列數
     ProjectListRowUsed = Cells(Rows.Count, 2).End(xlUp).Row
@@ -145,6 +159,7 @@ NextEmployee:
             Value(ValueRowNumber, 2) = HrType(HrTypeNumber)
         Next
     Next
+
     '------------------------------------------------
 
     Call DeleteDash(Value)
@@ -163,6 +178,13 @@ NextEmployee:
             Cells(PasteRowNumber + 6, PasteColumnNumber + 3) = Value(PasteRowNumber, PasteColumnNumber)
         Next
     Next
+
+    ' -------------------------------------------------
+    ' 產生分析圖表
+
+    Call Record
+
+    ' --------------------------------------------------
 
     'Application.ScreenUpdating = True
 
@@ -186,10 +208,10 @@ Function DeletePriorData()
 
 ' 刪除之前的資料
 
-    Workbooks("TimeSheetManageSystem").Worksheets("DateAndEmployee").Activate
+    WbManage.Worksheets("DateAndEmployee").Activate
     Columns(11).ClearContents
     Cells(5, 11) = "Success Read Excel"
-    Workbooks("TimeSheetManageSystem").Worksheets("Database").Activate
+    WbManage.Worksheets("Database").Activate
     Range(Columns(3), Columns(7)).ClearContents
     Cells(5, 3) = "Employee"
     Cells(5, 4) = "Project"
@@ -201,9 +223,8 @@ End Function
 
 Sub Record()
 '
-' 巨集3 巨集
 '
-
+'
 '
     Worksheets("ProjectRecord").Activate
     Worksheets("ProjectRecord").Cells.Delete
@@ -223,9 +244,5 @@ Sub Record()
 
     End With
 End Sub
-
-
-
-
 
 
