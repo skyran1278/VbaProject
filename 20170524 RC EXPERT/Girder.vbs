@@ -1,6 +1,6 @@
-Dim GIRDER_WARNING_MESSAGE, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA
+Dim GIRDER_WARNING_MESSAGE, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, DATA_ROW_USED, DATA_ROW_START
 
-' data 資料命名
+' RAW_DATA 資料命名
 Const STORY = 1
 Const NUMBER = 2
 Const BW = 3
@@ -13,36 +13,30 @@ Const SIDE_REBAR = 9
 Const STIRRUP_LEFT = 10
 Const STIRRUP_MIDDLE = 11
 Const STIRRUP_RIGHT = 12
-Const BEAM_LONG = 13
+Const BEAM_LENGTH = 13
 Const SUPPORT = 14
 Const LOCATION = 15
 
-Sub Girder()
-'
-'
-'
-'
-    GIRDER_WARNING_MESSAGE = 7
-    GENERAL_INFORMATION = ReadGeneralInformation()
-    REBAR_SIZE = ReadRebarSize()
-    RAW_DATA = ReadData()
-    willBeModifyData = ReadData()
+' GENERAL_INFORMATION 資料命名
+Const FY = 2
+Const FYT = 3
+Const FC = 4
+Const SDL = 5
+Const LL = 6
+Const SPAN_X = 7
+Const SPAN_Y = 8
 
-    Call Initialize
-    Call AllRebar
-    Call AboutRatioNorm(willBeModifyData)
+' REBAR_SIZE 資料命名
+Const DIAMETER = 7
+Const CROSS_AREA = 10
 
 
+Function GetGeneralInformation()
 
-End Sub
-
-Function ReadGeneralInformation()
-'
-'
     Worksheets("General Information").Activate
     Dim arr()
     rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
-    columnUsed = 7
+    columnUsed = 8
     ReDim arr(1 To rowUsed, 1 To columnUsed)
 
     For i = 1 To rowUsed
@@ -51,13 +45,12 @@ Function ReadGeneralInformation()
         Next
     Next
 
-    ReadGeneralInformation = arr()
+    GetGeneralInformation = arr()
 
 End Function
 
-Function ReadRebarSize()
-'
-'
+Function GetRebarSize()
+
     Worksheets("Rebar Size").Activate
     Dim arr()
     rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
@@ -70,13 +63,12 @@ Function ReadRebarSize()
         Next
     Next
 
-    ReadRebarSize = arr()
+    GetRebarSize = arr()
 
 End Function
 
-Function ReadData()
-'
-'
+Function GetData()
+
     Worksheets("大梁配筋").Activate
     Dim arr()
     rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
@@ -89,7 +81,7 @@ Function ReadData()
         Next
     Next
 
-    ReadData = arr()
+    GetData = arr()
 
 End Function
 
@@ -102,79 +94,12 @@ Function Initialize()
 
 End Function
 
-Function AllRebar()
-'
-'
-    Worksheets("Expert Check").Activate
-    dataRowUsed = UBound(RAW_DATA)
-    dataRowStart = 3
 
-    For i = dataRowStart To dataRowUsed
-
-        Call rename1(i)
-        Call rename2(i)
-
-
-    Next
-
-End Function
-
-Function rename1(i)
-
-    For k = REBAR_LEFT To REBAR_RIGHT
-
-        j = 4 * Fix((i - 3) / 4) + 3
-
-        tmp = Split(RAW_DATA(i, k), "-")
-
-        If tmp(0) <> "" And tmp(0) < 2 Then
-            Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(j, STORY) & " " & RAW_DATA(j, NUMBER) & " 請確認是否符合 單排支數下限 規定"
-            GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
-        End If
-
-    Next
-
-End Function
-
-Function rename2(i)
-
-    For k = REBAR_LEFT To REBAR_RIGHT
-
-        j = 4 * Fix((i - 3) / 4) + 3
-
-        rebar = Split(RAW_DATA(i, k), "-")
-
-        stirrup = Split(RAW_DATA(j, k + 4), "@")
-
-        If rebar(0) <> "" Then
-
-            Db = Application.VLookup(rebar(1), REBAR_SIZE, 7, False)
-            tie = Application.VLookup(stirrup(0), REBAR_SIZE, 7, False)
-
-            Max = Fix((RAW_DATA(j, BW) - 4 * 2 - tie * 2 - Db) / (2 * Db)) + 1
-
-            If CInt(rebar(0)) > Max Then
-                Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(j, STORY) & " " & RAW_DATA(j, NUMBER) & " 請確認是否符合 單排支數上限 規定"
-                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
-            End If
-
-        End If
-
-    Next
-
-End Function
-
-' Fix((data(i, BW) - 4 * 2 - TieDiameter * 2 - Db) / (2 * Db)) + 1
 
 Function AboutRatioNorm(data)
-'
-'
-    Worksheets("Expert Check").Activate
-    dataRowUsed = UBound(data)
-    dataRowStart = 3
 
     ' 計算鋼筋面積
-    For i = dataRowStart To dataRowUsed
+    For i = DATA_ROW_START To DATA_ROW_END
 
         data(i, REBAR_LEFT) = CalRebarArea(data(i, REBAR_LEFT))
         data(i, REBAR_MIDDLE) = CalRebarArea(data(i, REBAR_MIDDLE))
@@ -183,7 +108,7 @@ Function AboutRatioNorm(data)
     Next
 
     ' 一二排截面積相加
-    For i = dataRowStart To dataRowUsed Step 2
+    For i = DATA_ROW_START To DATA_ROW_END Step 2
 
         data(i, REBAR_LEFT) = data(i, REBAR_LEFT) + data(i + 1, REBAR_LEFT)
         data(i, REBAR_MIDDLE) = data(i, REBAR_MIDDLE) + data(i + 1, REBAR_MIDDLE)
@@ -192,7 +117,7 @@ Function AboutRatioNorm(data)
     Next
 
     ' 列出警告
-    For i = dataRowStart To dataRowUsed Step 4
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
 
         ' 計算有效深度
         data(i, D) = data(i, H) - (4 + 1.27 + 2.54 / 2)
@@ -200,7 +125,7 @@ Function AboutRatioNorm(data)
         Call Norm3_6(data, i)
         Call Norm15_4_2_1(data, i)
         Call Norm15_4_2_2(data, i)
-        Call NormRelative(data, i)
+        Call NormMiddleNoMoreThanEndEightyPercentage(data, i)
 
     Next
 
@@ -213,7 +138,7 @@ Function CalRebarArea(data)
     If tmp(1) <> "" Then
 
         ' 轉換鋼筋尺寸為截面積
-        tmp(1) = Application.VLookup(tmp(1), REBAR_SIZE, 10, False)
+        tmp(1) = Application.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
 
         CalRebarArea = tmp(0) * tmp(1)
     Else
@@ -226,8 +151,8 @@ Function Norm3_6(data, i)
 '
 ' RC規範 3-3, 3-4 不低於14/fy
 
-    code3_3 = 0.8 * Sqr(Application.VLookup(data(i, STORY), GENERAL_INFORMATION, 3, False)) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, 2, False) * data(i, BW) * data(i, D)
-    code3_4 = 14 / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, 2, False) * data(i, BW) * data(i, D)
+    code3_3 = 0.8 * Sqr(Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FC, False)) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FY, False) * data(i, BW) * data(i, D)
+    code3_4 = 14 / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FY, False) * data(i, BW) * data(i, D)
 
     ' 請確認是否符合 左端上層筋下限 規定
     If data(i, REBAR_LEFT) < code3_3 Or data(i, REBAR_LEFT) < code3_4 Then
@@ -264,7 +189,7 @@ Function Norm15_4_2_1(data, i)
 '
 ' RC規範 15.4.2.1 不高於2.2 %
 
-    code15_4_2_1 = Application.Min((Application.VLookup(data(i, STORY), GENERAL_INFORMATION, 3, False) + 100) / (4 * Application.VLookup(data(i, STORY), GENERAL_INFORMATION, 2, False)) * data(i, BW) * data(i, D), 0.025 * data(i, BW) * data(i, D))
+    code15_4_2_1 = Application.Min((Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FC, False) + 100) / (4 * Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FY, False)) * data(i, BW) * data(i, D), 0.025 * data(i, BW) * data(i, D))
 
     If data(i, REBAR_LEFT) > code15_4_2_1 And data(i, STORY) <> "1F" Then
         Cells(GIRDER_WARNING_MESSAGE, 3) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端上層筋上限 規定"
@@ -308,7 +233,7 @@ Function Norm15_4_2_2(data, i)
 
 End Function
 
-Function NormRelative(data, i)
+Function NormMiddleNoMoreThanEndEightyPercentage(data, i)
 '
 ' 經濟性指標 不多於端部小值80%
 
@@ -322,3 +247,139 @@ Function NormRelative(data, i)
 End Function
 
 
+
+Function Norm13_5_1AndRebarAmountNoBelowTwo()
+
+    For i = DATA_ROW_START To DATA_ROW_END
+
+        For j = REBAR_LEFT To REBAR_RIGHT
+
+            k = 4 * Fix((i - 3) / 4) + 3
+
+            rebar = Split(RAW_DATA(i, j), "-")
+
+            stirrup = Split(RAW_DATA(k, j + 4), "@")
+
+            If rebar(0) = "1" Then
+
+                ' 排除掉1支的狀況，避免除以0
+                ' 不少於2支
+                Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(k, STORY) & " " & RAW_DATA(k, NUMBER) & " 請確認是否符合 單排支數下限 規定"
+                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+
+            ElseIf rebar(0) <> "" Then
+
+                Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
+                tie = Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+
+                ' 第一種方法
+                ' Max = Fix((RAW_DATA(k, BW) - 4 * 2 - tie * 2 - db) / (2 * db)) + 1
+                ' CInt(rebar(0)) > Max
+                ' 第二種方法
+                ' spacing = (RAW_DATA(k, BW) - 4 * 2 - tie * 2 - db) / (CInt(rebar(0)) - 1) - db
+                ' 可以不需要型別轉換
+                ' Spacing = (RAW_DATA(k, BW) - 4 * 2 - tie * 2 - CInt(rebar(0)) * Db) / (CInt(rebar(0)) - 1)
+                Spacing = (RAW_DATA(k, BW) - 4 * 2 - tie * 2 - rebar(0) * Db) / (rebar(0) - 1)
+
+                ' Norm13_5_1
+                ' 淨距不少於1db
+                If Spacing < Db Or Spacing < 2.5 Then
+                    Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(k, STORY) & " " & RAW_DATA(k, NUMBER) & " 請確認是否符合 單排支數上限 規定"
+                    GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+                End If
+
+            End If
+
+        Next
+    Next
+
+End Function
+
+Function StirrupSpacingMoreThan10AndLessThan30()
+
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+        For j = STIRRUP_LEFT To STIRRUP_RIGHT
+
+            stirrup = Split(RAW_DATA(i, j), "@")
+
+            If stirrup(1) < 10 Then
+                Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距下限 規定"
+                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+            ElseIf stirrup(1) > 30 Then
+                Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距上限 規定"
+                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+            End If
+
+        Next
+
+    Next
+
+End Function
+
+' TODO: 剪力鋼筋量 最大 Vs <=4Vc *120%
+Function Norm4_6_6_3()
+'
+' 剪力鋼筋量 最小 3.52/fy
+
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+        For j = STIRRUP_LEFT To STIRRUP_RIGHT
+
+            stirrup = Split(RAW_DATA(i, j), "@")
+
+            avMin = Application.Max(0.2 * Sqr(Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FC, False)) * data(i, BW) * stirrup(1) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False), 3.5 * data(i, BW) * stirrup(1) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False))
+            av = Application.VLookup(stirrup(0), REBAR_SIZE, CROSS_AREA, False) * 2
+
+
+            If av < avMin Then
+                Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 剪力鋼筋量下限 規定"
+                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+            ElseIf stirrup(1) > 30 Then
+                Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距上限 規定"
+                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+            End If
+
+        Next
+
+    Next
+
+End Function
+
+' TODO: rename
+Function ShortBeam()
+
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+        RAW_DATA(i, BEAM_LENGTH) - RAW_DATA(i, SUPPORT) /
+
+
+
+    Next
+End Function
+
+' -------------------------------------------------------------------------
+
+Sub Girder()
+'
+' Main
+'
+'
+    GIRDER_WARNING_MESSAGE = 7
+    GENERAL_INFORMATION = GetGeneralInformation()
+    REBAR_SIZE = GetRebarSize()
+    RAW_DATA = GetData()
+    willBeModifyToRatioData = GetData()
+
+    Worksheets("Expert Check").Activate
+    DATA_ROW_START = 3
+    DATA_ROW_END = UBound(RAW_DATA)
+
+    Call Initialize
+    Call AboutRatioNorm(willBeModifyToRatioData)
+    Call Norm13_5_1AndRebarAmountNoBelowTwo
+    Call StirrupSpacingMoreThan10AndLessThan30
+
+
+
+End Sub
