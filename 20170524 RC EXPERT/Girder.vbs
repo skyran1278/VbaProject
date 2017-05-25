@@ -120,6 +120,7 @@ Function AboutRatioNorm(data)
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
         ' 計算有效深度
+        ' TODO: modify D
         data(i, D) = data(i, H) - (4 + 1.27 + 2.54 / 2)
 
         Call Norm3_6(data, i)
@@ -269,7 +270,7 @@ Function Norm13_5_1AndRebarAmountNoBelowTwo()
 
             ElseIf rebar(0) <> "" Then
 
-                Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
+                db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
                 tie = Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
 
                 ' 第一種方法
@@ -278,12 +279,12 @@ Function Norm13_5_1AndRebarAmountNoBelowTwo()
                 ' 第二種方法
                 ' spacing = (RAW_DATA(k, BW) - 4 * 2 - tie * 2 - db) / (CInt(rebar(0)) - 1) - db
                 ' 可以不需要型別轉換
-                ' Spacing = (RAW_DATA(k, BW) - 4 * 2 - tie * 2 - CInt(rebar(0)) * Db) / (CInt(rebar(0)) - 1)
-                Spacing = (RAW_DATA(k, BW) - 4 * 2 - tie * 2 - rebar(0) * Db) / (rebar(0) - 1)
+                ' Spacing = (RAW_DATA(k, BW) - 4 * 2 - tie * 2 - CInt(rebar(0)) * db) / (CInt(rebar(0)) - 1)
+                Spacing = (RAW_DATA(k, BW) - 4 * 2 - tie * 2 - rebar(0) * db) / (rebar(0) - 1)
 
                 ' Norm13_5_1
                 ' 淨距不少於1db
-                If Spacing < Db Or Spacing < 2.5 Then
+                If Spacing < db Or Spacing < 2.5 Then
                     Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(k, STORY) & " " & RAW_DATA(k, NUMBER) & " 請確認是否符合 單排支數上限 規定"
                     GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
                 End If
@@ -317,7 +318,7 @@ Function StirrupSpacingMoreThan10AndLessThan30()
 
 End Function
 
-' TODO: 剪力鋼筋量 最大 Vs <=4Vc *120%
+
 Function Norm4_6_6_3()
 '
 ' 剪力鋼筋量 最小 3.52/fy
@@ -335,8 +336,30 @@ Function Norm4_6_6_3()
             If av < avMin Then
                 Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 剪力鋼筋量下限 規定"
                 GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
-            ElseIf stirrup(1) > 30 Then
-                Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距上限 規定"
+            End If
+
+        Next
+
+    Next
+
+End Function
+
+Function Norm4_6_7_9()
+
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+        For j = STIRRUP_LEFT To STIRRUP_RIGHT
+
+            stirrup = Split(RAW_DATA(i, j), "@")
+
+            vc = 0.53 * Sqr(Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FC, False)) * data(i, BW) *
+
+            avMin = Application.Max(0.2 * Sqr(Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FC, False)) * data(i, BW) * stirrup(1) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False), 3.5 * data(i, BW) * stirrup(1) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False))
+            av = Application.VLookup(stirrup(0), REBAR_SIZE, CROSS_AREA, False) * 2
+
+
+            If av < avMin Then
+                Cells(GIRDER_WARNING_MESSAGE, 3) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 剪力鋼筋量下限 規定"
                 GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
             End If
 
