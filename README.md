@@ -37,6 +37,9 @@
 <p>
   <a href="https://github.com/skyran1278/VbaProject/raw/master/20170503%20BeamForces/Beam%20Forces.xlsm"><img src="https://img.shields.io/badge/download-BeamForces-lightgrey.svg" alt="BeamForces"></a>
 </p>
+<p>
+  <a href="https://github.com/skyran1278/VbaProject/raw/master/20170524%20RC%20EXPERT/RC%20EXPERT.xlsm"><img src="https://img.shields.io/badge/download-RC%20EXPERT-blue.svg" alt="BeamForces"></a>
+</p>
 
 ## Changelog
 
