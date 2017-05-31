@@ -238,11 +238,9 @@ Sub Record()
         .PivotFields("HrType").Orientation = xlRowField
         .PivotFields("Employee").Orientation = xlColumnField
         .PivotFields("Worktime").Orientation = xlDataField
+        .PivotFields("計數 - Worktime").Function = xlSum
         .PivotFields("Project").Subtotals = _
         Array(False, False, False, False, False, False, False, False, False, False, False, False)
         .TableStyle2 = "PivotStyleLight9"
-
     End With
 End Sub
-
-
