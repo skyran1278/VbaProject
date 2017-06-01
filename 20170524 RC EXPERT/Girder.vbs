@@ -1,4 +1,4 @@
-Dim GIRDER_WARNING_MESSAGE, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, DATA_ROW_END, DATA_ROW_START
+Dim WARNING_MESSAGE, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, DATA_ROW_END, DATA_ROW_START, OK_MESSAGE()
 
 ' Message position
 Const WARNING_MESSAGE_POSITION = 6
@@ -160,31 +160,31 @@ Function Norm3_6(data, i)
 
     ' 請確認是否符合 左端上層筋下限 規定
     If data(i, REBAR_LEFT) < code3_3 Or data(i, REBAR_LEFT) < code3_4 Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端上層筋下限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端上層筋下限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     ' 請確認是否符合 右端上層筋下限 規定
     If data(i, REBAR_RIGHT) < code3_3 Or data(i, REBAR_RIGHT) < code3_4 Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端上層筋下限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端上層筋下限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     ' 請確認是否符合 左端下層筋下限 規定
     If data(i + 2, REBAR_LEFT) < code3_3 Or data(i + 2, REBAR_LEFT) < code3_4 Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端下層筋下限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端下層筋下限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     ' 請確認是否符合 右端下層筋下限 規定
     If data(i + 2, REBAR_RIGHT) < code3_3 Or data(i + 2, REBAR_RIGHT) < code3_4 Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端下層筋下限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端下層筋下限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i, REBAR_MIDDLE) < code3_3 Or data(i, REBAR_MIDDLE) < code3_4 Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 中央上層筋下限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 中央上層筋下限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
 End Function
@@ -196,28 +196,28 @@ Function Norm15_4_2_1(data, i)
     code15_4_2_1 = Application.Min((Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FC, False) + 100) / (4 * Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FY, False)) * data(i, BW) * data(i, D), 0.025 * data(i, BW) * data(i, D))
 
     If data(i, REBAR_LEFT) > code15_4_2_1 And data(i, STORY) <> "1F" Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端上層筋上限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端上層筋上限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i, REBAR_RIGHT) > code15_4_2_1 And data(i, STORY) <> "1F" Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端上層筋上限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端上層筋上限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i + 2, REBAR_LEFT) > code15_4_2_1 And data(i, STORY) <> "1F" Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端下層筋上限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端下層筋上限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i + 2, REBAR_RIGHT) > code15_4_2_1 And data(i, STORY) <> "1F" Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端下層筋上限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端下層筋上限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i + 2, REBAR_MIDDLE) > code15_4_2_1 And data(i, STORY) <> "1F" Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 中央下層筋上限 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 中央下層筋上限 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
 End Function
@@ -231,8 +231,8 @@ Function Norm15_4_2_2(data, i)
     code15_4_2_2 = Min <= Max / 4
 
     If code15_4_2_2 And data(i, STORY) <> "1F" Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 耐震最小量鋼筋 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 耐震最小量鋼筋 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
 End Function
@@ -243,8 +243,8 @@ Function NormMiddleNoMoreThanEndEightyPercentage(data, i)
 
     Min = Application.Min(data(i, REBAR_LEFT), data(i, REBAR_RIGHT))
     If data(i, REBAR_MIDDLE) > Min * 0.8 Then
-        Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 中央上層筋相對鋼筋量 規定"
-        GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+        Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 中央上層筋相對鋼筋量 規定"
+        WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
 End Function
@@ -267,8 +267,8 @@ Function Norm13_5_1AndRebarAmountNoBelowTwo()
 
                 ' 排除掉1支的狀況，避免除以0
                 ' 不少於2支
-                Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(k, STORY) & " " & RAW_DATA(k, NUMBER) & " 請確認是否符合 單排支數下限 規定"
-                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+                Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(k, STORY) & " " & RAW_DATA(k, NUMBER) & " 請確認是否符合 單排支數下限 規定"
+                WARNING_MESSAGE = WARNING_MESSAGE + 1
 
             ElseIf rebar(0) <> "" Then
 
@@ -287,8 +287,8 @@ Function Norm13_5_1AndRebarAmountNoBelowTwo()
                 ' Norm13_5_1
                 ' 淨距不少於1Db
                 If Spacing < Db Or Spacing < 2.5 Then
-                    Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(k, STORY) & " " & RAW_DATA(k, NUMBER) & " 請確認是否符合 單排支數上限 規定"
-                    GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+                    Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(k, STORY) & " " & RAW_DATA(k, NUMBER) & " 請確認是否符合 單排支數上限 規定"
+                    WARNING_MESSAGE = WARNING_MESSAGE + 1
                 End If
 
             End If
@@ -307,11 +307,11 @@ Function StirrupSpacingMoreThan10AndLessThan30()
             stirrup = Split(RAW_DATA(i, j), "@")
 
             If stirrup(1) < 10 Then
-                Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距下限 規定"
-                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+                Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距下限 規定"
+                WARNING_MESSAGE = WARNING_MESSAGE + 1
             ElseIf stirrup(1) > 30 Then
-                Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距上限 規定"
-                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+                Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距上限 規定"
+                WARNING_MESSAGE = WARNING_MESSAGE + 1
             End If
 
         Next
@@ -334,8 +334,8 @@ Function Norm4_6_6_3()
             av = Application.VLookup(stirrup(0), REBAR_SIZE, CROSS_AREA, False) * 2
 
             If av < avMin Then
-                Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 剪力鋼筋量下限 規定"
-                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+                Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 剪力鋼筋量下限 規定"
+                WARNING_MESSAGE = WARNING_MESSAGE + 1
             End If
 
         Next
@@ -367,8 +367,8 @@ Function Norm4_6_7_9()
 
             ' 規範為 vs <= 4 * vc，由於取整數容易超過，所以放寬標準120%
             If vs > 4 * vc * 1.2 Then
-                Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 剪力鋼筋量上限 規定"
-                GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+                Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 剪力鋼筋量上限 規定"
+                WARNING_MESSAGE = WARNING_MESSAGE + 1
             End If
 
         Next
@@ -384,11 +384,21 @@ Function Norm3_8_1()
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
         If RAW_DATA(i, BEAM_LENGTH) <> "" And RAW_DATA(i, SUPPORT) <> "" And (RAW_DATA(i, BEAM_LENGTH) - RAW_DATA(i, SUPPORT)) <= 4 * RAW_DATA(i, H) Then
-            Cells(GIRDER_WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否為深梁"
-            GIRDER_WARNING_MESSAGE = GIRDER_WARNING_MESSAGE + 1
+            Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否為深梁"
+            WARNING_MESSAGE = WARNING_MESSAGE + 1
         End If
 
     Next
+
+End Function
+
+Function PrintWarningMessage(warinigMessageCode)
+'
+' PrintWarningMessage
+
+    Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " " & warinigMessageCode
+    OK_MESSAGE(i) = "(S,E,I)"
+    WARNING_MESSAGE = WARNING_MESSAGE + 1
 
 End Function
 
@@ -423,7 +433,7 @@ Sub Girder()
 
     Time0 = Timer
 
-    GIRDER_WARNING_MESSAGE = 3
+    WARNING_MESSAGE = 3
     GENERAL_INFORMATION = GetGeneralInformation()
     REBAR_SIZE = GetRebarSize()
     RAW_DATA = GetData()
@@ -432,6 +442,8 @@ Sub Girder()
     Worksheets("Expert Check").Activate
     DATA_ROW_START = 3
     DATA_ROW_END = UBound(RAW_DATA)
+
+    ReDim OK_MESSAGE( 1 to DATA_ROW_END)
 
     Call Initialize
     Call AboutRatioNorm(willBeModifyToRatioData)
