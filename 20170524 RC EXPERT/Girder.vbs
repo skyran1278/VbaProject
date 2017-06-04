@@ -1,7 +1,4 @@
-Dim WARNING_MESSAGE, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, DATA_ROW_END, DATA_ROW_START, OK_MESSAGE()
-
-' Message position
-' Const WARNING_MESSAGE_POSITION = 6
+Dim GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, DATA_ROW_END, DATA_ROW_START, MESSAGE()
 
 ' RAW_DATA 資料命名
 Const STORY = 1
@@ -95,22 +92,12 @@ End Function
 
 Function Initialize()
 '
-' Expert Check .Activate
 ' DATA_ROW_START DATA_ROW_END
-' OK_MESSAGE Initial Value
-' Expert Check ClearContents
 
-    ' Worksheets("Expert Check").Activate
     DATA_ROW_START = 3
     DATA_ROW_END = UBound(RAW_DATA)
 
-    ReDim OK_MESSAGE(DATA_ROW_START to DATA_ROW_END)
-    ' For i = DATA_ROW_START To DATA_ROW_END Step 4
-    '     OK_MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
-    ' Next
-
-    ' rowUsed = Cells(Rows.Count, WARNING_MESSAGE_POSITION).End(xlUp).Row
-    ' Range(Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION), Cells(rowUsed, WARNING_MESSAGE_POSITION)).ClearContents
+    ReDim MESSAGE(DATA_ROW_START to DATA_ROW_END)
 
 End Function
 
@@ -181,35 +168,25 @@ Function Norm3_6(data, i)
     ' 請確認是否符合 左端上層筋下限 規定
     If data(i, REBAR_LEFT) < code3_3 Or data(i, REBAR_LEFT) < code3_4 Then
         call PrintWarningMessage("請確認是否符合 左端上層筋下限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端上層筋下限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     ' 請確認是否符合 右端上層筋下限 規定
     If data(i, REBAR_RIGHT) < code3_3 Or data(i, REBAR_RIGHT) < code3_4 Then
         call PrintWarningMessage("請確認是否符合 右端上層筋下限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端上層筋下限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     ' 請確認是否符合 左端下層筋下限 規定
     If data(i + 2, REBAR_LEFT) < code3_3 Or data(i + 2, REBAR_LEFT) < code3_4 Then
         call PrintWarningMessage("請確認是否符合 左端下層筋下限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端下層筋下限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     ' 請確認是否符合 右端下層筋下限 規定
     If data(i + 2, REBAR_RIGHT) < code3_3 Or data(i + 2, REBAR_RIGHT) < code3_4 Then
         call PrintWarningMessage("請確認是否符合 右端下層筋下限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端下層筋下限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i, REBAR_MIDDLE) < code3_3 Or data(i, REBAR_MIDDLE) < code3_4 Then
         call PrintWarningMessage("請確認是否符合 中央上層筋下限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 中央上層筋下限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
 End Function
@@ -222,32 +199,22 @@ Function Norm15_4_2_1(data, i)
 
     If data(i, REBAR_LEFT) > code15_4_2_1 And data(i, STORY) <> "1F" Then
         call PrintWarningMessage("請確認是否符合 左端上層筋上限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端上層筋上限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i, REBAR_RIGHT) > code15_4_2_1 And data(i, STORY) <> "1F" Then
         call PrintWarningMessage("請確認是否符合 右端上層筋上限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端上層筋上限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i + 2, REBAR_LEFT) > code15_4_2_1 And data(i, STORY) <> "1F" Then
         call PrintWarningMessage("請確認是否符合 左端下層筋上限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 左端下層筋上限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i + 2, REBAR_RIGHT) > code15_4_2_1 And data(i, STORY) <> "1F" Then
         call PrintWarningMessage("請確認是否符合 右端下層筋上限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 右端下層筋上限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
     If data(i + 2, REBAR_MIDDLE) > code15_4_2_1 And data(i, STORY) <> "1F" Then
         call PrintWarningMessage("請確認是否符合 中央下層筋上限 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 中央下層筋上限 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
 End Function
@@ -262,8 +229,6 @@ Function Norm15_4_2_2(data, i)
 
     If code15_4_2_2 And data(i, STORY) <> "1F" Then
         call PrintWarningMessage("請確認是否符合 耐震最小量鋼筋 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 耐震最小量鋼筋 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
 End Function
@@ -275,8 +240,6 @@ Function NormMiddleNoMoreThanEndEightyPercentage(data, i)
     Min = Application.Min(data(i, REBAR_LEFT), data(i, REBAR_RIGHT))
     If data(i, REBAR_MIDDLE) > Min * 0.8 Then
         call PrintWarningMessage("請確認是否符合 中央上層筋相對鋼筋量 規定", i)
-        ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = data(i, STORY) & " " & data(i, NUMBER) & " 請確認是否符合 中央上層筋相對鋼筋量 規定"
-        ' WARNING_MESSAGE = WARNING_MESSAGE + 1
     End If
 
 End Function
@@ -289,6 +252,7 @@ Function Norm13_5_1AndRebarAmountNoBelowTwo()
 
         For j = REBAR_LEFT To REBAR_RIGHT
 
+            ' 重要：因為i每步都是1，所以增加一個k來計算每4步。
             k = 4 * Fix((i - 3) / 4) + 3
 
             rebar = Split(RAW_DATA(i, j), "-")
@@ -299,9 +263,7 @@ Function Norm13_5_1AndRebarAmountNoBelowTwo()
 
                 ' 排除掉1支的狀況，避免除以0
                 ' 不少於2支
-                call PrintWarningMessage("請確認是否符合 單排支數下限 規定", i)
-                ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(k, STORY) & " " & RAW_DATA(k, NUMBER) & " 請確認是否符合 單排支數下限 規定"
-                ' WARNING_MESSAGE = WARNING_MESSAGE + 1
+                call PrintWarningMessage("請確認是否符合 單排支數下限 規定", k)
 
             ElseIf rebar(0) <> "" Then
 
@@ -320,9 +282,7 @@ Function Norm13_5_1AndRebarAmountNoBelowTwo()
                 ' Norm13_5_1
                 ' 淨距不少於1Db
                 If Spacing < Db Or Spacing < 2.5 Then
-                    call PrintWarningMessage("請確認是否符合 單排支數上限 規定", i)
-                    ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(k, STORY) & " " & RAW_DATA(k, NUMBER) & " 請確認是否符合 單排支數上限 規定"
-                    ' WARNING_MESSAGE = WARNING_MESSAGE + 1
+                    call PrintWarningMessage("請確認是否符合 單排支數上限 規定", k)
                 End If
 
             End If
@@ -342,12 +302,8 @@ Function StirrupSpacingMoreThan10AndLessThan30()
 
             If stirrup(1) < 10 Then
                 call PrintWarningMessage("請確認是否符合 箍筋間距下限 規定", i)
-                ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距下限 規定"
-                ' WARNING_MESSAGE = WARNING_MESSAGE + 1
             ElseIf stirrup(1) > 30 Then
                 call PrintWarningMessage("請確認是否符合 箍筋間距上限 規定", i)
-                ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 箍筋間距上限 規定"
-                ' WARNING_MESSAGE = WARNING_MESSAGE + 1
             End If
 
         Next
@@ -371,8 +327,6 @@ Function Norm4_6_6_3()
 
             If av < avMin Then
                 call PrintWarningMessage("請確認是否符合 剪力鋼筋量下限 規定", i)
-                ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 剪力鋼筋量下限 規定"
-                ' WARNING_MESSAGE = WARNING_MESSAGE + 1
             End If
 
         Next
@@ -404,8 +358,6 @@ Function Norm4_6_7_9()
 
             ' 規範為 vs <= 4 * vc，由於取整數容易超過，所以放寬標準120%
             If vs > 4 * vc * 1.2 Then
-                ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否符合 剪力鋼筋量上限 規定"
-                ' WARNING_MESSAGE = WARNING_MESSAGE + 1
                 call PrintWarningMessage("請確認是否符合 剪力鋼筋量上限 規定", i)
             End If
 
@@ -423,8 +375,6 @@ Function Norm3_8_1()
 
         If RAW_DATA(i, BEAM_LENGTH) <> "" And RAW_DATA(i, SUPPORT) <> "" And (RAW_DATA(i, BEAM_LENGTH) - RAW_DATA(i, SUPPORT)) <= 4 * RAW_DATA(i, H) Then
             call PrintWarningMessage("請確認是否為深梁", i)
-            ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " 請確認是否為深梁"
-            ' WARNING_MESSAGE = WARNING_MESSAGE + 1
         End If
 
     Next
@@ -435,32 +385,27 @@ Function PrintWarningMessage(warinigMessageCode, i)
 '
 ' PrintWarningMessage
 
-    ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " " & warinigMessageCode
-    OK_MESSAGE(i) = warinigMessageCode & vbCrLf & OK_MESSAGE(i)
-    ' WARNING_MESSAGE = WARNING_MESSAGE + 1
+    MESSAGE(i) = warinigMessageCode & vbCrLf & MESSAGE(i)
 
 End Function
 
-Function PrintOKMessage()
+Function PrintMessage()
 '
-' PrintOKMessage
+' PrintMessage
 
     Worksheets("大梁配筋").Activate
 
     ' 不知道為什麼不能直接給值，只好用 for loop
+    ' Range(Cells(DATA_ROW_START, OK_MESSAGE_POSITION), Cells(DATA_ROW_END, OK_MESSAGE_POSITION)) = MESSAGE()
     For i = DATA_ROW_START To DATA_ROW_END Step 4
-        If OK_MESSAGE(i) = "" Then
-            OK_MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
+        If MESSAGE(i) = "" Then
+            MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
             Cells(i, OK_MESSAGE_POSITION).Style = "好"
         Else
             Cells(i, OK_MESSAGE_POSITION).Style = "壞"
         End If
-        Cells(i, OK_MESSAGE_POSITION) = OK_MESSAGE(i)
+        Cells(i, OK_MESSAGE_POSITION) = MESSAGE(i)
     Next
-    ' Range(Cells(3, 16), Cells(106, 16)) = OK_MESSAGE()
-    ' Range(Cells(3, 16), Cells(106, 16)) = OK_MESSAGE()
-    ' Range(Cells(DATA_ROW_START, OK_MESSAGE_POSITION), Cells(DATA_ROW_END, OK_MESSAGE_POSITION)) = OK
-
 
 End Function
 
@@ -485,7 +430,7 @@ Sub Girder()
 
 ' * 輸出入格式
 '       輸入：大梁配筋
-'       輸出：Expert Check
+'       輸出：大梁配筋 Message
 
 ' * 執行時間
 '       0.21 Sec
@@ -495,7 +440,6 @@ Sub Girder()
 
     Time0 = Timer
 
-    ' WARNING_MESSAGE = 3
     GENERAL_INFORMATION = GetGeneralInformation()
     REBAR_SIZE = GetRebarSize()
     RAW_DATA = GetData()
@@ -507,7 +451,7 @@ Sub Girder()
     Call StirrupSpacingMoreThan10AndLessThan30
     Call Norm4_6_7_9
     Call Norm3_8_1
-    Call PrintOKMessage
+    Call PrintMessage
 
     If Timer - Time0 < 60 Then
         MsgBox "Execution Time " & Application.Round((Timer - Time0), 2) & " Sec", vbOKOnly
