@@ -105,9 +105,9 @@ Function Initialize()
     DATA_ROW_END = UBound(RAW_DATA)
 
     ReDim OK_MESSAGE(DATA_ROW_START to DATA_ROW_END)
-    For i = DATA_ROW_START To DATA_ROW_END Step 4
-        OK_MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
-    Next
+    ' For i = DATA_ROW_START To DATA_ROW_END Step 4
+    '     OK_MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
+    ' Next
 
     rowUsed = Cells(Rows.Count, WARNING_MESSAGE_POSITION).End(xlUp).Row
     Range(Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION), Cells(rowUsed, WARNING_MESSAGE_POSITION)).ClearContents
@@ -436,7 +436,7 @@ Function PrintWarningMessage(warinigMessageCode, i)
 ' PrintWarningMessage
 
     Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " " & warinigMessageCode
-    OK_MESSAGE(i) = "NG 詳見 Expert Check"
+    OK_MESSAGE(i) = warinigMessageCode & vbCrLf & OK_MESSAGE(i)
     WARNING_MESSAGE = WARNING_MESSAGE + 1
 
 End Function
@@ -448,13 +448,14 @@ Function PrintOKMessage()
     Worksheets("大梁配筋").Activate
 
     ' 不知道為什麼不能直接給值，只好用 for loop
-    For i = DATA_ROW_START To DATA_ROW_END
-        Cells(i, OK_MESSAGE_POSITION) = OK_MESSAGE(i)
-        If OK_MESSAGE(i) = "NG 詳見 Expert Check" Then
-            Cells(i, OK_MESSAGE_POSITION).Style = "壞"
-        Else
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+        If OK_MESSAGE(i) = "" Then
+            OK_MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
             Cells(i, OK_MESSAGE_POSITION).Style = "好"
+        Else
+            Cells(i, OK_MESSAGE_POSITION).Style = "壞"
         End If
+        Cells(i, OK_MESSAGE_POSITION) = OK_MESSAGE(i)
     Next
     ' Range(Cells(3, 16), Cells(106, 16)) = OK_MESSAGE()
     ' Range(Cells(3, 16), Cells(106, 16)) = OK_MESSAGE()
