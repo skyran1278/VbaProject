@@ -1,7 +1,7 @@
 Dim WARNING_MESSAGE, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, DATA_ROW_END, DATA_ROW_START, OK_MESSAGE()
 
 ' Message position
-Const WARNING_MESSAGE_POSITION = 6
+' Const WARNING_MESSAGE_POSITION = 6
 
 ' RAW_DATA 資料命名
 Const STORY = 1
@@ -100,7 +100,7 @@ Function Initialize()
 ' OK_MESSAGE Initial Value
 ' Expert Check ClearContents
 
-    Worksheets("Expert Check").Activate
+    ' Worksheets("Expert Check").Activate
     DATA_ROW_START = 3
     DATA_ROW_END = UBound(RAW_DATA)
 
@@ -109,8 +109,8 @@ Function Initialize()
     '     OK_MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
     ' Next
 
-    rowUsed = Cells(Rows.Count, WARNING_MESSAGE_POSITION).End(xlUp).Row
-    Range(Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION), Cells(rowUsed, WARNING_MESSAGE_POSITION)).ClearContents
+    ' rowUsed = Cells(Rows.Count, WARNING_MESSAGE_POSITION).End(xlUp).Row
+    ' Range(Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION), Cells(rowUsed, WARNING_MESSAGE_POSITION)).ClearContents
 
 End Function
 
@@ -435,9 +435,9 @@ Function PrintWarningMessage(warinigMessageCode, i)
 '
 ' PrintWarningMessage
 
-    Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " " & warinigMessageCode
+    ' Cells(WARNING_MESSAGE, WARNING_MESSAGE_POSITION) = RAW_DATA(i, STORY) & " " & RAW_DATA(i, NUMBER) & " " & warinigMessageCode
     OK_MESSAGE(i) = warinigMessageCode & vbCrLf & OK_MESSAGE(i)
-    WARNING_MESSAGE = WARNING_MESSAGE + 1
+    ' WARNING_MESSAGE = WARNING_MESSAGE + 1
 
 End Function
 
@@ -495,7 +495,7 @@ Sub Girder()
 
     Time0 = Timer
 
-    WARNING_MESSAGE = 3
+    ' WARNING_MESSAGE = 3
     GENERAL_INFORMATION = GetGeneralInformation()
     REBAR_SIZE = GetRebarSize()
     RAW_DATA = GetData()
