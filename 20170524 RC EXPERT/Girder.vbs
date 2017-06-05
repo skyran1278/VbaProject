@@ -16,7 +16,6 @@ Const STIRRUP_RIGHT = 12
 Const BEAM_LENGTH = 13
 Const SUPPORT = 14
 Const LOCATION = 15
-Const OK_MESSAGE_POSITION = 16
 
 ' GENERAL_INFORMATION 資料命名
 Const FY = 2
@@ -30,6 +29,9 @@ Const SPAN_Y = 8
 ' REBAR_SIZE 資料命名
 Const DIAMETER = 7
 Const CROSS_AREA = 10
+
+' 輸出資料位置
+Const MESSAGE_POSITION = 16
 
 
 Function GetGeneralInformation()
@@ -396,15 +398,16 @@ Function PrintMessage()
     Worksheets("大梁配筋").Activate
 
     ' 不知道為什麼不能直接給值，只好用 for loop
-    ' Range(Cells(DATA_ROW_START, OK_MESSAGE_POSITION), Cells(DATA_ROW_END, OK_MESSAGE_POSITION)) = MESSAGE()
+    ' Range(Cells(DATA_ROW_START, MESSAGE_POSITION), Cells(DATA_ROW_END, MESSAGE_POSITION)) = MESSAGE()
     For i = DATA_ROW_START To DATA_ROW_END Step 4
         If MESSAGE(i) = "" Then
             MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
-            Cells(i, OK_MESSAGE_POSITION).Style = "好"
+            Cells(i, MESSAGE_POSITION).Style = "好"
         Else
-            Cells(i, OK_MESSAGE_POSITION).Style = "壞"
+            Cells(i, MESSAGE_POSITION).Style = "壞"
+            MESSAGE(i) = left(MESSAGE(i), len(MESSAGE(i)) - 1)
         End If
-        Cells(i, OK_MESSAGE_POSITION) = MESSAGE(i)
+        Cells(i, MESSAGE_POSITION) = MESSAGE(i)
     Next
 
 End Function
@@ -451,6 +454,7 @@ Sub Girder()
     Call StirrupSpacingMoreThan10AndLessThan30
     Call Norm4_6_7_9
     Call Norm3_8_1
+
     Call PrintMessage
 
     If Timer - Time0 < 60 Then
