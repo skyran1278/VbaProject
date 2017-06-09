@@ -188,6 +188,8 @@ Function Initialize()
 ' MESSAGE
 ' RatioData
 
+    Columns(16).ClearContents
+    Cells(1, 16) = "Warning Message"
     DATA_ROW_START = 3
     DATA_ROW_END = UBound(RAW_DATA)
 
@@ -195,11 +197,39 @@ Function Initialize()
 
     RATIO_DATA = RAW_DATA
 
-    call RatioData()
+    Call RatioData
 
 End Function
 
 ' -------------------------------------------------------------------------
+
+Function BeamNoLessThan03()
+'
+'
+
+    For i = DATA_ROW_START To DATA_ROW_END Step 2
+
+        For j = REBAR_LEFT To REBAR_RIGHT
+
+            ' 重要：因為i每步都是2，所以增加一個k來計算每4步。
+            k = 4 * Fix((i - 3) / 4) + 3
+
+            a = 0.003 * RATIO_DATA(k, BW) * RATIO_DATA(k, D)
+            b = 0.025 * RATIO_DATA(k, BW) * RATIO_DATA(k, D)
+
+            If RATIO_DATA(i, j) < a Then
+                Call WarningMessage("請確認是否符合 主筋比下限 規定", k)
+            End If
+
+            If RATIO_DATA(i, j) > b Then
+                Call WarningMessage("請確認是否符合 主筋比上限 規定", k)
+            End If
+
+        Next
+
+    Next
+
+End Function
 
 Function Norm3_6()
 '
@@ -355,7 +385,7 @@ Function Norm13_5_1AndRebarAmountNoBelowTwo()
 
 End Function
 
-Function StirrupSpacingMoreThan10AndLessThan30()
+Function NormStirrupSpacingMoreThan10AndLessThan30()
 '
 ' 箍筋間距大於10CM
 ' 箍筋間距小於30CM
@@ -455,7 +485,7 @@ End Function
 
 Function PrintMessage()
 
-    Worksheets("大梁配筋").Activate
+    ' Worksheets("大梁配筋").Activate
 
     ' 不知道為什麼不能直接給值，只好用 for loop
     ' Range(Cells(DATA_ROW_START, MESSAGE_POSITION), Cells(DATA_ROW_END, MESSAGE_POSITION)) = MESSAGE()
@@ -479,4 +509,3 @@ Private Sub Class_Terminate()
     ' Called automatically when all references to class instance are removed
 
 End Sub
-
