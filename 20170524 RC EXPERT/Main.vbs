@@ -1,3 +1,20 @@
+Sub CheckGroundBeamNorm()
+
+    Dim GroundBeam As BeamClass
+    Set GroundBeam = New BeamClass
+
+    GroundBeam.GetData ("地梁配筋")
+
+    GroundBeam.Initialize
+
+    GroundBeam.Norm4_9_4
+    GroundBeam.Norm4_9_3
+    GroundBeam.NormNoLessThan003AndNoMoreThan25
+
+    GroundBeam.PrintMessage
+
+End Sub
+
 Sub CheckBeamNorm()
 
     Dim Beam As BeamClass
@@ -7,7 +24,10 @@ Sub CheckBeamNorm()
 
     Beam.Initialize
 
-    Beam.BeamNoLessThan03
+    Beam.NormRatioNoMoreThan25
+    Beam.NormBeamLoad
+    Beam.Norm13_5_1AndRebarAmountNoBelowTwo
+    Beam.Norm3_6
 
     Beam.PrintMessage
 
@@ -67,6 +87,7 @@ Sub Main()
 
     Call CheckGirderNorm
     Call CheckBeamNorm
+    Call CheckGroundBeamNorm
 
     Call ExecutionTime(Time0)
 
