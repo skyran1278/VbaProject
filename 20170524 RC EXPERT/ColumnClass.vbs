@@ -226,6 +226,7 @@ Function EconomicSmooth()
 
     For i = DATA_ROW_START To DATA_ROW_END
 
+        ' 3 case
         isUpperLimit =  RAW_DATA(i, NUMBER) <> RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) = RAW_DATA(i + 1, NUMBER)
         isMiddle =  RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) = RAW_DATA(i + 1, NUMBER)
         isLowerLimit =  RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) <> RAW_DATA(i + 1, NUMBER)
@@ -248,5 +249,9 @@ Function EconomicSmooth()
         End If
 
     Next
+
+End Function
+
+Function ()
 
 End Function
