@@ -7,9 +7,14 @@ Sub CheckGroundBeamNorm()
 
     GroundBeam.Initialize
 
-    GroundBeam.Norm4_9_4
     GroundBeam.Norm4_9_3
-    GroundBeam.NormNoLessThan003AndNoMoreThan25
+    GroundBeam.Norm4_9_4
+    GroundBeam.EconomicNorm4_9_4
+    GroundBeam.SafetyRebarRatioAndSpace
+    GroundBeam.SafetyRebarRatioGB
+    GroundBeam.EconomicBotMidRelativeEnd
+    GroundBeam.EconomicTopEndRelativeMid
+    GroundBeam.SafetyStirrupSpace
 
     GroundBeam.PrintMessage
 
@@ -24,10 +29,10 @@ Sub CheckBeamNorm()
 
     Beam.Initialize
 
-    Beam.NormRatioNoMoreThan25
-    Beam.NormBeamLoad
-    Beam.Norm13_5_1AndRebarAmountNoBelowTwo
     Beam.Norm3_6
+    Beam.Norm13_5_1AndSafetyRebarNumber
+    Beam.SafetyRebarRatioSB
+    Beam.SafetyLoad
 
     Beam.PrintMessage
 
@@ -43,13 +48,13 @@ Sub CheckGirderNorm()
     Girder.Initialize
 
     Girder.Norm3_6
+    Girder.Norm3_8_1
+    Girder.Norm4_6_7_9
+    Girder.Norm13_5_1AndSafetyRebarNumber
     Girder.Norm15_4_2_1
     Girder.Norm15_4_2_2
-    Girder.NormMiddleNoMoreThanEndEightyPercentage
-    Girder.Norm13_5_1AndRebarAmountNoBelowTwo
-    Girder.NormStirrupSpacingMoreThan10AndLessThan30
-    Girder.Norm4_6_7_9
-    Girder.Norm3_8_1
+    Girder.SafetyStirrupSpace
+    Girder.EconomicTopMidRelativeEnd
 
     Girder.PrintMessage
 
@@ -92,4 +97,3 @@ Sub Main()
     Call ExecutionTime(Time0)
 
 End Sub
-
