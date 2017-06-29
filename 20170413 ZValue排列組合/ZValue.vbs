@@ -1,34 +1,114 @@
-Function ()
+' DATA 資料命名
+Const STORY = 4
+Const LABEL = 5
+Const MAX_M = 6
+Const FY = 7
+Const Z = 8
+Const LENGTH = 9
+Const GROUP = 10
+Const SELECT_NUMBER = 11
+Const REPLACE_NUMBER = 12
+Const DIFF = 13
+
+
+Function ExecutionTime(Time0)
+
+    If Timer - Time0 < 60 Then
+        MsgBox "Execution Time " & Application.Round((Timer - Time0), 2) & " Sec", vbOKOnly
+    Else
+        MsgBox "Execution Time " & Application.Round((Timer - Time0) / 60, 2) & " Min", vbOKOnly
+    End If
+
+End Function
+
+
+Sub Controller()
+
+    Time0 = Timer
+
+    Dim zValue, sumArray(), arr()
 
     Worksheets("Z").Activate
 
-    ' 排序
-    Worksheets("Z").Range(Cells(7, 3), Cells(zRowUsed, 10)).Sort _
-        Key1:=Range(Cells(8, 10), Cells(zRowUsed, 10)), Order1:=xlAscending, _
-        Key2:=Range(Cells(8, 8), Cells(zRowUsed, 8)), Order2:=xlDescending, Header:=xlYes
-
     rowStart = 1
-    columnStart = 8
     rowEnd = Cells(Rows.Count, 8).End(xlUp).Row
-    columnEnd = 8
 
-    zValue = Range(Cells(rowStart, columnStart), Cells(rowEnd, columnEnd)).Value
+    ' 排序
+    Worksheets("Z").Range(Cells(7, 3), Cells(rowEnd, 10)).Sort _
+        Key1:=Range(Cells(8, Z), Cells(rowEnd, Z)), Order1:=xlDescending, Header:=xlYes
 
-    ' rowStart = 1
-    columnStart = 10
-    ' rowEnd = Cells(Rows.Count, 8).End(xlUp).Row
-    columnEnd = 10
+    zValue = Range(Cells(rowStart, Z), Cells(rowEnd, Z)).Value
 
-    group = Range(Cells(rowStart, columnStart), Cells(rowEnd, columnEnd)).Value
+    rowSelect = 5
+    columnSelect = 2
+    selectNumber = Cells(rowSelect, columnSelect)
 
-    For i = 8 To rowEnd
-        If group(i) <> group(i + 1) Then
+    rowStart = 8
 
-        End If
-    Next
+    ReDim sumArray(rowStart To rowEnd)
+    ReDim arr(selectCount)
 
-End Function
+    Cells(rowStart, SELECT_NUMBER) = "*"
 
-Function Controller()
+    selectCount = selectNumber - 1
 
-End Function
+    Do While selectCount > 0
+
+        For i = rowStart To rowEnd
+
+            If Cells(i, SELECT_NUMBER) = "" Then
+
+                Cells(i, SELECT_NUMBER) = "*"
+                sumArray(i) = Application.Sum(Range(Cells(rowStart, REPLACE_NUMBER), Cells(rowEnd, REPLACE_NUMBER)))
+                Cells(i, SELECT_NUMBER) = ""
+
+            End If
+
+        Next
+
+        Cells(Application.Match(Application.Min(sumArray), sumArray, 0) + rowStart - 1, SELECT_NUMBER) = "*"
+
+        selectCount = selectCount - 1
+
+    Loop
+
+    Do While selectCount > 0
+
+        For i = rowStart + 1 To rowEnd
+
+            If Cells(i, SELECT_NUMBER) = "*" Then
+
+                Cells(i, SELECT_NUMBER) = ""
+
+                For j = rowStart To rowEnd
+
+                    If Cells(i, SELECT_NUMBER) = "" Then
+
+                        Cells(i, SELECT_NUMBER) = "*"
+                        sumArray(i) = Application.Sum(Range(Cells(rowStart, REPLACE_NUMBER), Cells(rowEnd, REPLACE_NUMBER)))
+                        Cells(i, SELECT_NUMBER) = ""
+
+                    End If
+
+                Next
+
+                Cells(Application.Match(Application.Min(sumArray), sumArray, 0) + rowStart - 1, SELECT_NUMBER) = "*"
+
+                sumArray(i) = Application.Sum(Range(Cells(rowStart, REPLACE_NUMBER), Cells(rowEnd, REPLACE_NUMBER)))
+                Cells(i, SELECT_NUMBER) = ""
+
+            End If
+
+        Next
+
+        Cells(Application.Match(Application.Min(sumArray), sumArray, 0) + rowStart - 1, SELECT_NUMBER) = "*"
+
+        selectCount = selectCount - 1
+
+    Loop
+
+    Call ExecutionTime(Time0)
+
+End Sub
+
+
