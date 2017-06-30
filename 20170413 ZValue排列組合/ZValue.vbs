@@ -1,4 +1,4 @@
-Dim SUM_ARRAY(), ROW_START, ROW_END, TIME_0, CANCEL, SELECT_VALUE, SELECT_VALUE_MIN, SELECT_VALUE_MAX, SELECT_VALUE_COUNT, MAX_LOOP_VALUE, OUTPUT_VALUE_COUNT
+Dim SUM_ARRAY(), ROW_START, ROW_END, TIME0, CANCEL, SELECT_VALUE, SELECT_VALUE_MIN, SELECT_VALUE_MAX, SELECT_VALUE_COUNT, MAX_LOOP_VALUE, OUTPUT_VALUE_COUNT
 
 ' DATA 資料命名
 Const OUTPUT_VALUE = 1
@@ -16,18 +16,12 @@ Const REPLACE_NUMBER = 12
 
 Function Initialize()
 
-    TIME_0 = Timer
+    TIME0 = Timer
 
     Worksheets("Z").Activate
 
     ROW_START = 8
     ROW_END = Cells(Rows.Count, Z).End(xlUp).Row
-
-    ' If Application.Sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER))) <> 0 Then
-    '     CANCEL = MsgBox("請確認第 11 欄不為 0", vbOKCancel Or vbExclamation)
-    ' End If
-
-    ' Application.ScreenUpdating = False
 
     ' 排序
     Worksheets("Z").Range(Cells(7, 3), Cells(ROW_END, 10)).Sort _
@@ -35,11 +29,15 @@ Function Initialize()
 
     ReDim SUM_ARRAY(ROW_START To ROW_END)
 
-    Range(Cells(19, OUTPUT_VALUE), Cells(1000, INPUT_VALUE)).ClearContents
+    Range(Cells(18, OUTPUT_VALUE), Cells(Cells(Rows.Count, OUTPUT_VALUE).End(xlUp).Row, INPUT_VALUE)).ClearContents
 
     Cells(ROW_START, REPLACE_NUMBER).AutoFill Destination:=Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER))
 
-    SELECT_VALUE = split(Cells(5, INPUT_VALUE),"-")
+    SELECT_VALUE = Split(Cells(5, INPUT_VALUE).Value, "-")
+    SELECT_VALUE_MIN = SELECT_VALUE(0) * 1
+    SELECT_VALUE_MAX = SELECT_VALUE(1) * 1
+    SELECT_VALUE = SELECT_VALUE_MIN
+
     MAX_LOOP_VALUE = Cells(6, INPUT_VALUE)
 
     OUTPUT_VALUE_COUNT = 18
@@ -50,23 +48,20 @@ End Function
 
 Function LoopSelectValue()
 
-    SELECT_VALUE_MIN = SELECT_VALUE(0)
-    SELECT_VALUE_MAX = SELECT_VALUE(1)
-
-    SELECT_VALUE = SELECT_VALUE_MIN
-
     Do
         SELECT_VALUE_COUNT = SELECT_VALUE
 
-        columns(SELECT_NUMBER).ClearContents
+        Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) = SELECT_VALUE
+        OUTPUT_VALUE_COUNT = OUTPUT_VALUE_COUNT + 1
+
+        Columns(SELECT_NUMBER).ClearContents
         Cells(ROW_START, SELECT_NUMBER) = "*"
 
         Call Controller
 
         SELECT_VALUE = SELECT_VALUE + 1
-        OUTPUT_VALUE_COUNT = OUTPUT_VALUE_COUNT + 1
 
-    Loop While SELECT_VALUE + 1 < SELECT_VALUE_MAX
+    Loop While SELECT_VALUE <= SELECT_VALUE_MAX
 
 End Function
 
@@ -92,6 +87,8 @@ Function Controller()
         SELECT_VALUE_COUNT = SELECT_VALUE_COUNT - 1
 
     Loop
+
+    Call PrintEachLoopValue
 
     ' 多次最佳化
     Do
@@ -139,8 +136,6 @@ Function Controller()
 
     Loop While doloop And MAX_LOOP_VALUE > 0
 
-
-
 End Function
 
 Function PrintEachLoopValue()
@@ -155,19 +150,24 @@ End Function
 
 Function Terminate()
 
-    ' Application.ScreenUpdating = True
+    ' Cells(19, INPUT_VALUE).AutoFill Destination:=Range(Cells(19, INPUT_VALUE), Cells(OUTPUT_VALUE_COUNT - 1, INPUT_VALUE))
+    i = 18
+    Do While Cells(i, OUTPUT_VALUE) <> ""
+        If Cells(i, OUTPUT_VALUE) > Cells(16, OUTPUT_VALUE) Then
+            Cells(i, INPUT_VALUE) = Cells(i, OUTPUT_VALUE) / Cells(16, OUTPUT_VALUE)
+        End If
+        i = i + 1
+    Loop
 
-    Cells(18, INPUT_VALUE).AutoFill Destination:=Range(Cells(18, INPUT_VALUE), Cells(OUTPUT_VALUE_COUNT - 1, INPUT_VALUE))
-
-    If Timer - TIME_0 < 60 Then
-        MsgBox "Execution Time " & Application.Round((Timer - TIME_0), 2) & " Sec", vbOKOnly
+    If Timer - TIME0 < 60 Then
+        MsgBox "Execution Time " & Application.Round((Timer - TIME0), 2) & " Sec", vbOKOnly
     Else
-        MsgBox "Execution Time " & Application.Round((Timer - TIME_0) / 60, 2) & " Min", vbOKOnly
+        MsgBox "Execution Time " & Application.Round((Timer - TIME0) / 60, 2) & " Min", vbOKOnly
     End If
 
 End Function
 
-sub Main()
+Sub Main()
 '
 ' * 目的
 '       Check Norm
@@ -187,14 +187,11 @@ sub Main()
 
     ' Initialize
     Call Initialize
-    ' If CANCEL = 2 Then
-    '     CANCEL = Empty
-    '     Exit Sub
-    ' End If
 
-    call LoopSelectValue
+    Call LoopSelectValue
 
     ' Terminate
     Call Terminate
 
-End sub
+End Sub
+
