@@ -1,4 +1,4 @@
-Dim SUM_ARRAY(), ROW_START, ROW_END, TIME0, CANCEL, SELECT_VALUE, SELECT_VALUE_MIN, SELECT_VALUE_MAX, SELECT_VALUE_COUNT, MAX_LOOP_VALUE, OUTPUT_VALUE_COUNT
+Dim SUM_ARRAY(), ROW_START, ROW_END, TIME0, CANCEL, SELECT_VALUE, SELECT_VALUE_MIN, SELECT_VALUE_MAX, SELECT_VALUE_COUNT, MAX_LOOP_VALUE, OUTPUT_VALUE_COUNT, CONST_MAX_LOOP_VALUE, OUTPUT_POINT
 
 ' DATA 資料命名
 Const OUTPUT_VALUE = 1
@@ -11,8 +11,8 @@ Const FY = 7
 Const Z = 8
 Const LENGTH = 9
 Const GROUP = 10
-Const SELECT_NUMBER = 11
-Const REPLACE_NUMBER = 12
+Const REPLACE_NUMBER = 11
+Const SELECT_NUMBER = 12
 
 Function Initialize()
 
@@ -30,6 +30,7 @@ Function Initialize()
     ReDim SUM_ARRAY(ROW_START To ROW_END)
 
     Range(Cells(18, OUTPUT_VALUE), Cells(Cells(Rows.Count, OUTPUT_VALUE).End(xlUp).Row, INPUT_VALUE)).ClearContents
+    Range(Columns(SELECT_NUMBER), Columns(100)).ClearContents
 
     Cells(ROW_START, REPLACE_NUMBER).AutoFill Destination:=Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER))
 
@@ -38,9 +39,10 @@ Function Initialize()
     SELECT_VALUE_MAX = SELECT_VALUE(1) * 1
     SELECT_VALUE = SELECT_VALUE_MIN
 
-    MAX_LOOP_VALUE = Cells(6, INPUT_VALUE)
+    CONST_MAX_LOOP_VALUE = Cells(6, INPUT_VALUE)
 
     OUTPUT_VALUE_COUNT = 18
+    OUTPUT_POINT = 13
 
     Cells(16, OUTPUT_VALUE) = Application.Sum(Range(Cells(ROW_START, Z), Cells(ROW_END, Z)))
 
@@ -50,19 +52,26 @@ Function LoopSelectValue()
 
     Do
         SELECT_VALUE_COUNT = SELECT_VALUE
-
+        MAX_LOOP_VALUE = CONST_MAX_LOOP_VALUE
         Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) = SELECT_VALUE
         OUTPUT_VALUE_COUNT = OUTPUT_VALUE_COUNT + 1
-
-        Columns(SELECT_NUMBER).ClearContents
         Cells(ROW_START, SELECT_NUMBER) = "*"
 
         Call Controller
 
-        SELECT_VALUE = SELECT_VALUE + 1
+        Columns(OUTPUT_POINT) = Columns(SELECT_NUMBER).Value
+        Cells(7, OUTPUT_POINT) = SELECT_VALUE
+        Columns(SELECT_NUMBER).ClearContents
+
+        OUTPUT_POINT = OUTPUT_POINT + 1
+        SELECT_VALUE = SELECT_VALUE + 3
 
     Loop While SELECT_VALUE <= SELECT_VALUE_MAX
 
+End Function
+
+Function DoMoreThings(sum)
+    Cells(7, SELECT_NUMBER) = sum
 End Function
 
 Function Controller()
@@ -76,6 +85,7 @@ Function Controller()
 
                 Cells(i, SELECT_NUMBER) = "*"
                 SUM_ARRAY(i) = Application.Sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+                DoMoreThings(SUM_ARRAY(i))
                 Cells(i, SELECT_NUMBER) = ""
 
             End If
@@ -87,8 +97,6 @@ Function Controller()
         SELECT_VALUE_COUNT = SELECT_VALUE_COUNT - 1
 
     Loop
-
-    Call PrintEachLoopValue
 
     ' 多次最佳化
     Do
@@ -107,6 +115,7 @@ Function Controller()
 
                         Cells(j, SELECT_NUMBER) = "*"
                         SUM_ARRAY(j) = Application.Sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+                        DoMoreThings(SUM_ARRAY(j))
                         Cells(j, SELECT_NUMBER) = ""
 
                     End If
@@ -123,18 +132,18 @@ Function Controller()
 
         Call PrintEachLoopValue
 
+        doLoop = False
+
         For i = ROW_START To ROW_END
 
             If selectBefore(i, 1) <> selectAfter(i, 1) Then
-                doloop = True
+                doLoop = True
                 Exit For
             End If
 
-            doloop = False
-
         Next
 
-    Loop While doloop And MAX_LOOP_VALUE > 0
+    Loop While doLoop And MAX_LOOP_VALUE > 0
 
 End Function
 
