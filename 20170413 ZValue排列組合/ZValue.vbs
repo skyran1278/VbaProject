@@ -32,6 +32,7 @@ Function Initialize()
     Range(Cells(18, OUTPUT_VALUE), Cells(Cells(Rows.Count, OUTPUT_VALUE).End(xlUp).Row, INPUT_VALUE)).ClearContents
     Range(Columns(SELECT_NUMBER), Columns(100)).ClearContents
 
+
     Cells(ROW_START, REPLACE_NUMBER).AutoFill Destination:=Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER))
 
     SELECT_VALUE = Split(Cells(5, INPUT_VALUE).Value, "-")
@@ -49,6 +50,7 @@ Function Initialize()
 End Function
 
 Function LoopSelectValue()
+' 指定範圍，每次 3 個間隔
 
     Do
         SELECT_VALUE_COUNT = SELECT_VALUE
@@ -56,6 +58,7 @@ Function LoopSelectValue()
         Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) = SELECT_VALUE
         OUTPUT_VALUE_COUNT = OUTPUT_VALUE_COUNT + 1
         Cells(ROW_START, SELECT_NUMBER) = "*"
+        Cells(7, SELECT_NUMBER) = Application.Sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
 
         Call Controller
 
@@ -71,7 +74,13 @@ Function LoopSelectValue()
 End Function
 
 Function DoMoreThings(sum)
-    Cells(7, SELECT_NUMBER) = sum
+
+    If Cells(7, SELECT_NUMBER) > sum Then
+        Cells(7, SELECT_NUMBER) = sum
+    End If
+
+    Cells(7, REPLACE_NUMBER) = sum
+
 End Function
 
 Function Controller()
@@ -159,7 +168,6 @@ End Function
 
 Function Terminate()
 
-    ' Cells(19, INPUT_VALUE).AutoFill Destination:=Range(Cells(19, INPUT_VALUE), Cells(OUTPUT_VALUE_COUNT - 1, INPUT_VALUE))
     i = 18
     Do While Cells(i, OUTPUT_VALUE) <> ""
         If Cells(i, OUTPUT_VALUE) > Cells(16, OUTPUT_VALUE) Then
@@ -167,6 +175,8 @@ Function Terminate()
         End If
         i = i + 1
     Loop
+
+    Cells(7, REPLACE_NUMBER).ClearContents
 
     If Timer - TIME0 < 60 Then
         MsgBox "Execution Time " & Application.Round((Timer - TIME0), 2) & " Sec", vbOKOnly
