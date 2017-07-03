@@ -30,6 +30,31 @@ Const CROSS_AREA = 10
 ' 輸出資料位置
 Const MESSAGE_POSITION = 12
 
+Function Norm15_5_4_1()
+
+    For i = DATA_ROW_START To DATA_ROW_END
+
+        fcColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FC_COLUMN, False)
+        fytColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FYT, False)
+        stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
+        s = stirrup(1)
+        bcX = RAW_DATA(i, WIDTH_X) - 4 * 2 - Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+        bcY = RAW_DATA(i, WIDTH_Y) - 4 * 2 - Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+        ashX = stirrup(0) * (RAW_DATA(i, TIE_X) + 2)
+        ashY = stirrup(0) * (RAW_DATA(i, TIE_Y) + 2)
+        ashDivideBc = Application.min(ashX / bcX, ashY / bcY )
+        ag = WIDTH_X * WIDTH_Y
+        ach = (RAW_DATA(i, WIDTH_X) - 4 * 2) * (RAW_DATA(i, WIDTH_Y) - 4 * 2)
+        code15_3 = 0.3 * s * fcColumn / fytColumn * (ag / ach - 1)
+        code15_4 = 0.09 * s * fcColumn / fytColumn
+        If ashDivideBc < code15_3 or ashDivideBc < code15_4 Then
+            Call WarningMessage("請確認是否符合 橫向鋼筋 規定", i)
+        End If
+
+    Next
+
+End Function
+
 ' -------------------------------------------------------------------------
 ' -------------------------------------------------------------------------
 
@@ -37,6 +62,11 @@ Private Sub Class_Initialize()
 ' Called automatically when class is created
 ' GetGeneralInformation
 ' GetRebarSize
+
+    ' 排序
+    Worksheets("Z").Range(Cells(7, 3), Cells(zRowUsed, 10)).Sort _
+        Key1:=Range(Cells(8, 10), Cells(zRowUsed, 10)), Order1:=xlAscending, _
+        Key2:=Range(Cells(8, 8), Cells(zRowUsed, 8)), Order2:=xlDescending, Header:=xlYes
 
     Call GetGeneralInformation
     Call GetRebarSize
@@ -252,6 +282,3 @@ Function EconomicSmooth()
 
 End Function
 
-Function ()
-
-End Function

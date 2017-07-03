@@ -121,10 +121,18 @@ Function RatioData()
         rebar = Split(RAW_DATA(i, REBAR_LEFT), "-")
         stirrup = Split(RAW_DATA(i, STIRRUP_LEFT), "@")
         Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
-        tie = Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+        tie = Application.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
         RATIO_DATA(i, D) = RATIO_DATA(i, H) - (4 + tie + Db / 2)
 
     Next
+
+End Function
+
+Function SplitStirrup(rebar)
+
+    bars = Split(rebar, "#")
+
+    SplitStirrup = "#" & bars(1)
 
 End Function
 
@@ -132,7 +140,7 @@ Function CalRebarArea(rebar)
 
     tmp = Split(rebar, "-")
 
-    If tmp(1) <> "" Then
+    If tmp(0) <> 0 Then
 
         ' 轉換鋼筋尺寸為截面積
         tmp(1) = Application.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
@@ -145,14 +153,22 @@ Function CalRebarArea(rebar)
 End Function
 
 Function CalStirrupArea(rebar)
-
+'
+' 考量雙箍
+'
     tmp = Split(rebar, "@")
 
-    ' 轉換鋼筋尺寸為截面積
-    tmp(0) = Application.VLookup(tmp(0), REBAR_SIZE, CROSS_AREA, False)
+    bars = Split(tmp(0), "#")
 
-    ' 字串轉為數字
-    CalStirrupArea = 2 * tmp(0)
+    ' 箍筋號數
+    bars(1) = "#" & bars(1)
+
+    ' 轉換鋼筋尺寸為截面積
+    If bars(0) = "" Then
+        CalStirrupArea = 2 * Application.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
+    Else
+        CalStirrupArea = 2 * bars(0) * Application.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
+    End If
 
 End Function
 
@@ -246,12 +262,12 @@ Function SafetyRebarRatioAndSpace()
 
             ' 請確認是否符合 上層筋下限 規定
             If RATIO_DATA(i, j) < code Then
-                Call WarningMessage("請確認是否符合 上層筋下限 規定", i)
+                Call WarningMessage("請確認上層筋下限，是否符合最少鋼筋比大於 0.3 % 規定", i)
             End If
 
             ' 請確認是否符合 下層筋下限 規定
             If RATIO_DATA(i + 2, j) < code Then
-                Call WarningMessage("請確認是否符合 下層筋下限 規定", i)
+                Call WarningMessage("請確認下層筋下限，是否符合最少鋼筋比大於 0.3 % 規定", i)
             End If
 
             For k = i To i + 3
@@ -260,20 +276,20 @@ Function SafetyRebarRatioAndSpace()
 
                 stirrup = Split(RAW_DATA(i, j + 4), "@")
 
-                If rebar(0) = "1" Then
-
-                    Call WarningMessage("請確認是否符合 單排支數下限 規定", i)
-
-                ElseIf rebar(0) <> "" Then
+                If rebar(0) > 1 Then
 
                     Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
-                    tie = Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+                    tie = Application.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
 
                     Spacing = (RAW_DATA(i, BW) - 4 * 2 - tie * 2 - rebar(0) * Db) / (rebar(0) - 1)
 
                     If Spacing > 25 Then
-                        Call WarningMessage("請確認是否符合 鋼筋間距下限 規定", i)
+                        Call WarningMessage("請確認鋼筋間距下限，是否符合鋼筋間距 25 cm 以下規定", i)
                     End If
+
+                ElseIf rebar(0) = "1" Then
+
+                    Call WarningMessage("請確認鋼筋間距，是否符合單排支數下限規定", i)
 
                 End If
             Next
@@ -296,7 +312,7 @@ Function Norm4_9_3()
             isAvSmallerThanCode = RATIO_DATA(i, j) < 0.0025 * RAW_DATA(i, BW) * tmp(1)
 
             If isAvSmallerThanCode Then
-                Call WarningMessage("請確認是否符合 短梁箍筋下限 規定", i)
+                Call WarningMessage("請確認短梁箍筋，是否小於 0.0025 * bw * s", i)
             End If
 
         Next
@@ -332,7 +348,7 @@ Function Norm4_9_4()
         End If
 
         If isAvhSmallerThanCode Then
-            Call WarningMessage("請確認是否符合 短梁側筋下限 規定", i)
+            Call WarningMessage("請確認短梁側筋，是否小於 0.0015 * bw * s2", i)
         End If
 
     Next
@@ -342,7 +358,7 @@ End Function
 Function EconomicNorm4_9_4()
 '
 ' 經濟性指標：
-' Avh need to less than 1.5 * 0.0015 * BW *S2
+' Avh need to less than 1.5 * 0.0015 * BW * S2
 
     bs = 20
     fs = 60
@@ -363,7 +379,7 @@ Function EconomicNorm4_9_4()
         End If
 
         If isAvhSmallerThanCode Then
-            Call WarningMessage("請確認是否符合 短梁側筋上限 規定", i)
+            Call WarningMessage("請確認短梁側筋，是否大於 1.5 * 0.0015 * BW * S2", i)
         End If
 
     Next
@@ -407,11 +423,11 @@ Function SafetyRebarRatioSB()
             limit = 0.025 * RATIO_DATA(i, BW) * RATIO_DATA(i, D)
 
             If RATIO_DATA(i, j) > limit Then
-                Call WarningMessage("請確認是否符合 上層筋上限 規定", i)
+                Call WarningMessage("請確認上層筋上限，是否在 2.5% 以下", i)
             End If
 
             If RATIO_DATA(i + 2, j) > limit Then
-                Call WarningMessage("請確認是否符合 下層筋上限 規定", i)
+                Call WarningMessage("請確認下層筋上限，是否在 2.5% 以下", i)
             End If
 
         Next
@@ -432,11 +448,11 @@ Function SafetyRebarRatioGB()
             limit = 0.02 * RATIO_DATA(i, BW) * RATIO_DATA(i, D)
 
             If RATIO_DATA(i, j) > limit Then
-                Call WarningMessage("請確認是否符合 上層筋上限 規定", i)
+                Call WarningMessage("請確認上層筋上限，是否在 2% 以下", i)
             End If
 
             If RATIO_DATA(i + 2, j) > limit Then
-                Call WarningMessage("請確認是否符合 下層筋上限 規定", i)
+                Call WarningMessage("請確認下層筋上限，是否在 2% 以下", i)
             End If
 
         Next
@@ -457,27 +473,27 @@ For i = DATA_ROW_START To DATA_ROW_END Step 4
     code3_4 = 14 / Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RATIO_DATA(i, BW) * RATIO_DATA(i, D)
 
     If RATIO_DATA(i, REBAR_LEFT) < code3_3 Or RATIO_DATA(i, REBAR_LEFT) < code3_4 Then
-        Call WarningMessage("請確認是否符合 左端上層筋下限 規定", i)
+        Call WarningMessage("請確認左端上層筋下限，是否符合規範 3.6 規定", i)
     End If
 
     If RATIO_DATA(i, REBAR_MIDDLE) < code3_3 Or RATIO_DATA(i, REBAR_MIDDLE) < code3_4 Then
-        Call WarningMessage("請確認是否符合 中央上層筋下限 規定", i)
+        Call WarningMessage("請確認中央上層筋下限，是否符合規範 3.6 規定", i)
     End If
 
     If RATIO_DATA(i, REBAR_RIGHT) < code3_3 Or RATIO_DATA(i, REBAR_RIGHT) < code3_4 Then
-        Call WarningMessage("請確認是否符合 右端上層筋下限 規定", i)
+        Call WarningMessage("請確認右端上層筋下限，是否符合規範 3.6 規定", i)
     End If
 
     If RATIO_DATA(i + 2, REBAR_LEFT) < code3_3 Or RATIO_DATA(i + 2, REBAR_LEFT) < code3_4 Then
-        Call WarningMessage("請確認是否符合 左端下層筋下限 規定", i)
+        Call WarningMessage("請確認左端下層筋下限，是否符合規範 3.6 規定", i)
     End If
 
     If RATIO_DATA(i + 2, REBAR_MIDDLE) < code3_3 Or RATIO_DATA(i + 2, REBAR_MIDDLE) < code3_4 Then
-        Call WarningMessage("請確認是否符合 中央下層筋下限 規定", i)
+        Call WarningMessage("請確認中央下層筋下限，是否符合規範 3.6 規定", i)
     End If
 
     If RATIO_DATA(i + 2, REBAR_RIGHT) < code3_3 Or RATIO_DATA(i + 2, REBAR_RIGHT) < code3_4 Then
-        Call WarningMessage("請確認是否符合 右端下層筋下限 規定", i)
+        Call WarningMessage("請確認右端下層筋下限，是否符合規範 3.6 規定", i)
     End If
 
 Next
@@ -494,27 +510,27 @@ For i = DATA_ROW_START To DATA_ROW_END Step 4
     code15_4_2_1 = Application.Min((Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False) + 100) / (4 * Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FY, False)) * RATIO_DATA(i, BW) * RATIO_DATA(i, D), 0.025 * RATIO_DATA(i, BW) * RATIO_DATA(i, D))
 
     If RATIO_DATA(i, REBAR_LEFT) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("請確認是否符合 左端上層筋上限 規定", i)
+        Call WarningMessage("請確認左端上層筋上限，是否符合規範 15.4.2.1 規定", i)
     End If
 
     If RATIO_DATA(i, REBAR_MIDDLE) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("請確認是否符合 中央上層筋上限 規定", i)
+        Call WarningMessage("請確認中央上層筋上限，是否符合規範 15.4.2.1 規定", i)
     End If
 
     If RATIO_DATA(i, REBAR_RIGHT) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("請確認是否符合 右端上層筋上限 規定", i)
+        Call WarningMessage("請確認右端上層筋上限，是否符合規範 15.4.2.1 規定", i)
     End If
 
     If RATIO_DATA(i + 2, REBAR_LEFT) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("請確認是否符合 左端下層筋上限 規定", i)
+        Call WarningMessage("請確認左端下層筋上限，是否符合規範 15.4.2.1 規定", i)
     End If
 
     If RATIO_DATA(i + 2, REBAR_MIDDLE) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("請確認是否符合 中央下層筋上限 規定", i)
+        Call WarningMessage("請確認中央下層筋上限，是否符合規範 15.4.2.1 規定", i)
     End If
 
     If RATIO_DATA(i + 2, REBAR_RIGHT) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("請確認是否符合 右端下層筋上限 規定", i)
+        Call WarningMessage("請確認右端下層筋上限，是否符合規範 15.4.2.1 規定", i)
     End If
 
 Next
@@ -531,10 +547,10 @@ For i = DATA_ROW_START To DATA_ROW_END Step 4
 
     maxRatio = Application.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
     minRatio = Application.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
-    code15_4_2_2 = minRatio <= maxRatio / 4
+    code15_4_2_2 = minRatio < maxRatio / 4
 
     If code15_4_2_2 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("請確認是否符合 耐震最小量鋼筋 規定", i)
+        Call WarningMessage("請確認耐震最小量鋼筋，是否符合規範 15.4.2.2 規定", i)
     End If
 
 Next
@@ -552,11 +568,11 @@ Function EconomicTopEndRelativeMid()
         rebarRIGHT = Split(RAW_DATA(i, REBAR_RIGHT), "-")
 
         If RATIO_DATA(i, REBAR_MIDDLE) * 0.7 < RATIO_DATA(i, REBAR_LEFT) And rebarLEFT(0) > 3 Then
-            Call WarningMessage("請確認是否符合 左端上層筋相對鋼筋量 規定", i)
+            Call WarningMessage("請確認左端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
         End If
 
         If RATIO_DATA(i, REBAR_MIDDLE) * 0.7 < RATIO_DATA(i, REBAR_RIGHT) And rebarRIGHT(0) > 3 Then
-            Call WarningMessage("請確認是否符合 右端上層筋相對鋼筋量 規定", i)
+            Call WarningMessage("請確認右端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
         End If
 
     Next
@@ -575,7 +591,7 @@ Function EconomicTopMidRelativeEnd()
         rebar = Split(RAW_DATA(i, REBAR_MIDDLE), "-")
 
         If RATIO_DATA(i, REBAR_MIDDLE) > minRatio * 0.7 And rebar(0) > 3 Then
-            Call WarningMessage("請確認是否符合 中央上層筋相對鋼筋量 規定", i)
+            Call WarningMessage("請確認中央上層筋相對鋼筋量，是否符合中央上層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
     Next
@@ -594,7 +610,7 @@ Function EconomicBotMidRelativeEnd()
         rebar = Split(RAW_DATA(i + 2, REBAR_MIDDLE), "-")
 
         If RATIO_DATA(i + 2, REBAR_MIDDLE) > minRatio * 0.7 And rebar(0) > 3 Then
-            Call WarningMessage("請確認是否符合 中央下層筋相對鋼筋量 規定", i)
+            Call WarningMessage("請確認中央下層筋相對鋼筋量，是否符合中央下層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
     Next
@@ -619,16 +635,11 @@ Function Norm13_5_1AndSafetyRebarNumber()
 
             stirrup = Split(RAW_DATA(i, j + 4), "@")
 
-            If rebar(0) = "1" Then
-
-                ' 排除掉1支的狀況，避免除以0
-                ' 不少於2支
-                Call WarningMessage("請確認是否符合 單排支數下限 規定", i)
-
-            ElseIf rebar(0) <> "" Then
+            ' 等於 0 直接沒做事
+            If rebar(0) > 1 Then
 
                 Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
-                tie = Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+                tie = Application.VLookup(SplitStirrup(stirrup(0)), REBAR_SIZE, DIAMETER, False)
 
                 ' 第一種方法
                 ' Max = Fix((RAW_DATA(i, BW) - 4 * 2 - tie * 2 - Db) / (2 * Db)) + 1
@@ -642,8 +653,14 @@ Function Norm13_5_1AndSafetyRebarNumber()
                 ' Norm13_5_1
                 ' 淨距不少於1Db
                 If Spacing < Db Or Spacing < 2.5 Then
-                    Call WarningMessage("請確認是否符合 單排支數上限 規定", i)
+                    Call WarningMessage("請確認單排支數上限，是否符合淨距不少於 1 Db 規定", i)
                 End If
+
+            ElseIf rebar(0) = "1" Then
+
+                ' 排除掉1支的狀況，避免除以0
+                ' 不少於2支
+                Call WarningMessage("請確認是否符合 單排支數下限 規定", i)
 
             End If
 
@@ -665,9 +682,9 @@ Function SafetyStirrupSpace()
             stirrup = Split(RAW_DATA(i, j), "@")
 
             If stirrup(1) < 10 Then
-                Call WarningMessage("請確認是否符合 箍筋間距下限 規定", i)
+                Call WarningMessage("請確認箍筋間距下限，是否符合 10cm 以上規定", i)
             ElseIf stirrup(1) > 30 Then
-                Call WarningMessage("請確認是否符合 箍筋間距上限 規定", i)
+                Call WarningMessage("請確認箍筋間距上限，是否符合 30cm 以下規定", i)
             End If
 
         Next
@@ -687,10 +704,10 @@ Function Norm4_6_6_3()
             stirrup = Split(RAW_DATA(i, j), "@")
 
             avMin = Application.Max(0.2 * Sqr(Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) * data(i, BW) * stirrup(1) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False), 3.5 * data(i, BW) * stirrup(1) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False))
-            av = Application.VLookup(stirrup(0), REBAR_SIZE, CROSS_AREA, False) * 2
+            av = RATIO_DATA(i, j)
 
             If av < avMin Then
-                Call WarningMessage("請確認是否符合 剪力鋼筋量下限 規定", i)
+                Call WarningMessage("請確認剪力鋼筋量下限，是否大於 3.52 / fy", i)
             End If
 
         Next
@@ -712,9 +729,9 @@ Function Norm4_6_7_9()
             stirrup = Split(RAW_DATA(i, j), "@")
             rebar = Split(RAW_DATA(i, j - 4), "-")
             Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
-            tie = Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+            tie = Application.VLookup(SplitStirrup(stirrup(0)), REBAR_SIZE, DIAMETER, False)
             effectiveDepth = RAW_DATA(i, H) - (4 + tie + Db / 2)
-            av = Application.VLookup(stirrup(0), REBAR_SIZE, CROSS_AREA, False) * 2
+            av = RATIO_DATA(i, j)
 
             ' code4.4.1.1
             vc = 0.53 * Sqr(Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) * RAW_DATA(i, BW) * effectiveDepth
@@ -723,7 +740,7 @@ Function Norm4_6_7_9()
             vs = av * Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FYT, False) * effectiveDepth / stirrup(1)
 
             If vs > 4 * vc * 1.2 Then
-                Call WarningMessage("請確認是否符合 剪力鋼筋量上限 規定", i)
+                Call WarningMessage("請確認剪力鋼筋量上限，是否符合規範 4.6.7.9 規定", i)
             End If
 
         Next

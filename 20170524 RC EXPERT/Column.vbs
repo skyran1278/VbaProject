@@ -36,7 +36,7 @@ Sub Main()
     Column.Initialize
 
     Column.EconomicSmooth
-    Column.EconomicSmooth
+    Column.Norm15_5_4_1
 
     Column.PrintMessage
 
