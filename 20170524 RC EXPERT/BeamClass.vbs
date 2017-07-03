@@ -122,7 +122,9 @@ Function RatioData()
         stirrup = Split(RAW_DATA(i, STIRRUP_LEFT), "@")
         Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
         tie = Application.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
-        RATIO_DATA(i, D) = RATIO_DATA(i, H) - (4 + tie + Db / 2)
+
+        ' 雙排筋
+        RATIO_DATA(i, D) = RATIO_DATA(i, H) - (4 + tie + Db * 1.5)
 
     Next
 
