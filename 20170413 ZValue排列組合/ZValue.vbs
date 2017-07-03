@@ -1,4 +1,4 @@
-Dim SUM_ARRAY(), ROW_START, ROW_END, TIME0, CANCEL, SELECT_VALUE, SELECT_VALUE_MIN, SELECT_VALUE_MAX, SELECT_VALUE_COUNT, MAX_LOOP_VALUE, OUTPUT_VALUE_COUNT, CONST_MAX_LOOP_VALUE, OUTPUT_POINT
+Dim SUM_ARRAY(), ROW_START, ROW_END, TIME0, CANCEL, SELECT_VALUE, SELECT_VALUE_LENGTH, SELECT_VALUE_COUNT, MAX_LOOP_VALUE, OUTPUT_VALUE_COUNT, CONST_MAX_LOOP_VALUE, OUTPUT_POINT
 
 ' DATA 資料命名
 Const OUTPUT_VALUE = 1
@@ -30,50 +30,54 @@ Function Initialize()
     ReDim SUM_ARRAY(ROW_START To ROW_END)
 
     Range(Cells(18, OUTPUT_VALUE), Cells(Cells(Rows.Count, OUTPUT_VALUE).End(xlUp).Row, INPUT_VALUE)).ClearContents
+    Range(Cells(9, REPLACE_NUMBER), Cells(Cells(Rows.Count, REPLACE_NUMBER).End(xlUp).Row, REPLACE_NUMBER)).ClearContents
     Range(Columns(SELECT_NUMBER), Columns(100)).ClearContents
 
 
     Cells(ROW_START, REPLACE_NUMBER).AutoFill Destination:=Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER))
 
-    SELECT_VALUE = Split(Cells(5, INPUT_VALUE).Value, "-")
-    SELECT_VALUE_MIN = SELECT_VALUE(0) * 1
-    SELECT_VALUE_MAX = SELECT_VALUE(1) * 1
-    SELECT_VALUE = SELECT_VALUE_MIN
+    SELECT_VALUE = Split(Cells(5, INPUT_VALUE).Value, ",")
+    SELECT_VALUE_LENGTH = UBound(SELECT_VALUE)
 
     CONST_MAX_LOOP_VALUE = Cells(6, INPUT_VALUE)
 
     OUTPUT_VALUE_COUNT = 18
     OUTPUT_POINT = 13
 
-    Cells(16, OUTPUT_VALUE) = Application.Sum(Range(Cells(ROW_START, Z), Cells(ROW_END, Z)))
+    Cells(16, OUTPUT_VALUE) = Application.sum(Range(Cells(ROW_START, Z), Cells(ROW_END, Z)))
 
 End Function
 
 Function LoopSelectValue()
-' 指定範圍，每次 3 個間隔
+'
+' 多次執行
+'
 
-    Do
-        SELECT_VALUE_COUNT = SELECT_VALUE
+    For i = 0 To SELECT_VALUE_LENGTH
+
+        SELECT_VALUE_COUNT = SELECT_VALUE(i)
         MAX_LOOP_VALUE = CONST_MAX_LOOP_VALUE
-        Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) = SELECT_VALUE
+        Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) = SELECT_VALUE(i)
         OUTPUT_VALUE_COUNT = OUTPUT_VALUE_COUNT + 1
         Cells(ROW_START, SELECT_NUMBER) = "*"
-        Cells(7, SELECT_NUMBER) = Application.Sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+        Cells(7, SELECT_NUMBER) = Application.sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
 
         Call Controller
 
         Columns(OUTPUT_POINT) = Columns(SELECT_NUMBER).Value
-        Cells(7, OUTPUT_POINT) = SELECT_VALUE
+        Cells(7, OUTPUT_POINT) = SELECT_VALUE(i)
         Columns(SELECT_NUMBER).ClearContents
 
         OUTPUT_POINT = OUTPUT_POINT + 1
-        SELECT_VALUE = SELECT_VALUE + 3
 
-    Loop While SELECT_VALUE <= SELECT_VALUE_MAX
+    Next
 
 End Function
 
 Function DoMoreThings(sum)
+'
+' 顯示動畫
+'
 
     If Cells(7, SELECT_NUMBER) > sum Then
         Cells(7, SELECT_NUMBER) = sum
@@ -93,8 +97,8 @@ Function Controller()
             If Cells(i, SELECT_NUMBER) = "" Then
 
                 Cells(i, SELECT_NUMBER) = "*"
-                SUM_ARRAY(i) = Application.Sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
-                DoMoreThings(SUM_ARRAY(i))
+                SUM_ARRAY(i) = Application.sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+                DoMoreThings (SUM_ARRAY(i))
                 Cells(i, SELECT_NUMBER) = ""
 
             End If
@@ -123,8 +127,8 @@ Function Controller()
                     If Cells(j, SELECT_NUMBER) = "" Then
 
                         Cells(j, SELECT_NUMBER) = "*"
-                        SUM_ARRAY(j) = Application.Sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
-                        DoMoreThings(SUM_ARRAY(j))
+                        SUM_ARRAY(j) = Application.sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+                        DoMoreThings (SUM_ARRAY(j))
                         Cells(j, SELECT_NUMBER) = ""
 
                     End If
@@ -157,8 +161,13 @@ Function Controller()
 End Function
 
 Function PrintEachLoopValue()
+'
+' 輸出 RATIO
+'
 
-    Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) = Application.Sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+    Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) = Application.sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+
+    Cells(OUTPUT_VALUE_COUNT, INPUT_VALUE) = Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) / Cells(16, OUTPUT_VALUE)
 
     OUTPUT_VALUE_COUNT = OUTPUT_VALUE_COUNT + 1
 
@@ -167,14 +176,6 @@ Function PrintEachLoopValue()
 End Function
 
 Function Terminate()
-
-    i = 18
-    Do While Cells(i, OUTPUT_VALUE) <> ""
-        If Cells(i, OUTPUT_VALUE) > Cells(16, OUTPUT_VALUE) Then
-            Cells(i, INPUT_VALUE) = Cells(i, OUTPUT_VALUE) / Cells(16, OUTPUT_VALUE)
-        End If
-        i = i + 1
-    Loop
 
     Cells(7, REPLACE_NUMBER).ClearContents
 
@@ -189,13 +190,13 @@ End Function
 Sub Main()
 '
 ' * 目的
-'       Check Norm
+'       找出最佳化數值
 
 ' * 環境
 '       Excel
 
 ' * 輸出入格式
-'       輸入：
+'       輸入：Z Value
 '       輸出：
 
 ' * 執行時間
@@ -213,4 +214,6 @@ Sub Main()
     Call Terminate
 
 End Sub
+
+
 
