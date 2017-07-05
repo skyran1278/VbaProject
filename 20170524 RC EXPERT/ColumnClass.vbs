@@ -5,7 +5,7 @@ Const STORY = 1
 Const NUMBER = 2
 Const WIDTH_X = 3
 Const WIDTH_Y = 4
-Const REBAR = 5
+Const rebar = 5
 Const REBAR_X = 6
 Const REBAR_Y = 7
 Const BOUND_AREA = 8
@@ -30,31 +30,6 @@ Const CROSS_AREA = 10
 ' 輸出資料位置
 Const MESSAGE_POSITION = 12
 
-Function Norm15_5_4_1()
-
-    For i = DATA_ROW_START To DATA_ROW_END
-
-        fcColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FC_COLUMN, False)
-        fytColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FYT, False)
-        stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
-        s = stirrup(1)
-        bcX = RAW_DATA(i, WIDTH_X) - 4 * 2 - Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
-        bcY = RAW_DATA(i, WIDTH_Y) - 4 * 2 - Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
-        ashX = stirrup(0) * (RAW_DATA(i, TIE_X) + 2)
-        ashY = stirrup(0) * (RAW_DATA(i, TIE_Y) + 2)
-        ashDivideBc = Application.min(ashX / bcX, ashY / bcY )
-        ag = WIDTH_X * WIDTH_Y
-        ach = (RAW_DATA(i, WIDTH_X) - 4 * 2) * (RAW_DATA(i, WIDTH_Y) - 4 * 2)
-        code15_3 = 0.3 * s * fcColumn / fytColumn * (ag / ach - 1)
-        code15_4 = 0.09 * s * fcColumn / fytColumn
-        If ashDivideBc < code15_3 or ashDivideBc < code15_4 Then
-            Call WarningMessage("請確認是否符合 橫向鋼筋 規定", i)
-        End If
-
-    Next
-
-End Function
-
 ' -------------------------------------------------------------------------
 ' -------------------------------------------------------------------------
 
@@ -62,11 +37,6 @@ Private Sub Class_Initialize()
 ' Called automatically when class is created
 ' GetGeneralInformation
 ' GetRebarSize
-
-    ' 排序
-    Worksheets("Z").Range(Cells(7, 3), Cells(zRowUsed, 10)).Sort _
-        Key1:=Range(Cells(8, 10), Cells(zRowUsed, 10)), Order1:=xlAscending, _
-        Key2:=Range(Cells(8, 8), Cells(zRowUsed, 8)), Order2:=xlDescending, Header:=xlYes
 
     Call GetGeneralInformation
     Call GetRebarSize
@@ -101,6 +71,9 @@ Function GetRebarSize()
 End Function
 
 Function GetData(sheet)
+'
+' 多了排序，邊界值改變
+'
 
     Worksheets(sheet).Activate
 
@@ -112,28 +85,35 @@ Function GetData(sheet)
 
     columnUsed = 11
 
+    ' 排序
+    Range(Cells(3, columnStart), Cells(rowUsed - 1, columnUsed)).Sort _
+        Key1:=Range(Cells(3, NUMBER), Cells(rowUsed - 1, NUMBER)), Order1:=xlAscending
+
+    For i = rowStart To rowUsed
+        Cells(i, rebar) = Trim(Cells(i, rebar))
+    Next
+
     RAW_DATA = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)).Value
 
 End Function
 
 Function RatioData()
+'
+' 主筋比、箍筋與繫筋面積
+'
 
-    ' 計算鋼筋面積
+    ' 計算鋼筋比
     For i = DATA_ROW_START To DATA_ROW_END
-        RATIO_DATA(i, REBAR) = CalRebarArea(RATIO_DATA(i, REBAR))
+        RATIO_DATA(i, rebar) = CalRebarArea(RATIO_DATA(i, rebar)) / (RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y))
     Next
 
     ' 計算箍筋面積
-    ' For i = DATA_ROW_START To DATA_ROW_END Step 4
-    '     For j = STIRRUP_LEFT To STIRRUP_RIGHT
-    '         RATIO_DATA(i, j) = CalStirrupArea(RATIO_DATA(i, j))
-    '     Next
-    ' Next
-
-    ' 計算側筋面積
-    ' For i = DATA_ROW_START To DATA_ROW_END Step 4
-    '     RATIO_DATA(i, SIDE_REBAR) = CalSideRebarArea(RATIO_DATA(i, SIDE_REBAR))
-    ' Next
+    For i = DATA_ROW_START To DATA_ROW_END
+        stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
+        stirrup = Application.VLookup(stirrup(0), REBAR_SIZE, CROSS_AREA, False)
+        RATIO_DATA(i, TIE_X) = stirrup * (RAW_DATA(i, TIE_X) + 2)
+        RATIO_DATA(i, TIE_Y) = stirrup * (RAW_DATA(i, TIE_Y) + 2)
+    Next
 
     ' 計算有效深度
     ' For i = DATA_ROW_START To DATA_ROW_END Step 4
@@ -152,15 +132,10 @@ Function CalRebarArea(rebar)
 
     tmp = Split(rebar, "-")
 
-    If tmp(1) <> "" Then
+    ' 轉換鋼筋尺寸為截面積
+    tmp(1) = Application.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
 
-        ' 轉換鋼筋尺寸為截面積
-        tmp(1) = Application.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
-
-        CalRebarArea = tmp(0) * tmp(1)
-    Else
-        CalRebarArea = 0
-    End If
+    CalRebarArea = tmp(0) * tmp(1)
 
 End Function
 
@@ -257,26 +232,76 @@ Function EconomicSmooth()
     For i = DATA_ROW_START To DATA_ROW_END
 
         ' 3 case
-        isUpperLimit =  RAW_DATA(i, NUMBER) <> RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) = RAW_DATA(i + 1, NUMBER)
-        isMiddle =  RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) = RAW_DATA(i + 1, NUMBER)
-        isLowerLimit =  RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) <> RAW_DATA(i + 1, NUMBER)
+        isUpperLimit = RAW_DATA(i, NUMBER) <> RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) = RAW_DATA(i + 1, NUMBER)
+        isMiddle = RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) = RAW_DATA(i + 1, NUMBER)
+        isLowerLimit = RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) <> RAW_DATA(i + 1, NUMBER)
 
-        noSmoothDown = RATIO_DATA(i + 1, REBAR) < RATIO_DATA(i, REBAR) * 0.7 And RATIO_DATA(i + 1, REBAR) <> 0
-        noSmoothUp = RATIO_DATA(i - 1, REBAR) < RATIO_DATA(i, REBAR) * 0.6 And RATIO_DATA(i - 1, REBAR) <> 0
+        noSmoothDown = RATIO_DATA(i + 1, rebar) < RATIO_DATA(i, rebar) * 0.7
+        noSmoothUp = RATIO_DATA(i - 1, rebar) < RATIO_DATA(i, rebar) * 0.6
 
-        If isMiddle and noSmoothDown Then
+        If isMiddle And noSmoothDown Then
             Call WarningMessage("請確認是否符合 Smooth Down 規定", i)
-        elseif isMiddle and noSmoothUp Then
+        ElseIf isMiddle And noSmoothUp Then
             Call WarningMessage("請確認是否符合 Smooth Up 規定", i)
         End If
 
-        If isUpperLimit and noSmoothDown Then
+        If isUpperLimit And noSmoothDown Then
             Call WarningMessage("請確認是否符合 Smooth Down 規定", i)
         End If
 
-        If isLowerLimit and noSmoothUp Then
+        If isLowerLimit And noSmoothUp Then
             Call WarningMessage("請確認是否符合 Smooth Up 規定", i)
         End If
+
+    Next
+
+End Function
+
+Function Norm15_5_4_1()
+
+    For i = DATA_ROW_START To DATA_ROW_END
+
+        fcColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FC_COLUMN, False)
+        fytColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FYT, False)
+        stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
+        s = stirrup(1)
+        bcX = RAW_DATA(i, WIDTH_X) - 4 * 2 - Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+        bcY = RAW_DATA(i, WIDTH_Y) - 4 * 2 - Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+        ashDivideBc = Application.Min(RATIO_DATA(i, TIE_X) / bcX, RATIO_DATA(i, TIE_Y) / bcY)
+        ag = RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y)
+        ach = (RAW_DATA(i, WIDTH_X) - 4 * 2) * (RAW_DATA(i, WIDTH_Y) - 4 * 2)
+        code15_3 = 0.3 * s * fcColumn / fytColumn * (ag / ach - 1)
+        code15_4 = 0.09 * s * fcColumn / fytColumn
+        If ashDivideBc < code15_3 Or ashDivideBc < code15_4 Then
+            Call WarningMessage("請確認橫向鋼筋，是否符合 規範 15.5.4.1 規定", i)
+        End If
+
+    Next
+
+End Function
+
+Function EconomicTopStoryRebar()
+'
+' 一定要有 1F 和 RF
+'
+    For i = 1 To UBound(GENERAL_INFORMATION)
+        If GENERAL_INFORMATION(i, STORY) = "1F" Then
+            firstStory = i
+        ElseIf GENERAL_INFORMATION(i, STORY) = "RF" Then
+            topStory = i
+        End If
+    Next
+
+    checkStoryNumber = Fix((topStory - firstStory + 1) / 4)
+
+    For i = DATA_ROW_START To DATA_ROW_END
+        For j = topStory - checkStoryNumber + 1 To topStory
+
+            If RAW_DATA(i, STORY) = GENERAL_INFORMATION(j, STORY) And RATIO_DATA(i, rebar) > 0.01 * 1.2 Then
+                    Call WarningMessage("請確認高樓鋼筋比，是否超過 1.2 %", i)
+            End If
+
+        Next
 
     Next
 

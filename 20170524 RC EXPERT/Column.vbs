@@ -37,6 +37,7 @@ Sub Main()
 
     Column.EconomicSmooth
     Column.Norm15_5_4_1
+    Column.EconomicTopStoryRebar
 
     Column.PrintMessage
 
