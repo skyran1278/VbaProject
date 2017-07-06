@@ -1,11 +1,11 @@
-Dim GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, MESSAGE()
+Dim MESSAGE(), GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, REBAR_NUMBER()
 
 ' RAW_DATA 資料命名
 Const STORY = 1
 Const NUMBER = 2
 Const WIDTH_X = 3
 Const WIDTH_Y = 4
-Const rebar = 5
+Const REBAR = 5
 Const REBAR_X = 6
 Const REBAR_Y = 7
 Const BOUND_AREA = 8
@@ -90,7 +90,7 @@ Function GetData(sheet)
         Key1:=Range(Cells(3, NUMBER), Cells(rowUsed - 1, NUMBER)), Order1:=xlAscending
 
     For i = rowStart To rowUsed
-        Cells(i, rebar) = Trim(Cells(i, rebar))
+        Cells(i, REBAR) = Trim(Cells(i, REBAR))
     Next
 
     RAW_DATA = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)).Value
@@ -104,7 +104,7 @@ Function RatioData()
 
     ' 計算鋼筋比
     For i = DATA_ROW_START To DATA_ROW_END
-        RATIO_DATA(i, rebar) = CalRebarArea(RATIO_DATA(i, rebar)) / (RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y))
+        RATIO_DATA(i, REBAR) = CalRebarArea(RATIO_DATA(i, REBAR)) / (RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y))
     Next
 
     ' 計算箍筋面積
@@ -118,9 +118,9 @@ Function RatioData()
     ' 計算有效深度
     ' For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-    '     rebar = Split(RAW_DATA(i, REBAR_LEFT), "-")
+    '     REBAR = Split(RAW_DATA(i, REBAR_LEFT), "-")
     '     stirrup = Split(RAW_DATA(i, STIRRUP_LEFT), "@")
-    '     Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
+    '     Db = Application.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
     '     tie = Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
     '     RATIO_DATA(i, D) = RATIO_DATA(i, H) - (4 + tie + Db * 1.5)
 
@@ -128,9 +128,9 @@ Function RatioData()
 
 End Function
 
-Function CalRebarArea(rebar)
+Function CalRebarArea(REBAR)
 
-    tmp = Split(rebar, "-")
+    tmp = Split(REBAR, "-")
 
     ' 轉換鋼筋尺寸為截面積
     tmp(1) = Application.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
@@ -139,9 +139,9 @@ Function CalRebarArea(rebar)
 
 End Function
 
-' Function CalStirrupArea(rebar)
+' Function CalStirrupArea(REBAR)
 
-'     tmp = Split(rebar, "@")
+'     tmp = Split(REBAR, "@")
 
 '     ' 轉換鋼筋尺寸為截面積
 '     tmp(0) = Application.VLookup(tmp(0), REBAR_SIZE, CROSS_AREA, False)
@@ -151,13 +151,13 @@ End Function
 
 ' End Function
 
-' Function CalSideRebarArea(rebar)
+' Function CalSideRebarArea(REBAR)
 
-'     If rebar <> "-" Then
+'     If REBAR <> "-" Then
 
-'         rebar = Left(rebar, Len(rebar) - 2)
+'         REBAR = Left(REBAR, Len(REBAR) - 2)
 
-'         tmp = Split(rebar, "#")
+'         tmp = Split(REBAR, "#")
 
 '         ' 轉換鋼筋尺寸為截面積
 '         tmp(1) = Application.VLookup("#" & tmp(1), REBAR_SIZE, CROSS_AREA, False)
@@ -221,6 +221,21 @@ End Function
 Private Sub Class_Terminate()
 
     ' Called automatically when all references to class instance are removed
+    Worksheets("柱鋼筋比").Activate
+    rowStart = 1
+    rowUsed = UBound(RATIO_DATA)
+    columnStart = 1
+    columnUsed = 5
+
+    Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = RATIO_DATA
+
+    Worksheets("鋼筋號數比").Activate
+    rowStart = 3
+    rowUsed = UBound(REBAR_NUMBER) + 1
+    columnStart = 2
+    columnUsed = 3
+
+    Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = REBAR_NUMBER
 
 End Sub
 
@@ -236,8 +251,8 @@ Function EconomicSmooth()
         isMiddle = RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) = RAW_DATA(i + 1, NUMBER)
         isLowerLimit = RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) <> RAW_DATA(i + 1, NUMBER)
 
-        noSmoothDown = RATIO_DATA(i + 1, rebar) < RATIO_DATA(i, rebar) * 0.7
-        noSmoothUp = RATIO_DATA(i - 1, rebar) < RATIO_DATA(i, rebar) * 0.6
+        noSmoothDown = RATIO_DATA(i + 1, REBAR) < RATIO_DATA(i, REBAR) * 0.7
+        noSmoothUp = RATIO_DATA(i - 1, REBAR) < RATIO_DATA(i, REBAR) * 0.6
 
         If isMiddle And noSmoothDown Then
             Call WarningMessage("請確認是否符合 Smooth Down 規定", i)
@@ -297,7 +312,7 @@ Function EconomicTopStoryRebar()
     For i = DATA_ROW_START To DATA_ROW_END
         For j = topStory - checkStoryNumber + 1 To topStory
 
-            If RAW_DATA(i, STORY) = GENERAL_INFORMATION(j, STORY) And RATIO_DATA(i, rebar) > 0.01 * 1.2 Then
+            If RAW_DATA(i, STORY) = GENERAL_INFORMATION(j, STORY) And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
                     Call WarningMessage("請確認高樓鋼筋比，是否超過 1.2 %", i)
             End If
 
@@ -307,3 +322,44 @@ Function EconomicTopStoryRebar()
 
 End Function
 
+Function CountRebarNumber()
+
+    rowStart = 2
+    rowEnd = UBound(REBAR_SIZE)
+    ReDim REBAR_NUMBER(rowStart To rowEnd, 1 To 2)
+
+    For i = DATA_ROW_START To DATA_ROW_END
+
+        rebarNumber = Split(RAW_DATA(i, REBAR), "-")(1)
+        boundStirrupNumber = Split(RAW_DATA(i, BOUND_AREA), "@")(0)
+        nonBoundStirrupNumber = Split(RAW_DATA(i, NON_BOUND_AREA), "@")(0)
+
+        For j = rowStart To rowEnd
+
+            If rebarNumber = REBAR_SIZE(j, 1) Then
+                REBAR_NUMBER(j, 1) = REBAR_NUMBER(j, 1) + 1
+            End If
+
+            If boundStirrupNumber = REBAR_SIZE(j, 1) Then
+                REBAR_NUMBER(j, 2) = REBAR_NUMBER(j, 2) + 1
+            End If
+
+            If nonBoundStirrupNumber = REBAR_SIZE(j, 1) Then
+                REBAR_NUMBER(j, 2) = REBAR_NUMBER(j, 2) + 1
+            End If
+
+        Next
+
+    Next
+
+    For i = rowStart To rowEnd
+        sumRebarNumber = sumRebarNumber + REBAR_NUMBER(i, 1)
+        sumStirrupNumber = sumStirrupNumber + REBAR_NUMBER(i, 2)
+    Next
+
+    For i = rowStart To rowEnd
+        REBAR_NUMBER(i, 1) = REBAR_NUMBER(i, 1) / sumRebarNumber
+        REBAR_NUMBER(i, 2) = REBAR_NUMBER(i, 2) / sumStirrupNumber
+    Next
+
+End Function

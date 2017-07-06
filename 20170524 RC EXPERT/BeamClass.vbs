@@ -1,4 +1,4 @@
-Dim GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, MESSAGE()
+Dim MESSAGE(), WORKSHEET, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, REBAR_NUMBER()
 
 ' RAW_DATA 資料命名
 Const STORY = 1
@@ -76,7 +76,9 @@ End Function
 
 Function GetData(sheet)
 
-    Worksheets(sheet).Activate
+    WORKSHEET = sheet
+
+    Worksheets(WORKSHEET).Activate
 
     rowStart = 1
     columnStart = 1
@@ -192,8 +194,6 @@ Function CalSideRebarArea(rebar)
         CalSideRebarArea = 0
     End If
 
-
-
 End Function
 
 Function Initialize()
@@ -244,6 +244,21 @@ End Function
 Private Sub Class_Terminate()
 
     ' Called automatically when all references to class instance are removed
+    Worksheets("鋼筋號數比").Activate
+    rowStart = 3
+    rowUsed = UBound(REBAR_NUMBER) + 1
+
+    If WORKSHEET <> "大梁配筋" Then
+        columnStart = 4
+    ElseIf WORKSHEET <> "小梁配筋" Then
+        columnStart = 7
+    ElseIf WORKSHEET <> "地梁配筋" Then
+        columnStart = 10
+    End If
+
+    columnUsed = columnStart + 2
+
+    Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = REBAR_NUMBER
 
 End Sub
 
@@ -767,6 +782,110 @@ Function Norm3_8_1()
             Call WarningMessage("請確認是否為深梁", i)
         End If
 
+    Next
+
+End Function
+
+Function Norm3_7_5()
+
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+        If RAW_DATA(i, H) > 90 Then
+            Call WarningMessage("請確認是否符合 規範 3.7.5", i)
+        End If
+
+    Next
+
+End Function
+
+Function CountRebarNumber()
+
+    rowStart = 2
+    rowEnd = UBound(REBAR_SIZE)
+    ReDim REBAR_NUMBER(rowStart To rowEnd, 1 To 3)
+
+    ' 主筋
+    For i = DATA_ROW_START To DATA_ROW_END
+
+        For j = REBAR_LEFT To REBAR_RIGHT
+
+            rebarNumber = Split(RAW_DATA(i, j), "-")
+
+            If rebarNumber(0) > 0 Then
+                rebarNumber = rebarNumber(1)
+            Else
+                rebarNumber = ""
+            End If
+
+            For k = rowStart To rowEnd
+
+                If rebarNumber = REBAR_SIZE(k, 1) Then
+                    REBAR_NUMBER(k, 1) = REBAR_NUMBER(k, 1) + 1
+                End If
+
+            Next
+
+        Next
+
+    Next
+
+    ' 腰筋
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+        If RAW_DATA(i, SIDE_REBAR) <> "-" Then
+
+            sideRebar = Left(RAW_DATA(i, SIDE_REBAR), Len(RAW_DATA(i, SIDE_REBAR)) - 2)
+
+            rebarNumber = Split(sideRebar, "#")
+
+            rebarNumber = "#" & rebarNumber(1)
+
+            For j = rowStart To rowEnd
+
+                If rebarNumber = REBAR_SIZE(j, 1) Then
+                    REBAR_NUMBER(j, 2) = REBAR_NUMBER(j, 2) + 1
+                End If
+
+            Next
+
+        End If
+
+    Next
+
+    ' 箍筋
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+        For j = STIRRUP_LEFT To STIRRUP_RIGHT
+
+            rebarNumber = Split(RAW_DATA(i, j), "@")(0)
+            rebarNumber = Split(rebarNumber, "#")
+            rebarNumber = "#" & rebarNumber(1)
+
+            For k = rowStart To rowEnd
+
+                If rebarNumber = REBAR_SIZE(k, 1) Then
+                    REBAR_NUMBER(k, 3) = REBAR_NUMBER(k, 3) + 1
+                End If
+
+            Next
+
+        Next
+
+    Next
+
+    ' 轉換成比例
+    Dim sum(1 to 3)
+    For i = rowStart To rowEnd
+        For j = 1 To 3
+            sum(j) = sum(j) + REBAR_NUMBER(i, j)
+        Next
+    Next
+    For j = 1 To 3
+        If sum(j) <> 0 Then
+            For i = rowStart To rowEnd
+                REBAR_NUMBER(i, 1) = REBAR_NUMBER(i, 1) / sum(j)
+            Next
+        End If
     Next
 
 End Function

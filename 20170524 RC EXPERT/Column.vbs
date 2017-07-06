@@ -38,9 +38,13 @@ Sub Main()
     Column.EconomicSmooth
     Column.Norm15_5_4_1
     Column.EconomicTopStoryRebar
+    Column.CountRebarNumber
 
     Column.PrintMessage
+
+    Set Column = Nothing
 
     Call ExecutionTime(Time0)
 
 End Sub
+

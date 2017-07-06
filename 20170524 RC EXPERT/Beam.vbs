@@ -15,6 +15,7 @@ Sub CheckGroundBeamNorm()
     GroundBeam.EconomicBotMidRelativeEnd
     GroundBeam.EconomicTopEndRelativeMid
     GroundBeam.SafetyStirrupSpace
+    GroundBeam.CountRebarNumber
 
     GroundBeam.PrintMessage
 
@@ -30,9 +31,11 @@ Sub CheckBeamNorm()
     Beam.Initialize
 
     Beam.Norm3_6
+    Beam.Norm3_7_5
     Beam.Norm13_5_1AndSafetyRebarNumber
     Beam.SafetyRebarRatioSB
     Beam.SafetyLoad
+    Beam.CountRebarNumber
 
     Beam.PrintMessage
 
@@ -48,6 +51,7 @@ Sub CheckGirderNorm()
     Girder.Initialize
 
     Girder.Norm3_6
+    Girder.Norm3_7_5
     Girder.Norm3_8_1
     Girder.Norm4_6_7_9
     Girder.Norm13_5_1AndSafetyRebarNumber
@@ -55,6 +59,7 @@ Sub CheckGirderNorm()
     Girder.Norm15_4_2_2
     Girder.SafetyStirrupSpace
     Girder.EconomicTopMidRelativeEnd
+    Girder.CountRebarNumber
 
     Girder.PrintMessage
 
