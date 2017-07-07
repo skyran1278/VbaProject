@@ -218,9 +218,8 @@ Function PrintMessage()
 
 End Function
 
-Private Sub Class_Terminate()
+Function PrintRebarRatio()
 
-    ' Called automatically when all references to class instance are removed
     Worksheets("柱鋼筋比").Activate
     rowStart = 1
     rowUsed = UBound(RATIO_DATA)
@@ -237,12 +236,22 @@ Private Sub Class_Terminate()
 
     Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = REBAR_NUMBER
 
+End Function
+
+Private Sub Class_Terminate()
+
+    ' Called automatically when all references to class instance are removed
+
 End Sub
 
 ' -------------------------------------------------------------------------
 ' -------------------------------------------------------------------------
 
 Function EconomicSmooth()
+'
+' 往上漸縮  不低於60%
+' 往下漸縮  不低於70%
+' 邏輯感覺蠻奇怪的，或許可以修改。2017/07/07
 
     For i = DATA_ROW_START To DATA_ROW_END
 
@@ -255,17 +264,17 @@ Function EconomicSmooth()
         noSmoothUp = RATIO_DATA(i - 1, REBAR) < RATIO_DATA(i, REBAR) * 0.6
 
         If isMiddle And noSmoothDown Then
-            Call WarningMessage("請確認是否符合 Smooth Down 規定", i)
+            Call WarningMessage("【0401】請確認上層柱主筋量，漸縮是否過大", i)
         ElseIf isMiddle And noSmoothUp Then
-            Call WarningMessage("請確認是否符合 Smooth Up 規定", i)
+            Call WarningMessage("【0402】請確認本層柱主筋量，漸縮是否過大", i)
         End If
 
         If isUpperLimit And noSmoothDown Then
-            Call WarningMessage("請確認是否符合 Smooth Down 規定", i)
+            Call WarningMessage("【0401】請確認上層柱主筋量，漸縮是否過大", i)
         End If
 
         If isLowerLimit And noSmoothUp Then
-            Call WarningMessage("請確認是否符合 Smooth Up 規定", i)
+            Call WarningMessage("【0402】請確認本層柱主筋量，漸縮是否過大", i)
         End If
 
     Next
@@ -273,6 +282,8 @@ Function EconomicSmooth()
 End Function
 
 Function Norm15_5_4_1()
+'
+' 矩形閉合箍筋及繫筋之總斷面積 Ash 不得小於式(15-3)及式(15-4)之值。
 
     For i = DATA_ROW_START To DATA_ROW_END
 
@@ -288,7 +299,7 @@ Function Norm15_5_4_1()
         code15_3 = 0.3 * s * fcColumn / fytColumn * (ag / ach - 1)
         code15_4 = 0.09 * s * fcColumn / fytColumn
         If ashDivideBc < code15_3 Or ashDivideBc < code15_4 Then
-            Call WarningMessage("請確認橫向鋼筋，是否符合 規範 15.5.4.1 規定", i)
+            Call WarningMessage("【0403】請確認橫向鋼筋，是否符合 規範 15.5.4.1 規定", i)
         End If
 
     Next
@@ -298,6 +309,7 @@ End Function
 Function EconomicTopStoryRebar()
 '
 ' 一定要有 1F 和 RF
+' 頂樓區鋼筋比不大於 1.2 %
 '
     For i = 1 To UBound(GENERAL_INFORMATION)
         If GENERAL_INFORMATION(i, STORY) = "1F" Then
@@ -313,7 +325,7 @@ Function EconomicTopStoryRebar()
         For j = topStory - checkStoryNumber + 1 To topStory
 
             If RAW_DATA(i, STORY) = GENERAL_INFORMATION(j, STORY) And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
-                    Call WarningMessage("請確認高樓鋼筋比，是否超過 1.2 %", i)
+                    Call WarningMessage("【0404】請確認高樓區鋼筋比，是否超過 1.2 %", i)
             End If
 
         Next
@@ -358,8 +370,12 @@ Function CountRebarNumber()
     Next
 
     For i = rowStart To rowEnd
-        REBAR_NUMBER(i, 1) = REBAR_NUMBER(i, 1) / sumRebarNumber
-        REBAR_NUMBER(i, 2) = REBAR_NUMBER(i, 2) / sumStirrupNumber
+        If REBAR_NUMBER(i, 1) <> 0 Then
+            REBAR_NUMBER(i, 1) = REBAR_NUMBER(i, 1) / sumRebarNumber
+        End If
+        If REBAR_NUMBER(i, 2) <> 0 Then
+            REBAR_NUMBER(i, 2) = REBAR_NUMBER(i, 2) / sumStirrupNumber
+        End If
     Next
 
 End Function
