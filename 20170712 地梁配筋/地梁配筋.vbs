@@ -663,6 +663,7 @@ For i = 1 To namecounterForWeb
             Cells(j, "R") = depth493(i - 1)
         End If
     Next
+
     VAreaLower493(i - 1) = 0.0025 * width493(i - 1)
 Next
 '處理NameListForWeb , namecounterForWeb
