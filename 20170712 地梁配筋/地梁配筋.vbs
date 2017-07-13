@@ -805,7 +805,7 @@ Dim b As Double
                 Cells(i, "M") = "號數過大"
                 End If
 
-                Cells(i, "L") = Chr(35) & Vsizeup(i - 2)
+                Cells(i, "L") = "2" & Chr(35) & Vsizeup(i - 2)
                 If StrComp(Cells(i, "M"), "號數過大") <> 0 Then
                     If Cells(i, "E") <> 0 Then
                         Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
