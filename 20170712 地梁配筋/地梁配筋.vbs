@@ -755,6 +755,7 @@ Dim b As Double
         '''SPACING <10 改雙箍 spacing過大改至上限值 其餘無條件進位至整數
         While (Cells(i, "N") < 10 And StrComp(Cells(i, "M"), "號數過大") <> 0)  '先改雙箍
             Cells(i, "L") = "2" & Chr(35) & Vsizeup(i - 2)
+            Cells(i, "M") = Cells(i, "M") * 2
             If Cells(i, "E") <> 0 Then
                 Cells(i, "N") = Cells(i, "M") * 1 * 4 / Cells(i, "E") '改雙箍之後間距的計算方法
             Else ''若有無剪力需求 SPACING卻小於10 代表是被鋼筋號數太小害的(A>=0.0025bws)
