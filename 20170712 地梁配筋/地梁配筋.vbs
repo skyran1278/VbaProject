@@ -175,28 +175,29 @@ Sub Cal_S1()
         '''SPACING <10 改雙箍 spacing過大改至上限值 其餘無條件進位至整數
         While (Cells(i, "N") < 10 And done <> 1) '先改雙箍
             Cells(i, "L") = "2" & Chr(35) & Vsizeup(i - 2)
-            Cells(i, "N") = Cells(i, "M") * 1 * 4 / Cells(i, "E")
+            Cells(i, "M") = Cells(i, "M") * 2
+            Cells(i, "N") = Cells(i, "M") * 1 / Cells(i, "E")
             If Cells(i, "N") < 10 Then '再升號數
                 looptime = looptime + 1
                 Vsizeup(i - 2) = Vsize + looptime
 
                 If Vsizeup(i - 2) = 3 Then
-                VAreaup = 0.71
+                VAreaup = 0.71 * 2
                 Cells(i, "L") = Chr(35) & Vsizeup(i - 2)
                 Cells(i, "M") = VAreaup
                 Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
                 ElseIf Vsizeup(i - 2) = 4 Then
-                VAreaup = 1.27
+                VAreaup = 1.27 * 2
                 Cells(i, "L") = Chr(35) & Vsizeup(i - 2)
                 Cells(i, "M") = VAreaup
                 Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
                 ElseIf Vsizeup(i - 2) = 5 Then
-                VAreaup = 1.99
+                VAreaup = 1.99 * 2
                 Cells(i, "L") = Chr(35) & Vsizeup(i - 2)
                 Cells(i, "M") = VAreaup
                 Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
                 ElseIf Vsizeup(i - 2) = 6 Then
-                VAreaup = 2.87
+                VAreaup = 2.87 * 2
                 Cells(i, "L") = Chr(35) & Vsizeup(i - 2)
                 Cells(i, "M") = VAreaup
                 Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
@@ -757,9 +758,9 @@ Dim b As Double
             Cells(i, "L") = "2" & Chr(35) & Vsizeup(i - 2)
             Cells(i, "M") = Cells(i, "M") * 2
             If Cells(i, "E") <> 0 Then
-                Cells(i, "N") = Cells(i, "M") * 1 * 4 / Cells(i, "E") '改雙箍之後間距的計算方法
+                Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E") '改雙箍之後間距的計算方法
             Else ''若有無剪力需求 SPACING卻小於10 代表是被鋼筋號數太小害的(A>=0.0025bws)
-                VAreaup = Cells(i, "M") * 2 * 2
+                VAreaup = Cells(i, "M") * 2
                 For j = 1 To namecounterForWeb
                     If Cells(i, "K") = name493(j - 1) Then
                         Cells(i, "N") = VAreaup / VAreaLower493(j - 1) ''將間距提升到改雙箍後的上限間距
@@ -769,7 +770,7 @@ Dim b As Double
 
             If Cells(i, "E") <> 0 Then
                 ''''''493
-                VAreaup = Cells(i, "M") * 2 * 2
+                VAreaup = Cells(i, "M") * 2
                 a = VAreaup / Cells(i, "N").Value
                 For j = 1 To namecounterForWeb
                     If Cells(i, "K") = name493(j - 1) Then
