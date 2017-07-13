@@ -415,7 +415,7 @@ Sheets("計算表").Select
 Dim cnt As Integer
 cnt = Range("A1").End(xlDown).Row
 Dim DistCoef As Double
-    DistCoef = InputBox("請輸入主筋中心距。若為2db則輸入2，2.5db則輸入2.5。", "主筋間距限制", "2")
+    DistCoef = InputBox("請輸入主筋中心距。若為2db則輸入2，2.5db則輸入2.5。", "主筋間距限制", "2.5")
     netprotect = InputBox("請輸入淨保護層厚度(cm)。", "淨保護層厚度", "7.5")
 Dim dv As Double
 For i = 2 To cnt
@@ -675,49 +675,59 @@ Dim b As Double
     For i = 2 To cnt
     '''0需求
         If Cells(i, "E") = 0 Then
-            If StrComp(Cells(i, "B"), "Middle") = 0 Then
-                Cells(i, "N") = maxspacingM
-                ''''''493
-                a = VArea / Cells(i, "N").Value ''面積除以間距
-                For j = 1 To namecounterForWeb ''對每一根都做
-                    If Cells(i, "K") = name493(j - 1) Then ''名字對到的時候
-                        If VAreaLower493(j - 1) > a Then ''若鋼筋間距不符合493的敘述 (已經同除間距)
-                            Cells(i, "N") = VArea / VAreaLower493(j - 1) ''反求一個可以符合493敘述的間距並帶回
-                        End If
-                        b = WorksheetFunction.Min((Cells(i, "R") - netprotect) / 5, 30) ''S不得大於b b是有效深度的五分之一 或三十公分
-                        If Cells(i, "N") > b Then ''如果S大於b
-                            Cells(i, "N") = b ''縮到b
-                        End If
-                    End If
-                Next
-                ''''''493
-            Else
-                Cells(i, "N") = maxspacingLNR
-                ''''''493
-                a = VArea / Cells(i, "N").Value
-                For j = 1 To namecounterForWeb
-                    If Cells(i, "K") = name493(j - 1) Then
-                        If VAreaLower493(j - 1) > a Then
-                            Cells(i, "N") = VArea / VAreaLower493(j - 1)
-                        End If
-                        b = WorksheetFunction.Min((Cells(i, "R") - netprotect) / 5, 30)
-                        If Cells(i, "N") > b Then
-                            Cells(i, "N") = b
-                        End If
-                    End If
-                Next
-                ''''''493
-            End If
+            ' 簡化
+            For j = 1 To namecounterForWeb ''對每一根都做
+                If Cells(i, "K") = name493(j - 1) Then ''名字對到的時候
+                    Cells(i, "N") = VArea * 2 / VAreaLower493(j - 1) ''反求一個可以符合493敘述的間距並帶回
+                End If
+            Next
+            ' ' Cells(i, "N") = VArea * 2 / VAreaLower493(j - 1) ' 簡化 20170712
+            ' If StrComp(Cells(i, "B"), "Middle") = 0 Then
+            '     Cells(i, "N") = maxspacingM
+            '     ''''''493
+            '     a = VArea / Cells(i, "N").Value ''面積除以間距
+            '     For j = 1 To namecounterForWeb ''對每一根都做
+            '         If Cells(i, "K") = name493(j - 1) Then ''名字對到的時候
+            '             If VAreaLower493(j - 1) > a Then ''若鋼筋間距不符合493的敘述 (已經同除間距)
+            '                 Cells(i, "N") = VArea * 2 / VAreaLower493(j - 1) ''反求一個可以符合493敘述的間距並帶回
+            '             End If
+            '             b = WorksheetFunction.Min((Cells(i, "R") - netprotect) / 5, 30) ''S不得大於b b是有效深度的五分之一 或三十公分
+            '             If Cells(i, "N") > b Then ''如果S大於b
+            '                 Cells(i, "N") = b ''縮到b
+            '             End If
+            '         End If
+            '     Next
+            '     ''''''493
+            ' Else
+            '     Cells(i, "N") = maxspacingLNR
+            '     ''''''493
+            '     a = VArea / Cells(i, "N").Value
+            '     For j = 1 To namecounterForWeb
+            '         If Cells(i, "K") = name493(j - 1) Then
+            '             If VAreaLower493(j - 1) > a Then
+            '                 Cells(i, "N") = VArea / VAreaLower493(j - 1)
+            '             End If
+            '             b = WorksheetFunction.Min((Cells(i, "R") - netprotect) / 5, 30)
+            '             If Cells(i, "N") > b Then
+            '                 Cells(i, "N") = b
+            '             End If
+            '         End If
+            '     Next
+            '     ''''''493
+            ' End If
 
 '''''''有需求''''''''''
         Else
-            Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
+            ' Cells(i, "N") = Cells(i, "M") * 2 / Cells(i, "E")
                 ''''''493
-                a = VArea / Cells(i, "N").Value
+                ' a = VArea  * 2 / Cells(i, "N").Value
+                a = Cells(i, "E")
                 For j = 1 To namecounterForWeb
                     If Cells(i, "K") = name493(j - 1) Then
                         If VAreaLower493(j - 1) > a Then
-                            Cells(i, "N") = VArea / VAreaLower493(j - 1)
+                            Cells(i, "N") = Cells(i, "M") * 2 / VAreaLower493(j - 1)
+                        Else
+                            Cells(i, "N") = Cells(i, "M") * 2 / a
                         End If
                         b = WorksheetFunction.Min((Cells(i, "R") - netprotect) / 5, 30)
                         If Cells(i, "N") > b Then
@@ -747,7 +757,7 @@ Dim b As Double
             If Cells(i, "E") <> 0 Then
                 Cells(i, "N") = Cells(i, "M") * 1 * 4 / Cells(i, "E") '改雙箍之後間距的計算方法
             Else ''若有無剪力需求 SPACING卻小於10 代表是被鋼筋號數太小害的(A>=0.0025bws)
-                VAreaup = Cells(i, "M") * 2
+                VAreaup = Cells(i, "M") * 2 * 2
                 For j = 1 To namecounterForWeb
                     If Cells(i, "K") = name493(j - 1) Then
                         Cells(i, "N") = VAreaup / VAreaLower493(j - 1) ''將間距提升到改雙箍後的上限間距
@@ -757,7 +767,7 @@ Dim b As Double
 
             If Cells(i, "E") <> 0 Then
                 ''''''493
-                VAreaup = Cells(i, "M") * 2
+                VAreaup = Cells(i, "M") * 2 * 2
                 a = VAreaup / Cells(i, "N").Value
                 For j = 1 To namecounterForWeb
                     If Cells(i, "K") = name493(j - 1) Then
@@ -779,16 +789,16 @@ Dim b As Double
                 Vsizeup(i - 2) = Vsize + looptime
 
                 If Vsizeup(i - 2) = 3 Then
-                VAreaup = 0.71
+                VAreaup = 0.71 * 2
                 Cells(i, "M") = VAreaup
                 ElseIf Vsizeup(i - 2) = 4 Then
-                VAreaup = 1.27
+                VAreaup = 1.27 * 2
                 Cells(i, "M") = VAreaup
                 ElseIf Vsizeup(i - 2) = 5 Then
-                VAreaup = 1.99
+                VAreaup = 1.99 * 2
                 Cells(i, "M") = VAreaup
                 ElseIf Vsizeup(i - 2) = 6 Then
-                VAreaup = 2.87
+                VAreaup = 2.87 * 2
                 Cells(i, "M") = VAreaup
                 Else
                 Cells(i, "M") = "號數過大"
@@ -825,6 +835,7 @@ Dim b As Double
         looptime = 0
         '''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''間距限制在max內
         If StrComp(Cells(i, "M"), "號數過大") <> 0 Then ''沒排除會STR轉ASCII
+            VAreaup = Cells(i, "M") * 2
             If StrComp(Cells(i, "B"), "Middle") = 0 And Cells(i, "N") > maxspacingM Then
                 Cells(i, "N") = maxspacingM
                     ''''''493
@@ -1161,5 +1172,6 @@ Application.ScreenUpdating = True
 
 
 End Sub
+
 
 
