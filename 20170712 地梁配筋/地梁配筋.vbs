@@ -185,22 +185,22 @@ Sub Cal_S1()
                 Vsizeup(i - 2) = Vsize + looptime
 
                 If Vsizeup(i - 2) = 3 Then
-                VAreaup = 0.71 * 2
+                VAreaup = 0.71
                 Cells(i, "L") = Chr(35) & Vsizeup(i - 2)
                 Cells(i, "M") = VAreaup
                 Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
                 ElseIf Vsizeup(i - 2) = 4 Then
-                VAreaup = 1.27 * 2
+                VAreaup = 1.27
                 Cells(i, "L") = Chr(35) & Vsizeup(i - 2)
                 Cells(i, "M") = VAreaup
                 Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
                 ElseIf Vsizeup(i - 2) = 5 Then
-                VAreaup = 1.99 * 2
+                VAreaup = 1.99
                 Cells(i, "L") = Chr(35) & Vsizeup(i - 2)
                 Cells(i, "M") = VAreaup
                 Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
                 ElseIf Vsizeup(i - 2) = 6 Then
-                VAreaup = 2.87 * 2
+                VAreaup = 2.87
                 Cells(i, "L") = Chr(35) & Vsizeup(i - 2)
                 Cells(i, "M") = VAreaup
                 Cells(i, "N") = Cells(i, "M") * 1 * 2 / Cells(i, "E")
@@ -803,16 +803,16 @@ Dim b As Double
                 Vsizeup(i - 2) = Vsize + looptime
 
                 If Vsizeup(i - 2) = 3 Then
-                VAreaup = 0.71 * 2
+                VAreaup = 0.71
                 Cells(i, "M") = VAreaup
                 ElseIf Vsizeup(i - 2) = 4 Then
-                VAreaup = 1.27 * 2
+                VAreaup = 1.27
                 Cells(i, "M") = VAreaup
                 ElseIf Vsizeup(i - 2) = 5 Then
-                VAreaup = 1.99 * 2
+                VAreaup = 1.99
                 Cells(i, "M") = VAreaup
                 ElseIf Vsizeup(i - 2) = 6 Then
-                VAreaup = 2.87 * 2
+                VAreaup = 2.87
                 Cells(i, "M") = VAreaup
                 Else
                 Cells(i, "M") = "號數過大"
