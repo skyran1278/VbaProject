@@ -6,6 +6,9 @@ Sub WITH4_9_3()
     Call rebardist_S3
     Call replaceRebar_S5
 End Sub
+
+' ---------------------------------------------------------------------------------------------------------------------
+
 Sub Cal_S1()
     Sheets("計算表").Select
     Application.ScreenUpdating = False
@@ -56,23 +59,23 @@ Sub Cal_S1()
 
     Dim GRArea As Double
     If GRsize = 3 Then
-    GRArea = 0.71
+        GRArea = 0.71
     ElseIf GRsize = 4 Then
-    GRArea = 1.27
+        GRArea = 1.27
     ElseIf GRsize = 5 Then
-    GRArea = 1.99
+        GRArea = 1.99
     ElseIf GRsize = 6 Then
-    GRArea = 2.87
+        GRArea = 2.87
     ElseIf GRsize = 7 Then
-    GRArea = 3.87
+        GRArea = 3.87
     ElseIf GRsize = 8 Then
-    GRArea = 5.07
+        GRArea = 5.07
     ElseIf GRsize = 9 Then
-    GRArea = 6.47
+        GRArea = 6.47
     ElseIf GRsize = 10 Then
-    GRArea = 8.14
+        GRArea = 8.14
     ElseIf GRsize = 11 Then
-    GRArea = 10.07
+        GRArea = 10.07
     Else
     MsgBox ("請確認主筋尺寸")
     End If
@@ -256,11 +259,13 @@ Sub Cal_S1()
     For i = 2 To RowNum(0)
          name = Cells(i, 10)
          '開頭不一定是FB 若B1 B2 等等 則需再修改
-         Cells(i, 11) = Chr(34) & FB & name & Chr(34) & Chr(40)
+         Cells(i, "K") = Chr(34) & FB & name & Chr(34) & Chr(40)
     Next
 
   Application.ScreenUpdating = True
 End Sub
+
+' ---------------------------------------------------------------------------------------------------------------------
 
 Sub Web_0124_S2()
     Sheets("RCAD").Select
@@ -410,6 +415,9 @@ Next
 Application.ScreenUpdating = True
 
 End Sub
+
+' ---------------------------------------------------------------------------------------------------------------------
+
 Sub rebardist_S3()
  Application.ScreenUpdating = False
 Sheets("計算表").Select
@@ -522,6 +530,9 @@ Next
  Application.ScreenUpdating = True
 
 End Sub
+
+' ---------------------------------------------------------------------------------------------------------------------
+
 Sub RC4_9_3_S4()
  Application.ScreenUpdating = False
     Sheets("計算表").Select
@@ -905,6 +916,8 @@ Dim b As Double
 
 
 End Sub
+
+' ---------------------------------------------------------------------------------------------------------------------
 
 Sub replaceRebar_S5()
     Application.ScreenUpdating = False
