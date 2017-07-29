@@ -220,6 +220,20 @@ End Function
 
 Function PrintRebarRatio()
 
+    rowStart = 1
+    rowUsed = UBound(RATIO_DATA)
+    columnStart = 13
+    columnUsed = 17
+
+    Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = RATIO_DATA
+    Range(Columns(13), Columns(16)).Hidden = True
+
+    Call FontSetting
+
+End Function
+
+Function PrintRebarRatioInAnotherSheets()
+
     Worksheets("柱鋼筋比").Activate
     rowStart = 1
     rowUsed = UBound(RATIO_DATA)
@@ -227,6 +241,8 @@ Function PrintRebarRatio()
     columnUsed = 5
 
     Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = RATIO_DATA
+
+    Call FontSetting
 
     Worksheets("鋼筋號數比").Activate
     rowStart = 3
@@ -238,6 +254,13 @@ Function PrintRebarRatio()
 
 End Function
 
+Function FontSetting()
+
+    Cells.Font.Name = "微軟正黑體"
+    Cells.Font.Name = "Calibri"
+
+End Function
+
 Private Sub Class_Terminate()
 
     ' Called automatically when all references to class instance are removed
@@ -246,6 +269,22 @@ End Sub
 
 ' -------------------------------------------------------------------------
 ' -------------------------------------------------------------------------
+
+' FIXME: Function Name
+' RC EXPERT 增加繫筋的規範  中央繫筋 >= RoundUp((主筋支數 - 1) / 2) - 1
+Function Norm15_5_4_100()
+
+    For i = DATA_ROW_START To DATA_ROW_END
+
+        If RAW_DATA(i, TIE_X) < Int((RAW_DATA(i, REBAR_X) - 1) / 2) - 1 Then
+            Call WarningMessage("【0405】X向繫筋未符合隔根勾", i)
+        End If
+        If RAW_DATA(i, TIE_Y) < Int((RAW_DATA(i, REBAR_Y) - 1) / 2) - 1 Then
+            Call WarningMessage("【0406】Y向繫筋未符合隔根勾", i)
+        End If
+    Next
+    
+End Function
 
 Function EconomicSmooth()
 '
@@ -283,7 +322,7 @@ End Function
 
 Function Norm15_5_4_1()
 '
-' 矩形閉合箍筋及繫筋之總斷面積 Ash 不得小於式(15-3)及式(15-4)之值。
+' 矩形閉合箍筋及繫筋之總斷面積 Ash 不得小於式(15-3)及式(15-4)之值。
 
     For i = DATA_ROW_START To DATA_ROW_END
 

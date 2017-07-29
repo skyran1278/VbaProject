@@ -1,4 +1,4 @@
-Dim MESSAGE(), WORKSHEET, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, REBAR_NUMBER()
+Dim MESSAGE(), Worksheet, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, REBAR_NUMBER()
 
 ' RAW_DATA 資料命名
 Const STORY = 1
@@ -76,9 +76,9 @@ End Function
 
 Function GetData(sheet)
 
-    WORKSHEET = sheet
+    Worksheet = sheet
 
-    Worksheets(WORKSHEET).Activate
+    Worksheets(Worksheet).Activate
 
     rowStart = 1
     columnStart = 1
@@ -120,9 +120,9 @@ Function RatioData()
     ' 計算有效深度
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        rebar = Split(RAW_DATA(i, REBAR_LEFT), "-")
+        REBAR = Split(RAW_DATA(i, REBAR_LEFT), "-")
         stirrup = Split(RAW_DATA(i, STIRRUP_LEFT), "@")
-        Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
+        Db = Application.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
         tie = Application.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
 
         ' 雙排筋
@@ -132,17 +132,17 @@ Function RatioData()
 
 End Function
 
-Function SplitStirrup(rebar)
+Function SplitStirrup(REBAR)
 
-    bars = Split(rebar, "#")
+    bars = Split(REBAR, "#")
 
     SplitStirrup = "#" & bars(1)
 
 End Function
 
-Function CalRebarArea(rebar)
+Function CalRebarArea(REBAR)
 
-    tmp = Split(rebar, "-")
+    tmp = Split(REBAR, "-")
 
     If tmp(0) <> 0 Then
 
@@ -156,11 +156,11 @@ Function CalRebarArea(rebar)
 
 End Function
 
-Function CalStirrupArea(rebar)
+Function CalStirrupArea(REBAR)
 '
 ' 考量雙箍
 '
-    tmp = Split(rebar, "@")
+    tmp = Split(REBAR, "@")
 
     bars = Split(tmp(0), "#")
 
@@ -176,13 +176,13 @@ Function CalStirrupArea(rebar)
 
 End Function
 
-Function CalSideRebarArea(rebar)
+Function CalSideRebarArea(REBAR)
 
-    If rebar <> "-" Then
+    If REBAR <> "-" Then
 
-        rebar = Left(rebar, Len(rebar) - 2)
+        REBAR = Left(REBAR, Len(REBAR) - 2)
 
-        tmp = Split(rebar, "#")
+        tmp = Split(REBAR, "#")
 
         ' 轉換鋼筋尺寸為截面積
         tmp(1) = Application.VLookup("#" & tmp(1), REBAR_SIZE, CROSS_AREA, False)
@@ -216,14 +216,14 @@ Function Initialize()
 
 End Function
 
-Function GetSheetMessage(girder,beam,groundBeam)
+Function GetSheetMessage(Girder, Beam, GroundBeam)
 
-    If WORKSHEET = "大梁配筋" Then
-        GetSheetMessage = girder
-    ElseIf WORKSHEET = "小梁配筋" Then
-        GetSheetMessage = beam
-    ElseIf WORKSHEET = "地梁配筋" Then
-        GetSheetMessage = groundBeam
+    If Worksheet = "大梁配筋" Then
+        GetSheetMessage = Girder
+    ElseIf Worksheet = "小梁配筋" Then
+        GetSheetMessage = Beam
+    ElseIf Worksheet = "地梁配筋" Then
+        GetSheetMessage = GroundBeam
     End If
 
 End Function
@@ -259,6 +259,8 @@ Function PrintMessage()
 
     Next
 
+    Call FontSetting
+
 End Function
 
 Function PrintRebarRatio()
@@ -267,17 +269,24 @@ Function PrintRebarRatio()
     rowStart = 3
     rowUsed = UBound(REBAR_NUMBER) + 1
 
-    If WORKSHEET = "大梁配筋" Then
+    If Worksheet = "大梁配筋" Then
         columnStart = 4
-    ElseIf WORKSHEET = "小梁配筋" Then
+    ElseIf Worksheet = "小梁配筋" Then
         columnStart = 7
-    ElseIf WORKSHEET = "地梁配筋" Then
+    ElseIf Worksheet = "地梁配筋" Then
         columnStart = 10
     End If
 
     columnUsed = columnStart + 2
 
     Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = REBAR_NUMBER
+
+End Function
+
+Function FontSetting()
+
+    Cells.Font.Name = "微軟正黑體"
+    Cells.Font.Name = "Calibri"
 
 End Function
 
@@ -314,22 +323,22 @@ Function SafetyRebarRatioAndSpace()
 
             For k = i To i + 3
 
-                rebar = Split(RAW_DATA(k, j), "-")
+                REBAR = Split(RAW_DATA(k, j), "-")
 
                 stirrup = Split(RAW_DATA(i, j + 4), "@")
 
-                If rebar(0) > 1 Then
+                If REBAR(0) > 1 Then
 
-                    Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
+                    Db = Application.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
                     tie = Application.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
 
-                    Spacing = (RAW_DATA(i, BW) - 4 * 2 - tie * 2 - rebar(0) * Db) / (rebar(0) - 1)
+                    Spacing = (RAW_DATA(i, BW) - 4 * 2 - tie * 2 - REBAR(0) * Db) / (REBAR(0) - 1)
 
                     If Spacing > 25 Then
                         Call WarningMessage("【0106】請確認鋼筋間距下限，是否符合鋼筋間距 25 cm 以下規定", i)
                     End If
 
-                ElseIf rebar(0) = "1" Then
+                ElseIf REBAR(0) = "1" Then
 
                     Call WarningMessage("【0107】請確認鋼筋間距，是否符合單排支數下限規定", i)
 
@@ -630,9 +639,9 @@ Function EconomicTopMidRelativeEnd()
 
         minRatio = Application.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_RIGHT))
 
-        rebar = Split(RAW_DATA(i, REBAR_MIDDLE), "-")
+        REBAR = Split(RAW_DATA(i, REBAR_MIDDLE), "-")
 
-        If RATIO_DATA(i, REBAR_MIDDLE) > minRatio * 0.7 And rebar(0) > 3 Then
+        If RATIO_DATA(i, REBAR_MIDDLE) > minRatio * 0.7 And REBAR(0) > 3 Then
             Call WarningMessage("【0221】請確認中央上層筋相對鋼筋量，是否符合中央上層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
@@ -649,9 +658,9 @@ Function EconomicBotMidRelativeEnd()
 
         minRatio = Application.Min(RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_RIGHT))
 
-        rebar = Split(RAW_DATA(i + 2, REBAR_MIDDLE), "-")
+        REBAR = Split(RAW_DATA(i + 2, REBAR_MIDDLE), "-")
 
-        If RATIO_DATA(i + 2, REBAR_MIDDLE) > minRatio * 0.7 And rebar(0) > 3 Then
+        If RATIO_DATA(i + 2, REBAR_MIDDLE) > minRatio * 0.7 And REBAR(0) > 3 Then
             Call WarningMessage("【0110】請確認中央下層筋相對鋼筋量，是否符合中央下層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
@@ -673,14 +682,14 @@ Function Norm13_5_1AndSafetyRebarNumber()
             ' 其實可以用 i = i + 4 比較簡單
             i = 4 * Fix((k - 3) / 4) + 3
 
-            rebar = Split(RAW_DATA(k, j), "-")
+            REBAR = Split(RAW_DATA(k, j), "-")
 
             stirrup = Split(RAW_DATA(i, j + 4), "@")
 
             ' 等於 0 直接沒做事
-            If rebar(0) > 1 Then
+            If REBAR(0) > 1 Then
 
-                Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
+                Db = Application.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
                 tie = Application.VLookup(SplitStirrup(stirrup(0)), REBAR_SIZE, DIAMETER, False)
 
                 ' 第一種方法
@@ -690,7 +699,7 @@ Function Norm13_5_1AndSafetyRebarNumber()
                 ' spacing = (RAW_DATA(i, BW) - 4 * 2 - tie * 2 - Db) / (CInt(rebar(0)) - 1) - Db
                 ' 可以不需要型別轉換
                 ' Spacing = (RAW_DATA(i, BW) - 4 * 2 - tie * 2 - CInt(rebar(0)) * Db) / (CInt(rebar(0)) - 1)
-                Spacing = (RAW_DATA(i, BW) - 4 * 2 - tie * 2 - rebar(0) * Db) / (rebar(0) - 1)
+                Spacing = (RAW_DATA(i, BW) - 4 * 2 - tie * 2 - REBAR(0) * Db) / (REBAR(0) - 1)
 
                 ' Norm13_5_1
                 ' 淨距不少於1Db
@@ -698,7 +707,7 @@ Function Norm13_5_1AndSafetyRebarNumber()
                     Call WarningMessage(GetSheetMessage("【0210】請確認單排支數上限，是否符合淨距不少於 1 Db 規定", "【0308】請確認單排支數上限，是否符合淨距不少於 1 Db 規定", "請確認單排支數上限，是否符合淨距不少於 1 Db 規定"), i)
                 End If
 
-            ElseIf rebar(0) = "1" Then
+            ElseIf REBAR(0) = "1" Then
 
                 ' 排除掉1支的狀況，避免除以0
                 ' 不少於2支
@@ -769,8 +778,8 @@ Function Norm4_6_7_9()
         For j = STIRRUP_LEFT To STIRRUP_RIGHT
 
             stirrup = Split(RAW_DATA(i, j), "@")
-            rebar = Split(RAW_DATA(i, j - 4), "-")
-            Db = Application.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
+            REBAR = Split(RAW_DATA(i, j - 4), "-")
+            Db = Application.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
             tie = Application.VLookup(SplitStirrup(stirrup(0)), REBAR_SIZE, DIAMETER, False)
             effectiveDepth = RAW_DATA(i, H) - (4 + tie + Db / 2)
             av = RATIO_DATA(i, j)
@@ -899,7 +908,7 @@ Function CountRebarNumber()
     Next
 
     ' 轉換成比例
-    Dim sum(1 to 3)
+    Dim sum(1 To 3)
     For i = rowStart To rowEnd
         For j = 1 To 3
             sum(j) = sum(j) + REBAR_NUMBER(i, j)

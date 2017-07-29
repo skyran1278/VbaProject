@@ -11,10 +11,14 @@ Sub CheckColumnNorm()
     Column.Norm15_5_4_1
     Column.EconomicTopStoryRebar
 
+    ' FIXME: Function Name
+    Column.Norm15_5_4_100
+
     Column.PrintMessage
+    Column.PrintRebarRatio
 
     Column.CountRebarNumber
-    Column.PrintRebarRatio
+    Column.PrintRebarRatioInAnotherSheets
 
 End Sub
 
@@ -131,3 +135,4 @@ Sub Main()
     Application.ScreenUpdating = True
 
 End Sub
+
