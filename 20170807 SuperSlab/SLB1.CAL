@@ -1,0 +1,2348 @@
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S11  
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  4.17  m     #   S    :     
+   S/L  ratio             :   .60        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.98
+   CSneg    :  .089   CLneg    :  .011
+   CSdl     :  .053   CLdl     :  .007
+   CSll     :  .067   CLll     :  .009
+   CWS      :  .890   CWL      :  .110
+   ===============================================================
+   MSneg (T-M/M)  :     .70     ASneg (CM^2/M) :    1.63      1.63
+   MSpos (T-M/M)  :     .45     ASpos (CM^2/M) :    1.04      1.35
+   MLneg (T-M/M)  :     .24     ASneg (CM^2/M) :     .61      1.35
+   MLpos (T-M/M)  :     .17     ASpos (CM^2/M) :     .41      1.35
+   VS  (T/M)      :    1.28     VL  (T/M)      :     .27
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S16  
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  2.63  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   6.36
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :     .43     ASneg (CM^2/M) :    1.00      1.35
+   MSpos (T-M/M)  :     .25     ASpos (CM^2/M) :     .57      1.35
+   MLneg (T-M/M)  :     .39     ASneg (CM^2/M) :     .99      1.35
+   MLpos (T-M/M)  :     .22     ASpos (CM^2/M) :     .56      1.35
+   VS  (T/M)      :     .79     VL  (T/M)      :     .69
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S25  
+   Slab short span length :  3.00  m     #.........     
+   Slab long  span length :  3.53  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.33
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :     .75     ASneg (CM^2/M) :    1.74      1.74
+   MSpos (T-M/M)  :     .43     ASpos (CM^2/M) :    1.00      1.35
+   MLneg (T-M/M)  :     .54     ASneg (CM^2/M) :    1.35      1.35
+   MLpos (T-M/M)  :     .32     ASpos (CM^2/M) :     .79      1.35
+   VS  (T/M)      :    1.16     VL  (T/M)      :     .71
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S3   
+   Slab short span length :  3.50  m     #........:     
+   Slab long  span length :        m     #   S    :     
+   S/L  ratio             :              #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      #.........     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.58
+   MPOS = WU*L^2/14
+   MNEG = WU*L^2/10
+   ===============================================================
+   MSneg (T-M/M)  :    1.55     ASneg (CM^2/M) :    3.64      3.64
+   MSpos (T-M/M)  :    1.11     ASpos (CM^2/M) :    2.58      2.58
+   Vu    (T/M)    :    2.40     ÌVc    (T/M)   :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S32  
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  5.38  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.87
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    1.32     ASneg (CM^2/M) :    3.08      3.08
+   MSpos (T-M/M)  :     .82     ASpos (CM^2/M) :    1.91      1.91
+   MLneg (T-M/M)  :     .55     ASneg (CM^2/M) :    1.39      1.39
+   MLpos (T-M/M)  :     .35     ASpos (CM^2/M) :     .88      1.35
+   VS  (T/M)      :    1.76     VL  (T/M)      :     .49
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S34  
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  4.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.69
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.18     ASneg (CM^2/M) :    2.75      2.75
+   MSpos (T-M/M)  :     .70     ASpos (CM^2/M) :    1.63      1.63
+   MLneg (T-M/M)  :     .66     ASneg (CM^2/M) :    1.67      1.67
+   MLpos (T-M/M)  :     .38     ASpos (CM^2/M) :     .96      1.35
+   VS  (T/M)      :    1.57     VL  (T/M)      :     .68
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S4   
+   Slab short span length :  4.00  m     #........:     
+   Slab long  span length :        m     #   S    :     
+   S/L  ratio             :              #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      #.........     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  16.67
+   MPOS = WU*L^2/14
+   MNEG = WU*L^2/10
+   ===============================================================
+   MSneg (T-M/M)  :    2.02     ASneg (CM^2/M) :    4.78      4.78
+   MSpos (T-M/M)  :    1.44     ASpos (CM^2/M) :    3.39      3.39
+   Vu    (T/M)    :    2.76     ÌVc    (T/M)   :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S42  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  6.15  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.57
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    1.72     ASneg (CM^2/M) :    4.05      4.05
+   MSpos (T-M/M)  :    1.08     ASpos (CM^2/M) :    2.51      2.51
+   MLneg (T-M/M)  :     .72     ASneg (CM^2/M) :    1.82      1.82
+   MLpos (T-M/M)  :     .46     ASpos (CM^2/M) :    1.15      1.35
+   VS  (T/M)      :    2.02     VL  (T/M)      :     .56
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S44  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  5.33  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.21
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.54     ASneg (CM^2/M) :    3.61      3.61
+   MSpos (T-M/M)  :     .92     ASpos (CM^2/M) :    2.14      2.14
+   MLneg (T-M/M)  :     .86     ASneg (CM^2/M) :    2.19      2.19
+   MLpos (T-M/M)  :     .50     ASpos (CM^2/M) :    1.25      1.35
+   VS  (T/M)      :    1.81     VL  (T/M)      :     .78
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S45  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.71  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.10
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.33     ASneg (CM^2/M) :    3.12      3.12
+   MSpos (T-M/M)  :     .77     ASpos (CM^2/M) :    1.78      1.78
+   MLneg (T-M/M)  :     .95     ASneg (CM^2/M) :    2.42      2.42
+   MLpos (T-M/M)  :     .56     ASpos (CM^2/M) :    1.42      1.42
+   VS  (T/M)      :    1.57     VL  (T/M)      :     .97
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S46  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.21  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.18
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.11     ASneg (CM^2/M) :    2.59      2.59
+   MSpos (T-M/M)  :     .63     ASpos (CM^2/M) :    1.47      1.47
+   MLneg (T-M/M)  :    1.01     ASneg (CM^2/M) :    2.57      2.57
+   MLpos (T-M/M)  :     .57     ASpos (CM^2/M) :    1.43      1.43
+   VS  (T/M)      :    1.31     VL  (T/M)      :    1.14
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S53  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.43  m     #   S    :     
+   S/L  ratio             :   .70        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.46
+   CSneg    :  .081   CLneg    :  .019
+   CSdl     :  .046   CLdl     :  .011
+   CSll     :  .057   CLll     :  .014
+   CWS      :  .810   CWL      :  .190
+   ===============================================================
+   MSneg (T-M/M)  :    2.07     ASneg (CM^2/M) :    4.91      4.91
+   MSpos (T-M/M)  :    1.25     ASpos (CM^2/M) :    2.93      2.93
+   MLneg (T-M/M)  :     .99     ASneg (CM^2/M) :    2.53      2.53
+   MLpos (T-M/M)  :     .62     ASpos (CM^2/M) :    1.56      1.56
+   VS  (T/M)      :    2.19     VL  (T/M)      :     .75
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S54  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.00  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.74
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.95     ASneg (CM^2/M) :    4.59      4.59
+   MSpos (T-M/M)  :    1.16     ASpos (CM^2/M) :    2.71      2.71
+   MLneg (T-M/M)  :    1.09     ASneg (CM^2/M) :    2.78      2.78
+   MLpos (T-M/M)  :     .63     ASpos (CM^2/M) :    1.59      1.59
+   VS  (T/M)      :    2.05     VL  (T/M)      :     .88
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S55  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  5.29  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.49
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.69     ASneg (CM^2/M) :    3.97      3.97
+   MSpos (T-M/M)  :     .97     ASpos (CM^2/M) :    2.26      2.26
+   MLneg (T-M/M)  :    1.20     ASneg (CM^2/M) :    3.08      3.08
+   MLpos (T-M/M)  :     .71     ASpos (CM^2/M) :    1.80      1.80
+   VS  (T/M)      :    1.78     VL  (T/M)      :    1.09
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S56  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  4.74  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.45
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.41     ASneg (CM^2/M) :    3.30      3.30
+   MSpos (T-M/M)  :     .80     ASpos (CM^2/M) :    1.86      1.86
+   MLneg (T-M/M)  :    1.28     ASneg (CM^2/M) :    3.26      3.26
+   MLpos (T-M/M)  :     .72     ASpos (CM^2/M) :    1.82      1.82
+   VS  (T/M)      :    1.48     VL  (T/M)      :    1.29
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S64  
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  6.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  15.26
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    2.40     ASneg (CM^2/M) :    5.71      5.71
+   MSpos (T-M/M)  :    1.44     ASpos (CM^2/M) :    3.36      3.36
+   MLneg (T-M/M)  :    1.35     ASneg (CM^2/M) :    3.45      3.45
+   MLpos (T-M/M)  :     .78     ASpos (CM^2/M) :    1.97      1.97
+   VS  (T/M)      :    2.29     VL  (T/M)      :     .98
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S66  
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  5.26  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.72
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.74     ASneg (CM^2/M) :    4.09      4.09
+   MSpos (T-M/M)  :     .99     ASpos (CM^2/M) :    2.31      2.31
+   MLneg (T-M/M)  :    1.58     ASneg (CM^2/M) :    4.05      4.05
+   MLpos (T-M/M)  :     .89     ASpos (CM^2/M) :    2.25      2.25
+   VS  (T/M)      :    1.66     VL  (T/M)      :    1.44
+   ÌVC (T/M)      :    9.71
+ 
+ 
+ 
+ * SLAB NAME : (2F-3F)S94  
+   Slab short span length :  6.50  m     #.........     
+   Slab long  span length :  8.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.4 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  350.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  19.84
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    4.06     ASneg (CM^2/M) :   10.09     10.09
+   MSpos (T-M/M)  :    2.43     ASpos (CM^2/M) :    5.87      5.87
+   MLneg (T-M/M)  :    2.28     ASneg (CM^2/M) :    6.26      6.26
+   MLpos (T-M/M)  :    1.31     ASpos (CM^2/M) :    3.53      3.53
+   VS  (T/M)      :    3.01     VL  (T/M)      :    1.28
+   ÌVC (T/M)      :    9.57
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S11  
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  4.17  m     #   S    :     
+   S/L  ratio             :   .60        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.98
+   CSneg    :  .089   CLneg    :  .011
+   CSdl     :  .053   CLdl     :  .007
+   CSll     :  .067   CLll     :  .009
+   CWS      :  .890   CWL      :  .110
+   ===============================================================
+   MSneg (T-M/M)  :     .70     ASneg (CM^2/M) :    1.63      1.63
+   MSpos (T-M/M)  :     .45     ASpos (CM^2/M) :    1.04      1.35
+   MLneg (T-M/M)  :     .24     ASneg (CM^2/M) :     .61      1.35
+   MLpos (T-M/M)  :     .17     ASpos (CM^2/M) :     .42      1.35
+   VS  (T/M)      :    1.28     VL  (T/M)      :     .27
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S16  
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  2.63  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   6.36
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :     .43     ASneg (CM^2/M) :    1.01      1.35
+   MSpos (T-M/M)  :     .25     ASpos (CM^2/M) :     .57      1.35
+   MLneg (T-M/M)  :     .39     ASneg (CM^2/M) :     .99      1.35
+   MLpos (T-M/M)  :     .22     ASpos (CM^2/M) :     .56      1.35
+   VS  (T/M)      :     .79     VL  (T/M)      :     .69
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S25  
+   Slab short span length :  3.00  m     #.........     
+   Slab long  span length :  3.53  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.33
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :     .75     ASneg (CM^2/M) :    1.75      1.75
+   MSpos (T-M/M)  :     .43     ASpos (CM^2/M) :    1.00      1.35
+   MLneg (T-M/M)  :     .54     ASneg (CM^2/M) :    1.35      1.35
+   MLpos (T-M/M)  :     .32     ASpos (CM^2/M) :     .80      1.35
+   VS  (T/M)      :    1.16     VL  (T/M)      :     .71
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S3   
+   Slab short span length :  3.50  m     #........:     
+   Slab long  span length :        m     #   S    :     
+   S/L  ratio             :              #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      #.........     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.58
+   MPOS = WU*L^2/14
+   MNEG = WU*L^2/10
+   ===============================================================
+   MSneg (T-M/M)  :    1.55     ASneg (CM^2/M) :    3.66      3.66
+   MSpos (T-M/M)  :    1.11     ASpos (CM^2/M) :    2.59      2.59
+   Vu    (T/M)    :    2.40     ÌVc    (T/M)   :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S32  
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  5.38  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.87
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    1.32     ASneg (CM^2/M) :    3.09      3.09
+   MSpos (T-M/M)  :     .82     ASpos (CM^2/M) :    1.92      1.92
+   MLneg (T-M/M)  :     .55     ASneg (CM^2/M) :    1.39      1.39
+   MLpos (T-M/M)  :     .35     ASpos (CM^2/M) :     .88      1.35
+   VS  (T/M)      :    1.76     VL  (T/M)      :     .49
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S34  
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  4.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.69
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.18     ASneg (CM^2/M) :    2.76      2.76
+   MSpos (T-M/M)  :     .70     ASpos (CM^2/M) :    1.63      1.63
+   MLneg (T-M/M)  :     .66     ASneg (CM^2/M) :    1.68      1.68
+   MLpos (T-M/M)  :     .38     ASpos (CM^2/M) :     .96      1.35
+   VS  (T/M)      :    1.57     VL  (T/M)      :     .68
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S42  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  6.15  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.57
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    1.72     ASneg (CM^2/M) :    4.07      4.07
+   MSpos (T-M/M)  :    1.08     ASpos (CM^2/M) :    2.52      2.52
+   MLneg (T-M/M)  :     .72     ASneg (CM^2/M) :    1.82      1.82
+   MLpos (T-M/M)  :     .46     ASpos (CM^2/M) :    1.15      1.35
+   VS  (T/M)      :    2.02     VL  (T/M)      :     .56
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S44  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  5.33  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.21
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.54     ASneg (CM^2/M) :    3.63      3.63
+   MSpos (T-M/M)  :     .92     ASpos (CM^2/M) :    2.14      2.14
+   MLneg (T-M/M)  :     .86     ASneg (CM^2/M) :    2.20      2.20
+   MLpos (T-M/M)  :     .50     ASpos (CM^2/M) :    1.25      1.35
+   VS  (T/M)      :    1.81     VL  (T/M)      :     .78
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S45  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.71  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.10
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.33     ASneg (CM^2/M) :    3.14      3.14
+   MSpos (T-M/M)  :     .77     ASpos (CM^2/M) :    1.78      1.78
+   MLneg (T-M/M)  :     .95     ASneg (CM^2/M) :    2.43      2.43
+   MLpos (T-M/M)  :     .56     ASpos (CM^2/M) :    1.42      1.42
+   VS  (T/M)      :    1.57     VL  (T/M)      :     .97
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S46  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.21  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.18
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.11     ASneg (CM^2/M) :    2.61      2.61
+   MSpos (T-M/M)  :     .63     ASpos (CM^2/M) :    1.47      1.47
+   MLneg (T-M/M)  :    1.01     ASneg (CM^2/M) :    2.58      2.58
+   MLpos (T-M/M)  :     .57     ASpos (CM^2/M) :    1.44      1.44
+   VS  (T/M)      :    1.31     VL  (T/M)      :    1.14
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S53  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.43  m     #   S    :     
+   S/L  ratio             :   .70        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.46
+   CSneg    :  .081   CLneg    :  .019
+   CSdl     :  .046   CLdl     :  .011
+   CSll     :  .057   CLll     :  .014
+   CWS      :  .810   CWL      :  .190
+   ===============================================================
+   MSneg (T-M/M)  :    2.07     ASneg (CM^2/M) :    4.95      4.95
+   MSpos (T-M/M)  :    1.25     ASpos (CM^2/M) :    2.94      2.94
+   MLneg (T-M/M)  :     .99     ASneg (CM^2/M) :    2.54      2.54
+   MLpos (T-M/M)  :     .62     ASpos (CM^2/M) :    1.56      1.56
+   VS  (T/M)      :    2.19     VL  (T/M)      :     .75
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S54  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.00  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.74
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.95     ASneg (CM^2/M) :    4.63      4.63
+   MSpos (T-M/M)  :    1.16     ASpos (CM^2/M) :    2.73      2.73
+   MLneg (T-M/M)  :    1.09     ASneg (CM^2/M) :    2.80      2.80
+   MLpos (T-M/M)  :     .63     ASpos (CM^2/M) :    1.59      1.59
+   VS  (T/M)      :    2.05     VL  (T/M)      :     .88
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S55  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  5.29  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.49
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.69     ASneg (CM^2/M) :    4.00      4.00
+   MSpos (T-M/M)  :     .97     ASpos (CM^2/M) :    2.27      2.27
+   MLneg (T-M/M)  :    1.20     ASneg (CM^2/M) :    3.09      3.09
+   MLpos (T-M/M)  :     .71     ASpos (CM^2/M) :    1.81      1.81
+   VS  (T/M)      :    1.78     VL  (T/M)      :    1.09
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S56  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  4.74  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.45
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.41     ASneg (CM^2/M) :    3.32      3.32
+   MSpos (T-M/M)  :     .80     ASpos (CM^2/M) :    1.87      1.87
+   MLneg (T-M/M)  :    1.28     ASneg (CM^2/M) :    3.28      3.28
+   MLpos (T-M/M)  :     .72     ASpos (CM^2/M) :    1.83      1.83
+   VS  (T/M)      :    1.48     VL  (T/M)      :    1.29
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S64  
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  6.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  15.26
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    2.40     ASneg (CM^2/M) :    5.77      5.77
+   MSpos (T-M/M)  :    1.44     ASpos (CM^2/M) :    3.38      3.38
+   MLneg (T-M/M)  :    1.35     ASneg (CM^2/M) :    3.47      3.47
+   MLpos (T-M/M)  :     .78     ASpos (CM^2/M) :    1.97      1.97
+   VS  (T/M)      :    2.29     VL  (T/M)      :     .98
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (4F-7F)S66  
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  5.26  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  280.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.72
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.74     ASneg (CM^2/M) :    4.12      4.12
+   MSpos (T-M/M)  :     .99     ASpos (CM^2/M) :    2.31      2.31
+   MLneg (T-M/M)  :    1.58     ASneg (CM^2/M) :    4.08      4.08
+   MLpos (T-M/M)  :     .89     ASpos (CM^2/M) :    2.26      2.26
+   VS  (T/M)      :    1.66     VL  (T/M)      :    1.44
+   ÌVC (T/M)      :    8.69
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S11 
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  4.17  m     #   S    :     
+   S/L  ratio             :   .60        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.98
+   CSneg    :  .089   CLneg    :  .011
+   CSdl     :  .053   CLdl     :  .007
+   CSll     :  .067   CLll     :  .009
+   CWS      :  .890   CWL      :  .110
+   ===============================================================
+   MSneg (T-M/M)  :     .70     ASneg (CM^2/M) :    1.64      1.64
+   MSpos (T-M/M)  :     .45     ASpos (CM^2/M) :    1.04      1.35
+   MLneg (T-M/M)  :     .24     ASneg (CM^2/M) :     .61      1.35
+   MLpos (T-M/M)  :     .17     ASpos (CM^2/M) :     .42      1.35
+   VS  (T/M)      :    1.28     VL  (T/M)      :     .27
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S16 
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  2.63  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   6.36
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :     .43     ASneg (CM^2/M) :    1.01      1.35
+   MSpos (T-M/M)  :     .25     ASpos (CM^2/M) :     .57      1.35
+   MLneg (T-M/M)  :     .39     ASneg (CM^2/M) :     .99      1.35
+   MLpos (T-M/M)  :     .22     ASpos (CM^2/M) :     .56      1.35
+   VS  (T/M)      :     .79     VL  (T/M)      :     .69
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S25 
+   Slab short span length :  3.00  m     #.........     
+   Slab long  span length :  3.53  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.33
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :     .75     ASneg (CM^2/M) :    1.75      1.75
+   MSpos (T-M/M)  :     .43     ASpos (CM^2/M) :    1.00      1.35
+   MLneg (T-M/M)  :     .54     ASneg (CM^2/M) :    1.36      1.36
+   MLpos (T-M/M)  :     .32     ASpos (CM^2/M) :     .80      1.35
+   VS  (T/M)      :    1.16     VL  (T/M)      :     .71
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S3  
+   Slab short span length :  3.50  m     #........:     
+   Slab long  span length :        m     #   S    :     
+   S/L  ratio             :              #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      #.........     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.58
+   MPOS = WU*L^2/14
+   MNEG = WU*L^2/10
+   ===============================================================
+   MSneg (T-M/M)  :    1.55     ASneg (CM^2/M) :    3.67      3.67
+   MSpos (T-M/M)  :    1.11     ASpos (CM^2/M) :    2.60      2.60
+   Vu    (T/M)    :    2.40     ÌVc    (T/M)   :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S32 
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  5.38  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.87
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    1.32     ASneg (CM^2/M) :    3.11      3.11
+   MSpos (T-M/M)  :     .82     ASpos (CM^2/M) :    1.92      1.92
+   MLneg (T-M/M)  :     .55     ASneg (CM^2/M) :    1.39      1.39
+   MLpos (T-M/M)  :     .35     ASpos (CM^2/M) :     .88      1.35
+   VS  (T/M)      :    1.76     VL  (T/M)      :     .49
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S34 
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  4.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.69
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.18     ASneg (CM^2/M) :    2.77      2.77
+   MSpos (T-M/M)  :     .70     ASpos (CM^2/M) :    1.64      1.64
+   MLneg (T-M/M)  :     .66     ASneg (CM^2/M) :    1.68      1.68
+   MLpos (T-M/M)  :     .38     ASpos (CM^2/M) :     .96      1.35
+   VS  (T/M)      :    1.57     VL  (T/M)      :     .68
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S42 
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  6.15  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.57
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    1.72     ASneg (CM^2/M) :    4.09      4.09
+   MSpos (T-M/M)  :    1.08     ASpos (CM^2/M) :    2.53      2.53
+   MLneg (T-M/M)  :     .72     ASneg (CM^2/M) :    1.83      1.83
+   MLpos (T-M/M)  :     .46     ASpos (CM^2/M) :    1.15      1.35
+   VS  (T/M)      :    2.02     VL  (T/M)      :     .56
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S44 
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  5.33  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.21
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.54     ASneg (CM^2/M) :    3.64      3.64
+   MSpos (T-M/M)  :     .92     ASpos (CM^2/M) :    2.15      2.15
+   MLneg (T-M/M)  :     .86     ASneg (CM^2/M) :    2.21      2.21
+   MLpos (T-M/M)  :     .50     ASpos (CM^2/M) :    1.26      1.35
+   VS  (T/M)      :    1.81     VL  (T/M)      :     .78
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S45 
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.71  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.10
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.33     ASneg (CM^2/M) :    3.15      3.15
+   MSpos (T-M/M)  :     .77     ASpos (CM^2/M) :    1.79      1.79
+   MLneg (T-M/M)  :     .95     ASneg (CM^2/M) :    2.44      2.44
+   MLpos (T-M/M)  :     .56     ASpos (CM^2/M) :    1.43      1.43
+   VS  (T/M)      :    1.57     VL  (T/M)      :     .97
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S46 
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.21  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.18
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.11     ASneg (CM^2/M) :    2.61      2.61
+   MSpos (T-M/M)  :     .63     ASpos (CM^2/M) :    1.47      1.47
+   MLneg (T-M/M)  :    1.01     ASneg (CM^2/M) :    2.59      2.59
+   MLpos (T-M/M)  :     .57     ASpos (CM^2/M) :    1.44      1.44
+   VS  (T/M)      :    1.31     VL  (T/M)      :    1.14
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S53 
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.43  m     #   S    :     
+   S/L  ratio             :   .70        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.46
+   CSneg    :  .081   CLneg    :  .019
+   CSdl     :  .046   CLdl     :  .011
+   CSll     :  .057   CLll     :  .014
+   CWS      :  .810   CWL      :  .190
+   ===============================================================
+   MSneg (T-M/M)  :    2.07     ASneg (CM^2/M) :    4.98      4.98
+   MSpos (T-M/M)  :    1.25     ASpos (CM^2/M) :    2.95      2.95
+   MLneg (T-M/M)  :     .99     ASneg (CM^2/M) :    2.54      2.54
+   MLpos (T-M/M)  :     .62     ASpos (CM^2/M) :    1.57      1.57
+   VS  (T/M)      :    2.19     VL  (T/M)      :     .75
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S54 
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.00  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.74
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.95     ASneg (CM^2/M) :    4.65      4.65
+   MSpos (T-M/M)  :    1.16     ASpos (CM^2/M) :    2.73      2.73
+   MLneg (T-M/M)  :    1.09     ASneg (CM^2/M) :    2.81      2.81
+   MLpos (T-M/M)  :     .63     ASpos (CM^2/M) :    1.60      1.60
+   VS  (T/M)      :    2.05     VL  (T/M)      :     .88
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S55 
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  5.29  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.49
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.69     ASneg (CM^2/M) :    4.02      4.02
+   MSpos (T-M/M)  :     .97     ASpos (CM^2/M) :    2.27      2.27
+   MLneg (T-M/M)  :    1.20     ASneg (CM^2/M) :    3.11      3.11
+   MLpos (T-M/M)  :     .71     ASpos (CM^2/M) :    1.81      1.81
+   VS  (T/M)      :    1.78     VL  (T/M)      :    1.09
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S56 
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  4.74  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.45
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.41     ASneg (CM^2/M) :    3.33      3.33
+   MSpos (T-M/M)  :     .80     ASpos (CM^2/M) :    1.87      1.87
+   MLneg (T-M/M)  :    1.28     ASneg (CM^2/M) :    3.30      3.30
+   MLpos (T-M/M)  :     .72     ASpos (CM^2/M) :    1.83      1.83
+   VS  (T/M)      :    1.48     VL  (T/M)      :    1.29
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S64 
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  6.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  15.26
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    2.40     ASneg (CM^2/M) :    5.81      5.81
+   MSpos (T-M/M)  :    1.44     ASpos (CM^2/M) :    3.40      3.40
+   MLneg (T-M/M)  :    1.35     ASneg (CM^2/M) :    3.49      3.49
+   MLpos (T-M/M)  :     .78     ASpos (CM^2/M) :    1.98      1.98
+   VS  (T/M)      :    2.29     VL  (T/M)      :     .98
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (8F-12F)S66 
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  5.26  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  245.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.72
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.74     ASneg (CM^2/M) :    4.14      4.14
+   MSpos (T-M/M)  :     .99     ASpos (CM^2/M) :    2.32      2.32
+   MLneg (T-M/M)  :    1.58     ASneg (CM^2/M) :    4.10      4.10
+   MLpos (T-M/M)  :     .89     ASpos (CM^2/M) :    2.27      2.27
+   VS  (T/M)      :    1.66     VL  (T/M)      :    1.44
+   ÌVC (T/M)      :    8.13
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S11  
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  4.17  m     #   S    :     
+   S/L  ratio             :   .60        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.98
+   CSneg    :  .089   CLneg    :  .011
+   CSdl     :  .053   CLdl     :  .007
+   CSll     :  .067   CLll     :  .009
+   CWS      :  .890   CWL      :  .110
+   ===============================================================
+   MSneg (T-M/M)  :     .70     ASneg (CM^2/M) :    1.64      1.64
+   MSpos (T-M/M)  :     .45     ASpos (CM^2/M) :    1.04      1.35
+   MLneg (T-M/M)  :     .24     ASneg (CM^2/M) :     .61      1.35
+   MLpos (T-M/M)  :     .17     ASpos (CM^2/M) :     .42      1.35
+   VS  (T/M)      :    1.28     VL  (T/M)      :     .27
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S16  
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  2.63  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   6.36
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :     .43     ASneg (CM^2/M) :    1.01      1.35
+   MSpos (T-M/M)  :     .25     ASpos (CM^2/M) :     .57      1.35
+   MLneg (T-M/M)  :     .39     ASneg (CM^2/M) :    1.00      1.35
+   MLpos (T-M/M)  :     .22     ASpos (CM^2/M) :     .56      1.35
+   VS  (T/M)      :     .79     VL  (T/M)      :     .69
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S25  
+   Slab short span length :  3.00  m     #.........     
+   Slab long  span length :  3.53  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.33
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :     .75     ASneg (CM^2/M) :    1.75      1.75
+   MSpos (T-M/M)  :     .43     ASpos (CM^2/M) :    1.00      1.35
+   MLneg (T-M/M)  :     .54     ASneg (CM^2/M) :    1.36      1.36
+   MLpos (T-M/M)  :     .32     ASpos (CM^2/M) :     .80      1.35
+   VS  (T/M)      :    1.16     VL  (T/M)      :     .71
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S3   
+   Slab short span length :  3.50  m     #........:     
+   Slab long  span length :        m     #   S    :     
+   S/L  ratio             :              #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      #.........     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.58
+   MPOS = WU*L^2/14
+   MNEG = WU*L^2/10
+   ===============================================================
+   MSneg (T-M/M)  :    1.55     ASneg (CM^2/M) :    3.69      3.69
+   MSpos (T-M/M)  :    1.11     ASpos (CM^2/M) :    2.61      2.61
+   Vu    (T/M)    :    2.40     ÌVc    (T/M)   :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S32  
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  5.38  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.87
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    1.32     ASneg (CM^2/M) :    3.12      3.12
+   MSpos (T-M/M)  :     .82     ASpos (CM^2/M) :    1.93      1.93
+   MLneg (T-M/M)  :     .55     ASneg (CM^2/M) :    1.40      1.40
+   MLpos (T-M/M)  :     .35     ASpos (CM^2/M) :     .88      1.35
+   VS  (T/M)      :    1.76     VL  (T/M)      :     .49
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S34  
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  4.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.69
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.18     ASneg (CM^2/M) :    2.78      2.78
+   MSpos (T-M/M)  :     .70     ASpos (CM^2/M) :    1.64      1.64
+   MLneg (T-M/M)  :     .66     ASneg (CM^2/M) :    1.68      1.68
+   MLpos (T-M/M)  :     .38     ASpos (CM^2/M) :     .96      1.35
+   VS  (T/M)      :    1.57     VL  (T/M)      :     .68
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S42  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  6.15  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.57
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    1.72     ASneg (CM^2/M) :    4.12      4.12
+   MSpos (T-M/M)  :    1.08     ASpos (CM^2/M) :    2.54      2.54
+   MLneg (T-M/M)  :     .72     ASneg (CM^2/M) :    1.83      1.83
+   MLpos (T-M/M)  :     .46     ASpos (CM^2/M) :    1.16      1.35
+   VS  (T/M)      :    2.02     VL  (T/M)      :     .56
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S44  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  5.33  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.21
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.54     ASneg (CM^2/M) :    3.67      3.67
+   MSpos (T-M/M)  :     .92     ASpos (CM^2/M) :    2.16      2.16
+   MLneg (T-M/M)  :     .86     ASneg (CM^2/M) :    2.21      2.21
+   MLpos (T-M/M)  :     .50     ASpos (CM^2/M) :    1.26      1.35
+   VS  (T/M)      :    1.81     VL  (T/M)      :     .78
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S45  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.71  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.10
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.33     ASneg (CM^2/M) :    3.17      3.17
+   MSpos (T-M/M)  :     .77     ASpos (CM^2/M) :    1.79      1.79
+   MLneg (T-M/M)  :     .95     ASneg (CM^2/M) :    2.45      2.45
+   MLpos (T-M/M)  :     .56     ASpos (CM^2/M) :    1.43      1.43
+   VS  (T/M)      :    1.57     VL  (T/M)      :     .97
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S46  
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.21  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.18
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.11     ASneg (CM^2/M) :    2.62      2.62
+   MSpos (T-M/M)  :     .63     ASpos (CM^2/M) :    1.48      1.48
+   MLneg (T-M/M)  :    1.01     ASneg (CM^2/M) :    2.60      2.60
+   MLpos (T-M/M)  :     .57     ASpos (CM^2/M) :    1.44      1.44
+   VS  (T/M)      :    1.31     VL  (T/M)      :    1.14
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S53  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.43  m     #   S    :     
+   S/L  ratio             :   .70        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.46
+   CSneg    :  .081   CLneg    :  .019
+   CSdl     :  .046   CLdl     :  .011
+   CSll     :  .057   CLll     :  .014
+   CWS      :  .810   CWL      :  .190
+   ===============================================================
+   MSneg (T-M/M)  :    2.07     ASneg (CM^2/M) :    5.02      5.02
+   MSpos (T-M/M)  :    1.25     ASpos (CM^2/M) :    2.97      2.97
+   MLneg (T-M/M)  :     .99     ASneg (CM^2/M) :    2.56      2.56
+   MLpos (T-M/M)  :     .62     ASpos (CM^2/M) :    1.57      1.57
+   VS  (T/M)      :    2.19     VL  (T/M)      :     .75
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S54  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.00  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.74
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.95     ASneg (CM^2/M) :    4.69      4.69
+   MSpos (T-M/M)  :    1.16     ASpos (CM^2/M) :    2.75      2.75
+   MLneg (T-M/M)  :    1.09     ASneg (CM^2/M) :    2.82      2.82
+   MLpos (T-M/M)  :     .63     ASpos (CM^2/M) :    1.60      1.60
+   VS  (T/M)      :    2.05     VL  (T/M)      :     .88
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S55  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  5.29  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.49
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.69     ASneg (CM^2/M) :    4.04      4.04
+   MSpos (T-M/M)  :     .97     ASpos (CM^2/M) :    2.28      2.28
+   MLneg (T-M/M)  :    1.20     ASneg (CM^2/M) :    3.12      3.12
+   MLpos (T-M/M)  :     .71     ASpos (CM^2/M) :    1.82      1.82
+   VS  (T/M)      :    1.78     VL  (T/M)      :    1.09
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S56  
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  4.74  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.45
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.41     ASneg (CM^2/M) :    3.35      3.35
+   MSpos (T-M/M)  :     .80     ASpos (CM^2/M) :    1.88      1.88
+   MLneg (T-M/M)  :    1.28     ASneg (CM^2/M) :    3.32      3.32
+   MLpos (T-M/M)  :     .72     ASpos (CM^2/M) :    1.84      1.84
+   VS  (T/M)      :    1.48     VL  (T/M)      :    1.29
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S64  
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  6.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  15.26
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    2.40     ASneg (CM^2/M) :    5.86      5.86
+   MSpos (T-M/M)  :    1.44     ASpos (CM^2/M) :    3.41      3.41
+   MLneg (T-M/M)  :    1.35     ASneg (CM^2/M) :    3.51      3.51
+   MLpos (T-M/M)  :     .78     ASpos (CM^2/M) :    1.98      1.98
+   VS  (T/M)      :    2.29     VL  (T/M)      :     .98
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (13F,1)S66  
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  5.26  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .200       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.72
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.74     ASneg (CM^2/M) :    4.17      4.17
+   MSpos (T-M/M)  :     .99     ASpos (CM^2/M) :    2.33      2.33
+   MLneg (T-M/M)  :    1.58     ASneg (CM^2/M) :    4.13      4.13
+   MLpos (T-M/M)  :     .89     ASpos (CM^2/M) :    2.28      2.28
+   VS  (T/M)      :    1.66     VL  (T/M)      :    1.44
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S11     
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  4.17  m     #   S    :     
+   S/L  ratio             :   .60        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.98
+   CSneg    :  .089   CLneg    :  .011
+   CSdl     :  .053   CLdl     :  .007
+   CSll     :  .067   CLll     :  .009
+   CWS      :  .890   CWL      :  .110
+   ===============================================================
+   MSneg (T-M/M)  :     .99     ASneg (CM^2/M) :    2.32      2.32
+   MSpos (T-M/M)  :     .66     ASpos (CM^2/M) :    1.54      1.54
+   MLneg (T-M/M)  :     .34     ASneg (CM^2/M) :     .86      1.35
+   MLpos (T-M/M)  :     .25     ASpos (CM^2/M) :     .62      1.35
+   VS  (T/M)      :    1.79     VL  (T/M)      :     .39
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S16     
+   Slab short span length :  2.50  m     #.........     
+   Slab long  span length :  2.63  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   6.36
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :     .61     ASneg (CM^2/M) :    1.42      1.42
+   MSpos (T-M/M)  :     .36     ASpos (CM^2/M) :     .83      1.35
+   MLneg (T-M/M)  :     .55     ASneg (CM^2/M) :    1.40      1.40
+   MLpos (T-M/M)  :     .32     ASpos (CM^2/M) :     .82      1.35
+   VS  (T/M)      :    1.11     VL  (T/M)      :     .97
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S25     
+   Slab short span length :  3.00  m     #.........     
+   Slab long  span length :  3.53  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :   8.33
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.05     ASneg (CM^2/M) :    2.48      2.48
+   MSpos (T-M/M)  :     .63     ASpos (CM^2/M) :    1.46      1.46
+   MLneg (T-M/M)  :     .75     ASneg (CM^2/M) :    1.92      1.92
+   MLpos (T-M/M)  :     .46     ASpos (CM^2/M) :    1.17      1.35
+   VS  (T/M)      :    1.62     VL  (T/M)      :    1.00
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S3      
+   Slab short span length :  3.50  m     #........:     
+   Slab long  span length :        m     #   S    :     
+   S/L  ratio             :              #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      #.........     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.58
+   MPOS = WU*L^2/14
+   MNEG = WU*L^2/10
+   ===============================================================
+   MSneg (T-M/M)  :    2.17     ASneg (CM^2/M) :    5.27      5.27
+   MSpos (T-M/M)  :    1.55     ASpos (CM^2/M) :    3.70      3.70
+   Vu    (T/M)    :    3.37     ÌVc    (T/M)   :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S32     
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  5.38  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.87
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    1.85     ASneg (CM^2/M) :    4.44      4.44
+   MSpos (T-M/M)  :    1.21     ASpos (CM^2/M) :    2.86      2.86
+   MLneg (T-M/M)  :     .77     ASneg (CM^2/M) :    1.97      1.97
+   MLpos (T-M/M)  :     .51     ASpos (CM^2/M) :    1.30      1.35
+   VS  (T/M)      :    2.47     VL  (T/M)      :     .69
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S34     
+   Slab short span length :  3.50  m     #.........     
+   Slab long  span length :  4.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.69
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    1.65     ASneg (CM^2/M) :    3.95      3.95
+   MSpos (T-M/M)  :    1.03     ASpos (CM^2/M) :    2.42      2.42
+   MLneg (T-M/M)  :     .93     ASneg (CM^2/M) :    2.38      2.38
+   MLpos (T-M/M)  :     .56     ASpos (CM^2/M) :    1.42      1.42
+   VS  (T/M)      :    2.20     VL  (T/M)      :     .95
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S42     
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  6.15  m     #   S    :     
+   S/L  ratio             :   .65        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.57
+   CSneg    :  .085   CLneg    :  .015
+   CSdl     :  .050   CLdl     :  .009
+   CSll     :  .062   CLll     :  .011
+   CWS      :  .850   CWL      :  .150
+   ===============================================================
+   MSneg (T-M/M)  :    2.41     ASneg (CM^2/M) :    5.89      5.89
+   MSpos (T-M/M)  :    1.58     ASpos (CM^2/M) :    3.78      3.78
+   MLneg (T-M/M)  :    1.01     ASneg (CM^2/M) :    2.60      2.60
+   MLpos (T-M/M)  :     .67     ASpos (CM^2/M) :    1.71      1.71
+   VS  (T/M)      :    2.84     VL  (T/M)      :     .79
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S44     
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  5.33  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.21
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    2.16     ASneg (CM^2/M) :    5.23      5.23
+   MSpos (T-M/M)  :    1.34     ASpos (CM^2/M) :    3.19      3.19
+   MLneg (T-M/M)  :    1.21     ASneg (CM^2/M) :    3.14      3.14
+   MLpos (T-M/M)  :     .73     ASpos (CM^2/M) :    1.86      1.86
+   VS  (T/M)      :    2.54     VL  (T/M)      :    1.09
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S45     
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.71  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.10
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    1.87     ASneg (CM^2/M) :    4.51      4.51
+   MSpos (T-M/M)  :    1.12     ASpos (CM^2/M) :    2.63      2.63
+   MLneg (T-M/M)  :    1.34     ASneg (CM^2/M) :    3.48      3.48
+   MLpos (T-M/M)  :     .82     ASpos (CM^2/M) :    2.10      2.10
+   VS  (T/M)      :    2.21     VL  (T/M)      :    1.36
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S46     
+   Slab short span length :  4.00  m     #.........     
+   Slab long  span length :  4.21  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  10.18
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.56     ASneg (CM^2/M) :    3.73      3.73
+   MSpos (T-M/M)  :     .92     ASpos (CM^2/M) :    2.16      2.16
+   MLneg (T-M/M)  :    1.42     ASneg (CM^2/M) :    3.69      3.69
+   MLpos (T-M/M)  :     .83     ASpos (CM^2/M) :    2.13      2.13
+   VS  (T/M)      :    1.84     VL  (T/M)      :    1.60
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S53     
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.43  m     #   S    :     
+   S/L  ratio             :   .70        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  14.46
+   CSneg    :  .081   CLneg    :  .019
+   CSdl     :  .046   CLdl     :  .011
+   CSll     :  .057   CLll     :  .014
+   CWS      :  .810   CWL      :  .190
+   ===============================================================
+   MSneg (T-M/M)  :    2.91     ASneg (CM^2/M) :    7.21      7.21
+   MSpos (T-M/M)  :    1.84     ASpos (CM^2/M) :    4.43      4.43
+   MLneg (T-M/M)  :    1.39     ASneg (CM^2/M) :    3.63      3.63
+   MLpos (T-M/M)  :     .91     ASpos (CM^2/M) :    2.34      2.34
+   VS  (T/M)      :    3.07     VL  (T/M)      :    1.05
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S54     
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  6.00  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  13.74
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    2.73     ASneg (CM^2/M) :    6.73      6.73
+   MSpos (T-M/M)  :    1.70     ASpos (CM^2/M) :    4.07      4.07
+   MLneg (T-M/M)  :    1.53     ASneg (CM^2/M) :    4.01      4.01
+   MLpos (T-M/M)  :     .92     ASpos (CM^2/M) :    2.37      2.37
+   VS  (T/M)      :    2.88     VL  (T/M)      :    1.23
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S55     
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  5.29  m     #   S    :     
+   S/L  ratio             :   .85        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.49
+   CSneg    :  .066   CLneg    :  .034
+   CSdl     :  .036   CLdl     :  .019
+   CSll     :  .043   CLll     :  .023
+   CWS      :  .660   CWL      :  .340
+   ===============================================================
+   MSneg (T-M/M)  :    2.37     ASneg (CM^2/M) :    5.78      5.78
+   MSpos (T-M/M)  :    1.41     ASpos (CM^2/M) :    3.36      3.36
+   MLneg (T-M/M)  :    1.69     ASneg (CM^2/M) :    4.45      4.45
+   MLpos (T-M/M)  :    1.04     ASpos (CM^2/M) :    2.68      2.68
+   VS  (T/M)      :    2.50     VL  (T/M)      :    1.53
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S56     
+   Slab short span length :  4.50  m     #.........     
+   Slab long  span length :  4.74  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  11.45
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    1.98     ASneg (CM^2/M) :    4.77      4.77
+   MSpos (T-M/M)  :    1.16     ASpos (CM^2/M) :    2.75      2.75
+   MLneg (T-M/M)  :    1.79     ASneg (CM^2/M) :    4.73      4.73
+   MLpos (T-M/M)  :    1.05     ASpos (CM^2/M) :    2.71      2.71
+   VS  (T/M)      :    2.08     VL  (T/M)      :    1.81
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S64     
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  6.67  m     #   S    :     
+   S/L  ratio             :   .75        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  15.26
+   CSneg    :  .076   CLneg    :  .024
+   CSdl     :  .043   CLdl     :  .013
+   CSll     :  .052   CLll     :  .016
+   CWS      :  .760   CWL      :  .240
+   ===============================================================
+   MSneg (T-M/M)  :    3.37     ASneg (CM^2/M) :    8.47      8.47
+   MSpos (T-M/M)  :    2.10     ASpos (CM^2/M) :    5.08      5.08
+   MLneg (T-M/M)  :    1.89     ASneg (CM^2/M) :    5.01      5.01
+   MLpos (T-M/M)  :    1.14     ASpos (CM^2/M) :    2.94      2.94
+   VS  (T/M)      :    3.22     VL  (T/M)      :    1.37
+   ÌVC (T/M)      :    7.52
+ 
+ 
+ 
+ * SLAB NAME : (RF)S66     
+   Slab short span length :  5.00  m     #.........     
+   Slab long  span length :  5.26  m     #   S    :     
+   S/L  ratio             :   .95        #        :     
+   Boundary case          : =========>   #        :     
+   Slab thick             :  15.0 cm     #        :     
+   Cover                  :  3.00 cm     #L       :     
+   Effective depth        :  11.5 cm     #        :     
+   Dead load (T/M^2)      :   .660       #        :     
+   Life load (T/M^2)      :   .500       #        :     
+   Fy        (kg/cm^2)    : 4200.00      #        :     
+   Fc'       (kg/cm^2)    :  210.00      ##########     
+   ASmin      (CM^2/M)    :   1.35
+   (1/2)AStmp (CM^2/M)    :   1.35
+   Tmin       (CM)        :  12.72
+   CSneg    :  .055   CLneg    :  .045
+   CSdl     :  .030   CLdl     :  .024
+   CSll     :  .035   CLll     :  .029
+   CWS      :  .550   CWL      :  .450
+   ===============================================================
+   MSneg (T-M/M)  :    2.44     ASneg (CM^2/M) :    5.96      5.96
+   MSpos (T-M/M)  :    1.44     ASpos (CM^2/M) :    3.42      3.42
+   MLneg (T-M/M)  :    2.21     ASneg (CM^2/M) :    5.92      5.92
+   MLpos (T-M/M)  :    1.30     ASpos (CM^2/M) :    3.37      3.37
+   VS  (T/M)      :    2.33     VL  (T/M)      :    2.02
+   ÌVC (T/M)      :    7.52
