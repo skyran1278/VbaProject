@@ -272,14 +272,15 @@ End Sub
 
 ' FIXME: Function Name
 ' RC EXPERT 增加繫筋的規範  中央繫筋 >= RoundUp((主筋支數 - 1) / 2) - 1
+' 修正 X Y 向隔根勾錯誤
 Function Norm15_5_4_100()
 
     For i = DATA_ROW_START To DATA_ROW_END
 
-        If RAW_DATA(i, TIE_X) < Int((RAW_DATA(i, REBAR_X) - 1) / 2) - 1 Then
+        If RAW_DATA(i, TIE_X) < Int((RAW_DATA(i, REBAR_Y) - 1) / 2) - 1 Then
             Call WarningMessage("【0405】X向繫筋未符合隔根勾", i)
         End If
-        If RAW_DATA(i, TIE_Y) < Int((RAW_DATA(i, REBAR_Y) - 1) / 2) - 1 Then
+        If RAW_DATA(i, TIE_Y) < Int((RAW_DATA(i, REBAR_X) - 1) / 2) - 1 Then
             Call WarningMessage("【0406】Y向繫筋未符合隔根勾", i)
         End If
     Next
