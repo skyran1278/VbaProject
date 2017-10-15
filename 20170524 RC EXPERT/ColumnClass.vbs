@@ -284,7 +284,7 @@ Function Norm15_5_4_100()
             Call WarningMessage("【0406】Y向繫筋未符合隔根勾", i)
         End If
     Next
-    
+
 End Function
 
 Function EconomicSmooth()
@@ -321,6 +321,7 @@ Function EconomicSmooth()
 
 End Function
 
+' FIXME: X Y 好像有錯誤
 Function Norm15_5_4_1()
 '
 ' 矩形閉合箍筋及繫筋之總斷面積 Ash 不得小於式(15-3)及式(15-4)之值。
