@@ -201,8 +201,6 @@ End Function
 
 Function PrintMessage()
 
-    ' Worksheets("大梁配筋").Activate
-
     ' 不知道為什麼不能直接給值，只好用 for loop
     ' Range(Cells(DATA_ROW_START, MESSAGE_POSITION), Cells(DATA_ROW_END, MESSAGE_POSITION)) = MESSAGE()
     For i = DATA_ROW_START To DATA_ROW_END
@@ -272,7 +270,7 @@ End Sub
 
 ' FIXME: Function Name
 ' RC EXPERT 增加繫筋的規範  中央繫筋 >= RoundUp((主筋支數 - 1) / 2) - 1
-' 修正 X Y 向隔根勾錯誤
+' 已修正 X Y 向隔根勾錯誤
 Function Norm15_5_4_100()
 
     For i = DATA_ROW_START To DATA_ROW_END
@@ -331,9 +329,11 @@ Function Norm15_5_4_1()
         fcColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FC_COLUMN, False)
         fytColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FYT, False)
         stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
+        rebarSize = stirrup(0)
         s = stirrup(1)
-        bcX = RAW_DATA(i, WIDTH_X) - 4 * 2 - Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
-        bcY = RAW_DATA(i, WIDTH_Y) - 4 * 2 - Application.VLookup(stirrup(0), REBAR_SIZE, DIAMETER, False)
+
+        bcX = RAW_DATA(i, WIDTH_X) - 4 * 2 - Application.VLookup(rebarSize, REBAR_SIZE, DIAMETER, False)
+        bcY = RAW_DATA(i, WIDTH_Y) - 4 * 2 - Application.VLookup(rebarSize, REBAR_SIZE, DIAMETER, False)
         ashDivideBc = Application.Min(RATIO_DATA(i, TIE_X) / bcX, RATIO_DATA(i, TIE_Y) / bcY)
         ag = RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y)
         ach = (RAW_DATA(i, WIDTH_X) - 4 * 2) * (RAW_DATA(i, WIDTH_Y) - 4 * 2)
@@ -352,14 +352,16 @@ Function EconomicTopStoryRebar()
 ' 一定要有 1F 和 RF
 ' 頂樓區鋼筋比不大於 1.2 %
 '
-    For i = 1 To UBound(GENERAL_INFORMATION)
-        If GENERAL_INFORMATION(i, STORY) = "1F" Then
+    numStory = UBound(GENERAL_INFORMATION)
+    For i = 1 To numStory
+        If GENERAL_INFORMATION(numStory - i + 1, STORY) = "1F" Then
             firstStory = i
-        ElseIf GENERAL_INFORMATION(i, STORY) = "RF" Then
+        ElseIf GENERAL_INFORMATION(numStory - i + 1, STORY) = "RF" Then
             topStory = i
         End If
     Next
 
+    ' 頂樓區 1/4
     checkStoryNumber = Fix((topStory - firstStory + 1) / 4)
 
     For i = DATA_ROW_START To DATA_ROW_END

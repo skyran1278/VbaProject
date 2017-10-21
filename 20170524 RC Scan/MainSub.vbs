@@ -7,6 +7,7 @@ Sub CheckColumnNorm()
 
     Column.Initialize
 
+    ' 實作規範
     Column.EconomicSmooth
     Column.Norm15_5_4_1
     Column.EconomicTopStoryRebar
@@ -31,6 +32,7 @@ Sub CheckGroundBeamNorm()
 
     GroundBeam.Initialize
 
+    ' 實作規範
     GroundBeam.Norm4_9_3
     GroundBeam.Norm4_9_4
     GroundBeam.EconomicNorm4_9_4
@@ -56,6 +58,7 @@ Sub CheckBeamNorm()
 
     Beam.Initialize
 
+    ' 實作規範
     Beam.Norm3_6
     Beam.Norm3_7_5
     Beam.Norm13_5_1AndSafetyRebarNumber
@@ -78,11 +81,13 @@ Sub CheckGirderNorm()
 
     Girder.Initialize
 
+    ' 實作規範
     Girder.Norm3_6
     Girder.Norm3_7_5
     Girder.Norm3_8_1
     Girder.Norm4_6_7_9
     Girder.Norm13_5_1AndSafetyRebarNumber
+    ' FIXME: 目前只有1F，需修正到地下層
     Girder.Norm15_4_2_1
     Girder.Norm15_4_2_2
     Girder.SafetyStirrupSpace
