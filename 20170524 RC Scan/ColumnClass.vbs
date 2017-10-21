@@ -107,7 +107,7 @@ Function RatioData()
         RATIO_DATA(i, REBAR) = CalRebarArea(RATIO_DATA(i, REBAR)) / (RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y))
     Next
 
-    ' 計算箍筋面積
+    ' 計算箍筋與繫筋面積
     For i = DATA_ROW_START To DATA_ROW_END
         stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
         stirrup = Application.VLookup(stirrup(0), REBAR_SIZE, CROSS_AREA, False)
@@ -269,18 +269,20 @@ End Sub
 ' -------------------------------------------------------------------------
 
 ' FIXME: Function Name
-' RC EXPERT 增加繫筋的規範  中央繫筋 >= RoundUp((主筋支數 - 1) / 2) - 1
-' 已修正 X Y 向隔根勾錯誤
 Function Norm15_5_4_100()
+' 增加繫筋的規範  中央繫筋 >= RoundUp((主筋支數 - 1) / 2) - 1
+' 已修正 X Y 向隔根勾錯誤
 
     For i = DATA_ROW_START To DATA_ROW_END
 
-        If RAW_DATA(i, TIE_X) < Int((RAW_DATA(i, REBAR_Y) - 1) / 2) - 1 Then
-            Call WarningMessage("【0405】X向繫筋未符合隔根勾", i)
-        End If
         If RAW_DATA(i, TIE_Y) < Int((RAW_DATA(i, REBAR_X) - 1) / 2) - 1 Then
-            Call WarningMessage("【0406】Y向繫筋未符合隔根勾", i)
+            Call WarningMessage("【0407】Y 向繫筋未符合隔根勾", i)
         End If
+
+        If RAW_DATA(i, TIE_X) < Int((RAW_DATA(i, REBAR_Y) - 1) / 2) - 1 Then
+            Call WarningMessage("【0406】X 向繫筋未符合隔根勾", i)
+        End If
+
     Next
 
 End Function
@@ -319,28 +321,41 @@ Function EconomicSmooth()
 
 End Function
 
-' FIXME: X Y 好像有錯誤
+
 Function Norm15_5_4_1()
 '
 ' 矩形閉合箍筋及繫筋之總斷面積 Ash 不得小於式(15-3)及式(15-4)之值。
+' 增加為 X Y 向檢驗，並修正 X Y 向相反問題
 
     For i = DATA_ROW_START To DATA_ROW_END
 
         fcColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FC_COLUMN, False)
         fytColumn = Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FYT, False)
+
         stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
         rebarSize = stirrup(0)
         s = stirrup(1)
 
         bcX = RAW_DATA(i, WIDTH_X) - 4 * 2 - Application.VLookup(rebarSize, REBAR_SIZE, DIAMETER, False)
         bcY = RAW_DATA(i, WIDTH_Y) - 4 * 2 - Application.VLookup(rebarSize, REBAR_SIZE, DIAMETER, False)
-        ashDivideBc = Application.Min(RATIO_DATA(i, TIE_X) / bcX, RATIO_DATA(i, TIE_Y) / bcY)
+
+        ashX = RATIO_DATA(i, TIE_X)
+        ashY = RATIO_DATA(i, TIE_Y)
+
         ag = RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y)
         ach = (RAW_DATA(i, WIDTH_X) - 4 * 2) * (RAW_DATA(i, WIDTH_Y) - 4 * 2)
-        code15_3 = 0.3 * s * fcColumn / fytColumn * (ag / ach - 1)
-        code15_4 = 0.09 * s * fcColumn / fytColumn
-        If ashDivideBc < code15_3 Or ashDivideBc < code15_4 Then
-            Call WarningMessage("【0403】請確認橫向鋼筋，是否符合 規範 15.5.4.1 規定", i)
+
+        code15_3_X = 0.3 * s * bcX * fcColumn / fytColumn * (ag / ach - 1)
+        code15_3_Y = 0.3 * s * bcY * fcColumn / fytColumn * (ag / ach - 1)
+        code15_4_X = 0.09 * s * bcX * fcColumn / fytColumn
+        code15_4_Y = 0.09 * s * bcY * fcColumn / fytColumn
+
+        If ashY < code15_3_X Or ashY < code15_4_X Then
+            Call WarningMessage("【0404】請確認 Y 向橫向鋼筋，是否符合 規範 15.5.4.1 規定", i)
+        End If
+
+        If ashX < code15_3_Y Or ashX < code15_4_Y Then
+            Call WarningMessage("【0403】請確認 X 向橫向鋼筋，是否符合 規範 15.5.4.1 規定", i)
         End If
 
     Next
@@ -368,7 +383,7 @@ Function EconomicTopStoryRebar()
         For j = topStory - checkStoryNumber + 1 To topStory
 
             If RAW_DATA(i, STORY) = GENERAL_INFORMATION(j, STORY) And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
-                    Call WarningMessage("【0404】請確認高樓區鋼筋比，是否超過 1.2 %", i)
+                    Call WarningMessage("【0405】請確認高樓區鋼筋比，是否超過 1.2 %", i)
             End If
 
         Next

@@ -297,6 +297,7 @@ Private Sub Class_Terminate()
 End Sub
 
 ' -------------------------------------------------------------------------
+' 以下為實作內容
 ' -------------------------------------------------------------------------
 
 Function SafetyRebarRatioAndSpace()
@@ -462,7 +463,7 @@ Function SafetyLoad()
 
 End Function
 
-Function SafetyRebarRatioSB()
+Function SafetyRebarRatioForSB()
 '
 ' 安全性指標：
 ' 小梁鋼筋比在 2.5% 以下
@@ -487,7 +488,7 @@ Function SafetyRebarRatioSB()
 
 End Function
 
-Function SafetyRebarRatioGB()
+Function SafetyRebarRatioForGB()
 '
 ' 安全性指標：
 ' 地梁鋼筋比在 2% 以下
@@ -608,21 +609,22 @@ Next
 
 End Function
 
-Function EconomicTopEndRelativeMid()
+Function EconomicTopRebarRelativeForGB()
 '
 ' 經濟性指標：
 ' 如果鋼筋支數大於3支，端部上層鋼筋量需小於中央鋼筋量的 70%。
+' 淨跨度大於 400 cm，才要檢討
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
         rebarLEFT = Split(RAW_DATA(i, REBAR_LEFT), "-")
         rebarRIGHT = Split(RAW_DATA(i, REBAR_RIGHT), "-")
 
-        If RATIO_DATA(i, REBAR_MIDDLE) * 0.7 < RATIO_DATA(i, REBAR_LEFT) And rebarLEFT(0) > 3 Then
+        If RATIO_DATA(i, REBAR_MIDDLE) * 0.7 < RATIO_DATA(i, REBAR_LEFT) And rebarLEFT(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
             Call WarningMessage("【0111】請確認左端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
         End If
 
-        If RATIO_DATA(i, REBAR_MIDDLE) * 0.7 < RATIO_DATA(i, REBAR_RIGHT) And rebarRIGHT(0) > 3 Then
+        If RATIO_DATA(i, REBAR_MIDDLE) * 0.7 < RATIO_DATA(i, REBAR_RIGHT) And rebarRIGHT(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
             Call WarningMessage("【0112】請確認右端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
         End If
 
@@ -630,10 +632,12 @@ Function EconomicTopEndRelativeMid()
 
 End Function
 
-Function EconomicTopMidRelativeEnd()
+Function EconomicTopRebarRelative()
 '
 ' 經濟性指標：
 ' 如果鋼筋支數大於3支，中央上層鋼筋量需小於端部最小鋼筋量的 70%。
+' 淨跨度大於 400 cm，才要檢討
+
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
@@ -641,7 +645,7 @@ Function EconomicTopMidRelativeEnd()
 
         REBAR = Split(RAW_DATA(i, REBAR_MIDDLE), "-")
 
-        If RATIO_DATA(i, REBAR_MIDDLE) > minRatio * 0.7 And REBAR(0) > 3 Then
+        If RATIO_DATA(i, REBAR_MIDDLE) > minRatio * 0.7 And REBAR(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
             Call WarningMessage("【0221】請確認中央上層筋相對鋼筋量，是否符合中央上層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
@@ -649,10 +653,11 @@ Function EconomicTopMidRelativeEnd()
 
 End Function
 
-Function EconomicBotMidRelativeEnd()
+Function EconomicBotRebarRelativeForGB()
 '
 ' 經濟性指標：
 ' 如果鋼筋支數大於3支，中央下層鋼筋量需小於端部最小鋼筋量的 70%。
+' 淨跨度大於 400 cm，才要檢討
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
@@ -660,7 +665,7 @@ Function EconomicBotMidRelativeEnd()
 
         REBAR = Split(RAW_DATA(i + 2, REBAR_MIDDLE), "-")
 
-        If RATIO_DATA(i + 2, REBAR_MIDDLE) > minRatio * 0.7 And REBAR(0) > 3 Then
+        If RATIO_DATA(i + 2, REBAR_MIDDLE) > minRatio * 0.7 And REBAR(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
             Call WarningMessage("【0110】請確認中央下層筋相對鋼筋量，是否符合中央下層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
