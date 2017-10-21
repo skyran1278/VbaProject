@@ -266,6 +266,7 @@ Private Sub Class_Terminate()
 End Sub
 
 ' -------------------------------------------------------------------------
+' 以下為實作規範
 ' -------------------------------------------------------------------------
 
 ' FIXME: Function Name
@@ -291,30 +292,37 @@ Function EconomicSmooth()
 '
 ' 往上漸縮  不低於60%
 ' 往下漸縮  不低於70%
-' 邏輯感覺蠻奇怪的，或許可以修改。2017/07/07
+' 邏輯感覺蠻奇怪的，或許可以修改。
+' 已修正邏輯
 
     For i = DATA_ROW_START To DATA_ROW_END
 
         ' 3 case
+        ' 判斷位置
         isUpperLimit = RAW_DATA(i, NUMBER) <> RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) = RAW_DATA(i + 1, NUMBER)
         isMiddle = RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) = RAW_DATA(i + 1, NUMBER)
         isLowerLimit = RAW_DATA(i, NUMBER) = RAW_DATA(i - 1, NUMBER) And RAW_DATA(i, NUMBER) <> RAW_DATA(i + 1, NUMBER)
 
-        noSmoothDown = RATIO_DATA(i + 1, REBAR) < RATIO_DATA(i, REBAR) * 0.7
-        noSmoothUp = RATIO_DATA(i - 1, REBAR) < RATIO_DATA(i, REBAR) * 0.6
+        ' 往下減縮超過 7 成
+        sharpDown = RATIO_DATA(i + 1, REBAR) < RATIO_DATA(i, REBAR) * 0.7
 
-        If isMiddle And noSmoothDown Then
-            Call WarningMessage("【0401】請確認上層柱主筋量，漸縮是否過大", i)
-        ElseIf isMiddle And noSmoothUp Then
-            Call WarningMessage("【0402】請確認本層柱主筋量，漸縮是否過大", i)
+        ' 往上減縮超過 6 成
+        sharpUp = RATIO_DATA(i - 1, REBAR) < RATIO_DATA(i, REBAR) * 0.6
+
+        If isMiddle And sharpDown Then
+            Call WarningMessage("【0402】請確認下層柱主筋量，漸縮是否過大", i)
         End If
 
-        If isUpperLimit And noSmoothDown Then
+        If isMiddle And sharpUp Then
             Call WarningMessage("【0401】請確認上層柱主筋量，漸縮是否過大", i)
         End If
 
-        If isLowerLimit And noSmoothUp Then
-            Call WarningMessage("【0402】請確認本層柱主筋量，漸縮是否過大", i)
+        If isUpperLimit And sharpDown Then
+            Call WarningMessage("【0402】請確認下層柱主筋量，漸縮是否過大", i)
+        End If
+
+        If isLowerLimit And sharpUp Then
+            Call WarningMessage("【0401】請確認上層柱主筋量，漸縮是否過大", i)
         End If
 
     Next
