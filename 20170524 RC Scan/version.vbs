@@ -75,6 +75,8 @@ Private Sub Workbook_Open()
 
 
     ' 移除連線
+    ' Mac 版本 Connections 錯誤，所以增加下面一行
+    On Error Resume Next
     ActiveWorkbook.Connections("連線").Delete
 
     ' 移除名稱
