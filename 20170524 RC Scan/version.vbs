@@ -11,6 +11,10 @@ Private Sub Workbook_Open()
 '       名稱: Cells(2, 3)
 '       目前版本號: Cells(3, 3)
 '       最新版本號: Cells(4, 3)
+'
+' * 測試環境:
+'       office 2016 in windows 10
+'       Mac 版本容易出現錯誤，不推薦在 Mac 執行
 
 
     ' 此程序包含的變數
@@ -67,6 +71,7 @@ Private Sub Workbook_Open()
         intMessage = MsgBox("下載最新版本...", vbYesNo, project)
 
         If intMessage = vbYes Then
+            ' Mac 版本出現錯誤，不推薦在 Mac 執行
             Set OBJ_SHELL = CreateObject("Wscript.Shell")
             OBJ_SHELL.Run (DOWNLOAD_URL)
         End If
@@ -76,7 +81,7 @@ Private Sub Workbook_Open()
 
     ' 移除連線
     ' Mac 版本 Connections 錯誤，所以增加下面一行
-    On Error Resume Next
+    ' On Error Resume Next
     ActiveWorkbook.Connections("連線").Delete
 
     ' 移除名稱
