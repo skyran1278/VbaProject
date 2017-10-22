@@ -35,25 +35,25 @@ Private Sub Workbook_Open()
     ' 位置在 Cells(4, 3)
     With ActiveSheet.QueryTables.Add(Connection:= "URL;" & VERSION_URL, _
         Destination:= Cells(4, 3))
-        .Name = "version_1"
+        .Name = "version"
         .FieldNames = True
         .RowNumbers = False
         .FillAdjacentFormulas = False
-        .PreserveFormatting = True
+        ' .PreserveFormatting = True
         .RefreshOnFileOpen = False
         .BackgroundQuery = True
         .RefreshStyle = xlOverwriteCells '覆蓋文字
         .SavePassword = False
         .SaveData = True
         .AdjustColumnWidth = False
-        .RefreshPeriod = 0
-        .WebSelectionType = xlEntirePage
-        .WebFormatting = xlWebFormattingNone
-        .WebPreFormattedTextToColumns = True
-        .WebConsecutiveDelimitersAsOne = True
-        .WebSingleBlockTextImport = False
-        .WebDisableDateRecognition = False
-        .WebDisableRedirections = False
+        ' .RefreshPeriod = 0
+        ' .WebSelectionType = xlEntirePage
+        ' .WebFormatting = xlWebFormattingNone
+        ' .WebPreFormattedTextToColumns = True
+        ' .WebConsecutiveDelimitersAsOne = True
+        ' .WebSingleBlockTextImport = False
+        ' .WebDisableDateRecognition = False
+        ' .WebDisableRedirections = False
         .Refresh BackgroundQuery:=False
     End With
 
@@ -72,6 +72,15 @@ Private Sub Workbook_Open()
         End If
 
     End If
+
+
+    ' 移除連線
+    ActiveWorkbook.Connections("連線").Delete
+
+    ' 移除名稱
+    ' 第二次執行會出現錯誤，但一般來說不會出現第二次。所以先註解掉。
+    ' On Error Resume Next
+    ActiveWorkbook.Names("版本資訊!version").Delete
 
 
 End Sub
