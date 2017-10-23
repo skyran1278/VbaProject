@@ -390,7 +390,7 @@ Function EconomicTopStoryRebar()
     For i = DATA_ROW_START To DATA_ROW_END
         For j = topStory - checkStoryNumber + 1 To topStory
 
-            If RAW_DATA(i, STORY) = GENERAL_INFORMATION(j, STORY) And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
+            If RAW_DATA(i, STORY) = GENERAL_INFORMATION(numStory - j + 1, STORY) And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
                     Call WarningMessage("【0405】請確認高樓區鋼筋比，是否超過 1.2 %", i)
             End If
 
