@@ -14,6 +14,7 @@ Sub Main()
 '       1.18 Min、1.31 Min
 
 ' * 輸出結果的精確度與檢驗方式
+' FIXME:      以 story 與 beam 來上下判斷一不一樣，由於資料會先做篩選，有可能會亂掉，需要先做排序。
 
     Time0 = Timer
 
