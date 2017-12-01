@@ -22,15 +22,17 @@ Sub SRCSelector()
 ' 21.61s 40 萬資料量
 '
 
-    Time0 = Timer
+    time0 = Timer
 
     Call AutoFill
 
-    ComboPMM = Combo()
+    combo = ReadCombo()
 
-    PMMCurve = ReadPMMCurve()
+    curve = ReadCurve()
 
-    SelectionSection = SelectionSelector(ComboPMM)
+    SelectionSection = SelectionSelector(combo)
+
+    ExecutionTime(time0)
 
 
 
@@ -42,56 +44,153 @@ Function AutoFill()
 ' 公式自動填滿
 
     Worksheets("EtabsPMMCombo").Activate
-    ComboRowUsed = Cells(Rows.Count, 1).End(xlUp).Row
+    comboRowUsed = Cells(Rows.Count, 1).End(xlUp).Row
 
     Worksheets("PMM").Activate
-    Range(Cells(2, 1), Cells(2, 4)).AutoFill Destination := Range(Cells(2, 1), Cells(ComboRowUsed, 4))
+    Range(Cells(2, 1), Cells(2, 4)).AutoFill Destination := Range(Cells(2, 1), Cells(comboRowUsed, 4))
 
 End Function
 
 
-Function Combo()
+Function ReadCombo()
 
 ' 讀取每個 Combo
 ' 資料格式：
 ' Name P M2 M3
 
     Worksheets("PMM").Activate
-    Dim ComboPMM()
-    ComboRowUsed = Cells(Rows.Count, 1).End(xlUp).Row
-    ReDim ComboPMM(2 to ComboRowUsed + 1, 1 to 4)
+    Dim combo()
+    comboRowUsed = Cells(Rows.Count, 1).End(xlUp).Row
+    ReDim combo(2 to comboRowUsed, 1 to 4)
 
     ' 讀取所有的PMM
-    For ComboRowNumber = 2 To ComboRowUsed
+    For row = 2 To comboRowUsed
 
         ' Name
-        ComboPMM(ComboRowNumber, 1) = Cells(ComboRowNumber, 1)
+        combo(row, 1) = Cells(row, 1)
 
         ' P
-        ComboPMM(ComboRowNumber, 2) = Cells(ComboRowNumber, 2)
+        combo(row, 2) = Cells(row, 2)
 
         ' M2
-        ComboPMM(ComboRowNumber, 3) = Cells(ComboRowNumber, 3)
+        combo(row, 3) = Cells(row, 3)
 
         ' M3
-        ComboPMM(ComboRowNumber, 4) = Cells(ComboRowNumber, 4)
+        combo(row, 4) = Cells(row, 4)
 
     Next
 
-    ' 多增加一列，並給最後一個不一樣的值，為下一步的演算法做準備，免得無法比較
-    ComboPMM(ComboRowUsed + 1, 0) = 0
-
-    Combo = ComboPMM()
+    ReadCombo = combo()
 
 End Function
 
 
-Function ReadPMMCurve() As functionType
+Function ReadCurve()
+
+    Dim curves()
+
+    ' 定義數值意義
+    nameColumn = 2
+    zeroColumn = 4
+    fortyfiveColumn = 8
+    ninetyColumn = 12
+
+    ' 讀取PMMCurve最後一列
+    Worksheets("PMMCurve").Activate
+    curveRowUsed = Cells(Rows.Count, 4).End(xlUp).Row
+
+    ' 統計有幾個非空白儲存格
+    curveNumber = Application.WorksheetFunction.CountA(Range(Cells(2, nameColumn), Cells(curveRowUsed, nameColumn)))
+
+    ReDim curves(1 To curveNumber)
+
+    For row = 2 To curveRowUsed
+
+        If Cells(row, nameColumn) <> "" Then
+
+            index = index + 1
+
+            curves(index) = Curve(row)
+
+        End If
 
 
+    Next
 
 
 End Function
+
+
+Function Curve(row) As functionType
+
+    Dim curve(1 to 60, 3)
+
+    ' 先全部讀取進來
+    For degree = 1 To 3
+
+        load = degree * 4 + 1
+        mement = degree * 4 + 2
+
+        For point = 1 To 20
+
+            pointCumulativeNumber = pointCumulativeNumber + 1
+
+            ' P
+            curve(pointCumulativeNumber, 0) = Cells(row + point, load)
+
+            ' M
+            curve(pointCumulativeNumber, degree) = Cells(row + point, mement)
+
+        Next
+
+    Next
+
+    ' 排序
+    curve =  QuickSort(curve, LBound(curve), UBound(curve))
+
+
+
+    Curve = curve()
+
+End Function
+
+
+Public Sub QuickSort(vArray As Variant, inLow As Long, inHi As Long)
+
+  Dim pivot   As Variant
+  Dim tmpSwap As Variant
+  Dim tmpLow  As Long
+  Dim tmpHi   As Long
+
+  tmpLow = inLow
+  tmpHi = inHi
+
+  pivot = vArray((inLow + inHi) \ 2)
+
+  While (tmpLow <= tmpHi)
+
+     While (vArray(tmpLow) < pivot And tmpLow < inHi)
+        tmpLow = tmpLow + 1
+     Wend
+
+     While (pivot < vArray(tmpHi) And tmpHi > inLow)
+        tmpHi = tmpHi - 1
+     Wend
+
+     If (tmpLow <= tmpHi) Then
+        tmpSwap = vArray(tmpLow)
+        vArray(tmpLow) = vArray(tmpHi)
+        vArray(tmpHi) = tmpSwap
+        tmpLow = tmpLow + 1
+        tmpHi = tmpHi - 1
+     End If
+
+  Wend
+
+  If (inLow < tmpHi) Then QuickSort vArray, inLow, tmpHi
+  If (tmpLow < inHi) Then QuickSort vArray, tmpLow, inHi
+
+End Sub
 
 
 Function SelectionSelector(ComboPMM)
@@ -210,5 +309,16 @@ NextCombo:
     Next
 
     SelectionSelector = SelectionSection()
+
+End Function
+
+
+Function ExecutionTime(time0)
+
+    If Timer - time0 < 60 Then
+        MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
+    Else
+        MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
+    End If
 
 End Function
