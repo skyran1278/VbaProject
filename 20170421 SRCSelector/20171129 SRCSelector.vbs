@@ -1,3 +1,5 @@
+dim CURVES_NAME
+
 Sub SRCSelector()
 ' 目的：
 ' 由於在ETABS不會 Design SRC 斷面，所以由 ETABS 輸出 PMM。
@@ -28,19 +30,17 @@ Sub SRCSelector()
 
     combo = ReadCombo()
 
-    curve = ReadCurves()
+    ' 有副作用，會修改全域變數 CURVES_NAME
+    curves = ReadCurves()
 
-    SelectionSection = SelectionSelector(combo)
+    SelectSection = SectionSelector(combo, curves, CURVES_NAME)
 
     ExecutionTime (time0)
 
-
-
-End Function
+End Sub
 
 
 Function AutoFill()
-
 ' 公式自動填滿
 
     Worksheets("EtabsPMMCombo").Activate
@@ -53,10 +53,11 @@ End Function
 
 
 Function ReadCombo()
-
 ' 讀取每個 Combo
+' 回傳：combo array
 ' 資料格式：
 ' Name P M2 M3
+' combo(2 To comboRowUsed, 1 To 4)
 
     Worksheets("PMM").Activate
     Dim combo()
@@ -86,6 +87,10 @@ End Function
 
 
 Function ReadCurves()
+' 讀取所有 curves
+' 並修改全域變數 CURVES_NAME(1 To curveNumber + 1)
+' 回傳：curves array
+' curves(1 To curveNumber)
 
     Dim curves()
 
@@ -100,12 +105,15 @@ Function ReadCurves()
     curveNumber = Application.WorksheetFunction.CountA(Range(Cells(2, nameColumn), Cells(curveRowUsed, nameColumn)))
 
     ReDim curves(1 To curveNumber)
+    ReDim CURVES_NAME(1 To curveNumber + 1)
 
     For row = 2 To curveRowUsed
 
         If Cells(row, nameColumn) <> "" Then
 
             Index = Index + 1
+
+            CURVES_NAME(Index) = Cells(row, nameColumn)
 
             curves(Index) = ReadCurve(row)
 
@@ -114,18 +122,30 @@ Function ReadCurves()
 
     Next
 
+    CURVES_NAME(curveNumber + 1) = "超過所有斷面，請選擇更大的斷面！"
+
+    ReadCurves = curves()
+
 
 End Function
 
 
 Function ReadCurve(row)
+' 讀取單個 curve
+' 排序後內插求值
+
+' 參數：當前讀取的 curve row
+' 回傳：curve array
+' 資料格式：
+' P M0 M45 M90
+' curve(1 To 60, 3)
 
     Dim curve(1 To 60, 3)
 
-    ' 先全部讀取進來
+    ' 讀取
     For Degree = 1 To 3
 
-        Load = Degree * 4 + 1
+        loading = Degree * 4 + 1
         mement = Degree * 4 + 2
 
         For Point = 1 To 20
@@ -133,7 +153,7 @@ Function ReadCurve(row)
             pointCumulativeNumber = pointCumulativeNumber + 1
 
             ' P
-            curve(pointCumulativeNumber, 0) = Cells(row + Point, Load)
+            curve(pointCumulativeNumber, 0) = Cells(row + Point, loading)
 
             ' M
             curve(pointCumulativeNumber, Degree) = Cells(row + Point, mement)
@@ -142,170 +162,244 @@ Function ReadCurve(row)
 
     Next
 
-    ' 排序
-    curve = QuickSort(curve, LBound(curve), UBound(curve))
+    ' 以 load 排序
+    Call QuickSortArray(curve, , , 0)
 
+    ' 內插
+    for moment = 1 to 3
 
+        index = 0
 
-    curve = ReadCurve()
+        for point = 1 to 60
+
+            ' 初始化，第一次讀到的非空值起始
+            If Not IsEmpty(curve(point, moment)) and index = 0 Then
+
+                pointMin = point
+                loadMin = curve(point, 0)
+                momentMin = curve(point, moment)
+
+                index = 1
+
+            ' 計算中間值
+            elseif Not IsEmpty(curve(point, moment)) Then
+
+                pointMax = point
+                loadMax = curve(point, 0)
+                momentMax = curve(point, moment)
+
+                for pointMid = pointMin + 1 to pointMax - 1
+
+                    ' 內插公式
+                    curve(pointMid, moment) = ((curve(pointMid, 0) - loadMin) / (loadMax - loadMin)) * (momentMax - momentMin) + momentMin
+
+                next
+
+                pointMin = pointMax
+                loadMin = loadMax
+                momentMin = momentMax
+
+            End If
+
+        next
+
+    next
+
+    ReadCurve = curve()
 
 End Function
 
 
-Public Sub QuickSort(vArray As Variant, inLow As Long, inHi As Long)
+Public Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin As Long = -1, Optional lngMax As Long = -1, Optional lngColumn As Long = 0)
+    On Error Resume Next
 
-  Dim pivot   As Variant
-  Dim tmpSwap As Variant
-  Dim tmpLow  As Long
-  Dim tmpHi   As Long
+    'Sort a 2-Dimensional array
 
-  tmpLow = inLow
-  tmpHi = inHi
+    ' SampleUsage: sort arrData by the contents of column 3
+    '
+    '   QuickSortArray arrData, , , 3
 
-  pivot = vArray((inLow + inHi) \ 2)
+    '
+    'Posted by Jim Rech 10/20/98 Excel.Programming
 
-  While (tmpLow <= tmpHi)
+    'Modifications, Nigel Heffernan:
 
-     While (vArray(tmpLow) < pivot And tmpLow < inHi)
-        tmpLow = tmpLow + 1
-     Wend
+    '       ' Escape failed comparison with empty variant
+    '       ' Defensive coding: check inputs
 
-     While (pivot < vArray(tmpHi) And tmpHi > inLow)
-        tmpHi = tmpHi - 1
-     Wend
+    Dim i As Long
+    Dim j As Long
+    Dim varMid As Variant
+    Dim arrRowTemp As Variant
+    Dim lngColTemp As Long
 
-     If (tmpLow <= tmpHi) Then
-        tmpSwap = vArray(tmpLow)
-        vArray(tmpLow) = vArray(tmpHi)
-        vArray(tmpHi) = tmpSwap
-        tmpLow = tmpLow + 1
-        tmpHi = tmpHi - 1
-     End If
+    If IsEmpty(SortArray) Then
+        Exit Sub
+    End If
+    If InStr(TypeName(SortArray), "()") < 1 Then  'IsArray() is somewhat broken: Look for brackets in the type name
+        Exit Sub
+    End If
+    If lngMin = -1 Then
+        lngMin = LBound(SortArray, 1)
+    End If
+    If lngMax = -1 Then
+        lngMax = UBound(SortArray, 1)
+    End If
+    If lngMin >= lngMax Then    ' no sorting required
+        Exit Sub
+    End If
 
-  Wend
+    i = lngMin
+    j = lngMax
 
-  If (inLow < tmpHi) Then QuickSort vArray, inLow, tmpHi
-  If (tmpLow < inHi) Then QuickSort vArray, tmpLow, inHi
+    varMid = Empty
+    varMid = SortArray((lngMin + lngMax) \ 2, lngColumn)
+
+    ' We  send 'Empty' and invalid data items to the end of the list:
+    If IsObject(varMid) Then  ' note that we don't check isObject(SortArray(n)) - varMid *might* pick up a valid default member or property
+        i = lngMax
+        j = lngMin
+    ElseIf IsEmpty(varMid) Then
+        i = lngMax
+        j = lngMin
+    ElseIf IsNull(varMid) Then
+        i = lngMax
+        j = lngMin
+    ElseIf varMid = "" Then
+        i = lngMax
+        j = lngMin
+    ElseIf VarType(varMid) = vbError Then
+        i = lngMax
+        j = lngMin
+    ElseIf VarType(varMid) > 17 Then
+        i = lngMax
+        j = lngMin
+    End If
+
+    While i <= j
+        While SortArray(i, lngColumn) < varMid And i < lngMax
+            i = i + 1
+        Wend
+        While varMid < SortArray(j, lngColumn) And j > lngMin
+            j = j - 1
+        Wend
+
+        If i <= j Then
+            ' Swap the rows
+            ReDim arrRowTemp(LBound(SortArray, 2) To UBound(SortArray, 2))
+            For lngColTemp = LBound(SortArray, 2) To UBound(SortArray, 2)
+                arrRowTemp(lngColTemp) = SortArray(i, lngColTemp)
+                SortArray(i, lngColTemp) = SortArray(j, lngColTemp)
+                SortArray(j, lngColTemp) = arrRowTemp(lngColTemp)
+            Next lngColTemp
+            Erase arrRowTemp
+
+            i = i + 1
+            j = j - 1
+        End If
+    Wend
+
+    If (lngMin < j) Then Call QuickSortArray(SortArray, lngMin, j, lngColumn)
+    If (i < lngMax) Then Call QuickSortArray(SortArray, i, lngMax, lngColumn)
 
 End Sub
 
 
-Function SelectionSelector(ComboPMM)
+Function SectionSelector(combo, curves, CURVES_NAME)
 
-    ' 使輸出結果陣列與 ComboPMM 相同
-    Dim SelectionSection()
-    ReDim SelectionSection(UBound(ComboPMM), 4)
+    ' 取出上限
+    comboUBound = UBound(combo)
+    curvesBound = UBound(curves)
 
-    Dim PMMArray()
-    Dim PMMCurveName()
+    ' 使輸出結果陣列與 combo 相同
+    Dim selectSection()
+    ReDim selectSection(comboUBound, 4)
 
-    ' 讀取PMMCurve最後一列
-    Worksheets("PMMCurve").Activate
-    PMMCurveRowUsed = Cells(Rows.Count, 3).End(xlUp).row
-
-    ' 傳回PMMCurve數目
-    PMMNumber = (PMMCurveRowUsed - 25) / 24 + 1
-
-    ' 讀取有幾個PMMCurve
-    ReDim PMMArray(1 To PMMNumber)
-
-    ' 多的1為例外作準備
-    ReDim PMMCurveName(1 To PMMNumber + 1)
-    PMMCurveName(PMMNumber + 1) = "超過所有斷面，請選擇更大的斷面！"
-
-    ' 最佳化，不用每一次都進去跑Loop，先把所有陣列寫好
-    For PMMCurveRowNumber = 5 To PMMCurveRowUsed Step 24
-        i = i + 1
-        PMMArray(i) = PMMCurve(PMMCurveRowNumber + 1)
-        PMMCurveName(i) = Cells(PMMCurveRowNumber, 1)
-    Next
-
-
-
-    ' 從第1筆資料Loop到最後一筆
-    For RowNumber = 0 To UBound(ComboPMM) - 1
+    for row = 2 To comboUBound
 
         ' 看看他與下一筆資料相不相同，如果相同就是一組。
-        If ComboPMM(RowNumber, 0) <> ComboPMM(RowNumber + 1, 0) Then
+        If combo(row, 1) <> combo(row + 1, 1) Then
+            comboNumber = row - 2 + 1
+            exit for
+        End If
 
-            EndNumber = RowNumber
+    next
 
-            ' 每一個Column（包含很多個Combo）重新初始化
-            FinalSelectionNumber = 0
-            FinalRatio = 0
+    ' 從第1筆資料Loop到最後一筆
+    For row = 2 To comboUBound step comboNumber
 
-            ' 相同的一組
-            For ColumnNumber = StartNumber To EndNumber
+        ' 每一個Column（包含很多個Combo）重新初始化
+        comboSelectNumber = 0
+        comboRatio = 0
 
-                ' 每一個Combo重新初始化
-                SelectionNumber = 0
-                Ratio = 0
+        ' 相同的一組
+        For comboRow = row To row + comboNumber
 
-                For SelectionNumber = 1 To PMMNumber
+            ' 每一個Combo重新初始化
+            ratio = 0
 
-                    PMM = PMMArray(SelectionNumber)
+            For curvesNumber = 1 To curvesBound
 
-                    ' 19條線
-                    For LineNumber = 1 To 19
+                curve = curves(curvesNumber)
 
-                        ' PMM的資料格式：
-                        ' M P Angle b c
-                        ' ComboPMM的資料格式：
-                        ' Name M P Angle
-                        If Newton(ComboPMM(ColumnNumber, 1), PMM(LineNumber, 3), ComboPMM(ColumnNumber, 2), PMM(LineNumber, 4), PMM(LineNumber - 1, 2), PMM(LineNumber, 2), ComboPMM(ColumnNumber, 3)) Then
-                            Ratio = CaculateRatio(ComboPMM(ColumnNumber, 1), ComboPMM(ColumnNumber, 2), PMM(LineNumber, 3), PMM(LineNumber, 4))
-                            GoTo NextCombo
-                        End If
+                If combo(comboRow, 3) > combo(comboRow, 4) Then
+                    ' PMM的資料格式：
+                    ' M P Angle b c
+                    ' combo的資料格式：
+                    ' Name M P Angle
+                    If Newton(combo(comboRow, 1), curve(LineNumber, 3), combo(comboRow, 2), curve(LineNumber, 4), curve(LineNumber - 1, 2), curve(LineNumber, 2), combo(comboRow, 3)) Then
+                        ratio = CaculateRatio(combo(comboRow, 1), combo(comboRow, 2), curve(LineNumber, 3), curve(LineNumber, 4))
+                        GoTo NextCombo
+                    End If
 
-                    Next
-                Next
-
-
-
-NextCombo:
-                ' Combo Loop 結束
-                ' 超出所有PMMCurve，例外處理
-                If SelectionNumber = 0 Then
-                    SelectionNumber = PMMNumber + 1
-                    SelectionSection(ColumnNumber, 4) = PMMNumber + 1
-                Else
-                    SelectionSection(ColumnNumber, 4) = SelectionNumber
-                End If
-
-
-
-                ' 判斷有沒有大於FinalSelectionNumber，有的話才寫入
-                If FinalSelectionNumber < SelectionNumber Then
-                    FinalSelectionNumber = SelectionNumber
-                    FinalRatio = Ratio
-                End If
-
-                ' 判斷有沒有大於Ratio，有的話才寫入
-                If FinalRatio < Ratio And FinalSelectionNumber <= SelectionNumber Then
-                    FinalRatio = Ratio
                 End If
 
             Next
 
 
-            ' 斷面的Loop 結束
-            ' 寫入斷面資料
-            SelectionSection(SelectionSectionNumber, 0) = ComboPMM(RowNumber, 0)
-            SelectionSection(SelectionSectionNumber, 1) = FinalSelectionNumber
-            SelectionSection(SelectionSectionNumber, 2) = PMMCurveName(FinalSelectionNumber)
-            SelectionSection(SelectionSectionNumber, 3) = FinalRatio
 
-            ' 下一組的開始編號
-            StartNumber = RowNumber + 1
+NextCombo:
+            ' Combo Loop 結束
+            ' 超出所有PMMCurve，例外處理
+            If curvesNumber = 0 Then
+                curvesNumber = PMMNumber + 1
+                selectSection(index, 4) = PMMNumber + 1
+            Else
+                selectSection(index, 4) = curvesNumber
+            End If
 
-            ' 下一組
-            SelectionSectionNumber = SelectionSectionNumber + 1
 
-        End If
+
+            ' 判斷有沒有大於comboSelectNumber，有的話才寫入
+            If comboSelectNumber < curvesNumber Then
+                comboSelectNumber = curvesNumber
+                comboRatio = ratio
+            End If
+
+            ' 判斷有沒有大於Ratio，有的話才寫入
+            If comboRatio < ratio And comboSelectNumber <= curvesNumber Then
+                comboRatio = ratio
+            End If
+
+        Next
+
+
+        ' 斷面的Loop 結束
+        ' 寫入斷面資料
+        selectSection(selectSectionNumber, 0) = combo(row, 0)
+        selectSection(selectSectionNumber, 1) = comboSelectNumber
+        selectSection(selectSectionNumber, 2) = PMMCurveName(comboSelectNumber)
+        selectSection(selectSectionNumber, 3) = comboRatio
+
+        ' 下一組的開始編號
+        StartNumber = row + 1
+
+        ' 下一組
+        selectSectionNumber = selectSectionNumber + 1
 
     Next
 
-    SelectionSelector = SelectionSection()
+    SectionSelector = selectSection()
 
 End Function
 
@@ -319,4 +413,6 @@ Function ExecutionTime(time0)
     End If
 
 End Function
+
+
 
