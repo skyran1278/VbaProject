@@ -1,43 +1,5 @@
-dim CURVES_NAME
-
-Sub SRCSelector()
-' 目的：
-' 由於在ETABS不會 Design SRC 斷面，所以由 ETABS 輸出 PMM。
-' 以 SectionBuilder 建立 SRC 斷面，產生包絡線，檢測 ETABS PMM 有沒有在包絡線裡面。
-
-
-' 演算法：
-' 1. PMM curve 取 0 45 90 度
-' 2. 由於 P 不一定會相同，排序內差求值
-' 3. 以 PMM 點求得該 P 下的 0 45 90 度的 M
-' 4. 以 PMM 點 M2 M3 判斷要和哪一條線比較
-' 5. 以牛頓法判斷是不是與 (0, 0) 同側
-
-
-' 執行時間：
-' 1.41s 7 萬資料量
-' 6.9s 40 萬資料量
-'
-' 增加 Ratio 計算後的執行時間：
-' 32.36s 40 萬資料量
-' 重構程式碼後的執行時間：
-' 21.61s 40 萬資料量
-'
-
-    time0 = Timer
-
-    Call AutoFill
-
-    combo = ReadCombo()
-
-    ' 有副作用，會修改全域變數 CURVES_NAME
-    curves = ReadCurves()
-
-    SelectSection = SectionSelector(combo, curves, CURVES_NAME)
-
-    ExecutionTime (time0)
-
-End Sub
+Dim CURVES_NAME
+Dim CONTROL_COMBO
 
 
 Function AutoFill()
@@ -143,10 +105,10 @@ Function ReadCurve(row)
     Dim curve(1 To 60, 3)
 
     ' 讀取
-    For Degree = 1 To 3
+    For column = 1 To 3
 
-        loading = Degree * 4 + 1
-        mement = Degree * 4 + 2
+        loading = column * 4 + 1
+        mement = column * 4 + 2
 
         For Point = 1 To 20
 
@@ -156,7 +118,7 @@ Function ReadCurve(row)
             curve(pointCumulativeNumber, 0) = Cells(row + Point, loading)
 
             ' M
-            curve(pointCumulativeNumber, Degree) = Cells(row + Point, mement)
+            curve(pointCumulativeNumber, column) = Cells(row + Point, mement)
 
         Next
 
@@ -166,34 +128,40 @@ Function ReadCurve(row)
     Call QuickSortArray(curve, , , 0)
 
     ' 內插
-    for moment = 1 to 3
+    For moment = 1 To 3
 
-        index = 0
-
-        for point = 1 to 60
+        ' 設定第一個 0 為最小值
+        For Point = 1 To 60
 
             ' 初始化，第一次讀到的非空值起始
-            If Not IsEmpty(curve(point, moment)) and index = 0 Then
+            If Not IsEmpty(curve(Point, moment)) Then
 
-                pointMin = point
-                loadMin = curve(point, 0)
-                momentMin = curve(point, moment)
+                pointMin = Point
+                loadMin = curve(Point, 0)
+                momentMin = curve(Point, moment)
 
-                index = 1
+                exit for
 
-            ' 計算中間值
-            elseif Not IsEmpty(curve(point, moment)) Then
+            End If
 
-                pointMax = point
-                loadMax = curve(point, 0)
-                momentMax = curve(point, moment)
+        Next
 
-                for pointMid = pointMin + 1 to pointMax - 1
+        ' 開始內插
+        For Point = 1 To 60
+
+            ' 非空元素
+            If Not IsEmpty(curve(Point, moment)) Then
+
+                pointMax = Point
+                loadMax = curve(Point, 0)
+                momentMax = curve(Point, moment)
+
+                For pointMid = pointMin + 1 To pointMax - 1
 
                     ' 內插公式
-                    curve(pointMid, moment) = ((curve(pointMid, 0) - loadMin) / (loadMax - loadMin)) * (momentMax - momentMin) + momentMin
+                    curve(pointMid, moment) = Interpolation(loadMax, curve(pointMid, 0), loadMin, momentMax, momentMin)
 
-                next
+                Next
 
                 pointMin = pointMax
                 loadMin = loadMax
@@ -201,9 +169,9 @@ Function ReadCurve(row)
 
             End If
 
-        next
+        Next
 
-    next
+    Next
 
     ReadCurve = curve()
 
@@ -305,70 +273,129 @@ Public Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin As Long = 
 End Sub
 
 
-Function SectionSelector(combo, curves, CURVES_NAME)
+Function Interpolation(varMax, varMid, varMin, aimsMax, aimsMin)
+' 內插法
+' 參數：varMax, varMid, varMin, aimsMax, aimsMin
+' 回傳：aimsMid
+
+    Interpolation = (varMid - varMin) / (varMax - varMin) * (aimsMax - aimsMin) + aimsMin
+
+End Function
+
+Function SectionSelector(combo, curves)
+
+    Dim section()
+
+    ' 定義
+    ' combo
+    Name = 1
+    loading = 2
+    m2 = 3
+    m3 = 4
+
+    ' 定義
+    ' curve
+    p = 0
+    m0 = 1
+    m45 = 2
+    m90 = 3
 
     ' 取出上限
     comboUBound = UBound(combo)
     curvesBound = UBound(curves)
 
-    ' 使輸出結果陣列與 combo 相同
-    Dim selectSection()
-    ReDim selectSection(comboUBound, 4)
+    ' 計算 combo 數
+    For row = 2 To comboUBound
 
-    for row = 2 To comboUBound
-
-        ' 看看他與下一筆資料相不相同，如果相同就是一組。
+        ' 計算 combo 數
         If combo(row, 1) <> combo(row + 1, 1) Then
             comboNumber = row - 2 + 1
-            exit for
+            Exit For
         End If
 
-    next
+    Next
 
-    ' 從第1筆資料Loop到最後一筆
-    For row = 2 To comboUBound step comboNumber
+    ' CONTROL_COMBO 大小和 combo 相同
+    ReDim CONTROL_COMBO(2 To comboUBound)
+
+    ' section 為 combo 除以載重組合數
+    ReDim section((comboUBound - 1) / comboNumber, 3)
+
+    For row = 2 To comboUBound Step comboNumber
 
         ' 每一個Column（包含很多個Combo）重新初始化
         comboSelectNumber = 0
         comboRatio = 0
 
         ' 相同的一組
-        For comboRow = row To row + comboNumber
+        For comboRow = row To row + comboNumber - 1
 
-            ' 每一個Combo重新初始化
+            ' 每一個 Combo 重新初始化
             ratio = 0
+            curvesNumber = 1
+            loadMid = combo(comboRow, loading)
 
-            For curvesNumber = 1 To curvesBound
+            ' 循環 curves
+            ' 為了跳出特定迴圈，使用 do loop
+            Do While curvesNumber <= curvesBound
 
                 curve = curves(curvesNumber)
 
-                If combo(comboRow, 3) > combo(comboRow, 4) Then
-                    ' PMM的資料格式：
-                    ' M P Angle b c
-                    ' combo的資料格式：
-                    ' Name M P Angle
-                    If Newton(combo(comboRow, 1), curve(LineNumber, 3), combo(comboRow, 2), curve(LineNumber, 4), curve(LineNumber - 1, 2), curve(LineNumber, 2), combo(comboRow, 3)) Then
-                        ratio = CaculateRatio(combo(comboRow, 1), combo(comboRow, 2), curve(LineNumber, 3), curve(LineNumber, 4))
-                        GoTo NextCombo
-                    End If
+                ' 至少要比最小的還大
+                If loadMid > curve(1, p) Then
+
+                    For Point = 1 To 60
+
+                        ' 小於哪個 load
+                        If loadMid < curve(Point, p) Then
+
+                            loadMax = curve(Point, p)
+                            loadMin = curve(Point - 1, p)
+
+                            ' 內插
+                            interM45 = Interpolation(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
+
+                            If combo(comboRow, m2) > combo(comboRow, m3) Then
+
+                                ' 內插
+                                interM0 = Interpolation(loadMax, loadMid, loadMin, curve(Point, m0), curve(Point - 1, m0))
+
+                                If Newton(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3)) Then
+
+                                    ratio = calRatio(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
+
+                                    Exit Do
+
+                                End If
+
+                            Else
+
+                                ' 內插
+                                interM90 = Interpolation(loadMax, loadMid, loadMin, curve(Point, m90), curve(Point - 1, m90))
+
+                                If Newton(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3)) Then
+
+                                    ratio = calRatio(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
+
+                                    Exit Do
+
+                                End If
+
+                            End If
+
+                            Exit For
+
+                        End If
+
+                    Next Point
 
                 End If
 
-            Next
+                curvesNumber = curvesNumber + 1
 
+            Loop
 
-
-NextCombo:
-            ' Combo Loop 結束
-            ' 超出所有PMMCurve，例外處理
-            If curvesNumber = 0 Then
-                curvesNumber = PMMNumber + 1
-                selectSection(index, 4) = PMMNumber + 1
-            Else
-                selectSection(index, 4) = curvesNumber
-            End If
-
-
+            CONTROL_COMBO(comboRow) = curvesNumber
 
             ' 判斷有沒有大於comboSelectNumber，有的話才寫入
             If comboSelectNumber < curvesNumber Then
@@ -383,23 +410,62 @@ NextCombo:
 
         Next
 
-
-        ' 斷面的Loop 結束
         ' 寫入斷面資料
-        selectSection(selectSectionNumber, 0) = combo(row, 0)
-        selectSection(selectSectionNumber, 1) = comboSelectNumber
-        selectSection(selectSectionNumber, 2) = PMMCurveName(comboSelectNumber)
-        selectSection(selectSectionNumber, 3) = comboRatio
-
-        ' 下一組的開始編號
-        StartNumber = row + 1
+        section(sectionNumber, 0) = combo(row, 1)
+        section(sectionNumber, 1) = comboSelectNumber
+        section(sectionNumber, 2) = CURVES_NAME(comboSelectNumber)
+        section(sectionNumber, 3) = comboRatio
 
         ' 下一組
-        selectSectionNumber = selectSectionNumber + 1
+        sectionNumber = sectionNumber + 1
 
     Next
 
-    SectionSelector = selectSection()
+    SectionSelector = section()
+
+End Function
+
+
+Function Newton(x0, y0, x1, y1, x2, y2)
+' 牛頓法
+' 參數：x0, y0, x1, y1, x2, y2
+' 回傳：boolean
+' 判斷是否與(0, 0)同側
+
+    m = (y1 - y0) / (x1 - x0)
+
+    Newton = ((y2 - y0) - m * (x2 - x0)) * (-y0 + m * x0) > 0
+
+End Function
+
+
+Function calRatio(x0, y0, x1, y1, x2, y2)
+' 參數：x0, y0, x1, y1, x2, y2
+' 回傳：Ratio
+' Ratio = 點到 (0, 0) 距離 / ( 點到直線距離 + 點到 (0, 0) 距離 )
+
+    m = (y1 - y0) / (x1 - x0)
+
+    calRatio = Sqr(x2 ^ 2 + y2 ^ 2) / ((Abs((y2 - y0) - m * (x2 - x0)) / Sqr(1 + m ^ 2)) + Sqr(x2 ^ 2 + y2 ^ 2))
+
+End Function
+
+
+Function PrintSection(section)
+
+    ' 寫入資料在EtabsPMMCombo
+    Worksheets("PMM").Activate
+    Range(Columns(15), Columns(18)).ClearContents
+    Range(Cells(2, 5), Cells(UBound(CONTROL_COMBO), 5)) = CONTROL_COMBO
+
+    ' 寫入資料在SectionSelector
+    Worksheets("SectionSelector").Activate
+    Range(Columns(11), Columns(14)).ClearContents
+    Range(Cells(2, 11), Cells(UBound(section), 14)) = section
+    Cells(1, 11) = "Column"
+    Cells(1, 12) = "NO."
+    Cells(1, 13) = "SectionName"
+    Cells(1, 14) = "Ratio"
 
 End Function
 
@@ -413,6 +479,50 @@ Function ExecutionTime(time0)
     End If
 
 End Function
+
+
+Sub SRCSelector()
+' 目的：
+' 由於在ETABS不會 Design SRC 斷面，所以由 ETABS 輸出 PMM。
+' 以 SectionBuilder 建立 SRC 斷面，產生包絡線，檢測 ETABS PMM 有沒有在包絡線裡面。
+
+
+' 演算法：
+' 1. PMM curve 取 0 45 90 度
+' 2. 由於 P 不一定會相同，排序內差求值
+' 3. 以 PMM 點求得該 P 下的 0 45 90 度的 M
+' 4. 以 PMM 點 M2 M3 判斷要和哪一條線比較
+' 5. 以牛頓法判斷是不是與 (0, 0) 同側
+
+
+' 執行時間：
+' 1.41s 7 萬資料量
+' 6.9s 40 萬資料量
+'
+' 增加 Ratio 計算後的執行時間：
+' 32.36s 40 萬資料量
+' 重構程式碼後的執行時間：
+' 21.61s 40 萬資料量
+'
+
+    time0 = Timer
+
+    Call AutoFill
+
+    combo = ReadCombo()
+
+    ' 有副作用，會修改全域變數 CURVES_NAME
+    curves = ReadCurves()
+
+    ' 有副作用，會修改全域變數 CONTROL_COMBO
+    ' 使用全域變數 CURVES_NAME
+    section = SectionSelector(combo, curves)
+
+    Call PrintSection(section)
+
+    ExecutionTime (time0)
+
+End Sub
 
 
 
