@@ -28,11 +28,11 @@ Sub SRCSelector()
 
     combo = ReadCombo()
 
-    curve = ReadCurve()
+    curve = ReadCurves()
 
     SelectionSection = SelectionSelector(combo)
 
-    ExecutionTime(time0)
+    ExecutionTime (time0)
 
 
 
@@ -44,10 +44,10 @@ Function AutoFill()
 ' 公式自動填滿
 
     Worksheets("EtabsPMMCombo").Activate
-    comboRowUsed = Cells(Rows.Count, 1).End(xlUp).Row
+    comboRowUsed = Cells(Rows.Count, 1).End(xlUp).row
 
     Worksheets("PMM").Activate
-    Range(Cells(2, 1), Cells(2, 4)).AutoFill Destination := Range(Cells(2, 1), Cells(comboRowUsed, 4))
+    Range(Cells(2, 1), Cells(2, 4)).AutoFill Destination:=Range(Cells(2, 1), Cells(comboRowUsed, 4))
 
 End Function
 
@@ -60,8 +60,8 @@ Function ReadCombo()
 
     Worksheets("PMM").Activate
     Dim combo()
-    comboRowUsed = Cells(Rows.Count, 1).End(xlUp).Row
-    ReDim combo(2 to comboRowUsed, 1 to 4)
+    comboRowUsed = Cells(Rows.Count, 1).End(xlUp).row
+    ReDim combo(2 To comboRowUsed, 1 To 4)
 
     ' 讀取所有的PMM
     For row = 2 To comboRowUsed
@@ -85,19 +85,16 @@ Function ReadCombo()
 End Function
 
 
-Function ReadCurve()
+Function ReadCurves()
 
     Dim curves()
 
     ' 定義數值意義
     nameColumn = 2
-    zeroColumn = 4
-    fortyfiveColumn = 8
-    ninetyColumn = 12
 
     ' 讀取PMMCurve最後一列
     Worksheets("PMMCurve").Activate
-    curveRowUsed = Cells(Rows.Count, 4).End(xlUp).Row
+    curveRowUsed = Cells(Rows.Count, 4).End(xlUp).row
 
     ' 統計有幾個非空白儲存格
     curveNumber = Application.WorksheetFunction.CountA(Range(Cells(2, nameColumn), Cells(curveRowUsed, nameColumn)))
@@ -108,9 +105,9 @@ Function ReadCurve()
 
         If Cells(row, nameColumn) <> "" Then
 
-            index = index + 1
+            Index = Index + 1
 
-            curves(index) = Curve(row)
+            curves(Index) = ReadCurve(row)
 
         End If
 
@@ -121,36 +118,36 @@ Function ReadCurve()
 End Function
 
 
-Function Curve(row) As functionType
+Function ReadCurve(row)
 
-    Dim curve(1 to 60, 3)
+    Dim curve(1 To 60, 3)
 
     ' 先全部讀取進來
-    For degree = 1 To 3
+    For Degree = 1 To 3
 
-        load = degree * 4 + 1
-        mement = degree * 4 + 2
+        Load = Degree * 4 + 1
+        mement = Degree * 4 + 2
 
-        For point = 1 To 20
+        For Point = 1 To 20
 
             pointCumulativeNumber = pointCumulativeNumber + 1
 
             ' P
-            curve(pointCumulativeNumber, 0) = Cells(row + point, load)
+            curve(pointCumulativeNumber, 0) = Cells(row + Point, Load)
 
             ' M
-            curve(pointCumulativeNumber, degree) = Cells(row + point, mement)
+            curve(pointCumulativeNumber, Degree) = Cells(row + Point, mement)
 
         Next
 
     Next
 
     ' 排序
-    curve =  QuickSort(curve, LBound(curve), UBound(curve))
+    curve = QuickSort(curve, LBound(curve), UBound(curve))
 
 
 
-    Curve = curve()
+    curve = ReadCurve()
 
 End Function
 
@@ -204,7 +201,7 @@ Function SelectionSelector(ComboPMM)
 
     ' 讀取PMMCurve最後一列
     Worksheets("PMMCurve").Activate
-    PMMCurveRowUsed = Cells(Rows.Count, 3).End(xlUp).Row
+    PMMCurveRowUsed = Cells(Rows.Count, 3).End(xlUp).row
 
     ' 傳回PMMCurve數目
     PMMNumber = (PMMCurveRowUsed - 25) / 24 + 1
@@ -322,3 +319,4 @@ Function ExecutionTime(time0)
     End If
 
 End Function
+
