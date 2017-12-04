@@ -5,9 +5,9 @@ Sub SRCSelectionSeltor()
 ' 以SectionBuilder建立SRC斷面，產生包絡線，看PMM有沒有在選取的斷面裡面。
 '
 ' 演算法：
-' 由SectionBuilder的20個點，產生19條方程式，與角度。
+' 由 SectionBuilder 的 20 個點，產生 19 條方程式，與角度。
 ' 用角度判斷點落在哪個位置
-' 再用牛頓法看有沒有和(0,0)在一起。
+' 再用牛頓法看有沒有和 (0, 0) 在一起。
 '
 ' 執行時間：
 ' 1.41s 7萬資料量

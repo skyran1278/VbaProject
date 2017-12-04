@@ -474,6 +474,7 @@ Function PrintSection(section)
     Worksheets("PMM").Activate
     Columns(5).ClearContents
     Range(Cells(2, 5), Cells(UBound(CONTROL_COMBO), 5)) = Application.WorksheetFunction.Transpose(CONTROL_COMBO)
+    Cells(1, 5) = "Control Section"
 
     ' 寫入資料在 SectionSelector
     Worksheets("SectionSelector").Activate
@@ -513,13 +514,6 @@ Sub SRCSelector()
 
 
 ' 執行時間：
-' 1.41s 7 萬資料量
-' 6.9s 40 萬資料量
-'
-' 增加 Ratio 計算後的執行時間：
-' 32.36s 40 萬資料量
-' 重構程式碼後的執行時間：
-' 21.61s 40 萬資料量
 '
 
     time0 = Timer
@@ -540,4 +534,3 @@ Sub SRCSelector()
     ExecutionTime (time0)
 
 End Sub
-
