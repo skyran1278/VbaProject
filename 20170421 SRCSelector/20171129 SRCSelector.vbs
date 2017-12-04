@@ -43,6 +43,9 @@ Function ReadCombo()
 
     Next
 
+    ' 沒有辦法指定 2 ~ comboRowUsed，1 ~ comboRowUsed，1 不確定會不會有問題，所以先以 for loop 迴圈為主
+    ' combo = range(cells(1, 1), cells(comboRowUsed, 4))
+
     ReadCombo = combo()
 
 End Function
@@ -105,10 +108,10 @@ Function ReadCurve(row)
     Dim curve(1 To 60, 3)
 
     ' 讀取
-    For column = 1 To 3
+    For Column = 1 To 3
 
-        loading = column * 4 + 1
-        mement = column * 4 + 2
+        loading = Column * 4 + 1
+        mement = Column * 4 + 2
 
         For Point = 1 To 20
 
@@ -118,7 +121,7 @@ Function ReadCurve(row)
             curve(pointCumulativeNumber, 0) = Cells(row + Point, loading)
 
             ' M
-            curve(pointCumulativeNumber, column) = Cells(row + Point, mement)
+            curve(pointCumulativeNumber, Column) = Cells(row + Point, mement)
 
         Next
 
@@ -140,7 +143,7 @@ Function ReadCurve(row)
                 loadMin = curve(Point, 0)
                 momentMin = curve(Point, moment)
 
-                exit for
+                Exit For
 
             End If
 
@@ -159,7 +162,7 @@ Function ReadCurve(row)
                 For pointMid = pointMin + 1 To pointMax - 1
 
                     ' 內插公式
-                    curve(pointMid, moment) = Interpolation(loadMax, curve(pointMid, 0), loadMin, momentMax, momentMin)
+                    curve(pointMid, moment) = Interpolate(loadMax, curve(pointMid, 0), loadMin, momentMax, momentMin)
 
                 Next
 
@@ -273,14 +276,24 @@ Public Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin As Long = 
 End Sub
 
 
-Function Interpolation(varMax, varMid, varMin, aimsMax, aimsMin)
+Function Interpolate(varMax, varMid, varMin, aimsMax, aimsMin)
 ' 內插法
 ' 參數：varMax, varMid, varMin, aimsMax, aimsMin
 ' 回傳：aimsMid
 
-    Interpolation = (varMid - varMin) / (varMax - varMin) * (aimsMax - aimsMin) + aimsMin
+    If varMax > varMin Then
+
+        Interpolate = (varMid - varMin) / (varMax - varMin) * (aimsMax - aimsMin) + aimsMin
+
+    ' 抓住 varMax = varMin 造成除以 0 的錯誤
+    Else
+
+        Interpolate = aimsMin
+
+    End If
 
 End Function
+
 
 Function SectionSelector(combo, curves)
 
@@ -288,7 +301,7 @@ Function SectionSelector(combo, curves)
 
     ' 定義
     ' combo
-    Name = 1
+    comboName = 1
     loading = 2
     m2 = 3
     m3 = 4
@@ -319,7 +332,9 @@ Function SectionSelector(combo, curves)
     ReDim CONTROL_COMBO(2 To comboUBound)
 
     ' section 為 combo 除以載重組合數
-    ReDim section((comboUBound - 1) / comboNumber, 3)
+    ReDim section(2 To (comboUBound - 1) / comboNumber + 1, 3)
+
+    sectionNumber = 2
 
     For row = 2 To comboUBound Step comboNumber
 
@@ -353,12 +368,12 @@ Function SectionSelector(combo, curves)
                             loadMin = curve(Point - 1, p)
 
                             ' 內插
-                            interM45 = Interpolation(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
+                            interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
 
                             If combo(comboRow, m2) > combo(comboRow, m3) Then
 
                                 ' 內插
-                                interM0 = Interpolation(loadMax, loadMid, loadMin, curve(Point, m0), curve(Point - 1, m0))
+                                interM0 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m0), curve(Point - 1, m0))
 
                                 If Newton(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3)) Then
 
@@ -371,7 +386,7 @@ Function SectionSelector(combo, curves)
                             Else
 
                                 ' 內插
-                                interM90 = Interpolation(loadMax, loadMid, loadMin, curve(Point, m90), curve(Point - 1, m90))
+                                interM90 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m90), curve(Point - 1, m90))
 
                                 If Newton(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3)) Then
 
@@ -398,20 +413,22 @@ Function SectionSelector(combo, curves)
             CONTROL_COMBO(comboRow) = curvesNumber
 
             ' 判斷有沒有大於comboSelectNumber，有的話才寫入
-            If comboSelectNumber < curvesNumber Then
+            If curvesNumber > comboSelectNumber Then
+
                 comboSelectNumber = curvesNumber
                 comboRatio = ratio
-            End If
 
-            ' 判斷有沒有大於Ratio，有的話才寫入
-            If comboRatio < ratio And comboSelectNumber <= curvesNumber Then
+            ' 如果相等的話，判斷有沒有大於Ratio，有的話才寫入
+            ElseIf comboSelectNumber = curvesNumber And ratio > comboRatio Then
+
                 comboRatio = ratio
+
             End If
 
         Next
 
         ' 寫入斷面資料
-        section(sectionNumber, 0) = combo(row, 1)
+        section(sectionNumber, 0) = combo(row, comboName)
         section(sectionNumber, 1) = comboSelectNumber
         section(sectionNumber, 2) = CURVES_NAME(comboSelectNumber)
         section(sectionNumber, 3) = comboRatio
@@ -453,12 +470,12 @@ End Function
 
 Function PrintSection(section)
 
-    ' 寫入資料在EtabsPMMCombo
+    ' 寫入資料在 PMM
     Worksheets("PMM").Activate
-    Range(Columns(15), Columns(18)).ClearContents
-    Range(Cells(2, 5), Cells(UBound(CONTROL_COMBO), 5)) = CONTROL_COMBO
+    Columns(5).ClearContents
+    Range(Cells(2, 5), Cells(UBound(CONTROL_COMBO), 5)) = Application.WorksheetFunction.Transpose(CONTROL_COMBO)
 
-    ' 寫入資料在SectionSelector
+    ' 寫入資料在 SectionSelector
     Worksheets("SectionSelector").Activate
     Range(Columns(11), Columns(14)).ClearContents
     Range(Cells(2, 11), Cells(UBound(section), 14)) = section
@@ -523,6 +540,4 @@ Sub SRCSelector()
     ExecutionTime (time0)
 
 End Sub
-
-
 
