@@ -469,6 +469,9 @@ End Function
 
 
 Function PrintSection(section)
+' 輸出資料：
+' PMM Control Section
+' SectionSelector
 
     ' 寫入資料在 PMM
     Worksheets("PMM").Activate
