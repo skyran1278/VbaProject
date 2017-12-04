@@ -329,7 +329,7 @@ Function SectionSelector(combo, curves)
     Next
 
     ' CONTROL_COMBO 大小和 combo 相同
-    ReDim CONTROL_COMBO(2 To comboUBound)
+    ReDim CONTROL_COMBO(2 To comboUBound, 1 to 1)
 
     ' section 為 combo 除以載重組合數
     ReDim section(2 To (comboUBound - 1) / comboNumber + 1, 3)
@@ -410,7 +410,7 @@ Function SectionSelector(combo, curves)
 
             Loop
 
-            CONTROL_COMBO(comboRow) = curvesNumber
+            CONTROL_COMBO(comboRow, 1) = curvesNumber
 
             ' 判斷有沒有大於comboSelectNumber，有的話才寫入
             If curvesNumber > comboSelectNumber Then
@@ -476,7 +476,7 @@ Function PrintSection(section)
     ' 寫入資料在 PMM
     Worksheets("PMM").Activate
     Columns(7).ClearContents
-    Range(Cells(2, 7), Cells(UBound(CONTROL_COMBO), 7)) = Application.WorksheetFunction.Transpose(CONTROL_COMBO)
+    Range(Cells(2, 7), Cells(UBound(CONTROL_COMBO), 7)) = CONTROL_COMBO
     Cells(1, 7) = "Control Section"
 
     ' 寫入資料在 SectionSelector
