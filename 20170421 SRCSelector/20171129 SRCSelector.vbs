@@ -9,7 +9,7 @@ Function AutoFill()
     comboRowUsed = Cells(Rows.Count, 1).End(xlUp).row
 
     Worksheets("PMM").Activate
-    Range(Cells(2, 1), Cells(2, 4)).AutoFill Destination:=Range(Cells(2, 1), Cells(comboRowUsed, 4))
+    Range(Cells(2, 1), Cells(2, 6)).AutoFill Destination:=Range(Cells(2, 1), Cells(comboRowUsed, 6))
 
 End Function
 
@@ -33,13 +33,13 @@ Function ReadCombo()
         combo(row, 1) = Cells(row, 1)
 
         ' P
-        combo(row, 2) = Cells(row, 2)
+        combo(row, 2) = Cells(row, 4)
 
         ' M2
-        combo(row, 3) = Cells(row, 3)
+        combo(row, 3) = Cells(row, 5)
 
         ' M3
-        combo(row, 4) = Cells(row, 4)
+        combo(row, 4) = Cells(row, 6)
 
     Next
 
@@ -475,9 +475,9 @@ Function PrintSection(section)
 
     ' 寫入資料在 PMM
     Worksheets("PMM").Activate
-    Columns(5).ClearContents
-    Range(Cells(2, 5), Cells(UBound(CONTROL_COMBO), 5)) = Application.WorksheetFunction.Transpose(CONTROL_COMBO)
-    Cells(1, 5) = "Control Section"
+    Columns(7).ClearContents
+    Range(Cells(2, 7), Cells(UBound(CONTROL_COMBO), 7)) = Application.WorksheetFunction.Transpose(CONTROL_COMBO)
+    Cells(1, 7) = "Control Section"
 
     ' 寫入資料在 SectionSelector
     Worksheets("SectionSelector").Activate
