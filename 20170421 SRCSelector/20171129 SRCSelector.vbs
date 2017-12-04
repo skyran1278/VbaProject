@@ -329,7 +329,7 @@ Function SectionSelector(combo, curves)
     Next
 
     ' CONTROL_COMBO 大小和 combo 相同
-    ReDim CONTROL_COMBO(2 To comboUBound, 1 to 1)
+    ReDim CONTROL_COMBO(2 To comboUBound, 1 To 1)
 
     ' section 為 combo 除以載重組合數
     ReDim section(2 To (comboUBound - 1) / comboNumber + 1, 3)
