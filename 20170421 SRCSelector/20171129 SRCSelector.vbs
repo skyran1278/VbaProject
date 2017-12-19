@@ -503,19 +503,21 @@ End Function
 
 
 Sub SRCSelector()
+'
 ' 目的：
 ' 由於在ETABS不會 Design SRC 斷面，所以由 ETABS 輸出 PMM。
 ' 以 SectionBuilder 建立 SRC 斷面，產生包絡線，檢測 ETABS PMM 有沒有在包絡線裡面。
-
-
+'
+'
 ' 演算法：
 ' 1. PMM curve 取 0 45 90 度
 ' 2. 由於 P 不一定會相同，排序內差求值
 ' 3. 以 PMM 點求得該 P 下的 0 45 90 度的 M
 ' 4. 以 PMM 點 M2 M3 判斷要和哪一條線比較
 ' 5. 以牛頓法判斷是不是與 (0, 0) 同側
-
-
+'
+'
+' 測試：
 ' 執行時間：
 '
 
