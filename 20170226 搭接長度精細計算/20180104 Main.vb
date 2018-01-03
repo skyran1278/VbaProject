@@ -1,4 +1,5 @@
 Option Explicit
+Dim BeamName As String
 
 Sub Main()
     Dim Time0#, PlotNumber As Integer, CalculateNumber As Integer, BeamPositionColumn As Integer
@@ -8,6 +9,9 @@ Sub Main()
     'PlotNumber = 出圖表格位置
     'CalculateNumber = 計算表格位置
     'BeamPositionColumn = 輸入的梁欄位
+
+    BeamName = InputBox("名稱", , "大梁")
+
     Call BEAM(2, 5, 4)
     Call BEAM(3, 6, 11)
     Call BEAM(4, 7, 18)
@@ -140,7 +144,7 @@ Sub FormatText(PlotNumber, CalculateNumber, BeamPositionColumn)
         Selection.FormatConditions(1).ColorScaleCriteria(1).Type = _
             xlConditionValueLowestValue
         Selection.FormatConditions(1).ColorScaleCriteria(1).Type = _
-        xlConditionValueLowestValue
+            xlConditionValueLowestValue
         With Selection.FormatConditions(1).ColorScaleCriteria(1).FormatColor
             .Color = 16776444
             .TintAndShade = 0
@@ -159,9 +163,12 @@ Sub FormatText(PlotNumber, CalculateNumber, BeamPositionColumn)
         For j = 1 To BeamWidthNumber2 Step 2
             CenterText Range(Cells(CountRowNumber + 2 + j, 5), Cells(CountRowNumber + 3 + j, 5))
         Next
+        CenterText Range(Cells(CountRowNumber, 4), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, 4))
 
 
         '數值
+        Cells(CountRowNumber, 4) = BeamName
+        Cells(CountRowNumber, 4).Style = "中等"
         Cells(CountRowNumber + 2, 5) = "梁寬\主筋根數"
         Cells(CountRowNumber + 2, 5).Characters(Start:=1, Length:=2).Font.Subscript = True
         Cells(CountRowNumber + 2, 5).Characters(Start:=4, Length:=4).Font.Superscript = True
@@ -190,9 +197,13 @@ Sub FormatText(PlotNumber, CalculateNumber, BeamPositionColumn)
         Range(Cells(CountRowNumber + 2, 5), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlInsideVertical).Weight = xlThin
         Range(Cells(CountRowNumber + 2, 5), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlInsideHorizontal).Weight = xlThin
         Range(Cells(CountRowNumber, 5), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeLeft).Weight = xlMedium
-        Range(Cells(CountRowNumber, 5), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeTop).Weight = xlMedium
-        Range(Cells(CountRowNumber, 5), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeBottom).Weight = xlMedium
-        Range(Cells(CountRowNumber, 5), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeRight).Weight = xlMedium
+        ' Range(Cells(CountRowNumber, 5), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeTop).Weight = xlMedium
+        ' Range(Cells(CountRowNumber, 5), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeBottom).Weight = xlMedium
+        ' Range(Cells(CountRowNumber, 5), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeRight).Weight = xlMedium
+        Range(Cells(CountRowNumber, 4), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeLeft).Weight = xlMedium
+        Range(Cells(CountRowNumber, 4), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeTop).Weight = xlMedium
+        Range(Cells(CountRowNumber, 4), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeBottom).Weight = xlMedium
+        Range(Cells(CountRowNumber, 4), Cells(CountRowNumber + 3 + BeamWidthNumber2 - 1, LastColumnNumber)).Borders(xlEdgeRight).Weight = xlMedium
         Range(Cells(CountRowNumber, 5), Cells(CountRowNumber + 1, LastColumnNumber)).Borders(xlEdgeBottom).LineStyle = xlDouble
         For j = 1 To BeamWidthNumber2 Step 2
             Range(Cells(CountRowNumber + 2 + j, 6), Cells(CountRowNumber + 3 + j, LastColumnNumber)).Borders(xlInsideHorizontal).LineStyle = xlNone
@@ -225,6 +236,8 @@ Function CenterText(Range)
         .Merge
     End With
 End Function
+
+
 
 
 
