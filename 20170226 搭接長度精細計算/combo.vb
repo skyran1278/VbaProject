@@ -1,6 +1,7 @@
 ' FIXME: 開兩個工作簿有問題，需要繼續測試
 Dim NAME As Integer
 Dim WIDTH As Integer
+Dim COVER As Integer
 Dim Fy As Integer
 Dim Fyt As Integer
 Dim FC As Integer
@@ -10,112 +11,242 @@ Dim SPACING As Integer
 
 Dim WS_LAP As Worksheet
 
-Sub Pretreatment()
-    Dim time0 As Double
-    time0 = Timer
+Dim ROW_FIRST_INPUT As Integer
+Dim ROW_LAST_INPUT As Integer
 
-    ' =====================================
-    ' 宣告全域變數名稱 Column 位置
+Dim COLUMN_FIRST_INPUT As Integer
+Dim COLUMN_LAST_INPUT As Integer
+
+Dim ROW_FIRST_COMBO As Integer
+
+Dim COLUMN_FIRST_COMBO As Integer
+Dim COLUMN_LAST_COMBO As Integer
+
+
+Sub GlobalVariable()
+'
+' 宣告全域變數：Column 位置、Worksheets
+'
+' @returns NAME(Integer)
+' @returns COVER(Integer)
+' @returns WIDTH(Integer)
+' @returns Fy(Integer)
+' @returns Fyt(Integer)
+' @returns FC(Integer)
+' @returns FY_DB(Integer)
+' @returns FYT_DB(Integer)
+' @returns SPACING(Integer)
+' @returns WS_LAP(Worksheet)
+' @returns ROW_FIRST_INPUT(Integer)
+' @returns ROW_LAST_INPUT(Integer)
+' @returns COLUMN_FIRST_INPUT(Integer)
+' @returns COLUMN_LAST_INPUT(Integer)
+' @returns ROW_FIRST_COMBO(Integer)
+' @returns COLUMN_FIRST_COMBO(Integer)
+' @returns COLUMN_LAST_COMBO(Integer)
+
+    ' Column 位置
     NAME = 6
     WIDTH = 7
-    Fy = 8
-    Fyt = 9
-    FC = 10
-    FY_DB = 11
-    FYT_DB = 12
-    SPACING = 13
+    COVER = 8
+    Fy = 9
+    Fyt = 10
+    FC = 11
+    FY_DB = 12
+    FYT_DB = 13
+    SPACING = 14
+
+    ' worksheets
     Set WS_LAP = Worksheets("搭接長度精細計算")
 
-    ' =====================================
-    ' 清除上一次產生的表格
-    rowFirstCombo = 21
+    ' Input Variable
+    ROW_FIRST_INPUT = 5
+    ROW_LAST_INPUT = 19
+
+    COLUMN_FIRST_INPUT = 6
+    COLUMN_LAST_INPUT = 14
+
+    ' Combo Variable
+    ROW_FIRST_COMBO = 21
+
+    COLUMN_FIRST_COMBO = 8
+    COLUMN_LAST_COMBO = 14
+
+End Sub
+
+
+Sub ClearCombo()
+'
+' 清除上一次產生的表格，以 NAME 那一 column 來取
+'
 
     rowLastCombo = WS_LAP.Cells(WS_LAP.Rows.Count, NAME).End(xlUp).Row
-    If rowLastCombo > rowFirstCombo Then
-        WS_LAP.Range(WS_LAP.Rows(rowLastCombo), WS_LAP.Rows(rowFirstCombo)).ClearContents
+    If rowLastCombo > ROW_FIRST_COMBO Then
+        WS_LAP.Range(WS_LAP.Rows(rowLastCombo), WS_LAP.Rows(ROW_FIRST_COMBO)).ClearContents
     End If
 
-    ' =====================================
-    ' 格式化表格
 
-    rowFirstInput = 5
-    rowLastInput = 19
-    columnFirstInput = 6
-    columnLastInput = 13
+End Sub
 
-    WS_LAP.Cells.HorizontalAlignment = xlCenter
-    WS_LAP.Cells.Font.NAME = "微軟正黑體"
-    WS_LAP.Cells.Font.NAME = "Calibri"
-    WS_LAP.Range(WS_LAP.Cells(rowFirstInput, columnFirstInput), WS_LAP.Cells(rowLastInput, columnLastInput)).Font.Color = vbRed
 
-    WS_LAP.Columns(FY_DB).NumberFormatLocal = """D""0"
-    WS_LAP.Columns(FYT_DB).NumberFormatLocal = """D""0"
+Sub SortInput()
+'
+' Input 由小到大排列
+'
 
-    ' =====================================
-    ' 由小到大排列
-    rowFirstInput = 5
-    rowLastInput = 19
-    columnFirstInput = 6
-    columnLastInput = 13
-
-    For column = columnFirstInput To columnLastInput
-        WS_LAP.Range(WS_LAP.Cells(rowFirstInput, column), WS_LAP.Cells(rowLastInput, column)).Sort _
-            Key1:=Range(WS_LAP.Cells(rowFirstInput, column), WS_LAP.Cells(rowLastInput, column)), _
+    For column = COLUMN_FIRST_INPUT To COLUMN_LAST_INPUT
+        WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_INPUT, column), WS_LAP.Cells(ROW_LAST_INPUT, column)).Sort _
+            Key1:=Range(WS_LAP.Cells(ROW_FIRST_INPUT, column), WS_LAP.Cells(ROW_LAST_INPUT, column)), _
             order1:=xlAscending
     Next
 
-    ' =====================================
-    ' 排列組合
+End Sub
 
-    ' 計入每個 column 有多少個 row
 
-    columnFirstCombo = 8
-    columnLastCombo = 13
+Function ReadInput()
+'
+' 讀取需要排列組合的 Input 進 Array 操作
+'
+' @returns inputTable(Array)
 
-    Dim rowUsed() As Integer
-    ReDim rowUsed(columnFirstCombo To columnLastCombo)
+    Dim inputTable()
+    Dim doubleToArray(1 To 1, 1 To 1)
+    ReDim inputTable(COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO)
 
-    For column = columnFirstCombo To columnLastCombo
-        rowUsed(column) = WS_LAP.Cells(Rows.Count, column).End(xlUp).Row
+    For column = COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO
+        ROW_LAST_INPUT = WS_LAP.Cells(Rows.Count, column).End(xlUp).Row
+        inputTable(column) = WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_INPUT, column), WS_LAP.Cells(ROW_LAST_INPUT, column))
+
+        ' 重要：處理回傳 double，重新 asign 一個 array
+        If TypeName(inputTable(column)) = "Double" Then
+            doubleToArray(1, 1) = inputTable(column)
+            inputTable(column) = doubleToArray
+        End If
     Next
 
-    rowFirstInput = 5
-    rowFirstCombo = 21
+    ReadInput = inputTable
+
+End Function
+
+
+Function UboundInput(inputTable)
+'
+' 回傳每個 column 的上限
+'
+' @param inputTable(Array)
+' @returns inputUbound(Array)
+
+    Dim inputUbound()
+    ReDim inputUbound(COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO)
+
+    For column = COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO
+        inputUbound(column) = UBound(inputTable(column))
+    Next
+
+    UboundInput = inputUbound
+
+End Function
+
+
+Function Combo(inputTable, inputUbound)
+'
+' 排列組合
+'
+' @param inputTable(Array)
+' @param inputUbound(Array)
+' @returns comboTable(Array)
+
+
+    Dim comboTable()
+
+    ' 計算總共有幾個 combo
+    comboUbound = 1
+    For column = COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO
+        comboUbound = comboUbound * inputUbound(column)
+    Next
+
+    ReDim comboTable(1 to comboUbound, COLUMN_FIRST_INPUT To COLUMN_LAST_INPUT)
+
+
     count_ = 0
-    For rowFy = rowFirstInput To rowUsed(Fy)
-        fy_ = WS_LAP.Cells(rowFy, Fy)
 
-        For rowFyt = rowFirstInput To rowUsed(Fyt)
-            fyt_ = WS_LAP.Cells(rowFyt, Fyt)
+    For rowCover = 1 To inputUbound(COVER)
+        cover_ = inputTable(COVER)(rowCover, 1)
 
-            For rowFc = rowFirstInput To rowUsed(FC)
-                fc_ = WS_LAP.Cells(rowFc, FC)
+        For rowFy = 1 To inputUbound(Fy)
+            fy_ = inputTable(Fy)(rowFy, 1)
 
-                For rowFydb = rowFirstInput To rowUsed(FY_DB)
-                    fydb_ = WS_LAP.Cells(rowFydb, FY_DB)
+            For rowFyt = 1 To inputUbound(Fyt)
+                fyt_ = inputTable(Fyt)(rowFyt, 1)
 
-                    For rowFytdb = rowFirstInput To rowUsed(FYT_DB)
-                        fytdb_ = WS_LAP.Cells(rowFytdb, FYT_DB)
+                For rowFc = 1 To inputUbound(FC)
+                    fc_ = inputTable(FC)(rowFc, 1)
 
-                        count_ = count_ + 1
-                        WS_LAP.Cells(rowFirstCombo + count_, NAME) = count_
-                        WS_LAP.Cells(rowFirstCombo + count_, Fy) = fy_
-                        WS_LAP.Cells(rowFirstCombo + count_, Fyt) = fyt_
-                        WS_LAP.Cells(rowFirstCombo + count_, FC) = fc_
-                        WS_LAP.Cells(rowFirstCombo + count_, FY_DB) = fydb_
-                        WS_LAP.Cells(rowFirstCombo + count_, FYT_DB) = fytdb_
+                    For rowFydb = 1 To inputUbound(FY_DB)
+                        fydb_ = inputTable(FY_DB)(rowFydb, 1)
 
+                        For rowFytdb = 1 To inputUbound(FYT_DB)
+                            fytdb_ = inputTable(FYT_DB)(rowFytdb, 1)
+
+                            For rowSpacing = 1 To inputUbound(SPACING)
+                                spacing_ = inputTable(SPACING)(rowSpacing, 1)
+
+                                count_ = count_ + 1
+
+                                comboTable(count_, NAME) = count_
+                                comboTable(count_, COVER) = cover_
+                                comboTable(count_, Fy) = fy_
+                                comboTable(count_, Fyt) = fyt_
+                                comboTable(count_, FC) = fc_
+                                comboTable(count_, FY_DB) = fydb_
+                                comboTable(count_, FYT_DB) = fytdb_
+                                comboTable(count_, SPACING) = spacing_
+
+                            Next
+                        Next
                     Next
                 Next
             Next
         Next
     Next
 
-    ExecutionTime (time0)
+    Combo = comboTable
+
+End Function
+
+Sub PrintCombo(comboTable)
+'
+' 印出 Combo
+'
+' @param comboTable(Array)
+
+    WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_COMBO, COLUMN_FIRST_INPUT), WS_LAP.Cells(UBound(comboTable), COLUMN_LAST_COMBO)) = comboTable
 
 End Sub
 
-Function ExecutionTime(time0)
+
+Sub Format()
+'
+' 格式化表格
+'
+
+    WS_LAP.Cells.HorizontalAlignment = xlCenter
+    WS_LAP.Cells.Font.NAME = "微軟正黑體"
+    WS_LAP.Cells.Font.NAME = "Calibri"
+    WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_INPUT, COLUMN_FIRST_INPUT), WS_LAP.Cells(ROW_LAST_INPUT, COLUMN_LAST_INPUT)).Font.Color = vbRed
+
+    WS_LAP.Columns(FY_DB).NumberFormatLocal = """D""0"
+    WS_LAP.Columns(FYT_DB).NumberFormatLocal = """D""0"
+
+End Sub
+
+
+Sub ExecutionTime(time0)
+'
+' 計算執行時間
+'
+' @param time0(Double)
+' @returns MsgBox
 
     If Timer - time0 < 60 Then
         MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
@@ -123,85 +254,39 @@ Function ExecutionTime(time0)
         MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
     End If
 
-End Function
-
-' Sub SortTable()
+End Sub
 
 
-' End Sub
+Sub Main()
+'
+' @purpose:
+' 排列組合
+'
+'
+' @algorithm:
+' 排列組合
+'
+'
+' @test:
+' [0.4] 執行時間：154.00 sec
+' [1.11] 執行時間： 0.14 sec
+' 多種狀況測試
 
-' Sub CountNumberTable(BeamPositionColumn)
-'     Dim lastrow(4) As Integer, Diameter As Double, TieDiameter As Double, Fyt As Double
-'     Dim Concrete As Double, TieSpacing As Double, CountNumber As Double
-'     Dim Fy As Double, Cover As Double, RebarSpacing As Double
-'     Dim I As Integer, a As Integer, b As Integer, c As Integer, d As Integer, e As Integer
-'     Dim CountAllTable As Integer, CountFirstTable As Integer, CountLastTable As Integer
+    Dim time0 As Double
+    Dim inputTable()
+    Dim inputUbound()
+    Dim comboTable()
 
-'     For CountFirstTable = 1 To 5
-'         For I = 0 To 4
-'             lastrow(I) = Cells(Rows.Count, I + BeamPositionColumn + 2).End(xlUp).Row - 5
-'         Next
-'         CountNumber = 0
-'         For a = 1 To lastrow(0)
-'             Diameter = Cells(a + 5, BeamPositionColumn + 2)
-'             For b = 1 To lastrow(1)
-'                 TieDiameter = Cells(b + 5, BeamPositionColumn + 3)
-'                 For c = 1 To lastrow(2)
-'                     TieSpacing = Cells(c + 5, BeamPositionColumn + 4)
-'                     For d = 1 To lastrow(3)
-'                         Fyt = Cells(d + 5, BeamPositionColumn + 5)
-'                         For e = 1 To lastrow(4)
-'                             Concrete = Cells(e + 5, BeamPositionColumn + 6)
-'                             CountNumber = CountNumber + 1
-'                             Cells(29 + CountNumber, BeamPositionColumn) = CountNumber
-'                             Cells(29 + CountNumber, BeamPositionColumn + 2) = Diameter
-'                             Cells(29 + CountNumber, BeamPositionColumn + 3) = TieDiameter
-'                             Cells(29 + CountNumber, BeamPositionColumn + 4) = TieSpacing
-'                             Cells(29 + CountNumber, BeamPositionColumn + 5) = Fyt
-'                             Cells(29 + CountNumber, BeamPositionColumn + 6) = Concrete
-'                         Next
-'                     Next
-'                 Next
-'             Next
-'         Next
-'         BeamPositionColumn = BeamPositionColumn + 7
-'     Next
+    time0 = Timer
 
-'     For CountLastTable = 1 To 5
-'         For I = 0 To 4
-'             lastrow(I) = Cells(Rows.Count, I + BeamPositionColumn + 1).End(xlUp).Row - 5
-'         Next
-'         CountNumber = 0
-'         For a = 1 To lastrow(0)
-'             Diameter = Cells(a + 5, BeamPositionColumn + 1)
-'             For b = 1 To lastrow(1)
-'                 Cover = Cells(b + 5, BeamPositionColumn + 2)
-'                 For c = 1 To lastrow(2)
-'                     RebarSpacing = Cells(c + 5, BeamPositionColumn + 3)
-'                     For d = 1 To lastrow(3)
-'                         Fy = Cells(d + 5, BeamPositionColumn + 4)
-'                         For e = 1 To lastrow(4)
-'                             Concrete = Cells(e + 5, BeamPositionColumn + 5)
-'                             CountNumber = CountNumber + 1
-'                             Cells(29 + CountNumber, BeamPositionColumn) = CountNumber
-'                             Cells(29 + CountNumber, BeamPositionColumn + 1) = Diameter
-'                             Cells(29 + CountNumber, BeamPositionColumn + 2) = Cover
-'                             Cells(29 + CountNumber, BeamPositionColumn + 3) = RebarSpacing
-'                             Cells(29 + CountNumber, BeamPositionColumn + 4) = Fy
-'                             Cells(29 + CountNumber, BeamPositionColumn + 5) = Concrete
-'                         Next
-'                     Next
-'                 Next
-'             Next
-'         Next
-'         BeamPositionColumn = BeamPositionColumn + 6
-'     Next
+    Call GlobalVariable
+    Call ClearCombo
+    Call SortInput
+    inputTable = ReadInput()
+    inputUbound = UboundInput(inputTable)
+    comboTable = Combo(inputTable, inputUbound)
+    Call PrintCombo(comboTable)
+    Call Format
+    Call ExecutionTime(time0)
 
-' End Sub
-
-
-
-
-
-
-
+End Sub
