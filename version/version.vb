@@ -21,8 +21,6 @@ Private Sub Workbook_Open()
     Dim DOWNLOAD_URL As String
     Dim VERSION_URL As String
 
-    Dim VERSION_SHEET As Worksheet
-
     Dim sheet As String
     Dim project As String
     Dim currentVersion As String
@@ -31,17 +29,16 @@ Private Sub Workbook_Open()
 
     ' 依據不同工作簿有不同值
     VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170421%20SRCSelector/version.txt"
-    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226%20%E6%90%AD%E6%8E%A5%E9%95%B7%E5%BA%A6%E7%B2%BE%E7%B4%B0%E8%A8%88%E7%AE%97/%E6%90%AD%E6%8E%A5%E9%95%B7%E5%BA%A6%E7%B2%BE%E7%B4%B0%E8%A8%88%E7%AE%97.xlsm"
+    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170421%20SRCSelector/20171129%20SRCSelector.xlsm"
 
-    Set VERSION_SHEET = Worksheets("版本資訊")
 
-    ' sheet = "版本資訊"
-    ' Worksheets(sheet).Activate
+    sheet = "版本資訊"
+    Worksheets(sheet).Activate
 
 
     ' 位置在 Cells(4, 3)
-    With VERSION_SHEET.QueryTables.Add(Connection:= "URL;" & VERSION_URL, _
-        Destination:= VERSION_SHEET.Cells(4, 3))
+    With ActiveSheet.QueryTables.Add(Connection:= "URL;" & VERSION_URL, _
+        Destination:= Cells(4, 3))
         .Name = "version"
         .FieldNames = True
         .RowNumbers = False
@@ -73,12 +70,12 @@ Private Sub Workbook_Open()
     ' 移除名稱
     ' 第二次執行會出現錯誤，但一般來說不會出現第二次。所以先註解掉。
     ' On Error Resume Next
-    VERSION_SHEET.Names("版本資訊!version").Delete
+    ActiveWorkbook.Names("版本資訊!version").Delete
 
 
-    project = VERSION_SHEET.Cells(2, 3)
-    currentVersion = VERSION_SHEET.Cells(3, 3)
-    latestVersion = VERSION_SHEET.Cells(4, 3)
+    project = Cells(2, 3)
+    currentVersion = Cells(3, 3)
+    latestVersion = Cells(4, 3)
 
     If latestVersion > currentVersion Then
 
