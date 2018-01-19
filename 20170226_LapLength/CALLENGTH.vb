@@ -168,7 +168,8 @@ Sub Main()
 
         For rowWidth = 1 To widthUBound
             width_ = widthTable(rowWidth, 1)
-            ' maxFy = fix()
+            maxFyNum = fix(width_ - cover_ * 2 - fytdb_ * 2 - fydb_) / (2 * fydb_) + 1
+            cc_ = cover_ + fytdb_ + fydb_ / 2
         Next rowWidth
 
 
