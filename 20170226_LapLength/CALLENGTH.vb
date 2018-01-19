@@ -57,8 +57,8 @@ Sub GlobalVariable()
     ' SPACING = 14
 
     ' worksheets
-    Set WS_LAP = Worksheets("搭接長度精細計算")
-    Set WS_LENGTH = Worksheets("大梁")
+    Set WS_LAP = ThisWorkbook.Worksheets("搭接長度精細計算")
+    Set WS_LENGTH = ThisWorkbook.Worksheets("大梁")
 
     ' ' Input Variable
     ' ROW_FIRST_INPUT = 5
@@ -88,12 +88,12 @@ Function ReadCombo()
     name_ = 6
     rowFirstCombo = 21
 
-    columnFirstCombo = 8
-    columnLastCombo = 14
+    colFirstCombo = 8
+    colLastCombo = 14
 
     rowLastCombo = WS_LAP.Cells(WS_LAP.Rows.Count, name_).End(xlUp).Row
 
-    comboTable = WS_LAP.Range(WS_LAP.Cells(rowFirstCombo, columnFirstCombo), WS_LAP.Cells(rowLastCombo, columnLastCombo))
+    comboTable = WS_LAP.Range(WS_LAP.Cells(rowFirstCombo, colFirstCombo), WS_LAP.Cells(rowLastCombo, colLastCombo))
 
     ReadCombo = comboTable
 
@@ -112,13 +112,205 @@ Function ReadWidth()
     rowFirstInput = 5
     rowLastInput = 19
 
-    columnWidth = 7
+    ColumnWidth = 7
 
-    rowLastInput = WS_LAP.Cells(WS_LAP.Rows.Count, columnWidth).End(xlUp).Row
+    rowLastInput = WS_LAP.Cells(WS_LAP.Rows.Count, ColumnWidth).End(xlUp).Row
 
-    widthTable = WS_LAP.Range(WS_LAP.Cells(rowFirstInput, columnWidth), WS_LAP.Cells(rowLastInput, columnWidth))
+    widthTable = WS_LAP.Range(WS_LAP.Cells(rowFirstInput, ColumnWidth), WS_LAP.Cells(rowLastInput, ColumnWidth))
 
     ReadWidth = widthTable
+
+End Function
+
+Function ReadName()
+'
+'
+'
+' @param
+' @returns
+
+    ColumnName = 6
+    rowFirstInput = 5
+
+    lapName = WS_LAP.Cells(rowFirstInput, ColumnName)
+
+    ReadName = lapName
+
+End Function
+
+Function CalLength(comboTable, widthTable)
+'
+'
+'
+' @param
+' @returns
+
+    Dim lapTable()
+
+    colCover = 1
+    colFy = 2
+    colFyt = 3
+    colFc = 4
+    colFydb = 5
+    colFytdb = 6
+    colSpacing = 7
+
+    rowTableSpace = 2
+    rowTitleSpace = 4
+
+    colTitleSpace = 2
+
+    ' maxLapLengthColumn = 50
+
+    ' 修正因數
+    psitTop_ = 1.3
+    psitBot_ = 1
+    psie_ = 1
+    lamda_ = 1
+
+    comboUBound = UBound(comboTable, 1)
+    widthUBound = UBound(widthTable, 1)
+
+    ' 最多的支數 + colTitleSpace - 1，之所以 - 1 是因為從 2 開始，會少一欄。
+    colLapTableUBound = Fix((Application.Max(widthTable) - Application.Min(Application.Index(comboTable, 0, colCover)) * 2 - Application.Min(Application.Index(comboTable, 0, colFytdb)) / 10 * 2 - Application.Min(Application.Index(comboTable, 0, colFydb)) / 10) / (2 * Application.Min(Application.Index(comboTable, 0, colFydb)) / 10)) + 1 + colTitleSpace - 1
+
+    ReDim lapTable(1 To (widthUBound * 2 + 6) * comboUBound - 2, 1 To colLapTableUBound)
+
+    For rowCombo = 1 To comboUBound
+
+        cover_ = comboTable(rowCombo, colCover)
+        fy_ = comboTable(rowCombo, colFy)
+        fyt_ = comboTable(rowCombo, colFyt)
+        fc_ = comboTable(rowCombo, colFc)
+        fydb_ = comboTable(rowCombo, colFydb) / 10
+        fytdb_ = comboTable(rowCombo, colFytdb) / 10
+        spacing_ = comboTable(rowCombo, colSpacing)
+
+        ldb_ = 0.28 * fy_ / Sqr(fc_) * fydb_
+
+        ' 修正因數
+        If fydb_ >= 2 Then
+            psis_ = 1
+        Else
+            psis_ = 0.8
+        End If
+
+        For rowWidth = 1 To widthUBound
+
+            width_ = widthTable(rowWidth, 1)
+            maxFyNum = Fix((width_ - cover_ * 2 - fytdb_ * 2 - fydb_) / (2 * fydb_)) + 1
+
+            ' 有加主筋之半
+            cc_ = cover_ + fytdb_ + fydb_ / 2
+
+            For fyNum = 2 To maxFyNum
+
+                ' 有加主筋之半
+                cs_ = ((width_ - fydb_ * fyNum - fytdb_ * 2 - cover_ * 2) / (fyNum - 1) + fydb_) / 2
+
+                If cs_ <= cc_ Then
+
+                    cb_ = cs_
+                    atr_ = 2 * Application.Pi() * fytdb_ ^ 2 / 4
+                    ktr_ = atr_ * fyt_ / 105 / spacing_ / fyNum
+
+                Else
+
+                    cb_ = cc_
+                    atr_ = Application.Pi() * fytdb_ ^ 2 / 4
+                    ktr_ = atr_ * fyt_ / 105 / spacing_
+
+                End If
+
+                botFactor = psitBot_ * psie_ * psis_ * lamda_ / Application.Min((cb_ + ktr_) / fydb_, 2.5)
+                topFactor = psitTop_ * botFactor
+
+                ldBot_ = botFactor * ldb_
+                ldTop_ = topFactor * ldb_
+
+                lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + (rowWidth - 1) * 2 + rowTitleSpace + 1, fyNum + colTitleSpace - 1) = Fix(1.3 * ldTop_) + 1
+                lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + (rowWidth - 1) * 2 + rowTitleSpace + 2, fyNum + colTitleSpace - 1) = Fix(1.3 * ldBot_) + 1
+
+            Next fyNum
+
+        Next rowWidth
+
+    Next rowCombo
+
+    CalLength = lapTable
+
+End Function
+
+
+Function AddText(lapTable, comboTable, widthTable)
+'
+'
+'
+' @param
+' @returns
+
+    colCover = 1
+    colFy = 2
+    colFyt = 3
+    colFc = 4
+    colFydb = 5
+    colFytdb = 6
+    colSpacing = 7
+
+    rowTableSpace = 2
+    rowTitleSpace = 4
+    colTitleSpace = 2
+
+    comboUBound = UBound(comboTable, 1)
+    widthUBound = UBound(widthTable, 1)
+    lapRowUBound = UBound(lapTable, 1)
+    lapColUBound = UBound(lapTable, 2)
+
+
+    For rowCombo = 1 To comboUBound
+
+        cover_ = comboTable(rowCombo, colCover)
+        fy_ = comboTable(rowCombo, colFy)
+        fyt_ = comboTable(rowCombo, colFyt)
+        fc_ = comboTable(rowCombo, colFc)
+        fydb_ = comboTable(rowCombo, colFydb)
+        fytdb_ = comboTable(rowCombo, colFytdb)
+        spacing_ = comboTable(rowCombo, colSpacing)
+
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 1, 1) = lapName
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 1, 2) = "表" & rowCombo & "  受拉竹節鋼筋搭接長度（乙級搭接）（單位：公分）"
+
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 2) = "適用條件"
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 3) = "保護層" & vbCrLf & "cm"
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 4) = "fy" & vbCrLf & "kgf/cm2"
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 5) = "fyt" & vbCrLf & "kgf/cm2"
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 6) = "fc'" & vbCrLf & "kgf/cm2"
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 7) = "主筋直徑" & vbCrLf & "mm"
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 8) = "箍筋直徑" & vbCrLf & "mm"
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 9) = "箍筋間距" & vbCrLf & "cm"
+
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 3) = cover_
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 4) = fy_
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 5) = fyt_
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 6) = fc_
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 7) = fydb_
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 8) = fytdb_
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 9) = spacing_
+
+        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 4, 3) = "梁寬\主筋根數"
+        fyNum = 2
+        For col_ = colTitleSpace + 1 To lapColUBound
+            lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 4, col_) = fyNum
+            fyNum = fyNum + 1
+        Next col_
+
+        For rowWidth = 1 To widthUBound
+            lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + rowTitleSpace + (rowWidth - 1) * 2 + 1, 2) = widthTable(rowWidth, 1)
+        Next rowWidth
+
+    Next rowCombo
+
+    AddText = lapTable
 
 End Function
 
@@ -145,109 +337,17 @@ Sub Main()
     Call GlobalVariable
     comboTable = ReadCombo()
     widthTable = ReadWidth()
+    lapName = ReadName()
+    lapTable = CalLength(comboTable, widthTable)
+    lapTable = AddText(lapTable, comboTable, widthTable)
 
-    columnName = 6
-    rowFirstInput = 5
-    lapName = WS_LAP.Cells(rowFirstInput, columnName)
-
-    comboCover = 1
-    comboFy = 2
-    comboFyt = 3
-    comboFc = 4
-    comboFydb = 5
-    comboFytdb = 6
-    comboSpacing = 7
-
-    ' 修正因數
-    psitTop_ = 1.3
-    psitBot_ = 1
-    psie_ = 1
-    lamda_ = 1
-
-    rowTableGap = 6
-    rowTitleGap = 3
-    columnGap = 1
-
-    maxLapLengthColumn = 50
-
-    comboUBound = UBound(comboTable)
-    widthUBound = UBound(widthTable)
-
-    redim lapTable(1 to (widthUBound * 2 + 6) * comboUBound,  1 to maxLapLengthColumn)
-
-    For rowCombo = 1 To comboUBound
-        cover_ = comboTable(rowCombo, comboCover)
-        fy_ = comboTable(rowCombo, comboFy)
-        fyt_ = comboTable(rowCombo, comboFyt)
-        fc_ = comboTable(rowCombo, comboFc)
-        fydb_ = comboTable(rowCombo, comboFydb) / 10
-        fytdb_ = comboTable(rowCombo, comboFytdb) / 10
-        spacing_ = comboTable(rowCombo, comboSpacing)
-
-        ldb_ = 0.28 * fy_ / sqr(fc_) * fydb_
-
-        ' 修正因數
-        If fydb_ >= 2 Then
-            psis_ = 1
-        Else
-            psis_ = 0.8
-        End If
-
-
-
-        For rowWidth = 1 To widthUBound
-            width_ = widthTable(rowWidth, 1)
-            maxFyNum = fix((width_ - cover_ * 2 - fytdb_ * 2 - fydb_) / (2 * fydb_)) + 1
-
-            ' 有加主筋之半
-            cc_ = cover_ + fytdb_ + fydb_ / 2
-
-            For fyNum = 2 To maxFyNum
-
-                ' 有加主筋之半
-                cs_ = ((width_ - fydb_ * fyNum - fytdb_ * 2 - cover_ * 2) / (fyNum - 1) + fydb_) / 2
-
-                If cs_ <= cc_ Then
-                    cb_ = cs_
-                    atr_ = 2 * application.pi() * fytdb_ ^ 2 / 4
-                    ktr_ = atr_ * fyt_ / 105 / spacing_ / fyNum
-                Else
-                    cb_ = cc_
-                    atr_ = application.pi() * fytdb_ ^ 2 / 4
-                    ktr_ = atr_ * fyt_ / 105 / spacing_
-                End If
-
-                botFactor = psitBot_ * psie_ * psis_ * lamda_ / application.min((cb_ + ktr_) / fydb_, 2.5)
-                topFactor = psitTop_ * botFactor
-
-                ldBot_ = botFactor * ldb_
-                ldTop_ = topFactor * ldb_
-
-                lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableGap) + rowWidth * 2 + rowTitleGap, fyNum + columnGap) = fix(1.3 * ldTop_) + 1
-                lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableGap) + rowWidth * 2 + rowTitleGap + 1, fyNum + columnGap) = fix(1.3 * ldBot_) + 1
-
-            Next fyNum
-        Next rowWidth
-    Next rowCombo
-
-    columnName = 1
-    columnTitle = 2
-
-    For rowCombo = 1 To comboUBound
-        cover_ = comboTable(rowCombo, comboCover)
-        fy_ = comboTable(rowCombo, comboFy)
-        fyt_ = comboTable(rowCombo, comboFyt)
-        fc_ = comboTable(rowCombo, comboFc)
-        fydb_ = comboTable(rowCombo, comboFydb) / 10
-        fytdb_ = comboTable(rowCombo, comboFytdb) / 10
-        spacing_ = comboTable(rowCombo, comboSpacing)
-
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableGap), columnName) = lapName
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableGap), columnTitle) = "表" & rowCombo & "  受拉竹節鋼筋搭接長度（乙級搭接）"
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableGap), columnTitle) = "表" & rowCombo & "  受拉竹節鋼筋搭接長度（乙級搭接）"
-
-    Next rowCombo
-
-    WS_LENGTH.Range(WS_LENGTH.Cells(5, 4), WS_LENGTH.Cells(UBound(lapTable), maxLapLengthColumn)) = lapTable
+    lapRowUBound = UBound(lapTable, 1)
+    lapColUBound = UBound(lapTable, 2)
+    rowFirst = 5
+    colFirst = 4
+    WS_LENGTH.Range(WS_LENGTH.Cells(rowFirst, colFirst), WS_LENGTH.Cells(lapRowUBound + rowFirst - 1, lapColUBound + colFirst - 1)) = lapTable
 
 End Sub
+
+
+

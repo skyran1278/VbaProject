@@ -32,7 +32,7 @@ Private Sub Workbook_Open()
     DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226_LapLength/lap-length.xlsm"
 
 
-    Set VERSION_SHEET = Worksheets("版本資訊")
+    Set VERSION_SHEET = ThisWorkbook.Worksheets("版本資訊")
 
     ' 位置在 Cells(4, 3)
     With VERSION_SHEET.QueryTables.Add(Connection:="URL;" & VERSION_URL, _
@@ -63,12 +63,12 @@ Private Sub Workbook_Open()
     ' 移除連線
     ' Mac 版本 Connections 錯誤，所以增加下面一行
     ' On Error Resume Next
-    ActiveWorkbook.Connections("連線").Delete
+    ThisWorkbook.Connections("連線").Delete
 
     ' 移除名稱
     ' 第二次執行會出現錯誤，但一般來說不會出現第二次。所以先註解掉。
     ' On Error Resume Next
-    ActiveWorkbook.Names("版本資訊!version").Delete
+    ThisWorkbook.Names("版本資訊!version").Delete
 
 
     project = VERSION_SHEET.Cells(2, 3)

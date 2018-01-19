@@ -1,4 +1,3 @@
-' FIXME: 開兩個工作簿有問題，需要繼續測試
 Dim NAME As Integer
 Dim WIDTH As Integer
 Dim COVER As Integer
@@ -57,7 +56,7 @@ Sub GlobalVariable()
     SPACING = 14
 
     ' worksheets
-    Set WS_LAP = Worksheets("搭接長度精細計算")
+    Set WS_LAP = ThisWorkbook.Worksheets("搭接長度精細計算")
 
     ' Input Variable
     ROW_FIRST_INPUT = 5
