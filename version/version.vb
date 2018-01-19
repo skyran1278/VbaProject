@@ -21,25 +21,23 @@ Private Sub Workbook_Open()
     Dim DOWNLOAD_URL As String
     Dim VERSION_URL As String
 
-    Dim sheet As String
+    Dim VERSION_SHEET As Worksheet
     Dim project As String
     Dim currentVersion As String
     Dim latestVersion As String
 
 
     ' 依據不同工作簿有不同值
-    VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170421%20SRCSelector/version.txt"
-    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170421%20SRCSelector/20171129%20SRCSelector.xlsm"
+    VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226_LapLength/lap-length-version.txt"
+    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226_LapLength/lap-length.xlsm"
 
 
-    sheet = "版本資訊"
-    Worksheets(sheet).Activate
-
+    Set VERSION_SHEET = Worksheets("版本資訊")
 
     ' 位置在 Cells(4, 3)
-    With ActiveSheet.QueryTables.Add(Connection:= "URL;" & VERSION_URL, _
-        Destination:= Cells(4, 3))
-        .Name = "version"
+    With VERSION_SHEET.QueryTables.Add(Connection:="URL;" & VERSION_URL, _
+        Destination:=VERSION_SHEET.Cells(4, 3))
+        .NAME = "version"
         .FieldNames = True
         .RowNumbers = False
         .FillAdjacentFormulas = False
@@ -73,26 +71,30 @@ Private Sub Workbook_Open()
     ActiveWorkbook.Names("版本資訊!version").Delete
 
 
-    project = Cells(2, 3)
-    currentVersion = Cells(3, 3)
-    latestVersion = Cells(4, 3)
+    project = VERSION_SHEET.Cells(2, 3)
+    currentVersion = VERSION_SHEET.Cells(3, 3)
+    latestVersion = VERSION_SHEET.Cells(4, 3)
 
     If latestVersion > currentVersion Then
 
         intMessage = MsgBox("下載最新版本...", vbYesNo, project)
 
         If intMessage = vbYes Then
+
             ' Mac 版本出現錯誤，不推薦在 Mac 執行
             Set OBJ_SHELL = CreateObject("Wscript.Shell")
             OBJ_SHELL.Run (DOWNLOAD_URL)
             MsgBox "請關閉此檔案，並使用從瀏覽器下載的最新版本。", vbOKOnly, project
+
         Else
-            MsgBox "使用舊版程式具有無法預期的風險，建議下載最新版程式。" & vbCrlf  & "若需下載新版程式請重開檔案。", vbOKOnly, project
+
+            MsgBox "使用舊版程式具有無法預期的風險，建議下載最新版程式。" & vbCrLf & "若需下載新版程式請重開檔案。", vbOKOnly, project
 
         End If
-
-
     End If
 
+    VERSION_SHEET.Activate
 
 End Sub
+
+
