@@ -93,6 +93,8 @@ Private Sub Workbook_Open()
         End If
     End If
 
+    VERSION_SHEET.Cells.Font.NAME = "微軟正黑體"
+    VERSION_SHEET.Cells.Font.NAME = "Calibri"
     VERSION_SHEET.Activate
 
 End Sub
