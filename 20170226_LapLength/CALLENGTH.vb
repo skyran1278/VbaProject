@@ -1,77 +1,19 @@
-' Dim NAME As Integer
-' Dim WIDTH As Integer
-' Dim COVER As Integer
-' Dim Fy As Integer
-' Dim Fyt As Integer
-' Dim FC As Integer
-' Dim FY_DB As Integer
-' Dim FYT_DB As Integer
-' Dim SPACING As Integer
+' TODO: 明天再來修正細節和測試
 
 Dim WS_LAP As Worksheet
 Dim WS_LENGTH As Worksheet
-
-' Dim ROW_FIRST_INPUT As Integer
-' Dim ROW_LAST_INPUT As Integer
-
-' Dim COLUMN_FIRST_INPUT As Integer
-' Dim COLUMN_LAST_INPUT As Integer
-
-' Dim ROW_FIRST_COMBO As Integer
-
-' Dim COLUMN_FIRST_COMBO As Integer
-' Dim COLUMN_LAST_COMBO As Integer
 
 
 Sub GlobalVariable()
 '
 ' 宣告全域變數：Column 位置、Worksheets
 '
-' @returns NAME(Integer)
-' @returns COVER(Integer)
-' @returns WIDTH(Integer)
-' @returns Fy(Integer)
-' @returns Fyt(Integer)
-' @returns FC(Integer)
-' @returns FY_DB(Integer)
-' @returns FYT_DB(Integer)
-' @returns SPACING(Integer)
 ' @returns WS_LAP(Worksheet)
-' @returns ROW_FIRST_INPUT(Integer)
-' @returns ROW_LAST_INPUT(Integer)
-' @returns COLUMN_FIRST_INPUT(Integer)
-' @returns COLUMN_LAST_INPUT(Integer)
-' @returns ROW_FIRST_COMBO(Integer)
-' @returns COLUMN_FIRST_COMBO(Integer)
-' @returns COLUMN_LAST_COMBO(Integer)
-
-    ' ' Column 位置
-    ' NAME = 6
-    ' WIDTH = 7
-    ' COVER = 8
-    ' Fy = 9
-    ' Fyt = 10
-    ' FC = 11
-    ' FY_DB = 12
-    ' FYT_DB = 13
-    ' SPACING = 14
 
     ' worksheets
     Set WS_LAP = ThisWorkbook.Worksheets("搭接長度精細計算")
-    Set WS_LENGTH = ThisWorkbook.Worksheets("大梁")
-
-    ' ' Input Variable
-    ' ROW_FIRST_INPUT = 5
-    ' ROW_LAST_INPUT = 19
-
-    ' COLUMN_FIRST_INPUT = 6
-    ' COLUMN_LAST_INPUT = 14
-
-    ' ' Combo Variable
-    ' ROW_FIRST_COMBO = 21
-
-    ' COLUMN_FIRST_COMBO = 8
-    ' COLUMN_LAST_COMBO = 14
+    ThisWorkbook.Worksheets.Add After:=WS_LAP
+    Set WS_LENGTH = ThisWorkbook.ActiveSheet
 
 End Sub
 
@@ -283,13 +225,13 @@ Function AddText(lapTable, comboTable, widthTable, lapName)
         lapTable(rowComboFirst + 1, 2) = "表 " & rowCombo & " 受拉竹節鋼筋搭接長度（乙級搭接）（單位：公分）"
 
         lapTable(rowComboFirst + 2, 2) = "適用條件"
-        lapTable(rowComboFirst + 2, 3) = "保護層" & vbCrLf & "cm"
-        lapTable(rowComboFirst + 2, 4) = "fy" & vbCrLf & "kgf/cm2"
-        lapTable(rowComboFirst + 2, 5) = "fyt" & vbCrLf & "kgf/cm2"
-        lapTable(rowComboFirst + 2, 6) = "fc'" & vbCrLf & "kgf/cm2"
-        lapTable(rowComboFirst + 2, 7) = "主筋直徑" & vbCrLf & "mm"
-        lapTable(rowComboFirst + 2, 8) = "箍筋直徑" & vbCrLf & "mm"
-        lapTable(rowComboFirst + 2, 9) = "箍筋間距" & vbCrLf & "cm"
+        lapTable(rowComboFirst + 2, 3) = "保護層" & vbLf & "cm"
+        lapTable(rowComboFirst + 2, 4) = "fy" & vbLf & "kgf/cm2"
+        lapTable(rowComboFirst + 2, 5) = "fyt" & vbLf & "kgf/cm2"
+        lapTable(rowComboFirst + 2, 6) = "fc'" & vbLf & "kgf/cm2"
+        lapTable(rowComboFirst + 2, 7) = "主筋直徑" & vbLf & "mm"
+        lapTable(rowComboFirst + 2, 8) = "箍筋直徑" & vbLf & "mm"
+        lapTable(rowComboFirst + 2, 9) = "箍筋間距" & vbLf & "cm"
 
         lapTable(rowComboFirst + 3, 3) = cover_
         lapTable(rowComboFirst + 3, 4) = fy_
@@ -320,7 +262,7 @@ End Function
 
 Sub Format(lapTable, comboTable, widthTable, lapName)
 '
-'
+' 由於框線會覆蓋，所以需要調整順序。
 '
 ' @param
 ' @returns
@@ -339,40 +281,89 @@ Sub Format(lapTable, comboTable, widthTable, lapName)
 
         rowComboFirst = (rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace)
 
-        ' lapTable(rowComboFirst + 1, 1) = lapName
-        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 1, 1), WS_LENGTH.Cells(rowComboFirst + widthUBound * 2 + rowTitleSpace, 1)).Merge
+        ' "適用條件" Merge
+        With WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 2, 2), WS_LENGTH.Cells(rowComboFirst + 3, 2))
+            .Merge
+            .BorderAround Weight:=xlThin
+        End With
 
-        ' lapTable(rowComboFirst + 1, 2) = "表 " & rowCombo & " 受拉竹節鋼筋搭接長度（乙級搭接）（單位：公分）"
-        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 1, 2), WS_LENGTH.Cells(rowComboFirst + 1, lapColUBound)).Merge
+        ' 梁寬\主筋根數 ColumnWidth
+        WS_LENGTH.Columns(2).ColumnWidth = 9.88
 
-        ' lapTable(rowComboFirst + 2, 2) = "適用條件"
-        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 2, 2), WS_LENGTH.Cells(rowComboFirst + 3, 2)).Merge
+        ' "fy" & vbLf & "kgf/cm2" Superscript
+        WS_LENGTH.Cells(rowComboFirst + 2, 4).Characters(Start:=10, Length:=1).Font.Superscript = True
 
-        ' lapTable(rowComboFirst + 2, 4) = "fy" & vbCrLf & "kgf/cm2"
-        WS_LENGTH.Cells(rowComboFirst + 2, 4).Characters(Start:=9, Length:=1).Font.Subscript = True
+        ' "fyt" & vbLf & "kgf/cm2" Superscript
+        WS_LENGTH.Cells(rowComboFirst + 2, 5).Characters(Start:=11, Length:=1).Font.Superscript = True
 
-        ' lapTable(rowComboFirst + 2, 5) = "fyt" & vbCrLf & "kgf/cm2"
-        WS_LENGTH.Cells(rowComboFirst + 2, 5).Characters(Start:=9, Length:=1).Font.Subscript = True
+        ' "fc'" & vbLf & "kgf/cm2" Superscript
+        WS_LENGTH.Cells(rowComboFirst + 2, 6).Characters(Start:=11, Length:=1).Font.Superscript = True
 
-        ' lapTable(rowComboFirst + 2, 6) = "fc'" & vbCrLf & "kgf/cm2"
-        WS_LENGTH.Cells(rowComboFirst + 2, 6).Characters(Start:=9, Length:=1).Font.Subscript = True
-
-        ' lapTable(rowComboFirst + 3, 7) = fydb_
+        ' fydb_ """D""0"
         WS_LENGTH.Cells(rowComboFirst + 3, 7).NumberFormatLocal = """D""0"
 
-        ' lapTable(rowComboFirst + 3, 8) = fytdb_
+        ' fytdb_ """D""0"
         WS_LENGTH.Cells(rowComboFirst + 3, 8).NumberFormatLocal = """D""0"
 
-        ' lapTable(rowComboFirst + 4, 2) = "梁寬\主筋根數"
-        WS_LENGTH.Cells(rowComboFirst + 4, 2).Characters(Start:=1, Length:=2).Font.Subscript = True
-        WS_LENGTH.Cells(rowComboFirst + 4, 2).Characters(Start:=4, Length:=4).Font.Superscript = True
+        ' input red
+        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 3, colTitleSpace + 1), WS_LENGTH.Cells(rowComboFirst + 3, lapColUBound)).Font.Color = vbRed
 
+        ' "梁寬\主筋根數" Subscript Superscript xlThin
+        With WS_LENGTH.Cells(rowComboFirst + 4, 2)
+            .Characters(Start:=1, Length:=2).Font.Subscript = True
+            .Characters(Start:=4, Length:=4).Font.Superscript = True
+            .BorderAround Weight:=xlThin
+        End With
+
+        ' 主筋根數 xlThin
+        For col_ = colTitleSpace + 1 To lapColUBound
+            WS_LENGTH.Cells(rowComboFirst + 4, col_).BorderAround Weight:=xlThin
+        Next col_
+
+        ' 寬度 Merge xlThin
         For rowWidth = 1 To widthUBound
-            ' lapTable(rowComboFirst + rowTitleSpace + (rowWidth - 1) * 2 + 1, 2) = widthTable(rowWidth, 1)
-            WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + (rowWidth - 1) * 2 + 1, 2), WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + (rowWidth - 1) * 2 + 2, 2)).Merge
+            With WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + (rowWidth - 1) * 2 + 1, 2), WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + (rowWidth - 1) * 2 + 2, 2))
+                .Merge
+                .BorderAround Weight:=xlThin
+            End With
         Next rowWidth
 
-        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 1, 1), WS_LENGTH.Cells(rowComboFirst + widthUBound * 2 + rowTitleSpace, lapColUBound)).BorderAround(Weight:=xlThick).Weight = xlMedium
+        ' 搭接長度 xlThin
+        For row_ = 1 To widthUBound
+            For col_ = colTitleSpace + 1 To lapColUBound
+                WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + (row_ - 1) * 2 + 1, col_), WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + (row_ - 1) * 2 + 2, col_)).BorderAround Weight:=xlThin
+            Next col_
+        Next row_
+
+        ' 搭接長度 格式化條件
+        With WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + 1, colTitleSpace + 1), WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + widthUBound * 2, lapColUBound))
+            .FormatConditions.AddColorScale ColorScaleType:=2
+            .FormatConditions(.FormatConditions.Count).SetFirstPriority
+            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 16776444
+            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValueHighestValue
+            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 7039480
+        End With
+
+        ' lapName Merge 中等 xlMedium
+        With WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 1, 1), WS_LENGTH.Cells(rowComboFirst + widthUBound * 2 + rowTitleSpace, 1))
+            .Merge
+            .Style = "中等"
+            .BorderAround Weight:=xlMedium
+        End With
+
+        ' "表 " & rowCombo & " 受拉竹節鋼筋搭接長度（乙級搭接）（單位：公分）" Merge 好 xlMedium
+        With WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 1, 2), WS_LENGTH.Cells(rowComboFirst + 1, lapColUBound))
+            .Merge
+            .Style = "好"
+            .BorderAround Weight:=xlMedium
+        End With
+
+        ' 雙劃線 xlDouble
+        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 2, 2), WS_LENGTH.Cells(rowComboFirst + 3, lapColUBound)).Borders(xlEdgeBottom).LineStyle = xlDouble
+
+        ' 外圍粗外框線 xlThick
+        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 1, 1), WS_LENGTH.Cells(rowComboFirst + widthUBound * 2 + rowTitleSpace, lapColUBound)).BorderAround Weight:=xlThick
 
     Next rowCombo
 
@@ -381,6 +372,10 @@ Sub Format(lapTable, comboTable, widthTable, lapName)
 
     WS_LENGTH.Cells.HorizontalAlignment = xlCenter
     WS_LENGTH.Cells.VerticalAlignment = xlCenter
+
+    ' 移動到指定位置
+    WS_LENGTH.Range(WS_LENGTH.Columns(1), WS_LENGTH.Columns(3)).Insert (xlToRight)
+    WS_LENGTH.Range(WS_LENGTH.Rows(1), WS_LENGTH.Rows(4)).Insert (xlDown)
 
 End Sub
 
@@ -410,13 +405,11 @@ Sub Main()
     lapName = ReadName()
     lapTable = CalLength(comboTable, widthTable)
     lapTable = AddText(lapTable, comboTable, widthTable, lapName)
-    Call Format(lapTable, comboTable, widthTable, lapName)
 
     lapRowUBound = UBound(lapTable, 1)
     lapColUBound = UBound(lapTable, 2)
     WS_LENGTH.Range(WS_LENGTH.Cells(1, 1), WS_LENGTH.Cells(lapRowUBound, lapColUBound)) = lapTable
 
+    Call Format(lapTable, comboTable, widthTable, lapName)
+
 End Sub
-
-
-
