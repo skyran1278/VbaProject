@@ -242,7 +242,7 @@ Function CalLength(comboTable, widthTable)
 End Function
 
 
-Function AddText(lapTable, comboTable, widthTable)
+Function AddText(lapTable, comboTable, widthTable, lapName)
 '
 '
 '
@@ -277,35 +277,38 @@ Function AddText(lapTable, comboTable, widthTable)
         fytdb_ = comboTable(rowCombo, colFytdb)
         spacing_ = comboTable(rowCombo, colSpacing)
 
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 1, 1) = lapName
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 1, 2) = "表" & rowCombo & "  受拉竹節鋼筋搭接長度（乙級搭接）（單位：公分）"
+        rowComboFirst = (rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace)
 
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 2) = "適用條件"
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 3) = "保護層" & vbCrLf & "cm"
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 4) = "fy" & vbCrLf & "kgf/cm2"
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 5) = "fyt" & vbCrLf & "kgf/cm2"
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 6) = "fc'" & vbCrLf & "kgf/cm2"
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 7) = "主筋直徑" & vbCrLf & "mm"
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 8) = "箍筋直徑" & vbCrLf & "mm"
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 2, 9) = "箍筋間距" & vbCrLf & "cm"
+        lapTable(rowComboFirst + 1, 1) = lapName
+        lapTable(rowComboFirst + 1, 2) = "表 " & rowCombo & " 受拉竹節鋼筋搭接長度（乙級搭接）（單位：公分）"
 
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 3) = cover_
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 4) = fy_
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 5) = fyt_
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 6) = fc_
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 7) = fydb_
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 8) = fytdb_
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 3, 9) = spacing_
+        lapTable(rowComboFirst + 2, 2) = "適用條件"
+        lapTable(rowComboFirst + 2, 3) = "保護層" & vbCrLf & "cm"
+        lapTable(rowComboFirst + 2, 4) = "fy" & vbCrLf & "kgf/cm2"
+        lapTable(rowComboFirst + 2, 5) = "fyt" & vbCrLf & "kgf/cm2"
+        lapTable(rowComboFirst + 2, 6) = "fc'" & vbCrLf & "kgf/cm2"
+        lapTable(rowComboFirst + 2, 7) = "主筋直徑" & vbCrLf & "mm"
+        lapTable(rowComboFirst + 2, 8) = "箍筋直徑" & vbCrLf & "mm"
+        lapTable(rowComboFirst + 2, 9) = "箍筋間距" & vbCrLf & "cm"
 
-        lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 4, 3) = "梁寬\主筋根數"
+        lapTable(rowComboFirst + 3, 3) = cover_
+        lapTable(rowComboFirst + 3, 4) = fy_
+        lapTable(rowComboFirst + 3, 5) = fyt_
+        lapTable(rowComboFirst + 3, 6) = fc_
+        lapTable(rowComboFirst + 3, 7) = fydb_
+        lapTable(rowComboFirst + 3, 8) = fytdb_
+        lapTable(rowComboFirst + 3, 9) = spacing_
+
+        lapTable(rowComboFirst + 4, 2) = "梁寬\主筋根數"
+
         fyNum = 2
         For col_ = colTitleSpace + 1 To lapColUBound
-            lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + 4, col_) = fyNum
+            lapTable(rowComboFirst + 4, col_) = fyNum
             fyNum = fyNum + 1
         Next col_
 
         For rowWidth = 1 To widthUBound
-            lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + rowTitleSpace + (rowWidth - 1) * 2 + 1, 2) = widthTable(rowWidth, 1)
+            lapTable(rowComboFirst + rowTitleSpace + (rowWidth - 1) * 2 + 1, 2) = widthTable(rowWidth, 1)
         Next rowWidth
 
     Next rowCombo
@@ -313,6 +316,73 @@ Function AddText(lapTable, comboTable, widthTable)
     AddText = lapTable
 
 End Function
+
+
+Sub Format(lapTable, comboTable, widthTable, lapName)
+'
+'
+'
+' @param
+' @returns
+
+    rowTableSpace = 2
+    rowTitleSpace = 4
+    colTitleSpace = 2
+
+    comboUBound = UBound(comboTable, 1)
+    widthUBound = UBound(widthTable, 1)
+    lapRowUBound = UBound(lapTable, 1)
+    lapColUBound = UBound(lapTable, 2)
+
+
+    For rowCombo = 1 To comboUBound
+
+        rowComboFirst = (rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace)
+
+        ' lapTable(rowComboFirst + 1, 1) = lapName
+        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 1, 1), WS_LENGTH.Cells(rowComboFirst + widthUBound * 2 + rowTitleSpace, 1)).Merge
+
+        ' lapTable(rowComboFirst + 1, 2) = "表 " & rowCombo & " 受拉竹節鋼筋搭接長度（乙級搭接）（單位：公分）"
+        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 1, 2), WS_LENGTH.Cells(rowComboFirst + 1, lapColUBound)).Merge
+
+        ' lapTable(rowComboFirst + 2, 2) = "適用條件"
+        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 2, 2), WS_LENGTH.Cells(rowComboFirst + 3, 2)).Merge
+
+        ' lapTable(rowComboFirst + 2, 4) = "fy" & vbCrLf & "kgf/cm2"
+        WS_LENGTH.Cells(rowComboFirst + 2, 4).Characters(Start:=9, Length:=1).Font.Subscript = True
+
+        ' lapTable(rowComboFirst + 2, 5) = "fyt" & vbCrLf & "kgf/cm2"
+        WS_LENGTH.Cells(rowComboFirst + 2, 5).Characters(Start:=9, Length:=1).Font.Subscript = True
+
+        ' lapTable(rowComboFirst + 2, 6) = "fc'" & vbCrLf & "kgf/cm2"
+        WS_LENGTH.Cells(rowComboFirst + 2, 6).Characters(Start:=9, Length:=1).Font.Subscript = True
+
+        ' lapTable(rowComboFirst + 3, 7) = fydb_
+        WS_LENGTH.Cells(rowComboFirst + 3, 7).NumberFormatLocal = """D""0"
+
+        ' lapTable(rowComboFirst + 3, 8) = fytdb_
+        WS_LENGTH.Cells(rowComboFirst + 3, 8).NumberFormatLocal = """D""0"
+
+        ' lapTable(rowComboFirst + 4, 2) = "梁寬\主筋根數"
+        WS_LENGTH.Cells(rowComboFirst + 4, 2).Characters(Start:=1, Length:=2).Font.Subscript = True
+        WS_LENGTH.Cells(rowComboFirst + 4, 2).Characters(Start:=4, Length:=4).Font.Superscript = True
+
+        For rowWidth = 1 To widthUBound
+            ' lapTable(rowComboFirst + rowTitleSpace + (rowWidth - 1) * 2 + 1, 2) = widthTable(rowWidth, 1)
+            WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + (rowWidth - 1) * 2 + 1, 2), WS_LENGTH.Cells(rowComboFirst + rowTitleSpace + (rowWidth - 1) * 2 + 2, 2)).Merge
+        Next rowWidth
+
+        WS_LENGTH.Range(WS_LENGTH.Cells(rowComboFirst + 1, 1), WS_LENGTH.Cells(rowComboFirst + widthUBound * 2 + rowTitleSpace, lapColUBound)).BorderAround(Weight:=xlThick).Weight = xlMedium
+
+    Next rowCombo
+
+    WS_LENGTH.Cells.Font.NAME = "微軟正黑體"
+    WS_LENGTH.Cells.Font.NAME = "Calibri"
+
+    WS_LENGTH.Cells.HorizontalAlignment = xlCenter
+    WS_LENGTH.Cells.VerticalAlignment = xlCenter
+
+End Sub
 
 
 Sub Main()
@@ -339,13 +409,12 @@ Sub Main()
     widthTable = ReadWidth()
     lapName = ReadName()
     lapTable = CalLength(comboTable, widthTable)
-    lapTable = AddText(lapTable, comboTable, widthTable)
+    lapTable = AddText(lapTable, comboTable, widthTable, lapName)
+    Call Format(lapTable, comboTable, widthTable, lapName)
 
     lapRowUBound = UBound(lapTable, 1)
     lapColUBound = UBound(lapTable, 2)
-    rowFirst = 5
-    colFirst = 4
-    WS_LENGTH.Range(WS_LENGTH.Cells(rowFirst, colFirst), WS_LENGTH.Cells(lapRowUBound + rowFirst - 1, lapColUBound + colFirst - 1)) = lapTable
+    WS_LENGTH.Range(WS_LENGTH.Cells(1, 1), WS_LENGTH.Cells(lapRowUBound, lapColUBound)) = lapTable
 
 End Sub
 
