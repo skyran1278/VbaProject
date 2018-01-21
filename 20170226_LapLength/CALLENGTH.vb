@@ -414,10 +414,9 @@ End Sub
 
 Sub PerformanceVBA(isOn As Boolean)
 '
+' 提升執行效能
 '
-'
-' @param
-' @returns
+' @param isOn(Boolean)
 
     Application.ScreenUpdating = Not(isOn) ' 37.26
 
