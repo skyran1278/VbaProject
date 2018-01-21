@@ -6,13 +6,14 @@ Dim WS_LENGTH As Worksheet
 
 Sub GlobalVariable()
 '
-' 宣告全域變數：Column 位置、Worksheets
+' 宣告全域變數：Worksheets
 '
 ' @returns WS_LAP(Worksheet)
+' @returns WS_LENGTH(Worksheet)
 
     ' worksheets
     Set WS_LAP = ThisWorkbook.Worksheets("搭接長度精細計算")
-    ThisWorkbook.Worksheets.Add After:=WS_LAP
+    ThisWorkbook.Worksheets.Add After:= WS_LAP
     Set WS_LENGTH = ThisWorkbook.ActiveSheet
 
 End Sub
@@ -20,10 +21,9 @@ End Sub
 
 Function ReadCombo()
 '
+' 讀取所有 Combo 種類
 '
-'
-' @param
-' @returns
+' @returns comboTable(Array)
 
     Dim comboTable()
 
@@ -44,21 +44,20 @@ End Function
 
 Function ReadWidth()
 '
+' 讀取梁寬
 '
-'
-' @param
-' @returns
+' @returns widthTable(Array)
 
     Dim widthTable()
 
     rowFirstInput = 5
     rowLastInput = 19
 
-    ColumnWidth = 7
+    columnWidth_ = 7
 
-    rowLastInput = WS_LAP.Cells(WS_LAP.Rows.Count, ColumnWidth).End(xlUp).Row
+    rowLastInput = WS_LAP.Cells(WS_LAP.Rows.Count, columnWidth_).End(xlUp).Row
 
-    widthTable = WS_LAP.Range(WS_LAP.Cells(rowFirstInput, ColumnWidth), WS_LAP.Cells(rowLastInput, ColumnWidth))
+    widthTable = WS_LAP.Range(WS_LAP.Cells(rowFirstInput, columnWidth_), WS_LAP.Cells(rowLastInput, columnWidth_))
 
     ReadWidth = widthTable
 
@@ -66,15 +65,14 @@ End Function
 
 Function ReadName()
 '
+' 讀取梁名
 '
-'
-' @param
-' @returns
+' @returns lapName(String)
 
-    ColumnName = 6
+    columnName_ = 6
     rowFirstInput = 5
 
-    lapName = WS_LAP.Cells(rowFirstInput, ColumnName)
+    lapName = WS_LAP.Cells(rowFirstInput, columnName_)
 
     ReadName = lapName
 
@@ -82,10 +80,15 @@ End Function
 
 Function CalLength(comboTable, widthTable)
 '
+' 核心演算法：
+' 計算 Cc、Cs => 可得知 Cb 和破壞模式（水平或是垂直）Ktr
+' 得 Ktr => 得修正係數
+' 修正係數 * ldb = ld(延伸長度)
+' ld(延伸長度) * 1.3 = 搭接長度
 '
-'
-' @param
-' @returns
+' @param comboTable(Array)
+' @param widthTable(Array)
+' @returns lapTable(Array)
 
     Dim lapTable()
 
@@ -186,10 +189,13 @@ End Function
 
 Function AddText(lapTable, comboTable, widthTable, lapName)
 '
+' 增加文字
 '
-'
-' @param
-' @returns
+' @param lapTable(Array)
+' @param comboTable(Array)
+' @param widthTable(Array)
+' @param lapName(String)
+' @returns lapTable(Array)
 
     colCover = 1
     colFy = 2
@@ -262,10 +268,13 @@ End Function
 
 Sub Format(lapTable, comboTable, widthTable, lapName)
 '
+' 調整格式
 ' 由於框線會覆蓋，所以需要調整順序。
 '
-' @param
-' @returns
+' @param lapTable(Array)
+' @param comboTable(Array)
+' @param widthTable(Array)
+' @param lapName(String)
 
     rowTableSpace = 2
     rowTitleSpace = 4
@@ -367,15 +376,59 @@ Sub Format(lapTable, comboTable, widthTable, lapName)
 
     Next rowCombo
 
+    ' 移動到指定位置
+    WS_LENGTH.Range(WS_LENGTH.Columns(1), WS_LENGTH.Columns(3)).Insert(xlToRight)
+    WS_LENGTH.Range(WS_LENGTH.Rows(1), WS_LENGTH.Rows(4)).Insert(xlDown)
+
+    WS_LENGTH.cells(1, 1) = "UPDATE"
+    WS_LENGTH.cells(1, 2) = Date
+    WS_LENGTH.cells(2, 1) = "PROJECT"
+    WS_LENGTH.cells(2, 2) = "搭接長度精細計算"
+    WS_LENGTH.Columns(2).ColumnWidth = 16.67
+    WS_LENGTH.cells(3, 1) = "SUBJECT"
+
+
     WS_LENGTH.Cells.Font.NAME = "微軟正黑體"
     WS_LENGTH.Cells.Font.NAME = "Calibri"
 
     WS_LENGTH.Cells.HorizontalAlignment = xlCenter
     WS_LENGTH.Cells.VerticalAlignment = xlCenter
 
-    ' 移動到指定位置
-    WS_LENGTH.Range(WS_LENGTH.Columns(1), WS_LENGTH.Columns(3)).Insert (xlToRight)
-    WS_LENGTH.Range(WS_LENGTH.Rows(1), WS_LENGTH.Rows(4)).Insert (xlDown)
+End Sub
+
+
+Sub ExecutionTime(time0)
+'
+' 計算執行時間
+'
+' @param time0(Double)
+
+    If Timer - time0 < 60 Then
+        MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
+    Else
+        MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
+    End If
+
+End Sub
+
+
+Sub PerformanceVBA(isOn As Boolean)
+'
+'
+'
+' @param
+' @returns
+
+    Application.ScreenUpdating = Not(isOn) ' 37.26
+
+    Application.DisplayStatusBar = Not(isOn) ' 57.29
+
+    Application.Calculation = IIf(isOn, xlCalculationManual, xlCalculationAutomatic) ' 57
+
+    Application.EnableEvents = Not(isOn) ' 58.75
+
+    ' FIXME: 這裡需要再想一下
+    ThisWorkbook.ActiveSheet.DisplayPageBreaks = Not(isOn) 'note this is a sheet-level setting 53.51
 
 End Sub
 
@@ -387,17 +440,34 @@ Sub Main()
 '
 '
 ' @algorithm:
+' 核心演算法：
+' 計算 Cc、Cs => 可得知 Cb 和破壞模式（水平或是垂直）Ktr
+' 得 Ktr => 得修正係數
+' 修正係數 * ldb = ld(延伸長度)
+' ld(延伸長度) * 1.3 = 搭接長度
 '
 '
 '
 ' @test:
 '
+' [0.4] 執行時間： 308.10 sec
+' [1.12] 執行時間： 2.15 sec
+' [1.12] vs [0.4]：結果與之前差 1~2 公分
 '
+' [1.13] 執行時間： 58.12 sec
+' [1.13] 執行時間： 57.45 sec
+' [1.14] 執行時間： 33.35 sec
+' [1.14] 執行時間： 35.46 sec
 '
+    Dim time0 As Double
 
     Dim comboTable()
     Dim widthTable()
     Dim lapTable()
+
+    time0 = Timer
+
+    Call PerformanceVBA(True)
 
     Call GlobalVariable
     comboTable = ReadCombo()
@@ -411,5 +481,12 @@ Sub Main()
     WS_LENGTH.Range(WS_LENGTH.Cells(1, 1), WS_LENGTH.Cells(lapRowUBound, lapColUBound)) = lapTable
 
     Call Format(lapTable, comboTable, widthTable, lapName)
+
+    Call PerformanceVBA(False)
+
+    Call ExecutionTime(time0)
+
+
+
 
 End Sub
