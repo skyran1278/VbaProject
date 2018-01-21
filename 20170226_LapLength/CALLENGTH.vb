@@ -427,7 +427,13 @@ Sub PerformanceVBA(isOn As Boolean)
     Application.EnableEvents = Not(isOn) ' 58.75
 
     ' FIXME: 這裡需要再想一下
-    ThisWorkbook.ActiveSheet.DisplayPageBreaks = Not(isOn) 'note this is a sheet-level setting 53.51
+    ' displayPageBreakState = ActiveSheet.DisplayPageBreaks
+    ' ActiveSheet.DisplayPageBreaks = False
+    ' ActiveSheet.DisplayPageBreaks = IIf(isOn, False, displayPageBreaksState)
+    ' ActiveSheet.DisplayPageBreaks = displayPageBreaksState
+    ' ThisWorkbook.ActiveSheet.DisplayPageBreaks = Not(isOn) 'note this is a sheet-level setting 53.51
+
+    ' .Value2
 
 End Sub
 

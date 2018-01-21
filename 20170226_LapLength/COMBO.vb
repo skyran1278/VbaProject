@@ -267,9 +267,10 @@ Sub Main()
 '
 '
 ' @test:
-' [0.4] 執行時間：154.00 sec
-' [1.11] 執行時間： 0.14 sec
+' [0.4] 執行時間：154.00 sec 120.92 sec
+' [1.11] 執行時間： 0.14 sec 1.53 sec
 ' 多種狀況測試
+' FIXME: 發現錯誤，須修正。
 
     Dim time0 As Double
     Dim inputTable()
