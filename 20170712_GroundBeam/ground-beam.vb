@@ -7,8 +7,8 @@ Dim TOP_DB
 Sub WITH4_9_3()
 
     Dim time0 As Double
-    time0 = timer
-    PerformanceVBA(True)
+    time0 = Timer
+    PerformanceVBA (True)
 
     ' 增加可上下層選擇主筋的功能
     Call AddTopBarSize
@@ -19,8 +19,8 @@ Sub WITH4_9_3()
     Call rebardist_S3
     Call replaceRebar_S5
 
-    PerformanceVBA(False)
-    ExecutionTimeVBA(time0)
+    PerformanceVBA (False)
+    ExecutionTimeVBA (time0)
 
 End Sub
 
@@ -1209,6 +1209,7 @@ Dim sizeadj As String
 Sheets("計算表").Select
 ' FIXME:
 sizeadj = Chr(35) & Cells(2, 6)
+sizeadjTop = Chr(35) & TOP_BAR_SIZE
 
 Sheets("RCAD").Select
 
@@ -1225,7 +1226,7 @@ SearchString = "1"
 For i = 1 To RowNum(1)
     TestPos = InStr(Cells(i, 3), SearchChar)
     If TestPos <> 0 Then
-        Cells(i, 3) = sizeadj
+        Cells(i, 3) = IIf(InStr(Cells(i, 1), "TOP"), sizeadjTop, sizeadj)
     End If
 Next
 For i = 1 To RowNum(1)
@@ -1238,3 +1239,5 @@ Next
 Application.ScreenUpdating = True
 
 End Sub
+
+
