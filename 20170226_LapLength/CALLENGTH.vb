@@ -1,11 +1,8 @@
-' TODO: 明天再來修正細節和測試
-
 Dim WS_LAP As Worksheet
 Dim WS_LENGTH As Worksheet
 
 
-Sub
-()
+Sub GlobalVariable()
 '
 ' 宣告全域變數：Worksheets
 '
@@ -441,7 +438,8 @@ Sub Main()
 ' [0.4] 執行時間： 308.10 sec
 ' [1.12] 執行時間： 58.12 sec
 ' [1.13] 執行時間： 33.35 sec
-' [1.14] 執行時間： 33.35 sec
+' [1.14] 執行時間： 7.98 sec 8.79 sec
+'
 ' [1.12] vs [0.4]：搭接長度與之前差 1~2 公分
 '
 '
@@ -468,6 +466,6 @@ Sub Main()
 
     Call PerformanceVBA(False)
 
-    Call ExecutionTime(time0)
+    Call ExecutionTimeVBA(time0)
 
 End Sub

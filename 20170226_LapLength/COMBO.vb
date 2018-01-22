@@ -240,22 +240,6 @@ Sub Format()
 End Sub
 
 
-Sub ExecutionTime(time0)
-'
-' 計算執行時間
-'
-' @param time0(Double)
-' @returns MsgBox
-
-    If Timer - time0 < 60 Then
-        MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
-    Else
-        MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
-    End If
-
-End Sub
-
-
 Sub Main()
 '
 ' @purpose:
@@ -268,7 +252,8 @@ Sub Main()
 '
 ' @test:
 ' [0.4] 執行時間：154.00 sec 120.92 sec
-' [1.11] 執行時間： 0.14 sec 1.53 sec
+' [1.11] 執行時間： 0.14 sec 0.26 sec
+' [1.14] 執行時間： 0.07 sec 0.09 sec
 ' 多種狀況測試
 ' FIXME: 發現錯誤，須修正。
 
@@ -278,6 +263,7 @@ Sub Main()
     Dim comboTable()
 
     time0 = Timer
+    Call PerformanceVBA(True)
 
     Call GlobalVariable
     Call ClearCombo
@@ -287,6 +273,8 @@ Sub Main()
     comboTable = Combo(inputTable, inputUbound)
     Call PrintCombo(comboTable)
     Call Format
-    Call ExecutionTime(time0)
+
+    Call PerformanceVBA(False)
+    Call ExecutionTimeVBA(time0)
 
 End Sub

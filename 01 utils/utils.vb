@@ -2,7 +2,7 @@
 ' 若想要最佳化效能 還是需要自己寫一個針對的最快
 ' 呼叫 function 比本地直接執行慢 3.5 倍左右，但是通常都還是會拆分 function，所以我認為沒差。
 
-Public Sub ExecutionTime(time0 As Double)
+Public Sub ExecutionTimeVBA(time0 As Double)
 '
 ' 計算執行時間
 '
