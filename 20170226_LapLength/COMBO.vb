@@ -219,7 +219,7 @@ Sub PrintCombo(comboTable)
 '
 ' @param comboTable(Array)
 
-    WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_COMBO, COLUMN_FIRST_INPUT), WS_LAP.Cells(UBound(comboTable), COLUMN_LAST_COMBO)) = comboTable
+    WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_COMBO, COLUMN_FIRST_INPUT), WS_LAP.Cells(UBound(comboTable) + ROW_FIRST_COMBO - 1, COLUMN_LAST_COMBO)) = comboTable
 
 End Sub
 
@@ -255,7 +255,6 @@ Sub Main()
 ' [1.11] 執行時間： 0.14 sec 0.26 sec
 ' [1.14] 執行時間： 0.07 sec 0.09 sec
 ' 多種狀況測試
-' FIXME: 發現錯誤，須修正。
 
     Dim time0 As Double
     Dim inputTable()
