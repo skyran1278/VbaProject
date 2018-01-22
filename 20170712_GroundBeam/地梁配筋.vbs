@@ -1,5 +1,14 @@
 Public NameListForWeb As Object, namecounterForWeb As Integer, GRsize As Double, Vsize As Double, maxspacingM As Double, maxspacingLNR As Double, netprotect As Double ''RC4.9.3用的到
+
+Dim TOP_BAR_SIZE
+Dim TOP_BAR_AREA
+Dim TOP_DB
+
 Sub WITH4_9_3()
+
+    ' 增加可上下層選擇的功能
+    Call AddTopBarSize
+
     Call Cal_S1
     Call Web_0124_S2
     Call RC4_9_3_S4
@@ -8,6 +17,50 @@ Sub WITH4_9_3()
 End Sub
 
 ' ---------------------------------------------------------------------------------------------------------------------
+
+Function AddTopBarSize()
+'
+'
+'
+' @param
+' @returns
+
+    TOP_BAR_SIZE = InputBox("Please enter the size of TOP reinforcements in girder.", "Girder Reinforcement Size", "8")
+
+    If TOP_BAR_SIZE = 3 Then
+        TOP_BAR_AREA = 0.71
+        TOP_DB = 0.95
+    ElseIf TOP_BAR_SIZE = 4 Then
+        TOP_BAR_AREA = 1.27
+        TOP_DB = 1.27
+    ElseIf TOP_BAR_SIZE = 5 Then
+        TOP_BAR_AREA = 1.99
+        TOP_DB = 1.59
+    ElseIf TOP_BAR_SIZE = 6 Then
+        TOP_BAR_AREA = 2.87
+        TOP_DB = 1.91
+    ElseIf TOP_BAR_SIZE = 7 Then
+        TOP_BAR_AREA = 3.87
+        TOP_DB = 2.22
+    ElseIf TOP_BAR_SIZE = 8 Then
+        TOP_BAR_AREA = 5.07
+        TOP_DB = 2.54
+    ElseIf TOP_BAR_SIZE = 9 Then
+        TOP_BAR_AREA = 6.47
+        TOP_DB = 2.87
+    ElseIf TOP_BAR_SIZE = 10 Then
+        TOP_BAR_AREA = 8.14
+        TOP_DB = 3.22
+    ElseIf TOP_BAR_SIZE = 11 Then
+        TOP_BAR_AREA = 10.07
+        TOP_DB = 3.58
+    Else
+        MsgBox ("請確認主筋尺寸")
+    End If
+
+
+End Function
+
 
 Sub Cal_S1()
     Sheets("計算表").Select
@@ -35,7 +88,7 @@ Sub Cal_S1()
 
     cnt = Range("A1").End(xlDown).Row
 
-    GRsize = InputBox("Please enter the size of reinforcements in girder.", "Girder Reinforcement Size", "8")
+    GRsize = InputBox("Please enter the size of BOTTOM reinforcements in girder.", "Girder Reinforcement Size", "8")
     Vsize = InputBox("Please enter the size of reinforcements for shear.", "Shear Reinforcement Size", "4")
     maxspacingM = InputBox("Please enter the maxspacing for shear reinforcements in tie region.", "maxspacing for tie region", "25")
     maxspacingLNR = InputBox("Please enter the maxspacing for shear reinforcements in Conf. region.", "maxspacing for Conf region", "15")
@@ -121,7 +174,7 @@ Sub Cal_S1()
     Next
 
     For i = 2 To cnt
-        Cells(i, "H") = Cells(i, "C") / Cells(i, "G")
+        Cells(i, "H") = Cells(i, "C") / TOP_BAR_AREA
     Next
 
 
@@ -480,8 +533,8 @@ For i = 2 To cnt '先做TOP
         If Cells(i, "J") = "" Then
             Exit Do
         End If
-        netdist(i - 2) = (Cells(i, "Q") - 2 * netprotect - 2 * dv - db) / (Cells(i, "S") - 1)
-        If netdist(i - 2) < DistCoef * db Then '若淨間距過小 則外面少放一根 裡面多放一根
+        netdist(i - 2) = (Cells(i, "Q") - 2 * netprotect - 2 * dv - TOP_DB) / (Cells(i, "S") - 1)
+        If netdist(i - 2) < DistCoef * TOP_DB Then '若淨間距過小 則外面少放一根 裡面多放一根
             Cells(i, "S") = Cells(i, "S") - 1
             If Cells(i, "S") = 0 Then
                 MsgBox ("有鋼筋擺不下喔!")
@@ -629,7 +682,7 @@ Sub RC4_9_3_S4()
     Next
 
     For i = 2 To cnt
-        Cells(i, "H") = Cells(i, "C") / Cells(i, "G")
+        Cells(i, "H") = Cells(i, "C") / TOP_BAR_AREA
     Next
 
 
