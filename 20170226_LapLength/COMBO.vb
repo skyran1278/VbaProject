@@ -80,7 +80,8 @@ Sub ClearCombo()
 '
 
     rowLastCombo = WS_LAP.Cells(WS_LAP.Rows.Count, NAME).End(xlUp).Row
-    If rowLastCombo > ROW_FIRST_COMBO Then
+
+    If rowLastCombo >= ROW_FIRST_COMBO Then
         WS_LAP.Range(WS_LAP.Rows(rowLastCombo), WS_LAP.Rows(ROW_FIRST_COMBO)).ClearContents
     End If
 
@@ -283,3 +284,5 @@ Sub Main()
     Call ExecutionTimeVBA(time0)
 
 End Sub
+
+
