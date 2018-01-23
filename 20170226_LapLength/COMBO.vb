@@ -93,9 +93,9 @@ Sub SortInput()
 ' Input 由小到大排列
 '
 
-    For column = COLUMN_FIRST_INPUT To COLUMN_LAST_INPUT
-        WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_INPUT, column), WS_LAP.Cells(ROW_LAST_INPUT, column)).Sort _
-            Key1:=Range(WS_LAP.Cells(ROW_FIRST_INPUT, column), WS_LAP.Cells(ROW_LAST_INPUT, column)), _
+    For col_ = COLUMN_FIRST_INPUT To COLUMN_LAST_INPUT
+        WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_INPUT, col_), WS_LAP.Cells(ROW_LAST_INPUT, col_)).Sort _
+            Key1:=Range(WS_LAP.Cells(ROW_FIRST_INPUT, col_), WS_LAP.Cells(ROW_LAST_INPUT, col_)), _
             order1:=xlAscending
     Next
 
@@ -112,14 +112,14 @@ Function ReadInput()
     Dim doubleToArray(1 To 1, 1 To 1)
     ReDim inputTable(COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO)
 
-    For column = COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO
-        ROW_LAST_INPUT = WS_LAP.Cells(Rows.Count, column).End(xlUp).Row
-        inputTable(column) = WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_INPUT, column), WS_LAP.Cells(ROW_LAST_INPUT, column))
+    For col_ = COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO
+        ROW_LAST_INPUT = WS_LAP.Cells(Rows.Count, col_).End(xlUp).Row
+        inputTable(col_) = WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_INPUT, col_), WS_LAP.Cells(ROW_LAST_INPUT, col_))
 
         ' 重要：處理回傳 double，重新 asign 一個 array
-        If TypeName(inputTable(column)) = "Double" Then
-            doubleToArray(1, 1) = inputTable(column)
-            inputTable(column) = doubleToArray
+        If TypeName(inputTable(col_)) = "Double" Then
+            doubleToArray(1, 1) = inputTable(col_)
+            inputTable(col_) = doubleToArray
         End If
     Next
 
@@ -138,8 +138,8 @@ Function UboundInput(inputTable)
     Dim inputUbound()
     ReDim inputUbound(COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO)
 
-    For column = COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO
-        inputUbound(column) = UBound(inputTable(column))
+    For col_ = COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO
+        inputUbound(col_) = UBound(inputTable(col_))
     Next
 
     UboundInput = inputUbound
@@ -160,11 +160,11 @@ Function Combo(inputTable, inputUbound)
 
     ' 計算總共有幾個 combo
     comboUbound = 1
-    For column = COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO
-        comboUbound = comboUbound * inputUbound(column)
+    For col_ = COLUMN_FIRST_COMBO To COLUMN_LAST_COMBO
+        comboUbound = comboUbound * inputUbound(col_)
     Next
 
-    ReDim comboTable(1 to comboUbound, COLUMN_FIRST_INPUT To COLUMN_LAST_INPUT)
+    ReDim comboTable(1 To comboUbound, COLUMN_FIRST_INPUT To COLUMN_LAST_INPUT)
 
 
     count_ = 0
@@ -229,13 +229,15 @@ Sub Format()
 ' 格式化表格
 '
 
-    WS_LAP.Cells.HorizontalAlignment = xlCenter
-    WS_LAP.Cells.Font.NAME = "微軟正黑體"
-    WS_LAP.Cells.Font.NAME = "Calibri"
-    WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_INPUT, COLUMN_FIRST_INPUT), WS_LAP.Cells(ROW_LAST_INPUT, COLUMN_LAST_INPUT)).Font.Color = vbRed
+    With WS_LAP
+        .Cells.HorizontalAlignment = xlCenter
+        .Cells.Font.NAME = "微軟正黑體"
+        .Cells.Font.NAME = "Calibri"
+        .Range(.Cells(ROW_FIRST_INPUT, COLUMN_FIRST_INPUT), .Cells(ROW_LAST_INPUT, COLUMN_LAST_INPUT)).Font.Color = vbRed
 
-    WS_LAP.Columns(FY_DB).NumberFormatLocal = """D""0"
-    WS_LAP.Columns(FYT_DB).NumberFormatLocal = """D""0"
+        .Columns(FY_DB).NumberFormatLocal = """D""0"
+        .Columns(FYT_DB).NumberFormatLocal = """D""0"
+    End With
 
 End Sub
 
@@ -265,12 +267,16 @@ Sub Main()
     Call PerformanceVBA(True)
 
     Call GlobalVariable
+
     Call ClearCombo
+
     Call SortInput
     inputTable = ReadInput()
     inputUbound = UboundInput(inputTable)
+
     comboTable = Combo(inputTable, inputUbound)
     Call PrintCombo(comboTable)
+
     Call Format
 
     Call PerformanceVBA(False)
