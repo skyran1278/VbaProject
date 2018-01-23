@@ -1,5 +1,5 @@
-Dim WS_LAP As Worksheet
-Dim WS_LENGTH As Worksheet
+Private WS_LAP As Worksheet
+Private WS_LENGTH As Worksheet
 
 
 Sub GlobalVariable()

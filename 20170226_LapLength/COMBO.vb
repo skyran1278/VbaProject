@@ -1,25 +1,25 @@
-Dim NAME As Integer
-Dim WIDTH As Integer
-Dim COVER As Integer
-Dim Fy As Integer
-Dim Fyt As Integer
-Dim FC As Integer
-Dim FY_DB As Integer
-Dim FYT_DB As Integer
-Dim SPACING As Integer
+Private NAME As Integer
+Private WIDTH As Integer
+Private COVER As Integer
+Private Fy As Integer
+Private Fyt As Integer
+Private FC As Integer
+Private FY_DB As Integer
+Private FYT_DB As Integer
+Private SPACING As Integer
 
-Dim WS_LAP As Worksheet
+Private WS_LAP As Worksheet
 
-Dim ROW_FIRST_INPUT As Integer
-Dim ROW_LAST_INPUT As Integer
+Private ROW_FIRST_INPUT As Integer
+Private ROW_LAST_INPUT As Integer
 
-Dim COLUMN_FIRST_INPUT As Integer
-Dim COLUMN_LAST_INPUT As Integer
+Private COLUMN_FIRST_INPUT As Integer
+Private COLUMN_LAST_INPUT As Integer
 
-Dim ROW_FIRST_COMBO As Integer
+Private ROW_FIRST_COMBO As Integer
 
-Dim COLUMN_FIRST_COMBO As Integer
-Dim COLUMN_LAST_COMBO As Integer
+Private COLUMN_FIRST_COMBO As Integer
+Private COLUMN_LAST_COMBO As Integer
 
 
 Sub GlobalVariable()
