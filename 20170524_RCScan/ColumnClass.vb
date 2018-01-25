@@ -89,11 +89,22 @@ Function GetData(sheet)
     Range(Cells(3, columnStart), Cells(rowUsed - 1, columnUsed)).Sort _
         Key1:=Range(Cells(3, NUMBER), Cells(rowUsed - 1, NUMBER)), Order1:=xlAscending
 
+    ' 裁掉多餘的空白
     For i = rowStart To rowUsed
         Cells(i, REBAR) = Trim(Cells(i, REBAR))
     Next
 
     RAW_DATA = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)).Value
+
+End Function
+
+Function NoData()
+'
+' 如果沒有資料，就回傳 false
+'
+' @returns NoData(Boolean)
+
+    NoData = UBound(RAW_DATA) < 4
 
 End Function
 
@@ -178,7 +189,7 @@ Function Initialize()
 ' MESSAGE
 ' RatioData
 
-    Columns(MESSAGE_POSITION).ClearContents
+    Range(Columns(MESSAGE_POSITION), Columns(17)).ClearContents
     Cells(1, MESSAGE_POSITION) = "Warning Message"
     DATA_ROW_START = 3
 

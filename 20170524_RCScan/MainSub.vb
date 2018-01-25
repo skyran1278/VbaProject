@@ -5,6 +5,11 @@ Sub CheckColumnNorm()
 
     Column.GetData ("柱配筋")
 
+    ' 沒有資料就跳出
+    If Column.NoData Then
+        Exit Sub
+    End If
+
     Column.Initialize
 
     ' 實作規範
@@ -29,6 +34,10 @@ Sub CheckGroundBeamNorm()
     Set GroundBeam = New BeamClass
 
     GroundBeam.GetData ("地梁配筋")
+
+    If GroundBeam.NoData Then
+        Exit Sub
+    End If
 
     GroundBeam.Initialize
 
@@ -56,6 +65,10 @@ Sub CheckBeamNorm()
 
     Beam.GetData ("小梁配筋")
 
+    If Beam.NoData Then
+        Exit Sub
+    End If
+
     Beam.Initialize
 
     ' 實作規範
@@ -79,6 +92,10 @@ Sub CheckGirderNorm()
 
     Girder.GetData ("大梁配筋")
 
+    If Girder.NoData Then
+        Exit Sub
+    End If
+
     Girder.Initialize
 
     ' 實作規範
@@ -87,6 +104,7 @@ Sub CheckGirderNorm()
     Girder.Norm3_8_1
     Girder.Norm4_6_7_9
     Girder.Norm13_5_1AndSafetyRebarNumber
+
     ' FIXME: 目前只有1F，需修正到地下層
     Girder.Norm15_4_2_1
     Girder.Norm15_4_2_2
@@ -100,12 +118,12 @@ Sub CheckGirderNorm()
 
 End Sub
 
-Function ExecutionTime(Time0)
+Function ExecutionTime(time0)
 
-    If Timer - Time0 < 60 Then
-        MsgBox "Execution Time " & Application.Round((Timer - Time0), 2) & " Sec", vbOKOnly
+    If Timer - time0 < 60 Then
+        MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
     Else
-        MsgBox "Execution Time " & Application.Round((Timer - Time0) / 60, 2) & " Min", vbOKOnly
+        MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
     End If
 
 End Function
@@ -127,17 +145,17 @@ Sub Main()
 
 ' * 輸出結果的精確度與檢驗方式
 '
+    Dim time0 As Double
+    Call PerformanceVBA(True)
 
-    Application.ScreenUpdating = False
-    Time0 = Timer
+    time0 = Timer
 
     Call CheckColumnNorm
     Call CheckGirderNorm
     Call CheckBeamNorm
     Call CheckGroundBeamNorm
 
-    Call ExecutionTime(Time0)
-    Application.ScreenUpdating = True
+    Call PerformanceVBA(False)
+    Call ExecutionTimeVBA(time0)
 
 End Sub
-

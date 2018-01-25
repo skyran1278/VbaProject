@@ -89,6 +89,16 @@ Function GetData(sheet)
 
 End Function
 
+Function NoData()
+'
+' 如果沒有資料，就回傳 false
+'
+' @returns NoData(Boolean)
+
+    NoData = UBound(RAW_DATA) < 4
+
+End Function
+
 Function RatioData()
 
     ' 計算鋼筋面積
