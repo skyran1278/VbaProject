@@ -165,3 +165,15 @@ Public Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin As Long = 
 
 End Sub
 
+' Private Sub Workbook_Open()
+'     application.onkey("^+v", TextOnly)
+' End Sub
+
+' Sub TextOnly()
+' '
+' ' 純文字貼上
+' '
+
+'     Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+
+' End Sub
