@@ -28,8 +28,8 @@ Private Sub Workbook_Open()
 
 
     ' 依據不同工作簿有不同值
-    VERSION_URL = "https://raw.githubusercontent.com/skyran1278/VbaProject/master/20170524%20RC%20Scan/version.txt"
-    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170524%20RC%20Scan/RC%20Scan.xlsm"
+    VERSION_URL = "https://raw.githubusercontent.com/skyran1278/VbaProject/master/20170524_RCScan/version.txt"
+    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170524_RCScan/rc-scan.xlsm"
 
 
     sheet = "版本資訊"
