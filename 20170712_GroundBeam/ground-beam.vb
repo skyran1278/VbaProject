@@ -1,4 +1,5 @@
-Public NameListForWeb As Object, namecounterForWeb As Integer, GRsize As Double, Vsize As Double, maxspacingM As Double, maxspacingLNR As Double, netprotect As Double ''RC4.9.3用的到
+Private NameListForWeb As Object, namecounterForWeb As Integer, GRsize As Double, Vsize As Double, maxspacingM As Double, maxspacingLNR As Double, netprotect As Double ''RC4.9.3用的到
+Private WS_INPUT as Worksheet
 
 Dim TOP_BAR_SIZE
 Dim TOP_BAR_AREA
@@ -9,7 +10,7 @@ Sub WITH4_9_3()
     Dim time0 As Double
     time0 = Timer
     PerformanceVBA (True)
-
+    set WS_INPUT = Worksheets("地梁配筋")
     ' 增加可上下層選擇主筋的功能
     Call AddTopBarSize
 
@@ -33,7 +34,7 @@ Function AddTopBarSize()
 ' @param
 ' @returns
 
-    TOP_BAR_SIZE = InputBox("Please enter the size of TOP reinforcements in girder.", "Girder Reinforcement Size", "8")
+    TOP_BAR_SIZE = WS_INPUT.cells(6, 7) ' InputBox("Please enter the size of TOP reinforcements in girder.", "Girder Reinforcement Size", "8")
 
     If TOP_BAR_SIZE = 3 Then
         TOP_BAR_AREA = 0.71
@@ -96,10 +97,10 @@ Sub Cal_S1()
 
     cnt = Range("A1").End(xlDown).Row
 
-    GRsize = InputBox("Please enter the size of BOTTOM reinforcements in girder.", "Girder Reinforcement Size", "8")
-    Vsize = InputBox("Please enter the size of reinforcements for shear.", "Shear Reinforcement Size", "4")
-    maxspacingM = InputBox("Please enter the maxspacing for shear reinforcements in tie region.", "maxspacing for tie region", "25")
-    maxspacingLNR = InputBox("Please enter the maxspacing for shear reinforcements in Conf. region.", "maxspacing for Conf region", "15")
+    GRsize = WS_INPUT.cells(6, 8)'InputBox("Please enter the size of BOTTOM reinforcements in girder.", "Girder Reinforcement Size", "8")
+    Vsize = WS_INPUT.cells(6, 9)'InputBox("Please enter the size of reinforcements for shear.", "Shear Reinforcement Size", "4")
+    maxspacingM = WS_INPUT.cells(6, 11)'InputBox("Please enter the maxspacing for shear reinforcements in tie region.", "maxspacing for tie region", "25")
+    maxspacingLNR = WS_INPUT.cells(6, 12)'InputBox("Please enter the maxspacing for shear reinforcements in Conf. region.", "maxspacing for Conf region", "15")
 
 
     For i = 2 To cnt
@@ -315,7 +316,7 @@ Sub Cal_S1()
     Sheets("計算表").Select
     Dim RowNum(1) As Integer
     Dim FB As String
-    FB = InputBox("Please enter the name of story.", "NAME", "FB")
+    FB = WS_INPUT.cells(6, 4)'InputBox("Please enter the name of story.", "NAME", "FB")
     RowNum(0) = Range("A1").End(xlDown).Row
     For i = 2 To RowNum(0)
          name = Cells(i, 10)
@@ -381,9 +382,9 @@ Dim Wsize As Integer
 Dim WArea As Double
 Dim BS As Double
 Dim FS As Double
-FS = InputBox("Please enter the thickness of FS(cm).", "FS", "75")
-BS = InputBox("Please enter the thickness of BS(cm).", "BS", "15")
-Wsize = InputBox("Please enter the size of reinforcements for web.", "Web Reinforcement Size", "4")
+FS = WS_INPUT.cells(6, 13)'InputBox("Please enter the thickness of FS(cm).", "FS", "75")
+BS = WS_INPUT.cells(6, 14)'InputBox("Please enter the thickness of BS(cm).", "BS", "15")
+Wsize = WS_INPUT.cells(6, 10)'InputBox("Please enter the size of reinforcements for web.", "Web Reinforcement Size", "4")
     If Wsize = 3 Then
     WArea = 0.71
     ElseIf Wsize = 4 Then
@@ -485,8 +486,8 @@ Sheets("計算表").Select
 Dim cnt As Integer
 cnt = Range("A1").End(xlDown).Row
 Dim DistCoef As Double
-    DistCoef = InputBox("請輸入主筋中心距。若為2db則輸入2，2.5db則輸入2.5。", "主筋間距限制", "2.5")
-    netprotect = InputBox("請輸入淨保護層厚度(cm)。", "淨保護層厚度", "7.5")
+    DistCoef = WS_INPUT.cells(6, 6)'InputBox("請輸入主筋中心距。若為2db則輸入2，2.5db則輸入2.5。", "主筋間距限制", "2.5")
+    netprotect = WS_INPUT.cells(6, 5)'InputBox("請輸入淨保護層厚度(cm)。", "淨保護層厚度", "7.5")
 Dim dv As Double
 For i = 2 To cnt
     If Cells(i, "L") = "#3" Then
@@ -991,7 +992,7 @@ Sub replaceRebar_S5()
 
     Sheets("計算表").Select
     RowNum(0) = Range("A1").End(xlDown).Row
-    web = InputBox("Please enter the default value of web. Format: (number of bars)#(bar size) EX:3#4 or 4#5", "web", "3#4") '新增程式碼 腰筋
+    web = WS_INPUT.cells(6, 15)'InputBox("Please enter the default value of web. Format: (number of bars)#(bar size) EX:3#4 or 4#5", "web", "3#4") '新增程式碼 腰筋
 
 
     '以下將梁名輸入nameList
