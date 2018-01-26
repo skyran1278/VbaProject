@@ -131,6 +131,10 @@ Function CalLength(comboTable, widthTable)
 
         ldb_ = 0.28 * fy_ / Sqr(fc_) * fydb_
 
+        ' 由於詳細計算法沒有收入簡算法可以修正的條件，所以到最後會比簡算法長，所以用簡算法來訂定上限。
+        ldSimpleTop = 0.19 * fy_ * psitTop_ * psie_ * lamda_ / Sqr(fc_) * fydb_
+        ldSimpleBot = 0.15 * fy_ * psitBot_ * psie_ * lamda_ / Sqr(fc_) * fydb_
+
         ' 修正因數
         If fydb_ >= 2 Then
             psis_ = 1
@@ -171,8 +175,8 @@ Function CalLength(comboTable, widthTable)
                 ldBot_ = botFactor * ldb_
                 ldTop_ = topFactor * ldb_
 
-                lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + (rowWidth - 1) * 2 + rowTitleSpace + 1, fyNum + colTitleSpace - 1) = Fix(1.3 * ldTop_) + 1
-                lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + (rowWidth - 1) * 2 + rowTitleSpace + 2, fyNum + colTitleSpace - 1) = Fix(1.3 * ldBot_) + 1
+                lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + (rowWidth - 1) * 2 + rowTitleSpace + 1, fyNum + colTitleSpace - 1) = Fix(1.3 * Min(ldTop_, ldSimpleTop)) + 1
+                lapTable((rowCombo - 1) * (widthUBound * 2 + rowTableSpace + rowTitleSpace) + (rowWidth - 1) * 2 + rowTitleSpace + 2, fyNum + colTitleSpace - 1) = Fix(1.3 * Min(ldBot_, ldSimpleBot)) + 1
 
             Next fyNum
 
