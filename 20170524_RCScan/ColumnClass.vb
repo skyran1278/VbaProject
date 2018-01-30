@@ -1,34 +1,34 @@
-Dim MESSAGE(), GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, REBAR_NUMBER()
+Private MESSAGE(), GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, FIRST_STORY, REBAR_NUMBER()
 
 ' RAW_DATA 資料命名
-Const STORY = 1
-Const NUMBER = 2
-Const WIDTH_X = 3
-Const WIDTH_Y = 4
-Const REBAR = 5
-Const REBAR_X = 6
-Const REBAR_Y = 7
-Const BOUND_AREA = 8
-Const NON_BOUND_AREA = 9
-Const TIE_X = 10
-Const TIE_Y = 11
+Private Const STORY = 1
+Private Const NUMBER = 2
+Private Const WIDTH_X = 3
+Private Const WIDTH_Y = 4
+Private Const REBAR = 5
+Private Const REBAR_X = 6
+Private Const REBAR_Y = 7
+Private Const BOUND_AREA = 8
+Private Const NON_BOUND_AREA = 9
+Private Const TIE_X = 10
+Private Const TIE_Y = 11
 
 ' GENERAL_INFORMATION 資料命名
-Const FY = 2
-Const FYT = 3
-Const FC_BEAM = 4
-Const FC_COLUMN = 5
-Const SDL = 6
-Const LL = 7
-Const SPAN_X = 8
-Const SPAN_Y = 9
+Private Const FY = 2
+Private Const FYT = 3
+Private Const FC_BEAM = 4
+Private Const FC_COLUMN = 5
+Private Const SDL = 6
+Private Const LL = 7
+Private Const SPAN_X = 8
+Private Const SPAN_Y = 9
 
 ' REBAR_SIZE 資料命名
-Const DIAMETER = 7
-Const CROSS_AREA = 10
+Private Const DIAMETER = 7
+Private Const CROSS_AREA = 10
 
 ' 輸出資料位置
-Const MESSAGE_POSITION = 12
+Private Const MESSAGE_POSITION = 12
 
 ' -------------------------------------------------------------------------
 ' -------------------------------------------------------------------------
@@ -40,7 +40,6 @@ Private Sub Class_Initialize()
 
     Call GetGeneralInformation
     Call GetRebarSize
-
 
 End Sub
 
@@ -54,7 +53,9 @@ Function GetGeneralInformation()
     rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
     columnUsed = 12
 
-    GENERAL_INFORMATION = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)).Value
+    GENERAL_INFORMATION = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed))
+
+    FIRST_STORY = Application.Match("1F", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
 
 End Function
 
@@ -68,7 +69,7 @@ Function GetRebarSize()
     rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
     columnUsed = 10
 
-    REBAR_SIZE = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)).Value
+    REBAR_SIZE = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed))
 
 End Function
 
@@ -97,7 +98,7 @@ Function GetData(sheet)
         Cells(i, REBAR) = Trim(Cells(i, REBAR))
     Next
 
-    RAW_DATA = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)).Value
+    RAW_DATA = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed))
 
 End Function
 
@@ -132,7 +133,7 @@ Function Initialize()
 ' MESSAGE
 ' RatioData
 
-    Range(Columns(MESSAGE_POSITION), Columns(17)).ClearContents
+    Range(Columns(MESSAGE_POSITION), Columns(MESSAGE_POSITION + 1)).ClearContents
     Cells(1, MESSAGE_POSITION) = "Warning Message"
     DATA_ROW_START = 3
 
@@ -141,7 +142,7 @@ Function Initialize()
 
     ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
 
-    RATIO_DATA = RAW_DATA
+    ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) to UBound(RAW_DATA, 2))
 
     Call RatioData
 
@@ -152,7 +153,6 @@ Function RatioData()
 '
 ' 主筋比、箍筋與繫筋面積
 '
-    ' TODO:
     ' 樓層數字化，用以比較上下樓層。
     For i = DATA_ROW_START To DATA_ROW_END
         RATIO_DATA(i, STORY) = Application.Match(RAW_DATA(i, STORY), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
@@ -203,11 +203,10 @@ Function PrintRebarRatio()
 
     rowStart = 1
     rowUsed = UBound(RATIO_DATA)
-    columnStart = 13
+    column = 13
     columnUsed = 17
 
-    Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = RATIO_DATA
-    Range(Columns(13), Columns(16)).Hidden = True
+    Range(Cells(rowStart, column), Cells(rowUsed, column)) = application.Index(RATIO_DATA, 0, REBAR)
 
     Call FontSetting
 
@@ -222,10 +221,10 @@ Function PrintRebarRatioInAnotherSheets()
     columnStart = 1
     columnUsed = 5
 
-    Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = RATIO_DATA
+    Range(Cells(rowStart, columnUsed), Cells(rowUsed, columnUsed)) = application.Index(RATIO_DATA, 0, REBAR)
 
     ' 由於修改 RATIO_DATA 樓層部分，改以數字呈現，所以用 RAW_DATA 再覆蓋一次。
-    Range(Cells(rowStart, columnStart), Cells(rowUsed, columnStart)) = RAW_DATA
+    Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed - 1)) = RAW_DATA
 
     Call FontSetting
 
@@ -257,16 +256,14 @@ End Sub
 ' 以下為實作規範
 ' -------------------------------------------------------------------------
 
-' FIXME: Function Name
 Function Norm15_5_4_100()
 ' 增加繫筋的規範  中央繫筋 >= RoundUp((主筋支數 - 1) / 2) - 1
 ' 已修正 X Y 向隔根勾錯誤
 
-    firstStory = Application.Match("1F", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
 
     For i = DATA_ROW_START To DATA_ROW_END
 
-        If RATIO_DATA(i, STORY) < firstStory Then
+        If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
             If RAW_DATA(i, TIE_Y) < Int((RAW_DATA(i, REBAR_X) - 1) / 2) - 1 Then
                 Call WarningMessage("【0407】Y 向繫筋未符合隔根勾", i)
@@ -329,11 +326,9 @@ Function Norm15_5_4_1()
 ' 矩形閉合箍筋及繫筋之總斷面積 Ash 不得小於式(15-3)及式(15-4)之值。
 ' 增加為 X Y 向檢驗，並修正 X Y 向相反問題
 
-    firstStory = Application.Match("1F", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
-
     For i = DATA_ROW_START To DATA_ROW_END
 
-        If RATIO_DATA(i, STORY) < firstStory Then
+        If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
             fcColumn = Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_COLUMN, False)
             fytColumn = Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FYT, False)
@@ -378,10 +373,9 @@ Function EconomicTopStoryRebar()
 '
 
     topStory = Application.Match("RF", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
-    firstStory = Application.Match("1F", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
 
     ' 頂樓區 1/4
-    checkStoryNumber = Fix((firstStory - topStory + 1) / 4) + topStory
+    checkStoryNumber = Fix((FIRST_STORY - topStory + 1) / 4) + topStory
 
     For i = DATA_ROW_START To DATA_ROW_END
         If RATIO_DATA(i, STORY) >= topStory And RATIO_DATA(i, STORY) <= checkStoryNumber And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then

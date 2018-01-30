@@ -105,7 +105,6 @@ Sub CheckGirderNorm()
     Girder.Norm4_6_7_9
     Girder.Norm13_5_1AndSafetyRebarNumber
 
-    ' FIXME: 目前只有1F，需修正到地下層
     Girder.Norm15_4_2_1
     Girder.Norm15_4_2_2
     Girder.SafetyStirrupSpace

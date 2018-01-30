@@ -1,38 +1,38 @@
-Dim MESSAGE(), Worksheet, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, REBAR_NUMBER()
+Private MESSAGE(), Worksheet, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, FIRST_STORY, REBAR_NUMBER()
 
 ' RAW_DATA 資料命名
-Const STORY = 1
-Const NUMBER = 2
-Const BW = 3
-Const H = 4
-Const D = 5
-Const REBAR_LEFT = 6
-Const REBAR_MIDDLE = 7
-Const REBAR_RIGHT = 8
-Const SIDE_REBAR = 9
-Const STIRRUP_LEFT = 10
-Const STIRRUP_MIDDLE = 11
-Const STIRRUP_RIGHT = 12
-Const BEAM_LENGTH = 13
-Const SUPPORT = 14
-Const LOCATION = 15
+Private Const STORY = 1
+Private Const NUMBER = 2
+Private Const BW = 3
+Private Const H = 4
+Private Const D = 5
+Private Const REBAR_LEFT = 6
+Private Const REBAR_MIDDLE = 7
+Private Const REBAR_RIGHT = 8
+Private Const SIDE_REBAR = 9
+Private Const STIRRUP_LEFT = 10
+Private Const STIRRUP_MIDDLE = 11
+Private Const STIRRUP_RIGHT = 12
+Private Const BEAM_LENGTH = 13
+Private Const SUPPORT = 14
+Private Const LOCATION = 15
 
 ' GENERAL_INFORMATION 資料命名
-Const FY = 2
-Const FYT = 3
-Const FC_BEAM = 4
-Const FC_COLUMN = 5
-Const SDL = 6
-Const LL = 7
-Const SPAN_X = 8
-Const SPAN_Y = 9
+Private Const FY = 2
+Private Const FYT = 3
+Private Const FC_BEAM = 4
+Private Const FC_COLUMN = 5
+Private Const SDL = 6
+Private Const LL = 7
+Private Const SPAN_X = 8
+Private Const SPAN_Y = 9
 
 ' REBAR_SIZE 資料命名
-Const DIAMETER = 7
-Const CROSS_AREA = 10
+Private Const DIAMETER = 7
+Private Const CROSS_AREA = 10
 
 ' 輸出資料位置
-Const MESSAGE_POSITION = 16
+Private Const MESSAGE_POSITION = 16
 
 ' -------------------------------------------------------------------------
 ' -------------------------------------------------------------------------
@@ -45,8 +45,8 @@ Private Sub Class_Initialize()
     Call GetGeneralInformation
     Call GetRebarSize
 
-
 End Sub
+
 
 Function GetGeneralInformation()
 
@@ -57,9 +57,12 @@ Function GetGeneralInformation()
     rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
     columnUsed = 12
 
-    GENERAL_INFORMATION = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)).Value
+    GENERAL_INFORMATION = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed))
+
+    FIRST_STORY = Application.Match("1F", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
 
 End Function
+
 
 Function GetRebarSize()
 
@@ -70,9 +73,10 @@ Function GetRebarSize()
     rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
     columnUsed = 10
 
-    REBAR_SIZE = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)).Value
+    REBAR_SIZE = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed))
 
 End Function
+
 
 Function GetData(sheet)
 
@@ -85,9 +89,10 @@ Function GetData(sheet)
     rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
     columnUsed = 16
 
-    RAW_DATA = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)).Value
+    RAW_DATA = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed))
 
 End Function
+
 
 Function NoData()
 '
@@ -99,12 +104,39 @@ Function NoData()
 
 End Function
 
+
+Function Initialize()
+'
+' DATA_ROW_START
+' DATA_ROW_END
+' MESSAGE
+' RatioData
+
+    Columns(MESSAGE_POSITION).ClearContents
+    Cells(1, MESSAGE_POSITION) = "Warning Message"
+    DATA_ROW_START = 3
+    DATA_ROW_END = UBound(RAW_DATA)
+
+    ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
+
+    ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) to UBound(RAW_DATA, 2))
+
+    Call RatioData
+
+End Function
+
+
 Function RatioData()
+
+    ' 樓層數字化，用以比較上下樓層。
+    For i = DATA_ROW_START To DATA_ROW_END
+        RATIO_DATA(i, STORY) = Application.Match(RAW_DATA(i, STORY), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    Next
 
     ' 計算鋼筋面積
     For i = DATA_ROW_START To DATA_ROW_END
         For j = REBAR_LEFT To REBAR_RIGHT
-            RATIO_DATA(i, j) = CalRebarArea(RATIO_DATA(i, j))
+            RATIO_DATA(i, j) = CalRebarArea(RAW_DATA(i, j))
         Next
     Next
 
@@ -118,13 +150,13 @@ Function RatioData()
     ' 計算箍筋面積
     For i = DATA_ROW_START To DATA_ROW_END Step 4
         For j = STIRRUP_LEFT To STIRRUP_RIGHT
-            RATIO_DATA(i, j) = CalStirrupArea(RATIO_DATA(i, j))
+            RATIO_DATA(i, j) = CalStirrupArea(RAW_DATA(i, j))
         Next
     Next
 
     ' 計算側筋面積
     For i = DATA_ROW_START To DATA_ROW_END Step 4
-        RATIO_DATA(i, SIDE_REBAR) = CalSideRebarArea(RATIO_DATA(i, SIDE_REBAR))
+        RATIO_DATA(i, SIDE_REBAR) = CalSideRebarArea(RAW_DATA(i, SIDE_REBAR))
     Next
 
     ' 計算有效深度
@@ -136,7 +168,7 @@ Function RatioData()
         tie = Application.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
 
         ' 雙排筋
-        RATIO_DATA(i, D) = RATIO_DATA(i, H) - (4 + tie + Db * 1.5)
+        RATIO_DATA(i, D) = RAW_DATA(i, H) - (4 + tie + Db * 1.5)
 
     Next
 
@@ -206,25 +238,6 @@ Function CalSideRebarArea(REBAR)
 
 End Function
 
-Function Initialize()
-'
-' DATA_ROW_START
-' DATA_ROW_END
-' MESSAGE
-' RatioData
-
-    Columns(MESSAGE_POSITION).ClearContents
-    Cells(1, MESSAGE_POSITION) = "Warning Message"
-    DATA_ROW_START = 3
-    DATA_ROW_END = UBound(RAW_DATA)
-
-    ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
-
-    RATIO_DATA = RAW_DATA
-
-    Call RatioData
-
-End Function
 
 Function GetSheetMessage(Girder, Beam, GroundBeam)
 
@@ -320,7 +333,7 @@ Function SafetyRebarRatioAndSpace()
 
         For j = REBAR_LEFT To REBAR_RIGHT
 
-            code = 0.003 * RATIO_DATA(i, BW) * RATIO_DATA(i, D)
+            code = 0.003 * RAW_DATA(i, BW) * RATIO_DATA(i, D)
 
             ' 請確認是否符合 上層筋下限 規定
             If RATIO_DATA(i, j) < code Then
@@ -461,9 +474,9 @@ Function SafetyLoad()
         maxRatio = Application.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
 
         ' 轉換 kgw-m => tf-m: * 100000
-        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, SDL, False)) + 1.6 * Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, LL, False)) * band ^ 2 * 100000
+        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, SDL, False)) + 1.6 * Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, LL, False)) * band ^ 2 * 100000
 
-        capacity = maxRatio * Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RATIO_DATA(i, D)
+        capacity = maxRatio * Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RATIO_DATA(i, D)
 
         If 0.6 * mn > capacity Then
             Call WarningMessage("【0312】垂直載重配筋可能不足", i)
@@ -482,7 +495,7 @@ Function SafetyRebarRatioForSB()
 
         For j = REBAR_LEFT To REBAR_RIGHT
 
-            limit = 0.025 * RATIO_DATA(i, BW) * RATIO_DATA(i, D)
+            limit = 0.025 * RAW_DATA(i, BW) * RATIO_DATA(i, D)
 
             If RATIO_DATA(i, j) > limit Then
                 Call WarningMessage("【0310】請確認上層筋上限，是否在 2.5% 以下", i)
@@ -507,7 +520,7 @@ Function SafetyRebarRatioForGB()
 
         For j = REBAR_LEFT To REBAR_RIGHT
 
-            limit = 0.02 * RATIO_DATA(i, BW) * RATIO_DATA(i, D)
+            limit = 0.02 * RAW_DATA(i, BW) * RATIO_DATA(i, D)
 
             If RATIO_DATA(i, j) > limit Then
                 Call WarningMessage("【0108】請確認上層筋上限，是否在 2% 以下", i)
@@ -531,8 +544,8 @@ Function Norm3_6()
 
 For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-    code3_3 = 0.8 * Sqr(Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) / Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RATIO_DATA(i, BW) * RATIO_DATA(i, D)
-    code3_4 = 14 / Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RATIO_DATA(i, BW) * RATIO_DATA(i, D)
+    code3_3 = 0.8 * Sqr(Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) / Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RAW_DATA(i, BW) * RATIO_DATA(i, D)
+    code3_4 = 14 / Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RAW_DATA(i, BW) * RATIO_DATA(i, D)
 
     If RATIO_DATA(i, REBAR_LEFT) < code3_3 Or RATIO_DATA(i, REBAR_LEFT) < code3_4 Then
         Call WarningMessage(GetSheetMessage("【0201】請確認左端上層筋下限，是否符合規範 3.6 規定", "【0301】請確認左端上層筋下限，是否符合規範 3.6 規定", "請確認左端上層筋下限，是否符合規範 3.6 規定"), i)
@@ -564,58 +577,66 @@ End Function
 
 Function Norm15_4_2_1()
 '
-' 耐震規範 (1F大梁不適用)：
+' 耐震規範 (1F以下大梁不適用)：
 ' 拉力鋼筋比不得大於 (fc' + 100) / (4 * fy)，亦不得大於 0.025。
 
-For i = DATA_ROW_START To DATA_ROW_END Step 4
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-    code15_4_2_1 = Application.Min((Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False) + 100) / (4 * Application.VLookup(RATIO_DATA(i, STORY), GENERAL_INFORMATION, FY, False)) * RATIO_DATA(i, BW) * RATIO_DATA(i, D), 0.025 * RATIO_DATA(i, BW) * RATIO_DATA(i, D))
+        If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
-    If RATIO_DATA(i, REBAR_LEFT) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("【0212】請確認左端上層筋上限，是否符合規範 15.4.2.1 規定", i)
-    End If
+            code15_4_2_1 = Application.Min((Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False) + 100) / (4 * Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False)) * RAW_DATA(i, BW) * RATIO_DATA(i, D), 0.025 * RAW_DATA(i, BW) * RATIO_DATA(i, D))
 
-    If RATIO_DATA(i, REBAR_MIDDLE) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("【0213】請確認中央上層筋上限，是否符合規範 15.4.2.1 規定", i)
-    End If
+            If RATIO_DATA(i, REBAR_LEFT) > code15_4_2_1 Then
+                Call WarningMessage("【0212】請確認左端上層筋上限，是否符合規範 15.4.2.1 規定", i)
+            End If
 
-    If RATIO_DATA(i, REBAR_RIGHT) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("【0214】請確認右端上層筋上限，是否符合規範 15.4.2.1 規定", i)
-    End If
+            If RATIO_DATA(i, REBAR_MIDDLE) > code15_4_2_1 Then
+                Call WarningMessage("【0213】請確認中央上層筋上限，是否符合規範 15.4.2.1 規定", i)
+            End If
 
-    If RATIO_DATA(i + 2, REBAR_LEFT) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("【0215】請確認左端下層筋上限，是否符合規範 15.4.2.1 規定", i)
-    End If
+            If RATIO_DATA(i, REBAR_RIGHT) > code15_4_2_1 Then
+                Call WarningMessage("【0214】請確認右端上層筋上限，是否符合規範 15.4.2.1 規定", i)
+            End If
 
-    If RATIO_DATA(i + 2, REBAR_MIDDLE) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("【0216】請確認中央下層筋上限，是否符合規範 15.4.2.1 規定", i)
-    End If
+            If RATIO_DATA(i + 2, REBAR_LEFT) > code15_4_2_1 Then
+                Call WarningMessage("【0215】請確認左端下層筋上限，是否符合規範 15.4.2.1 規定", i)
+            End If
 
-    If RATIO_DATA(i + 2, REBAR_RIGHT) > code15_4_2_1 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("【0217】請確認右端下層筋上限，是否符合規範 15.4.2.1 規定", i)
-    End If
+            If RATIO_DATA(i + 2, REBAR_MIDDLE) > code15_4_2_1 Then
+                Call WarningMessage("【0216】請確認中央下層筋上限，是否符合規範 15.4.2.1 規定", i)
+            End If
 
-Next
+            If RATIO_DATA(i + 2, REBAR_RIGHT) > code15_4_2_1 Then
+                Call WarningMessage("【0217】請確認右端下層筋上限，是否符合規範 15.4.2.1 規定", i)
+            End If
+
+        End If
+
+    Next
 
 End Function
 
 Function Norm15_4_2_2()
 '
-' 耐震規範 (1F大梁不適用)：
+' 耐震規範 (1F以下大梁不適用)：
 ' 規範內容：撓曲構材在梁柱交接面及其它可能產生塑鉸位置，其壓力鋼筋量不得小於拉力鋼筋量之半。在沿構材長度上任何斷面，不論正彎矩鋼筋量或負彎矩鋼筋量均不得低於兩端柱面處所具最大負彎矩鋼筋量之 1/4。
 ' 實作方法：最小鋼筋量需大於最大鋼筋量 1/4
 
-For i = DATA_ROW_START To DATA_ROW_END Step 4
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-    maxRatio = Application.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
-    minRatio = Application.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
-    code15_4_2_2 = minRatio < maxRatio / 4
+        If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
-    If code15_4_2_2 And RATIO_DATA(i, STORY) <> "1F" Then
-        Call WarningMessage("【0218】請確認耐震最小量鋼筋，是否符合規範 15.4.2.2 規定", i)
-    End If
+            maxRatio = Application.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
+            minRatio = Application.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
+            code15_4_2_2 = minRatio < maxRatio / 4
 
-Next
+            If code15_4_2_2 And RAW_DATA(i, STORY) <> "1F" Then
+                Call WarningMessage("【0218】請確認耐震最小量鋼筋，是否符合規範 15.4.2.2 規定", i)
+            End If
+
+        End If
+
+    Next
 
 End Function
 
