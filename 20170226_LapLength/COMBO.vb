@@ -117,7 +117,7 @@ Function ReadInput()
         ROW_LAST_INPUT = WS_LAP.Cells(Rows.Count, col_).End(xlUp).Row
         inputTable(col_) = WS_LAP.Range(WS_LAP.Cells(ROW_FIRST_INPUT, col_), WS_LAP.Cells(ROW_LAST_INPUT, col_))
 
-        ' 重要：處理回傳 double，重新 asign 一個 array
+        ' 重要：處理回傳 double，重新 assign 一個 array
         If TypeName(inputTable(col_)) = "Double" Then
             doubleToArray(1, 1) = inputTable(col_)
             inputTable(col_) = doubleToArray

@@ -46,7 +46,8 @@ Function ReadWidth()
 '
 ' @returns widthTable(Array)
 
-    Dim widthTable()
+    Dim widthTable
+    Dim doubleToArray(1 To 1, 1 To 1)
 
     rowFirstInput = 5
     rowLastInput = 19
@@ -56,6 +57,12 @@ Function ReadWidth()
     rowLastInput = WS_LAP.Cells(WS_LAP.Rows.Count, columnWidth_).End(xlUp).Row
 
     widthTable = WS_LAP.Range(WS_LAP.Cells(rowFirstInput, columnWidth_), WS_LAP.Cells(rowLastInput, columnWidth_))
+
+    ' 重要：處理回傳 double，重新 assign 一個 array
+    If TypeName(widthTable) = "Double" Then
+        doubleToArray(1, 1) = widthTable
+        widthTable = doubleToArray
+    End If
 
     ReadWidth = widthTable
 
