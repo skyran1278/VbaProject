@@ -119,7 +119,7 @@ Function Initialize()
 
     ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
 
-    ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) to UBound(RAW_DATA, 2))
+    ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) To UBound(RAW_DATA, 2))
 
     Call RatioData
 

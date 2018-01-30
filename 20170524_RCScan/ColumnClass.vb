@@ -142,7 +142,7 @@ Function Initialize()
 
     ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
 
-    ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) to UBound(RAW_DATA, 2))
+    ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) To UBound(RAW_DATA, 2))
 
     Call RatioData
 
@@ -203,10 +203,9 @@ Function PrintRebarRatio()
 
     rowStart = 1
     rowUsed = UBound(RATIO_DATA)
-    column = 13
-    columnUsed = 17
+    columnUsed = 13
 
-    Range(Cells(rowStart, column), Cells(rowUsed, column)) = application.Index(RATIO_DATA, 0, REBAR)
+    Range(Cells(rowStart, columnUsed), Cells(rowUsed, columnUsed)) = Application.Index(RATIO_DATA, 0, REBAR)
 
     Call FontSetting
 
@@ -221,7 +220,7 @@ Function PrintRebarRatioInAnotherSheets()
     columnStart = 1
     columnUsed = 5
 
-    Range(Cells(rowStart, columnUsed), Cells(rowUsed, columnUsed)) = application.Index(RATIO_DATA, 0, REBAR)
+    Range(Cells(rowStart, columnUsed), Cells(rowUsed, columnUsed)) = Application.Index(RATIO_DATA, 0, REBAR)
 
     ' 由於修改 RATIO_DATA 樓層部分，改以數字呈現，所以用 RAW_DATA 再覆蓋一次。
     Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed - 1)) = RAW_DATA
