@@ -191,9 +191,9 @@ Public Sub SpeedTest()
     Dim GI As Worksheet
     Set GI = Worksheets("柱配筋")
 
-    For index = 1 To 100
+    For Index = 1 To 100
         GENERAL_INFORMATION = GI.Range(GI.Cells(1, 1), GI.Cells(1000, 1000))
-    Next index
+    Next Index
 
     Call ExecutionTimeVBA(time0)
 
@@ -201,9 +201,9 @@ Public Sub SpeedTest()
 
     Worksheets("柱配筋").Activate
 
-    For index = 1 To 100
+    For Index = 1 To 100
         GENERAL_INFORMATION = Range(Cells(1, 1), Cells(1000, 1000))
-    Next index
+    Next Index
 
     Call ExecutionTimeVBA(time0)
 
