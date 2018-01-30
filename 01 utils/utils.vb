@@ -188,6 +188,23 @@ Public Sub SpeedTest()
 
     time0 = Timer
 
+    Dim GI As Worksheet
+    Set GI = Worksheets("柱配筋")
+
+    For index = 1 To 100
+        GENERAL_INFORMATION = GI.Range(GI.Cells(1, 1), GI.Cells(1000, 1000))
+    Next index
+
+    Call ExecutionTimeVBA(time0)
+
+    time0 = Timer
+
+    Worksheets("柱配筋").Activate
+
+    For index = 1 To 100
+        GENERAL_INFORMATION = Range(Cells(1, 1), Cells(1000, 1000))
+    Next index
+
     Call ExecutionTimeVBA(time0)
 
 End Sub

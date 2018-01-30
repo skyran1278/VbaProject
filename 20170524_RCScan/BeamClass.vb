@@ -1,4 +1,4 @@
-Private MESSAGE(), Worksheet, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, FIRST_STORY, REBAR_NUMBER()
+Private MESSAGE(), Worksheet, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, FIRST_STORY, REBAR_NUMBER(), WS As Worksheet
 
 ' RAW_DATA 資料命名
 Private Const STORY = 1
@@ -50,14 +50,15 @@ End Sub
 
 Function GetGeneralInformation()
 
-    Worksheets("General Information").Activate
+    Dim generalInformation As Worksheet
+    Set generalInformation = Worksheets("General Information")
 
     rowStart = 1
     columnStart = 4
-    rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
+    rowUsed = generalInformation.Cells(Rows.Count, 5).End(xlUp).Row
     columnUsed = 12
 
-    GENERAL_INFORMATION = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed))
+    GENERAL_INFORMATION = generalInformation.Range(generalInformation.Cells(rowStart, columnStart), generalInformation.Cells(rowUsed, columnUsed))
 
     FIRST_STORY = Application.Match("1F", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
 
@@ -66,14 +67,15 @@ End Function
 
 Function GetRebarSize()
 
-    Worksheets("Rebar Size").Activate
+    Dim rebarSize As Worksheet
+    Set rebarSize = Worksheets("Rebar Size")
 
     rowStart = 1
     columnStart = 1
-    rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
+    rowUsed = rebarSize.Cells(Rows.Count, 5).End(xlUp).Row
     columnUsed = 10
 
-    REBAR_SIZE = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed))
+    REBAR_SIZE = rebarSize.Range(rebarSize.Cells(rowStart, columnStart), rebarSize.Cells(rowUsed, columnUsed))
 
 End Function
 
@@ -82,14 +84,14 @@ Function GetData(sheet)
 
     Worksheet = sheet
 
-    Worksheets(Worksheet).Activate
+    Set WS = Worksheets(Worksheet)
 
     rowStart = 1
     columnStart = 1
-    rowUsed = Cells(Rows.Count, 5).End(xlUp).Row
+    rowUsed = WS.Cells(Rows.Count, 5).End(xlUp).Row
     columnUsed = 16
 
-    RAW_DATA = Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed))
+    RAW_DATA = WS.Range(WS.Cells(rowStart, columnStart), WS.Cells(rowUsed, columnUsed))
 
 End Function
 
@@ -112,8 +114,8 @@ Function Initialize()
 ' MESSAGE
 ' RatioData
 
-    Columns(MESSAGE_POSITION).ClearContents
-    Cells(1, MESSAGE_POSITION) = "Warning Message"
+    WS.Columns(MESSAGE_POSITION).ClearContents
+    WS.Cells(1, MESSAGE_POSITION) = "Warning Message"
     DATA_ROW_START = 3
     DATA_ROW_END = UBound(RAW_DATA)
 
@@ -259,26 +261,20 @@ End Function
 
 Function PrintMessage()
 
-    ' Worksheets("大梁配筋").Activate
-
     ' 不知道為什麼不能直接給值，只好用 for loop
     ' Range(Cells(DATA_ROW_START, MESSAGE_POSITION), Cells(DATA_ROW_END, MESSAGE_POSITION)) = MESSAGE()
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        With Range(Cells(i, MESSAGE_POSITION), Cells(i + 3, MESSAGE_POSITION))
-            .HorizontalAlignment = xlCenter
-            .VerticalAlignment = xlCenter
-            .Merge
-        End With
+        WS.Range(WS.Cells(i, MESSAGE_POSITION), WS.Cells(i + 3, MESSAGE_POSITION)).Merge
 
         If MESSAGE(i) = "" Then
             MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
-            Cells(i, MESSAGE_POSITION).Style = "好"
+            WS.Cells(i, MESSAGE_POSITION).Style = "好"
         Else
-            Cells(i, MESSAGE_POSITION).Style = "壞"
+            WS.Cells(i, MESSAGE_POSITION).Style = "壞"
             MESSAGE(i) = Left(MESSAGE(i), Len(MESSAGE(i)) - 1)
         End If
-        Cells(i, MESSAGE_POSITION) = MESSAGE(i)
+        WS.Cells(i, MESSAGE_POSITION) = MESSAGE(i)
 
     Next
 
@@ -288,7 +284,9 @@ End Function
 
 Function PrintRebarRatio()
 
-    Worksheets("鋼筋號數比").Activate
+    Dim rebarRatio As Worksheet
+    Set rebarRatio = Worksheets("鋼筋號數比")
+
     rowStart = 3
     rowUsed = UBound(REBAR_NUMBER) + 1
 
@@ -302,14 +300,16 @@ Function PrintRebarRatio()
 
     columnUsed = columnStart + 2
 
-    Range(Cells(rowStart, columnStart), Cells(rowUsed, columnUsed)) = REBAR_NUMBER
+    rebarRatio.Range(rebarRatio.Cells(rowStart, columnStart), rebarRatio.Cells(rowUsed, columnUsed)) = REBAR_NUMBER
 
 End Function
 
 Function FontSetting()
 
-    Cells.Font.Name = "微軟正黑體"
-    Cells.Font.Name = "Calibri"
+    WS.Cells.Font.Name = "微軟正黑體"
+    WS.Cells.Font.Name = "Calibri"
+    WS.Cells.HorizontalAlignment = xlCenter
+    WS.Cells.VerticalAlignment = xlCenter
 
 End Function
 
