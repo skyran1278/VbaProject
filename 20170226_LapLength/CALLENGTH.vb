@@ -438,14 +438,14 @@ Sub PrintInput(lapTable)
     columnFirstInput = 6
     columnLastInput = 14
 
-    rowFirstInput = 5
+    rowFirstValue = 4
     rowLastCombo = WS_LAP.Cells(WS_LAP.Rows.Count, name_).End(xlUp).Row
 
     lapColUBound = UBound(lapTable, 2)
 
-    inputTable = WS_LAP.Range(WS_LAP.Cells(rowFirstInput, columnFirstInput), WS_LAP.Cells(rowLastCombo, columnLastInput))
+    inputTable = WS_LAP.Range(WS_LAP.Cells(rowFirstValue, columnFirstInput), WS_LAP.Cells(rowLastCombo, columnLastInput))
 
-    WS_LENGTH.Range(WS_LENGTH.Cells(rowFirstInput, colSpace + lapColUBound), WS_LENGTH.Cells(rowLastCombo, colSpace + lapColUBound + columnLastInput - columnFirstInput)) = inputTable
+    WS_LENGTH.Range(WS_LENGTH.Cells(rowFirstValue, colSpace + lapColUBound), WS_LENGTH.Cells(rowLastCombo, colSpace + lapColUBound + columnLastInput - columnFirstInput)) = inputTable
 
 End Sub
 
