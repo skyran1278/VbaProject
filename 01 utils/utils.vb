@@ -2,6 +2,7 @@
 ' 若想要最佳化效能 還是需要自己寫一個針對的最快
 ' 呼叫 function 比本地直接執行慢 3.5 倍左右，但是通常都還是會拆分 function，所以我認為沒差。
 
+
 Public Sub ExecutionTimeVBA(time0 As Double)
 '
 ' 計算執行時間
@@ -177,3 +178,54 @@ End Sub
 '     Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
 
 ' End Sub
+
+Public Sub SpeedTest()
+'
+' 測試速度用
+'
+
+    Dim time0 As Double
+
+
+
+    topStory = Application.Match("RF", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    firstStory = Application.Match("1F", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+
+    ' 頂樓區 1/4
+    checkStoryNumber = Fix((firstStory - topStory + 1) / 4) + topStory - 1
+
+
+    For i = DATA_ROW_START To DATA_ROW_END
+        If RATIO_DATA(i, STORY) >= topStory And checkStoryNumber >= RATIO_DATA(i, STORY) And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
+                Call WarningMessage("【0405】請確認高樓區鋼筋比，是否超過 1.2 %", i)
+        End If
+    Next
+
+    time0 = Timer
+
+    numStory = UBound(GENERAL_INFORMATION)
+    For i = 1 To numStory
+        If GENERAL_INFORMATION(numStory - i + 1, STORY) = "1F" Then
+            firstStory = i
+        ElseIf GENERAL_INFORMATION(numStory - i + 1, STORY) = "RF" Then
+            topStory = i
+        End If
+    Next
+
+    checkStoryNumber = Fix((topStory - firstStory + 1) / 4)
+
+    For i = DATA_ROW_START To DATA_ROW_END
+        For j = topStory - checkStoryNumber + 1 To topStory
+
+            If RAW_DATA(i, STORY) = GENERAL_INFORMATION(numStory - j + 1, STORY) And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
+                    Call WarningMessage("【0405】請確認高樓區鋼筋比，是否超過 1.2 %", i)
+            End If
+
+        Next
+
+    Next
+
+
+    Call ExecutionTimeVBA(time0)
+
+End Sub
