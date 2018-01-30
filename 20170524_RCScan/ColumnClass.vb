@@ -137,7 +137,6 @@ Function Initialize()
 
     WS.Range(WS.Columns(MESSAGE_POSITION), WS.Columns(MESSAGE_POSITION + 1)).ClearContents
     WS.Cells(1, MESSAGE_POSITION) = "Warning Message"
-    WS.Cells(1, MESSAGE_POSITION + 1) = "鋼筋比"
     DATA_ROW_START = 3
 
     ' 之所以 - 1 ，是為了還原取到的位置，讓之後不要超出索引範圍準備
@@ -209,6 +208,7 @@ Function PrintRebarRatio()
     columnUsed = 13
 
     WS.Range(WS.Cells(rowStart, columnUsed), WS.Cells(rowUsed, columnUsed)) = Application.Index(RATIO_DATA, 0, REBAR)
+    WS.Cells(1, MESSAGE_POSITION + 1) = "鋼筋比"
 
     Call FontSetting
 

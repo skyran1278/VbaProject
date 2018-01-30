@@ -117,6 +117,9 @@ Function CalLength(comboTable, widthTable)
     ' 最多的支數 + colTitleSpace - 1，之所以 - 1 是因為從 2 開始，會少一欄。
     colLapTableUBound = Fix((Application.Max(widthTable) - Application.Min(Application.Index(comboTable, 0, colCover)) * 2 - Application.Min(Application.Index(comboTable, 0, colFytdb)) / 10 * 2 - Application.Min(Application.Index(comboTable, 0, colFydb)) / 10) / (2 * Application.Min(Application.Index(comboTable, 0, colFydb)) / 10)) + 1 + colTitleSpace - 1
 
+    ' 修正支數太少會造成 error 的情況
+    colLapTableUBound = Application.Max(colLapTableUBound, colSpacing + colTitleSpace)
+
     ReDim lapTable(1 To (widthUBound * 2 + 6) * comboUBound - 2, 1 To colLapTableUBound)
 
     For rowCombo = 1 To comboUBound
