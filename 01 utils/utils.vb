@@ -223,5 +223,6 @@ Public Sub SpeedTest()
     Next Index
 
     Call ExecutionTimeVBA(time0)
+    Debug.Print Timer - time1
 
 End Sub
