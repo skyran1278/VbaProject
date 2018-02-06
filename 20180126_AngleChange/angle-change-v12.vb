@@ -1,62 +1,103 @@
-Private WS_ANGLE, WS_DATA
+Private WS_LINE, WS_DISP, WS_RESULT
 
 
-Function GetAngle()
+Function GetLines()
 '
 ' 取得 safe beam length 資料
 '
-' @returns GetAngle(Array)
+' @returns GetLines(Array)
 
-    With WS_ANGLE
+    With WS_LINE
         rowStart = 4
-        columnStart = 1
-        rowUsed = .Cells(Rows.Count, 1).End(xlUp).Row
-        columnUsed = 5
+        colStart = 1
+        rowEnd = .Cells(Rows.Count, 1).End(xlUp).Row
+        colEnd = 6
 
-        GetAngle = .Range(.Cells(rowStart, columnStart), .Cells(rowUsed, columnUsed))
+        GetLines = .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd))
     End With
 
 End Function
 
 
-Function GetData()
+Function GetDisp()
 '
 ' 取得 safe node displacement 資料
 '
-' @returns GetData(Array)
+' @returns GetDisp(Array)
 
-    With WS_DATA
-        rowStart = 2
-        columnStart = 1
-        rowUsed = .Cells(Rows.Count, 1).End(xlUp).Row
-        columnUsed = 5
+    With WS_DISP
+        rowStart = 4
+        colStart = 1
+        rowEnd = .Cells(Rows.Count, 2).End(xlUp).Row
+        colEnd = 7
 
-        GetData = .Range(.Cells(rowStart, columnStart), .Cells(rowUsed, columnUsed))
+        GetDisp = .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd))
     End With
 
 End Function
 
 
-Function CombinedData(dataArray)
+Function CombinedDispArray(dispArray)
 '
+' 合併 point 和 ASD，使之成為唯一ID。
+' 取出 Z displacement
 '
-'
-' @param
-' @returns
+' @param dispArray(Array)
+' @returns CombinedDispArray(Array)
 
     Dim combinedArray()
 
-    dataLBound = LBound(dataArray, 1)
-    dataUBound = UBound(dataArray, 1)
+    dispLBound = LBound(dispArray, 1)
+    dispUBound = UBound(dispArray, 1)
 
-    ReDim combinedArray(dataLBound To dataUBound, 1 To 2)
+    ReDim combinedArray(dispLBound To dispUBound, 1 To 2)
 
-    For dataRow = dataLBound To dataUBound
-        combinedArray(dataRow, 1) = dataArray(dataRow, 1) & dataArray(dataRow, 4)
-        combinedArray(dataRow, 2) = dataArray(dataRow, 5)
-    Next dataRow
+    id = 2
+    ASD = 3
+    zDisp = 7
 
-    CombinedData = combinedArray
+    For dispRow = dispLBound To dispUBound
+        combinedArray(dispRow, 1) = dispArray(dispRow, id) & dispArray(dispRow, ASD)
+        combinedArray(dispRow, 2) = dispArray(dispRow, zDisp)
+    Next dispRow
+
+    CombinedDispArray = combinedArray
+
+End Function
+
+
+Function PrintResult(result)
+'
+' 列出結果
+'
+' @param result(Array)
+
+    rowStart = 6
+    rowEnd = rowStart + UBound(result) - 1
+    colStart = 8
+    colEnd = colStart + 108 - 1
+
+    With WS_RESULT
+        .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = result
+    End With
+
+End Function
+
+
+Function PrintMaxResult(maxResult)
+'
+' 列出最大值結果
+'
+' @param maxResult(Array)
+
+    rowStart = 6
+    rowEnd = rowStart + 36 - 1
+    colStart = 5
+    colEnd = colStart
+
+    With WS_RESULT
+        .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = maxResult
+    End With
 
 End Function
 
@@ -75,55 +116,54 @@ Sub Main()
 '
 '
 '
-    Dim result()
     Dim time0 As Double
+    Dim result()
+    Dim maxResult(1 To 36)
+
+    time0 = Timer
 
     Call PerformanceVBA(True)
 
     Set dictionary = CreateObject("Scripting.Dictionary")
 
-    time0 = Timer
+    Set WS_LINE = Worksheets("Lines-v12")
+    Set WS_DISP = Worksheets("Nodal Displacements-v12")
+    Set WS_RESULT = Worksheets("Result-v12")
 
-    Set WS_ANGLE = Worksheets("Angle")
-    Set WS_DATA = Worksheets("Data")
+    lineArray = GetLines()
+    dispArray = GetDisp()
+    idAndLoadArray = CombinedDispArray(dispArray)
 
-    angleArray = GetAngle()
-    dataArray = GetData()
-    idAndLoadArray = CombinedData(dataArray)
-
-    angleLBound = LBound(angleArray, 1)
-    angleUBound = UBound(angleArray, 1)
+    lineLBound = LBound(lineArray, 1)
+    lineUBound = UBound(lineArray, 1)
     idAndLoadLBound = LBound(idAndLoadArray, 1)
     idAndLoadUBound = UBound(idAndLoadArray, 1)
 
-    ReDim result(angleLBound To angleUBound, 1 To 108)
+    ReDim result(lineLBound To lineUBound, 1 To 108)
 
-    For dataRow = idAndLoadLBound To idAndLoadUBound
-        If Not dictionary.Exists(idAndLoadArray(dataRow, 1)) Then
-            Call dictionary.Add(idAndLoadArray(dataRow, 1), idAndLoadArray(dataRow, 2))
+    For idAndLoadRow = idAndLoadLBound To idAndLoadUBound
+        If Not dictionary.Exists(idAndLoadArray(idAndLoadRow, 1)) Then
+            Call dictionary.Add(idAndLoadArray(idAndLoadRow, 1), idAndLoadArray(idAndLoadRow, 2))
         End If
-    Next dataRow
+    Next idAndLoadRow
 
     For ASD = 1 To 36
         loadCombo = "ASD" & Format(ASD, "00")
         id1 = (ASD - 1) * 3 + 1
         id2 = (ASD - 1) * 3 + 2
         angleChange = (ASD - 1) * 3 + 3
-        For angleRow = angleLBound To angleUBound
-            id1AndLoad = angleArray(angleRow, 2) & loadCombo
-            id2AndLoad = angleArray(angleRow, 3) & loadCombo
-            result(angleRow, id1) = dictionary.Item(id1AndLoad)
-            result(angleRow, id2) = dictionary.Item(id2AndLoad)
-            result(angleRow, angleChange) = Abs(result(angleRow, id1) - result(angleRow, id2)) / angleArray(angleRow, 5)
-        Next angleRow
+        For lineRow = lineLBound To lineUBound
+            id1AndLoad = lineArray(lineRow, 2) & loadCombo
+            id2AndLoad = lineArray(lineRow, 3) & loadCombo
+            result(lineRow, id1) = dictionary.Item(id1AndLoad)
+            result(lineRow, id2) = dictionary.Item(id2AndLoad)
+            result(lineRow, angleChange) = Abs(result(lineRow, id1) - result(lineRow, id2)) / lineArray(lineRow, 5)
+        Next lineRow
+        maxResult(ASD) = Max(Application.Index(result, 0, angleChange))
     Next ASD
 
-    rowStart = 4
-    rowEnd = rowStart + angleUBound - 1
-    colStart = 6
-    colEnd = colStart + 108 - 1
-
-    WS_ANGLE.Range(WS_ANGLE.Cells(rowStart, colStart), WS_ANGLE.Cells(rowEnd, colEnd)) = result
+    Call PrintResult(result)
+    Call PrintMaxResult(maxResult)
 
     Call FontSetting
     Call PerformanceVBA(False)
