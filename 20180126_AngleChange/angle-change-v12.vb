@@ -66,6 +66,29 @@ Function CombinedDispArray(dispArray)
 End Function
 
 
+Function SetDictionary(idAndLoadArray)
+'
+' 取代內建的 VLookup，效能大幅提升。
+'
+' @param idAndLoadArray(Array)
+' @returns SetDictionary(Object)
+
+    Set dictionary = CreateObject("Scripting.Dictionary")
+
+    idAndLoadLBound = LBound(idAndLoadArray, 1)
+    idAndLoadUBound = UBound(idAndLoadArray, 1)
+
+    For idAndLoadRow = idAndLoadLBound To idAndLoadUBound
+        If Not dictionary.Exists(idAndLoadArray(idAndLoadRow, 1)) Then
+            Call dictionary.Add(idAndLoadArray(idAndLoadRow, 1), idAndLoadArray(idAndLoadRow, 2))
+        End If
+    Next idAndLoadRow
+
+    Set SetDictionary = dictionary
+
+End Function
+
+
 Function Max(values)
    Dim maxValue, Value
 
@@ -138,28 +161,18 @@ Sub Main()
 
     Call PerformanceVBA(True)
 
-    Set dictionary = CreateObject("Scripting.Dictionary")
-
     Set WS_LINE = Worksheets("Lines-v12")
     Set WS_DISP = Worksheets("Nodal Displacements-v12")
     Set WS_RESULT = Worksheets("Result-v12")
 
     lineArray = GetLines()
     dispArray = GetDisp()
-    idAndLoadArray = CombinedDispArray(dispArray)
+    Set dictionary = SetDictionary(CombinedDispArray(dispArray))
 
     lineLBound = LBound(lineArray, 1)
     lineUBound = UBound(lineArray, 1)
-    idAndLoadLBound = LBound(idAndLoadArray, 1)
-    idAndLoadUBound = UBound(idAndLoadArray, 1)
 
     ReDim result(lineLBound To lineUBound, 1 To 108)
-
-    For idAndLoadRow = idAndLoadLBound To idAndLoadUBound
-        If Not dictionary.Exists(idAndLoadArray(idAndLoadRow, 1)) Then
-            Call dictionary.Add(idAndLoadArray(idAndLoadRow, 1), idAndLoadArray(idAndLoadRow, 2))
-        End If
-    Next idAndLoadRow
 
     lineID1 = 2
     lineID2 = 3
@@ -188,4 +201,3 @@ Sub Main()
     Call ExecutionTimeVBA(time0)
 
 End Sub
-
