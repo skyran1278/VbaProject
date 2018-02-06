@@ -52,12 +52,12 @@ Function CombinedDispArray(dispArray)
 
     ReDim combinedArray(dispLBound To dispUBound, 1 To 2)
 
-    id = 2
+    ID = 2
     ASD = 3
     zDisp = 7
 
     For dispRow = dispLBound To dispUBound
-        combinedArray(dispRow, 1) = dispArray(dispRow, id) & dispArray(dispRow, ASD)
+        combinedArray(dispRow, 1) = dispArray(dispRow, ID) & dispArray(dispRow, ASD)
         combinedArray(dispRow, 2) = dispArray(dispRow, zDisp)
     Next dispRow
 
@@ -66,10 +66,10 @@ Function CombinedDispArray(dispArray)
 End Function
 
 
-Function Max(ParamArray values As Variant) As Variant
-   Dim maxValue, Value As Variant
+Function Max(values)
+   Dim maxValue, Value
 
-   maxValue = values(0)
+   maxValue = values(1, 1)
 
    For Each Value In values
        If Value > maxValue Then maxValue = Value
@@ -132,7 +132,7 @@ Sub Main()
 '
     Dim time0 As Double
     Dim result()
-    Dim maxResult(1 To 36)
+    Dim maxResult(1 To 36, 1 To 1)
 
     time0 = Timer
 
@@ -177,14 +177,15 @@ Sub Main()
             result(lineRow, id2) = dictionary.Item(id2AndLoad)
             result(lineRow, angleChange) = Abs(result(lineRow, id1) - result(lineRow, id2)) / lineArray(lineRow, lineLength)
         Next lineRow
-        maxResult(ASD) = Max(Application.Index(result, 0, angleChange))
+        maxResult(ASD, 1) = 1 / Max(Application.Index(result, 0, angleChange))
     Next ASD
 
     Call PrintResult(result)
     Call PrintMaxResult(maxResult)
 
-    Call FontSetting
+    Call FontSetting(WS_RESULT)
     Call PerformanceVBA(False)
     Call ExecutionTimeVBA(time0)
 
 End Sub
+

@@ -3,19 +3,17 @@
 ' 呼叫 function 比本地直接執行慢 3.5 倍左右，但是通常都還是會拆分 function，所以我認為沒差。
 
 
-Public Function FontSetting()
+Public Function FontSetting(ws)
 '
 ' 美化格式
 '
 
-    For Each ws In Worksheets
-        With ws
-            .Cells.Font.Name = "微軟正黑體"
-            .Cells.Font.Name = "Calibri"
-            .Cells.HorizontalAlignment = xlCenter
-            .Cells.VerticalAlignment = xlCenter
-        End With
-    Next
+    With ws
+        .Cells.Font.Name = "微軟正黑體"
+        .Cells.Font.Name = "Calibri"
+        .Cells.HorizontalAlignment = xlCenter
+        .Cells.VerticalAlignment = xlCenter
+    End With
 
 End Function
 
@@ -205,22 +203,26 @@ Public Sub SpeedTest()
 
     time0 = Timer
 
-    Dim GI As Worksheet
-    Set GI = Worksheets("柱配筋")
+    For Each ws In Worksheets
+        With ws
+            .Cells.Font.Name = "微軟正黑體"
+            .Cells.Font.Name = "Calibri"
+            .Cells.HorizontalAlignment = xlCenter
+            .Cells.VerticalAlignment = xlCenter
+        End With
+    Next
 
-    For Index = 1 To 100
-        GENERAL_INFORMATION = GI.Range(GI.Cells(1, 1), GI.Cells(1000, 1000))
-    Next Index
 
     Call ExecutionTimeVBA(time0)
 
     time0 = Timer
 
-    Worksheets("柱配筋").Activate
-
-    For Index = 1 To 100
-        GENERAL_INFORMATION = Range(Cells(1, 1), Cells(1000, 1000))
-    Next Index
+    With Worksheets("Result-v12")
+        .Cells.Font.Name = "微軟正黑體"
+        .Cells.Font.Name = "Calibri"
+        .Cells.HorizontalAlignment = xlCenter
+        .Cells.VerticalAlignment = xlCenter
+    End With
 
     Call ExecutionTimeVBA(time0)
     Debug.Print Timer - time1

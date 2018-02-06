@@ -130,7 +130,7 @@ Sub Main()
 
     WS_LINE.Range(WS_LINE.Cells(rowStart, colStart), WS_LINE.Cells(rowEnd, colEnd)) = result
 
-    Call FontSetting
+    Call FontSetting(WS_LINE)
     Call PerformanceVBA(False)
     Call ExecutionTimeVBA(time0)
 
