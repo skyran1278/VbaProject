@@ -66,6 +66,20 @@ Function CombinedDispArray(dispArray)
 End Function
 
 
+Function Max(ParamArray values As Variant) As Variant
+   Dim maxValue, Value As Variant
+
+   maxValue = values(0)
+
+   For Each Value In values
+       If Value > maxValue Then maxValue = Value
+   Next
+
+   Max = maxValue
+
+End Function
+
+
 Function PrintResult(result)
 '
 ' 列出結果
@@ -147,17 +161,21 @@ Sub Main()
         End If
     Next idAndLoadRow
 
+    lineID1 = 2
+    lineID2 = 3
+    lineLength = 6
+
     For ASD = 1 To 36
         loadCombo = "ASD" & Format(ASD, "00")
         id1 = (ASD - 1) * 3 + 1
         id2 = (ASD - 1) * 3 + 2
         angleChange = (ASD - 1) * 3 + 3
         For lineRow = lineLBound To lineUBound
-            id1AndLoad = lineArray(lineRow, 2) & loadCombo
-            id2AndLoad = lineArray(lineRow, 3) & loadCombo
+            id1AndLoad = lineArray(lineRow, lineID1) & loadCombo
+            id2AndLoad = lineArray(lineRow, lineID2) & loadCombo
             result(lineRow, id1) = dictionary.Item(id1AndLoad)
             result(lineRow, id2) = dictionary.Item(id2AndLoad)
-            result(lineRow, angleChange) = Abs(result(lineRow, id1) - result(lineRow, id2)) / lineArray(lineRow, 5)
+            result(lineRow, angleChange) = Abs(result(lineRow, id1) - result(lineRow, id2)) / lineArray(lineRow, lineLength)
         Next lineRow
         maxResult(ASD) = Max(Application.Index(result, 0, angleChange))
     Next ASD
