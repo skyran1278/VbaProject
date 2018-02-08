@@ -212,28 +212,8 @@ Public Sub SpeedTest()
 
     time0 = Timer
 
-    For Each ws In Worksheets
-        With ws
-            .Cells.Font.Name = "微軟正黑體"
-            .Cells.Font.Name = "Calibri"
-            .Cells.HorizontalAlignment = xlCenter
-            .Cells.VerticalAlignment = xlCenter
-        End With
-    Next
-
-
-    Call ExecutionTimeVBA(time0)
-
     time0 = Timer
 
-    With Worksheets("Result-v12")
-        .Cells.Font.Name = "微軟正黑體"
-        .Cells.Font.Name = "Calibri"
-        .Cells.HorizontalAlignment = xlCenter
-        .Cells.VerticalAlignment = xlCenter
-    End With
-
-    Call ExecutionTimeVBA(time0)
-    Debug.Print Timer - time1
+    Debug.Print Timer - time0
 
 End Sub

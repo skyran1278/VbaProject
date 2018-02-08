@@ -1,4 +1,4 @@
-Private WS_BEAM
+Private WS_BEAM, WS_RESULT
 
 
 Function ClearBeforeOutputData()
@@ -6,14 +6,7 @@ Function ClearBeforeOutputData()
 ' 清空前次輸出的資料
 '
 
-    With WS_BEAM
-        rowStart = 3
-        colStart = 17
-        rowEnd = .Cells(Rows.Count, 17).End(xlUp).Row
-        colEnd = 38
-
-        .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)).Clear
-    End With
+    WS_RESULT.Cells.Clear
 
 End Function
 
@@ -54,7 +47,7 @@ Function CalRebarNumber(arrRawData)
     ' 一二排相加
     For i = rowStart To rowEnd Step 2
         For j = colStart To colEnd
-            arrRebarNumber(i, j - 5) = Split(arrRawData(i, j), "-") + Split(arrRawData(i + 1, j), "-")
+            arrRebarNumber(i, j - 5) = Int(Split(arrRawData(i, j), "-")(0)) + Int(Split(arrRawData(i + 1, j), "-")(0))
         Next
     Next
 
@@ -69,14 +62,31 @@ Function PrintResult(arrResult)
 '
 ' @param arrResult(Array)
 
-    With WS_BEAM
+    With WS_RESULT
         rowStart = 3
-        colStart = 18
+        colStart = 3
         rowEnd = rowStart + UBound(arrResult, 1) - 1
-        colEnd = colStart + UBound(arrResult, 2) - 1
+        colEnd = colStart + UBound(arrResult, 2)
 
         .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
     End With
+
+    ' 格式化條件
+    For i = rowStart To rowEnd
+        With WS_RESULT.Range(WS_RESULT.Cells(i, colStart), WS_RESULT.Cells(i, colEnd))
+            .FormatConditions.AddColorScale ColorScaleType:=3
+            .FormatConditions(.FormatConditions.Count).SetFirstPriority
+            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+
+            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+            .FormatConditions(1).ColorScaleCriteria(2).Value = 50
+            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+
+            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+        End With
+    Next i
 
 End Function
 
@@ -104,6 +114,7 @@ Sub Main()
     Call PerformanceVBA(True)
 
     Set WS_BEAM = Worksheets("小梁配筋")
+    Set WS_RESULT = Worksheets("最佳化斷筋點")
 
     Call ClearBeforeOutputData
     arrBeam = GetRawData()
@@ -124,17 +135,17 @@ Sub Main()
         arrMultiBreakRebar(i, 0) = "上層"
 
         ' 左端到中央
-        rate = 1
+        ratio = 1
         For j = 1 To 11
-            arrMultiBreakRebar(i, j) = Fix(rate * arrRebarNumber(i, varleft)) + 1
-            rate = rate - 0.1
+            arrMultiBreakRebar(i, j) = RoundUp(Max(ratio * arrRebarNumber(i, varleft), 2))
+            ratio = ratio - 0.1
         Next j
 
         ' 中央到右端
-        rate = 0.1
+        ratio = 0.1
         For j = 12 To 21
-            arrMultiBreakRebar(i, j) = Fix(rate * arrRebarNumber(i, varright)) + 1
-            rate = rate + 0.1
+            arrMultiBreakRebar(i, j) = RoundUp(Max(ratio * arrRebarNumber(i, varright), 2))
+            ratio = ratio + 0.1
         Next j
 
     Next i
@@ -144,24 +155,24 @@ Sub Main()
         arrMultiBreakRebar(i, 0) = "下層"
 
         ' 左端到中央
-        rate = 1
+        ratio = 1
         For j = 1 To 11
-            arrMultiBreakRebar(i, j) = Fix(Max(rate * arrRebarNumber(i, varleft), (1 - rate ^ 2) * arrRebarNumber(i, varmid))) + 1
-            rate = rate - 0.1
+            arrMultiBreakRebar(i, j) = RoundUp(Max(ratio * arrRebarNumber(i, varleft), (1 - ratio ^ 2) * arrRebarNumber(i, varmid), 2))
+            ratio = ratio - 0.1
         Next j
 
         ' 中央到右端
-        rate = 0.1
+        ratio = 0.1
         For j = 12 To 21
-            arrMultiBreakRebar(i, j) = Fix(Max(rate * arrRebarNumber(i, varright), (1 - rate ^ 2) * arrRebarNumber(i, varmid))) + 1
-            rate = rate + 0.1
+            arrMultiBreakRebar(i, j) = RoundUp(Max(ratio * arrRebarNumber(i, varright), (1 - ratio ^ 2) * arrRebarNumber(i, varmid), 2))
+            ratio = ratio + 0.1
         Next j
 
     Next i
 
     Call PrintResult(arrMultiBreakRebar)
 
-    Call FontSetting(WS_BEAM)
+    Call FontSetting(WS_RESULT)
     Call PerformanceVBA(False)
     Call ExecutionTimeVBA(time0)
 
