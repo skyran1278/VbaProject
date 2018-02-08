@@ -18,6 +18,15 @@ Public Function FontSetting(ws)
 End Function
 
 
+Public Function RoundUp(ByVal Value As Double)
+    If Int(Value) = Value Then
+        RoundUp = Value
+    Else
+        RoundUp = Int(Value) + 1
+    End If
+End Function
+
+
 Public Sub ExecutionTimeVBA(time0 As Double)
 '
 ' 計算執行時間
