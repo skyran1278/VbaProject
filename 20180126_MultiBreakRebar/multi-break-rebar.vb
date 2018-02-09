@@ -1,4 +1,7 @@
-Private WS_BEAM, WS_RESULT
+Private WS_BEAM As Worksheet
+Private WS_RESULT As Worksheet
+Private OBJ_REBAR_DB As Object
+Private ARR_INFO
 
 
 Function ClearBeforeOutputData()
@@ -25,6 +28,65 @@ Function GetRawData()
 
         GetRawData = .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd))
     End With
+
+End Function
+
+
+Function GetGeneralInformation()
+'
+' 取得 General Information 資料
+'
+' @returns GetGeneralInformation(Array)
+
+    Set ws = Worksheets("General Information")
+
+    With ws
+        rowStart = 2
+        colStart = 4
+        rowEnd = .Cells(Rows.Count, colStart).End(xlUp).Row
+        colEnd = 12
+
+        GetGeneralInformation = .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd))
+    End With
+
+End Function
+
+
+Function GetRebarDb()
+'
+' 取得 rebar size area 資料
+' 取代內建的 VLookup，效能大幅提升。
+'
+' @returns GetRebarDb(Object)
+
+    Dim wsRebarSize As Worksheet
+    Set wsRebarSize = Worksheets("Rebar Size")
+
+    ' 取資料
+    With wsRebarSize
+        rowStart = 1
+        colStart = 1
+        rowEnd = .Cells(Rows.Count, 1).End(xlUp).Row
+        colEnd = 10
+
+        arrRebar = .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd))
+    End With
+
+    ' 設定 Dictionary
+    Set objDictionary = CreateObject("Scripting.Dictionary")
+
+    lbRebar = LBound(arrRebar, 1)
+    ubRebar = UBound(arrRebar, 1)
+    varSize = 1
+    varDb = 7
+
+    For rowRebar = lbRebar To ubRebar
+        If Not objDictionary.Exists(arrRebar(rowRebar, varSize)) Then
+            Call objDictionary.Add(arrRebar(rowRebar, varSize), arrRebar(rowRebar, varDb))
+        End If
+    Next rowRebar
+
+    Set GetRebarDb = objDictionary
 
 End Function
 
@@ -113,10 +175,15 @@ Sub Main()
 
     Call PerformanceVBA(True)
 
+    ' Golobal Var
     Set WS_BEAM = Worksheets("小梁配筋")
     Set WS_RESULT = Worksheets("最佳化斷筋點")
+    Set OBJ_REBAR_DB = GetRebarDb()
+    ARR_INFO = GetGeneralInformation()
 
     Call ClearBeforeOutputData
+
+
     arrBeam = GetRawData()
     arrRebarNumber = CalRebarNumber(arrBeam)
 
