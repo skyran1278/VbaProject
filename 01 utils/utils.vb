@@ -209,11 +209,31 @@ Public Sub SpeedTest()
 '
 
     Dim time0 As Double
+    Dim a As Double
 
     time0 = Timer
+    Set app = Application.WorksheetFunction
+    For i = 1 To 1000000
+        a = app.Max(11, 2, 3)
+    Next i
+    Debug.Print Timer - time0
 
     time0 = Timer
+    For i = 1 To 1000000
+        a = Application.WorksheetFunction.Max(11, 2, 3)
+    Next i
+    Debug.Print Timer - time0
 
+    time0 = Timer
+    For i = 1 To 1000000
+        a = Application.Max(11, 2, 3)
+    Next i
+    Debug.Print Timer - time0
+
+    time0 = Timer
+    For i = 1 To 1000000
+        a = Max(11, 2, 3)
+    Next i
     Debug.Print Timer - time0
 
 End Sub
