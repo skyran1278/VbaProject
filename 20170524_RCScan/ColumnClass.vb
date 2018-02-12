@@ -1,4 +1,14 @@
-Private MESSAGE(), GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, FIRST_STORY, REBAR_NUMBER(), WS As Worksheet
+Private MESSAGE()
+Private GENERAL_INFORMATION
+Private REBAR_SIZE
+Private RAW_DATA
+Private RATIO_DATA
+Private DATA_ROW_END
+Private DATA_ROW_START
+Private FIRST_STORY
+Private TOP_STORY
+Private REBAR_NUMBER()
+Private WS As Worksheet
 
 ' RAW_DATA 資料命名
 Private Const STORY = 1
@@ -56,7 +66,8 @@ Function GetGeneralInformation()
 
     GENERAL_INFORMATION = generalInformation.Range(generalInformation.Cells(rowStart, columnStart), generalInformation.Cells(rowUsed, columnUsed))
 
-    FIRST_STORY = Application.Match("1F", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    TOP_STORY = Application.Match(Cells(12, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    FIRST_STORY = Application.Match(Cells(13, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
 
 End Function
 
@@ -375,17 +386,14 @@ End Function
 
 Function EconomicTopStoryRebar()
 '
-' 一定要有 1F 和 RF
 ' 頂樓區鋼筋比不大於 1.2 %
 '
 
-    topStory = Application.Match("RF", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
-
     ' 頂樓區 1/4
-    checkStoryNumber = Fix((FIRST_STORY - topStory + 1) / 4) + topStory
+    checkStoryNumber = Fix((FIRST_STORY - TOP_STORY + 1) / 4) + TOP_STORY
 
     For i = DATA_ROW_START To DATA_ROW_END
-        If RATIO_DATA(i, STORY) >= topStory And RATIO_DATA(i, STORY) <= checkStoryNumber And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
+        If RATIO_DATA(i, STORY) >= TOP_STORY And RATIO_DATA(i, STORY) <= checkStoryNumber And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
                 Call WarningMessage("【0405】請確認高樓區鋼筋比，是否超過 1.2 %", i)
         End If
     Next
