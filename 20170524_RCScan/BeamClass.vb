@@ -1,4 +1,15 @@
-Private MESSAGE(), Worksheet, GENERAL_INFORMATION, REBAR_SIZE, RAW_DATA, RATIO_DATA, DATA_ROW_END, DATA_ROW_START, FIRST_STORY, REBAR_NUMBER(), WS As Worksheet
+Private MESSAGE()
+Private Worksheet
+Private GENERAL_INFORMATION
+Private REBAR_SIZE
+Private RAW_DATA
+Private RATIO_DATA
+Private DATA_ROW_END
+Private DATA_ROW_START
+Private FIRST_STORY
+Private TOP_STORY
+Private REBAR_NUMBER()
+Private WS As Worksheet
 
 ' RAW_DATA 資料命名
 Private Const STORY = 1
@@ -60,7 +71,8 @@ Function GetGeneralInformation()
 
     GENERAL_INFORMATION = generalInformation.Range(generalInformation.Cells(rowStart, columnStart), generalInformation.Cells(rowUsed, columnUsed))
 
-    FIRST_STORY = Application.Match("1F", Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    TOP_STORY = Application.Match(Cells(12, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    FIRST_STORY = Application.Match(Cells(13, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
 
 End Function
 
@@ -224,9 +236,9 @@ Function CalSideRebarArea(REBAR)
 
     If REBAR <> "-" Then
 
-        REBAR = Left(REBAR, Len(REBAR) - 2)
+        sidebarNoEF = Left(REBAR, Len(REBAR) - 2)
 
-        tmp = Split(REBAR, "#")
+        tmp = Split(sidebarNoEF, "#")
 
         ' 轉換鋼筋尺寸為截面積
         tmp(1) = Application.VLookup("#" & tmp(1), REBAR_SIZE, CROSS_AREA, False)
@@ -630,7 +642,7 @@ Function Norm15_4_2_2()
             minRatio = Application.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
             code15_4_2_2 = minRatio < maxRatio / 4
 
-            If code15_4_2_2 And RAW_DATA(i, STORY) <> "1F" Then
+            If code15_4_2_2 Then
                 Call WarningMessage("【0218】請確認耐震最小量鋼筋，是否符合規範 15.4.2.2 規定", i)
             End If
 
