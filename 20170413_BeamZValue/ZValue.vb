@@ -58,14 +58,28 @@ Function HierarchicalClustering(ByVal arrZValue, selectValue)
     Next i
 
     countOfValue = uBoundZValue
+
     While countOfValue > selectValue
+
         minPointValue = MinPoint(arrDistance)
-        If minPointValue + 1 < UBound(arrDistance) Then
-            arrDistance(minPointValue + 1) = arrZValue(minPointValue - 1) - arrZValue(minPointValue + 1)
+
+        If minPointValue <> 2 And minPointValue <> UBound(arrDistance) Then
+            arrDistance(minPointValue - 1) = arrDistance(minPointValue - 1) + arrDistance(minPointValue) / 2
+            arrDistance(minPointValue + 1) = arrDistance(minPointValue + 1) + arrDistance(minPointValue) / 2
+
+        ElseIf minPointValue = 2 Then
+            arrDistance(minPointValue + 1) = arrDistance(minPointValue + 1) + arrDistance(minPointValue) / 2
+
+        ElseIf minPointValue = UBound(arrDistance) Then
+            arrDistance(minPointValue - 1) = arrDistance(minPointValue - 1) + arrDistance(minPointValue) / 2
+
         End If
+
         Call DeleteElementAt(minPointValue, arrDistance)
         Call DeleteElementAt(minPointValue, arrZValue)
+
         countOfValue = countOfValue - 1
+
     Wend
 
     HierarchicalClustering = arrZValue
