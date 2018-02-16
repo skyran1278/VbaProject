@@ -153,6 +153,17 @@ Function PrintResult(arrResult)
 End Function
 
 
+Function CalMultiBreakPoint(parameterList)
+'
+'
+'
+' @param
+' @returns
+
+    Dim arrMultiBreakRebar
+
+
+End Function
 Sub Main()
 '
 ' @purpose:
@@ -168,7 +179,6 @@ Sub Main()
 '
 '
 
-    Dim arrMultiBreakRebar
     Dim time0 As Double
 
     time0 = Timer
@@ -182,7 +192,6 @@ Sub Main()
     ARR_INFO = GetGeneralInformation()
 
     Call ClearBeforeOutputData
-
 
     arrBeam = GetRawData()
     arrRebarNumber = CalRebarNumber(arrBeam)
