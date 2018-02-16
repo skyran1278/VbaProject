@@ -3,6 +3,19 @@
 ' 呼叫 function 比本地直接執行慢 3.5 倍左右，但是通常都還是會拆分 function，所以我認為沒差。
 
 
+Function GetArray(ws, rowStart, colStart, rowEnd, colEnd)
+'
+' 取得表格資料
+'
+' @returns GetArray(Array)
+
+    With ws
+        GetArray = .Range(.Cells(rowStart, colStart), .Cells(.Cells(Rows.Count, rowEnd).End(xlUp).Row, colEnd))
+    End With
+
+End Function
+
+
 Public Function FontSetting(ws)
 '
 ' 美化格式
