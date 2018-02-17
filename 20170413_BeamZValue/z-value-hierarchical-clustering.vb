@@ -1,6 +1,5 @@
 Private WS_Z
 Private APP
-Private Const INFINITY = 1.00E+307
 
 
 Function ClearBeforeOutputData()
@@ -9,7 +8,7 @@ Function ClearBeforeOutputData()
 '
 
     With WS_Z
-        rowEnd = .Cells(Rows.Count, 18).End(xlUp).Row
+        rowEnd = .Cells(Rows.Count, 1).End(xlUp).Row
         If rowEnd > 18 Then
             .Range(.Cells(18, 1), .Cells(rowEnd, 2)).ClearContents
         End If
@@ -51,32 +50,52 @@ Function HierarchicalClustering(ByVal arrZValue, selectValue)
 
     uBoundZValue = UBound(arrZValue)
 
-    ReDim arrDistance(2 To uBoundZValue)
+    ReDim arrDistance(2 To uBoundZValue, 1 To 3)
+
+    Const distance = 1
+    Const count = 2
+    Const sum = 3
+
 
     For i = 2 To uBoundZValue
-        arrDistance(i) = arrZValue(i - 1) - arrZValue(i)
+        arrDistance(i, distance) = arrZValue(i - 1, 1) - arrZValue(i, 1)
+        arrDistance(i, count) = 1
+        arrDistance(i, sum) = arrDistance(i, distance) * arrDistance(i, count)
     Next i
 
     countOfValue = uBoundZValue
 
     While countOfValue > selectValue
 
-        minPointValue = MinPoint(arrDistance)
+        minPointValue = MinPoint(arrDistance, sum)
 
         If minPointValue <> 2 And minPointValue <> UBound(arrDistance) Then
-            arrDistance(minPointValue - 1) = arrDistance(minPointValue - 1) + arrDistance(minPointValue) / 2
-            arrDistance(minPointValue + 1) = arrDistance(minPointValue + 1) + arrDistance(minPointValue) / 2
+
+            ' 上面會吃掉下面，所以群集數增加
+            arrDistance(minPointValue - 1, count) = arrDistance(minPointValue - 1, count) + arrDistance(minPointValue, count)
+
+            ' 下面與上面的距離差變大
+            arrDistance(minPointValue + 1, distance) = arrDistance(minPointValue + 1, distance) + arrDistance(minPointValue, distance)
+
+            ' 重新計算變化的總和 = 群集數 * 距離差
+            arrDistance(minPointValue - 1, sum) = arrDistance(minPointValue - 1, count) * arrDistance(minPointValue - 1, distance)
+            arrDistance(minPointValue + 1, sum) = arrDistance(minPointValue + 1, count) * arrDistance(minPointValue + 1, distance)
 
         ElseIf minPointValue = 2 Then
-            arrDistance(minPointValue + 1) = arrDistance(minPointValue + 1) + arrDistance(minPointValue) / 2
+
+            ' 下面與上面的距離差變大
+            arrDistance(minPointValue + 1, distance) = arrDistance(minPointValue + 1, distance) + arrDistance(minPointValue, distance)
+            arrDistance(minPointValue + 1, sum) = arrDistance(minPointValue + 1, count) * arrDistance(minPointValue + 1, distance)
 
         ElseIf minPointValue = UBound(arrDistance) Then
-            arrDistance(minPointValue - 1) = arrDistance(minPointValue - 1) + arrDistance(minPointValue) / 2
+            ' 上面會吃掉下面，所以群集數增加
+            arrDistance(minPointValue - 1, count) = arrDistance(minPointValue - 1, count) + arrDistance(minPointValue, count)
+            arrDistance(minPointValue - 1, sum) = arrDistance(minPointValue - 1, count) * arrDistance(minPointValue - 1, distance)
 
         End If
 
-        Call DeleteElementAt(minPointValue, arrDistance)
-        Call DeleteElementAt(minPointValue, arrZValue)
+        arrDistance = DeleteElementAt(minPointValue, arrDistance)
+        arrZValue = DeleteElementAt(minPointValue, arrZValue)
 
         countOfValue = countOfValue - 1
 
@@ -87,25 +106,66 @@ Function HierarchicalClustering(ByVal arrZValue, selectValue)
 End Function
 
 
-Sub DeleteElementAt(Byval index As Integer, Byref prLst as Variant)
+Function DeleteElementAt(Byval index As Integer, Byval arrOld as Variant)
 '
 '
 '
 ' @param
 ' @returns
 
+    Dim arrNew()
+
+    rowStart = LBound(arrOld)
+    rowEnd = UBound(arrOld)
+    colStart = LBound(arrOld, 2)
+    colEnd = UBound(arrOld, 2)
+
+    ReDim arrNew(rowStart To rowEnd - 1, colStart To colEnd)
+
     ' Move all element back one position
-    For i = index + 1 To UBound(prLst)
-        prLst(i - 1) = prLst(i)
+    For i = rowStart To index - 1
+        For j = colStart To colEnd
+            arrNew(i, j) = arrOld(i, j)
+        Next j
     Next
 
-    ' Shrink the array by one, removing the last one
-    ReDim Preserve prLst(LBound(prLst) To UBound(prLst) - 1)
+    For i = index + 1 To rowEnd
+        For j = colStart To colEnd
+            arrNew(i - 1, j) = arrOld(i, j)
+        Next j
+    Next
 
-End Sub
+    DeleteElementAt = arrNew
+
+End Function
 
 
-Function MinPoint(arrValue)
+' Sub DeleteElementAt(Byval index As Integer, Byref prLst as Variant)
+' '
+' '
+' '
+' ' @param
+' ' @returns
+
+'     rowStart = LBound(prLst)
+'     rowEnd = UBound(prLst)
+'     colStart = LBound(prLst, 2)
+'     colEnd = UBound(prLst, 2)
+
+'     ' Move all element back one position
+'     For i = index + 1 To rowEnd
+'         For j = colStart To colEnd
+'             prLst(i - 1, j) = prLst(i, j)
+'         Next j
+'     Next
+
+'     ' Shrink the array by one, removing the last one
+'     ReDim Preserve prLst(rowStart To rowEnd - 1, colStart To colEnd)
+
+' End Sub
+
+
+Function MinPoint(arrValue, colCompare)
 '
 ' 回傳陣列最小值所在位置
 '
@@ -115,16 +175,28 @@ Function MinPoint(arrValue)
    lBoundValue = LBound(arrValue)
    uBoundValue = UBound(arrValue)
 
-   minValue = arrValue(lBoundValue)
+   minValue = arrValue(lBoundValue, colCompare)
 
    For i = lBoundValue To uBoundValue
-       If arrValue(i) <= minValue Then
-           minValue = arrValue(i)
+       If arrValue(i, colCompare) <= minValue Then
+           minValue = arrValue(i, colCompare)
            minPointValue = i
        End If
    Next i
 
    MinPoint = minPointValue
+
+End Function
+
+
+Function SumValue()
+'
+'
+'
+' @param
+' @returns
+
+
 
 End Function
 
@@ -155,7 +227,8 @@ Sub Main()
 
     Call SortZValue
 
-    arrZValue = APP.Transpose(GetArray(WS_Z, 8, 8, 8, 8))
+    arrZValue = GetArray(WS_Z, 8, 8, 8, 8)
+    dblOriginalSum = APP.Sum(arrZValue)
 
     arrSelectValue = Split(WS_Z.Cells(5, 2), ",")
     uBoundSelectValue = UBound(arrSelectValue)
@@ -166,8 +239,23 @@ Sub Main()
         selectValue = Int(arrSelectValue(i))
         arrSelectZValue = HierarchicalClustering(arrZValue, selectValue)
 
+        sum = 0
+        For j = UBound(arrZValue) To LBound(arrZValue) Step -1
+            Do
+                For k = UBound(arrSelectZValue) To LBound(arrSelectZValue) Step -1
+                    If arrSelectZValue(k, 1) >= arrZValue(j, 1) Then
+                        sum = sum + arrSelectZValue(k, 1)
+                        Exit for
+                    End If
+                Next k
+            Loop Until True
+        Next j
+
         With WS_Z
-            .Range(.Cells(LBound(arrSelectZValue) + 7, 12 + i), .Cells(UBound(arrSelectZValue) + 7, 12 + i)) = APP.Transpose(arrSelectZValue)
+            .Range(.Cells(LBound(arrSelectZValue) + 7, 12 + i), .Cells(UBound(arrSelectZValue) + 7, 12 + i)) = arrSelectZValue
+            .Cells(18 + i, 1) = selectValue
+            .Cells(6, 12 + i) = selectValue
+            .Cells(18 + i, 2) = sum / dblOriginalSum
         End With
     Next i
 
