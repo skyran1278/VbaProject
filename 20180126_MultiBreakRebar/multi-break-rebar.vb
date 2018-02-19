@@ -94,6 +94,7 @@ End Function
 Function CalRebarNumber(arrRawData)
 '
 ' 計算上下排總支數
+' 計算單排最大支數
 '
 ' @param
 ' @returns
@@ -109,7 +110,13 @@ Function CalRebarNumber(arrRawData)
     ' 一二排相加
     For i = rowStart To rowEnd Step 2
         For j = colStart To colEnd
+
+            ' 計算上下排總支數
             arrRebarNumber(i, j - 5) = Int(Split(arrRawData(i, j), "-")(0)) + Int(Split(arrRawData(i + 1, j), "-")(0))
+
+            ' 計算單排最大支數
+            arrRebarNumber(i + 1, j - 5) = Max(Int(Split(arrRawData(i, j), "-")(0)), Int(Split(arrRawData(i + 1, j), "-"))(0))
+
         Next
     Next
 
@@ -153,7 +160,7 @@ Function PrintResult(arrResult)
 End Function
 
 
-Function CalMultiBreakPoint(parameterList)
+Function CalMultiBreakPoint(arrRebarNumber)
 '
 '
 '
@@ -161,40 +168,6 @@ Function CalMultiBreakPoint(parameterList)
 ' @returns
 
     Dim arrMultiBreakRebar
-
-
-End Function
-Sub Main()
-'
-' @purpose:
-' reduce 鋼筋量
-'
-'
-' @algorithm:
-' 上層筋由耐震控制
-' 下層筋由重力與耐震共同控制
-'
-' @test:
-'
-'
-'
-
-    Dim time0 As Double
-
-    time0 = Timer
-
-    Call PerformanceVBA(True)
-
-    ' Golobal Var
-    Set WS_BEAM = Worksheets("小梁配筋")
-    Set WS_RESULT = Worksheets("最佳化斷筋點")
-    Set OBJ_REBAR_DB = GetRebarDb()
-    ARR_INFO = GetGeneralInformation()
-
-    Call ClearBeforeOutputData
-
-    arrBeam = GetRawData()
-    arrRebarNumber = CalRebarNumber(arrBeam)
 
     ubRebarNumber = UBound(arrRebarNumber)
 
@@ -245,6 +218,56 @@ Sub Main()
         Next j
 
     Next i
+
+    CalMultiBreakPoint = arrMultiBreakRebar
+
+
+End Function
+
+
+Function CalMultiBreakPointPulsLd(arrBeam, arrRebarNumber, arrMultiBreakRebar)
+'
+'
+'
+' @param
+' @returns
+
+    Application.VLookup(REBAR(1), ARR_INFO, DIAMETER, False)
+    ARR_INFO()
+
+End Function
+Sub Main()
+'
+' @purpose:
+' reduce 鋼筋量
+'
+'
+' @algorithm:
+' 上層筋由耐震控制
+' 下層筋由重力與耐震共同控制
+'
+' @test:
+'
+'
+'
+
+    Dim time0 As Double
+
+    time0 = Timer
+
+    Call PerformanceVBA(True)
+
+    ' Golobal Var
+    Set WS_BEAM = Worksheets("小梁配筋")
+    Set WS_RESULT = Worksheets("最佳化斷筋點")
+    Set OBJ_REBAR_DB = GetRebarDb()
+    ARR_INFO = GetGeneralInformation()
+
+    Call ClearBeforeOutputData
+
+    arrBeam = GetRawData()
+    arrRebarNumber = CalRebarNumber(arrBeam)
+    arrMultiBreakRebar = CalMultiBreakPoint(arrRebarNumber)
 
     Call PrintResult(arrMultiBreakRebar)
 
