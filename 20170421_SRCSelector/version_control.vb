@@ -1,3 +1,12 @@
+' @license version_control v1.0.0
+' version_control.vb
+'
+' Copyright (c) 2016-present, skyran
+'
+' This source code is licensed under the MIT license found in the
+' LICENSE file in the root directory of this source tree.
+
+
 Private Sub Workbook_Open()
 '
 ' * 目的: 檢查程式最新版本，並自動提示更新
@@ -28,8 +37,8 @@ Private Sub Workbook_Open()
 
 
     ' 依據不同工作簿有不同值
-    VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226_LapLength/lap-length-version.txt"
-    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226_LapLength/lap-length.xlsm"
+    VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170421_SRCSelector/version.txt"
+    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170421_SRCSelector/src-selector.xlsm"
 
 
     Set VERSION_SHEET = ThisWorkbook.Worksheets("版本資訊")
