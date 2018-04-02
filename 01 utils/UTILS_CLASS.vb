@@ -1,7 +1,14 @@
+' @license utils v1.0.0
+' utils.vb
+'
+' Copyright (c) 2016-present, skyran
+'
+' This source code is licensed under the MIT license found in the
+' LICENSE file in the root directory of this source tree.
+
 ' If Then is FASTER than IIF
 ' 若想要最佳化效能 還是需要自己寫一個針對的最快
 ' 呼叫 function 比本地直接執行慢 3.5 倍左右，但是通常都還是會拆分 function，所以我認為沒差。
-
 
 Function GetRangeToArray(ws, rowStart, colStart, rowEnd, colEnd)
 '
