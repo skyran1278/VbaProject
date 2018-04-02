@@ -1,10 +1,18 @@
-' @license version_control v1.0.0
+' @license version_control v1.1.0
 ' version_control.vb
 '
 ' Copyright (c) 2016-present, skyran
 '
 ' This source code is licensed under the MIT license found in the
 ' LICENSE file in the root directory of this source tree.
+
+
+' * 隨工作簿不同而需更改的參數:
+'       VERSION_URL: 該工作簿 version.txt
+'       DOWNLOAD_URL: 該工作簿 下載檔案位置
+' 依據不同工作簿有不同值
+Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value.txt"
+Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value.xlsm"
 
 
 Private Sub Workbook_Open()
@@ -27,18 +35,10 @@ Private Sub Workbook_Open()
 
 
     ' 此程序包含的變數
-    Dim DOWNLOAD_URL As String
-    Dim VERSION_URL As String
-
     Dim VERSION_SHEET As Worksheet
     Dim project As String
     Dim currentVersion As String
     Dim latestVersion As String
-
-
-    ' 依據不同工作簿有不同值
-    VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226_LapLength/lap-length-version.txt"
-    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226_LapLength/lap-length.xlsm"
 
 
     Set VERSION_SHEET = ThisWorkbook.Worksheets("版本資訊")

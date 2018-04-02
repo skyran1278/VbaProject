@@ -1,5 +1,5 @@
-' @license utils v1.0.0
-' utils.vb
+' @license UTILS_CLASS v1.0.0
+' UTILS_CLASS.vb
 '
 ' Copyright (c) 2016-present, skyran
 '
