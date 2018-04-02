@@ -23,7 +23,7 @@ Sub SortZValue()
 ' 排序
 '
 
-    colZValue = 8
+    colZValue = 9
 
 
 
@@ -221,13 +221,13 @@ Sub Main()
 
     Set APP = Application.WorksheetFunction
 
-    Set WS_Z = Worksheets("Z-階層式分群法")
+    Set WS_Z = Worksheets("z-value-hierarchical-clustering")
 
     Call ClearBeforeOutputData
 
     Call SortZValue
 
-    arrZValue = GetArray(WS_Z, 8, 8, 8, 8)
+    arrZValue = GetArray(WS_Z, 9, 9, 9, 9)
     dblOriginalSum = APP.Sum(arrZValue)
 
     arrSelectValue = Split(WS_Z.Cells(5, 2), ",")

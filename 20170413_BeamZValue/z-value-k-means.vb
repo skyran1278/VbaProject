@@ -1,52 +1,43 @@
-Dim SUM_ARRAY(), ROW_START, ROW_END, TIME0, CANCEL, SELECT_VALUE, SELECT_VALUE_LENGTH, SELECT_VALUE_COUNT, MAX_LOOP_VALUE, OUTPUT_VALUE_COUNT, CONST_MAX_LOOP_VALUE, OUTPUT_POINT
+Private UTIL As UTILS_CLASS
+Private APP
+Private WS_Z
+Private ROW_INPUT
+Private ROW_LOOP
+Private ROW_SUM
+Private ROW_Z_START
+Private ROW_NOR
+Private ROW_OUTPUT_START
+Private COL_OUTPUT
+Private COL_INPUT
+Private COL_RATIO
+Private COL_DATA_START
+Private COL_Z
+Private COL_REPLACE
+Private COL_SELECT
+Private COL_SELECT_START
+Private COL_SELECT_END
+Private ROW_RATIO_END
+Private ROW_Z_END
+
+Private SUM_ARRAY()
+' Private ROW_Z_START
+' Private ROW_Z_END
+' Private TIME0
+Private CANCEL
+Private SELECT_VALUE
+Private SELECT_VALUE_LENGTH
+Private SELECT_VALUE_COUNT
+Private MAX_LOOP_VALUE
+Private ROW_OUTPUT_VALUE_COUNT
+Private CONST_MAX_LOOP_VALUE
+Private OUTPUT_POINT
 
 ' DATA 資料命名
-Const OUTPUT_VALUE = 1
-Const INPUT_VALUE = 2
-Const Name = 3
-Const STORY = 4
-Const LABEL = 5
-Const MAX_M = 6
-Const FY = 7
-Const Z = 8
-Const LENGTH = 9
-Const GROUP = 10
-Const REPLACE_NUMBER = 11
-Const SELECT_NUMBER = 12
-
-Function Initialize()
-
-    TIME0 = Timer
-
-    Worksheets("Z").Activate
-
-    ROW_START = 8
-    ROW_END = Cells(Rows.Count, Z).End(xlUp).Row
-
-    ' 排序
-    Worksheets("Z").Range(Cells(7, 3), Cells(ROW_END, 10)).Sort _
-        Key1:=Range(Cells(ROW_START, Z), Cells(ROW_END, Z)), Order1:=xlDescending, Header:=xlYes
-
-    ReDim SUM_ARRAY(ROW_START To ROW_END)
-
-    Range(Cells(18, OUTPUT_VALUE), Cells(Cells(Rows.Count, OUTPUT_VALUE).End(xlUp).Row, INPUT_VALUE)).ClearContents
-    Range(Cells(9, REPLACE_NUMBER), Cells(Cells(Rows.Count, REPLACE_NUMBER).End(xlUp).Row, REPLACE_NUMBER)).ClearContents
-    Range(Columns(SELECT_NUMBER), Columns(100)).ClearContents
-
-
-    Cells(ROW_START, REPLACE_NUMBER).AutoFill Destination:=Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER))
-
-    SELECT_VALUE = Split(Cells(5, INPUT_VALUE).Value, ",")
-    SELECT_VALUE_LENGTH = UBound(SELECT_VALUE)
-
-    CONST_MAX_LOOP_VALUE = Cells(6, INPUT_VALUE)
-
-    OUTPUT_VALUE_COUNT = 18
-    OUTPUT_POINT = 13
-
-    Cells(16, OUTPUT_VALUE) = Application.sum(Range(Cells(ROW_START, Z), Cells(ROW_END, Z)))
-
-End Function
+' Private Const COL_OUTPUT = 1
+' Private Const COL_RATIO = 2
+' Private Const COL_Z = 13
+' Private Const COL_REPLACE = 21
+' Private Const COL_SELECT = 22
 
 Function LoopSelectValue()
 '
@@ -57,16 +48,16 @@ Function LoopSelectValue()
 
         SELECT_VALUE_COUNT = SELECT_VALUE(i)
         MAX_LOOP_VALUE = CONST_MAX_LOOP_VALUE
-        Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) = SELECT_VALUE(i)
-        OUTPUT_VALUE_COUNT = OUTPUT_VALUE_COUNT + 1
-        Cells(ROW_START, SELECT_NUMBER) = "*"
-        Cells(7, SELECT_NUMBER) = Application.sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+        Cells(ROW_OUTPUT_VALUE_COUNT, COL_OUTPUT) = SELECT_VALUE(i)
+        ROW_OUTPUT_VALUE_COUNT = ROW_OUTPUT_VALUE_COUNT + 1
+        Cells(ROW_Z_START, COL_SELECT) = "*"
+        Cells(ROW_SUM, COL_SELECT) = APP.sum(Range(Cells(ROW_Z_START, COL_REPLACE), Cells(ROW_Z_END, COL_REPLACE)))
 
         Call Controller
 
-        Columns(OUTPUT_POINT) = Columns(SELECT_NUMBER).Value
-        Cells(7, OUTPUT_POINT) = SELECT_VALUE(i)
-        Columns(SELECT_NUMBER).ClearContents
+        Columns(OUTPUT_POINT) = Columns(COL_SELECT)
+        Cells(ROW_SUM, OUTPUT_POINT) = SELECT_VALUE(i)
+        Columns(COL_SELECT).ClearContents
 
         OUTPUT_POINT = OUTPUT_POINT + 1
 
@@ -79,11 +70,11 @@ Function DoMoreThings(sum)
 ' 顯示動畫
 '
 
-    If Cells(7, SELECT_NUMBER) > sum Then
-        Cells(7, SELECT_NUMBER) = sum
+    If Cells(ROW_SUM, COL_SELECT) > sum Then
+        Cells(ROW_SUM, COL_SELECT) = sum
     End If
 
-    Cells(7, REPLACE_NUMBER) = sum
+    Cells(ROW_SUM, COL_REPLACE) = sum
 
 End Function
 
@@ -92,20 +83,20 @@ Function Controller()
     ' 第一次最佳化
     Do While SELECT_VALUE_COUNT > 1
 
-        For i = ROW_START To ROW_END
+        For i = ROW_Z_START To ROW_Z_END
 
-            If Cells(i, SELECT_NUMBER) = "" Then
+            If Cells(i, COL_SELECT) = "" Then
 
-                Cells(i, SELECT_NUMBER) = "*"
-                SUM_ARRAY(i) = Application.sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+                Cells(i, COL_SELECT) = "*"
+                SUM_ARRAY(i) = APP.sum(Range(Cells(ROW_Z_START, COL_REPLACE), Cells(ROW_Z_END, COL_REPLACE)))
                 DoMoreThings (SUM_ARRAY(i))
-                Cells(i, SELECT_NUMBER) = ""
+                Cells(i, COL_SELECT) = ""
 
             End If
 
         Next
 
-        Cells(Application.Match(Application.Min(SUM_ARRAY), SUM_ARRAY, 0) + ROW_START - 1, SELECT_NUMBER) = "*"
+        Cells(APP.Match(APP.Min(SUM_ARRAY), SUM_ARRAY, 0) + ROW_SUM, COL_SELECT) = "*"
 
         SELECT_VALUE_COUNT = SELECT_VALUE_COUNT - 1
 
@@ -113,41 +104,41 @@ Function Controller()
 
     ' 多次最佳化
     Do
-        selectBefore = Range(Cells(1, SELECT_NUMBER), Cells(ROW_END, SELECT_NUMBER)).Value
+        selectBefore = Range(Cells(1, COL_SELECT), Cells(ROW_Z_END, COL_SELECT))
 
-        For i = ROW_START + 1 To ROW_END
+        For i = ROW_Z_START + 1 To ROW_Z_END
 
-            If Cells(i, SELECT_NUMBER) = "*" Then
+            If Cells(i, COL_SELECT) = "*" Then
 
-                Cells(i, SELECT_NUMBER) = ""
-                ReDim SUM_ARRAY(ROW_START To ROW_END)
+                Cells(i, COL_SELECT) = ""
+                ReDim SUM_ARRAY(ROW_Z_START To ROW_Z_END)
 
-                For j = ROW_START To ROW_END
+                For j = ROW_Z_START To ROW_Z_END
 
-                    If Cells(j, SELECT_NUMBER) = "" Then
+                    If Cells(j, COL_SELECT) = "" Then
 
-                        Cells(j, SELECT_NUMBER) = "*"
-                        SUM_ARRAY(j) = Application.sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+                        Cells(j, COL_SELECT) = "*"
+                        SUM_ARRAY(j) = APP.sum(Range(Cells(ROW_Z_START, COL_REPLACE), Cells(ROW_Z_END, COL_REPLACE)))
                         DoMoreThings (SUM_ARRAY(j))
-                        Cells(j, SELECT_NUMBER) = ""
+                        Cells(j, COL_SELECT) = ""
 
                     End If
 
                 Next
 
-                Cells(Application.Match(Application.Min(SUM_ARRAY), SUM_ARRAY, 0) + ROW_START - 1, SELECT_NUMBER) = "*"
+                Cells(APP.Match(APP.Min(SUM_ARRAY), SUM_ARRAY, 0) + ROW_SUM, COL_SELECT) = "*"
 
             End If
 
         Next
 
-        selectAfter = Range(Cells(1, SELECT_NUMBER), Cells(ROW_END, SELECT_NUMBER)).Value
+        selectAfter = Range(Cells(1, COL_SELECT), Cells(ROW_Z_END, COL_SELECT))
 
         Call PrintEachLoopValue
 
         doLoop = False
 
-        For i = ROW_START To ROW_END
+        For i = ROW_Z_START To ROW_Z_END
 
             If selectBefore(i, 1) <> selectAfter(i, 1) Then
                 doLoop = True
@@ -165,27 +156,66 @@ Function PrintEachLoopValue()
 ' 輸出 RATIO
 '
 
-    Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) = Application.sum(Range(Cells(ROW_START, REPLACE_NUMBER), Cells(ROW_END, REPLACE_NUMBER)))
+    Cells(ROW_OUTPUT_VALUE_COUNT, COL_OUTPUT) = APP.sum(Range(Cells(ROW_Z_START, COL_REPLACE), Cells(ROW_Z_END, COL_REPLACE)))
 
-    Cells(OUTPUT_VALUE_COUNT, INPUT_VALUE) = Cells(OUTPUT_VALUE_COUNT, OUTPUT_VALUE) / Cells(16, OUTPUT_VALUE)
+    Cells(ROW_OUTPUT_VALUE_COUNT, COL_RATIO) = Cells(ROW_OUTPUT_VALUE_COUNT, COL_OUTPUT) / Cells(ROW_NOR, COL_OUTPUT)
 
-    OUTPUT_VALUE_COUNT = OUTPUT_VALUE_COUNT + 1
+    ROW_OUTPUT_VALUE_COUNT = ROW_OUTPUT_VALUE_COUNT + 1
 
     MAX_LOOP_VALUE = MAX_LOOP_VALUE - 1
 
 End Function
 
-Function Terminate()
 
-    Cells(7, REPLACE_NUMBER).ClearContents
+Function DimVaribale()
+'
+' 宣告可能會用到的變數，並集中到同一地方，增加維護性。
+'
+' @param
+' @returns
 
-    If Timer - TIME0 < 60 Then
-        MsgBox "Execution Time " & Application.Round((Timer - TIME0), 2) & " Sec", vbOKOnly
-    Else
-        MsgBox "Execution Time " & Application.Round((Timer - TIME0) / 60, 2) & " Min", vbOKOnly
-    End If
+    ROW_INPUT = 5
+    ROW_LOOP = 6
+    ROW_SUM = 7
+    ROW_Z_START = 8
+    ROW_NOR = 16
+    ROW_OUTPUT_START = 18
+
+    COL_OUTPUT = 1
+    COL_INPUT = 2
+    COL_RATIO = 2
+    COL_DATA_START = 8
+    COL_Z = 13
+    COL_REPLACE = 21
+    COL_SELECT = 22
+    COL_SELECT_START = 23
+    COL_SELECT_END = 200
+
+    ROW_RATIO_END = UTIL.GetRowEnd(WS_Z, COL_RATIO)
+    ROW_Z_END = UTIL.GetRowEnd(WS_Z, COL_Z)
 
 End Function
+
+
+Function ClearData()
+'
+' 清除先前的資料
+'
+' @param
+' @returns
+
+    With WS_Z
+        ' 清除 output ratio
+        .Range(.Cells(ROW_OUTPUT_START, COL_OUTPUT), .Cells(ROW_RATIO_END, COL_RATIO)).ClearContents
+
+        ' Range(Cells(ROW_REPLACE_NUMBER, COL_REPLACE), Cells(Cells(Rows.Count, COL_REPLACE).End(xlUp).Row, COL_REPLACE)).ClearContents
+
+        ' clear select z value
+        .Range(.Columns(COL_SELECT_START), .Columns(COL_SELECT_END)).ClearContents
+    End With
+
+End Function
+
 
 Sub Main()
 '
@@ -206,12 +236,64 @@ Sub Main()
 '
 
     ' Initialize
-    Call Initialize
+    time0 = Timer
+
+    Set UTIL = New UTILS_CLASS
+    Set APP = Application.WorksheetFunction
+    Set WS_Z = Worksheets("z-value-k-means")
+
+    WS_Z.Activate
+
+    ' ROW_Z_START = 8
+    ' ROW_Z_END = Cells(Rows.Count, COL_Z).End(xlUp).Row
+    ' COL_START = 8
+    ' ROW_OUTPUT_VALUE_START = 18
+    ' ROW_REPLACE_NUMBER = 9
+    ' ROW_INPUT_VALUE = 5
+    ' ROW_LOOP_INPUT_VALUE = 6
+
+    Call DimVaribale
+
+    Call ClearData
+
+    With WS_Z
+
+        ' 排序
+        .Range(.Cells(ROW_Z_START, COL_DATA_START), .Cells(ROW_Z_END, COL_Z)).Sort _
+        Key1:=.Range(.Cells(ROW_Z_START, COL_Z), .Cells(ROW_Z_END, COL_Z)), Order1:=xlDescending
+
+        ' autofill formula
+        .Cells(ROW_Z_START, COL_REPLACE).AutoFill Destination:=.Range(.Cells(ROW_Z_START, COL_REPLACE), .Cells(ROW_Z_END, COL_REPLACE))
+
+        ' input select
+        SELECT_VALUE = Split(.Cells(ROW_INPUT, COL_INPUT), ",")
+
+        ' input loop
+        CONST_MAX_LOOP_VALUE = .Cells(ROW_LOOP, COL_INPUT)
+
+        .Cells(ROW_NOR, COL_OUTPUT) = APP.sum(.Range(.Cells(ROW_Z_START, COL_Z), .Cells(ROW_Z_END, COL_Z)))
+
+    End With
+
+    ReDim SUM_ARRAY(ROW_Z_START To ROW_Z_END)
+
+    ' Range(Cells(ROW_OUTPUT_VALUE_START, COL_OUTPUT), Cells(Cells(Rows.Count, COL_OUTPUT).End(xlUp).Row, COL_RATIO)).ClearContents
+    ' Range(Cells(ROW_REPLACE_NUMBER, COL_REPLACE), Cells(Cells(Rows.Count, COL_REPLACE).End(xlUp).Row, COL_REPLACE)).ClearContents
+    ' Range(Columns(COL_SELECT), Columns(100)).ClearContents
+
+
+    SELECT_VALUE_LENGTH = UBound(SELECT_VALUE)
+
+    ROW_OUTPUT_VALUE_COUNT = 18
+    OUTPUT_POINT = COL_SELECT_START
+
 
     Call LoopSelectValue
 
     ' Terminate
-    Call Terminate
+    Cells(ROW_SUM, COL_REPLACE).ClearContents
+
+    UTIL.ExecutionTimeVBA(time0)
 
 End Sub
 

@@ -1,4 +1,4 @@
-' @license UTILS_CLASS v1.0.0
+' @license UTILS_CLASS v2.0.0
 ' UTILS_CLASS.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -9,6 +9,7 @@
 ' If Then is FASTER than IIF
 ' 若想要最佳化效能 還是需要自己寫一個針對的最快
 ' 呼叫 function 比本地直接執行慢 3.5 倍左右，但是通常都還是會拆分 function，所以我認為沒差。
+
 
 Function GetRangeToArray(ws, rowStart, colStart, rowEnd, colEnd)
 '
@@ -23,7 +24,19 @@ Function GetRangeToArray(ws, rowStart, colStart, rowEnd, colEnd)
 End Function
 
 
-Public Function FontSetting(ws)
+Function GetRowEnd(ws, col)
+'
+' 回傳最後一列 row 值
+'
+' @param
+' @returns
+
+    GetRowEnd = ws.Cells(Rows.Count, col).End(xlUp).Row
+
+End Function
+
+
+Function FontSetting(ws)
 '
 ' 美化格式
 '
@@ -38,7 +51,7 @@ Public Function FontSetting(ws)
 End Function
 
 
-Public Function RoundUp(ByVal Value As Double)
+Function RoundUp(ByVal Value As Double)
     If Int(Value) = Value Then
         RoundUp = Value
     Else
@@ -47,7 +60,7 @@ Public Function RoundUp(ByVal Value As Double)
 End Function
 
 
-Public Sub ExecutionTimeVBA(time0 As Double)
+Sub ExecutionTimeVBA(time0 As Double)
 '
 ' 計算執行時間
 '
@@ -62,7 +75,7 @@ Public Sub ExecutionTimeVBA(time0 As Double)
 End Sub
 
 
-Public Sub PerformanceVBA(isOn As Boolean)
+Sub PerformanceVBA(isOn As Boolean)
 '
 ' 提升執行效能
 '
@@ -88,7 +101,7 @@ Public Sub PerformanceVBA(isOn As Boolean)
 End Sub
 
 
-Public Function Min(ParamArray values() As Variant) As Variant
+Function Min(ParamArray values() As Variant) As Variant
    Dim minValue, Value As Variant
 
    minValue = values(0)
@@ -102,7 +115,7 @@ Public Function Min(ParamArray values() As Variant) As Variant
 End Function
 
 
-Public Function Max(ParamArray values() As Variant) As Variant
+Function Max(ParamArray values() As Variant) As Variant
    Dim maxValue, Value As Variant
 
    maxValue = values(0)
@@ -116,7 +129,7 @@ Public Function Max(ParamArray values() As Variant) As Variant
 End Function
 
 
-Public Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin As Long = -1, Optional lngMax As Long = -1, Optional lngColumn As Long = 0)
+Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin As Long = -1, Optional lngMax As Long = -1, Optional lngColumn As Long = 0)
     On Error Resume Next
 
     'Sort a 2-Dimensional array
@@ -223,7 +236,7 @@ End Sub
 
 ' End Sub
 
-Public Sub SpeedTest()
+Sub SpeedTest()
 '
 ' 測試速度用
 '
