@@ -30,7 +30,7 @@ Private Sub Workbook_Open()
 
 
     ' 依據不同工作簿有不同值
-    VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170421%20SRCSelector/version.txt"
+    VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170421_SRCSelector/version.txt"
     DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226%20%E6%90%AD%E6%8E%A5%E9%95%B7%E5%BA%A6%E7%B2%BE%E7%B4%B0%E8%A8%88%E7%AE%97/%E6%90%AD%E6%8E%A5%E9%95%B7%E5%BA%A6%E7%B2%BE%E7%B4%B0%E8%A8%88%E7%AE%97.xlsm"
 
     Set VERSION_SHEET = Worksheets("版本資訊")
