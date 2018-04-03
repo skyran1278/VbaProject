@@ -12,6 +12,8 @@ Private COL_INPUT
 Private COL_RATIO
 Private COL_DATA_START
 Private COL_Z
+Private COL_L
+Private COL_AS
 Private COL_REPLACE
 Private COL_SELECT
 Private COL_SELECT_START
@@ -30,7 +32,7 @@ Private SELECT_VALUE_COUNT
 Private MAX_LOOP_VALUE
 Private ROW_OUTPUT_VALUE_COUNT
 Private CONST_MAX_LOOP_VALUE
-Private OUTPUT_POINT
+Private COL_OUTPUT_POINT
 
 ' DATA 資料命名
 ' Private Const COL_OUTPUT = 1
@@ -55,11 +57,12 @@ Function LoopSelectValue()
 
         Call Controller
 
-        Columns(OUTPUT_POINT) = Columns(COL_SELECT)
-        Cells(ROW_SUM, OUTPUT_POINT) = SELECT_VALUE(i)
+        Range(Cells(ROW_Z_START, COL_OUTPUT_POINT), Cells(ROW_Z_END, COL_OUTPUT_POINT)) = Range(Cells(ROW_Z_START, COL_SELECT), Cells(ROW_Z_END, COL_SELECT)).Value
+        ' Columns(COL_OUTPUT_POINT) = Columns(COL_SELECT).Value
+        Cells(ROW_SUM, COL_OUTPUT_POINT) = SELECT_VALUE(i)
         Columns(COL_SELECT).ClearContents
 
-        OUTPUT_POINT = OUTPUT_POINT + 1
+        COL_OUTPUT_POINT = COL_OUTPUT_POINT + 1
 
     Next
 
@@ -186,6 +189,8 @@ Function DimVaribale()
     COL_RATIO = 2
     COL_DATA_START = 8
     COL_Z = 13
+    COL_L = 14
+    COL_AS = 19
     COL_REPLACE = 21
     COL_SELECT = 22
     COL_SELECT_START = 23
@@ -212,6 +217,7 @@ Function ClearData()
 
         ' clear select z value
         .Range(.Columns(COL_SELECT_START), .Columns(COL_SELECT_END)).ClearContents
+
     End With
 
 End Function
@@ -264,6 +270,7 @@ Sub Main()
 
         ' autofill formula
         .Cells(ROW_Z_START, COL_REPLACE).AutoFill Destination:=.Range(.Cells(ROW_Z_START, COL_REPLACE), .Cells(ROW_Z_END, COL_REPLACE))
+        .Range(.Cells(ROW_Z_START, COL_L), .Cells(ROW_Z_START, COL_AS)).AutoFill Destination:=.Range(.Cells(ROW_Z_START, COL_L), .Cells(ROW_Z_END, COL_AS))
 
         ' input select
         SELECT_VALUE = Split(.Cells(ROW_INPUT, COL_INPUT), ",")
@@ -285,7 +292,7 @@ Sub Main()
     SELECT_VALUE_LENGTH = UBound(SELECT_VALUE)
 
     ROW_OUTPUT_VALUE_COUNT = 18
-    OUTPUT_POINT = COL_SELECT_START
+    COL_OUTPUT_POINT = COL_SELECT_START
 
 
     Call LoopSelectValue
