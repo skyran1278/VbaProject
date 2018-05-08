@@ -9,6 +9,7 @@ Function AutoFill()
     comboRowUsed = Cells(Rows.Count, 1).End(xlUp).row
 
     Worksheets("PMM").Activate
+    Range(Cells(3, 1), Cells(3, Cells(Rows.Count, 1).End(xlUp).row)).ClearContents
     Range(Cells(2, 1), Cells(2, 6)).AutoFill Destination:=Range(Cells(2, 1), Cells(comboRowUsed, 6))
 
 End Function
