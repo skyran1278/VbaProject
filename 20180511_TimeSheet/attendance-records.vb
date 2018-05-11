@@ -1,6 +1,4 @@
 Private ran As UTILS_CLASS
-Private ws As Worksheet
-Private APP
 
 Sub MAIN()
 '
@@ -18,10 +16,11 @@ Sub MAIN()
 '
     Dim arrOutput()
     Dim time0 As Double
+    Dim prevTime As Date
+    Dim nextTime As Date
 
     ' Golobal Var
     Set ran = New UTILS_CLASS
-    Set APP = Application.WorksheetFunction
     Set ws = Worksheets("修改後DATA")
 
     time0 = Timer
@@ -33,8 +32,9 @@ Sub MAIN()
     colAttType = 4
     colDayTime = 5
 
-    ' view
-    ReDim arrOutput(1 To uBoundInput, 1 To 14)
+    ' condtroller
+    arrOutput = arrInput
+    ReDim Preserve arrOutput(1 To uBoundInput, 1 To 14)
     colWeek = 6
     colTime = 7
     colHour = 8
@@ -44,23 +44,26 @@ Sub MAIN()
     colOverTime34 = 13
     colOverTime67 = 14
 
-    ' condtroller
-    ' prior two column
+    ' 星期幾
+    ' 時間
     For i = 2 To uBoundInput
 
         dayTime = arrInput(i, colDayTime)
 
         arrOutput(i, colWeek) = dayTime
-        arrOutput(i, colTime) = APP.Hour(dayTime) & ":" & APP.Minute(dayTime)
+        arrOutput(i, colTime) = Hour(dayTime) & ":" & Minute(dayTime)
 
     Next i
 
-    For i = 2 To uBoundInput
+
+    For i = 2 To uBoundInput - 1
 
         attType = arrInput(i, colAttType)
         prevTime = arrOutput(i, colTime)
         nextTime = arrOutput(i + 1, colTime)
 
+        ' 時數
+        ' 真實時數扣 1.5
         If attType = "上班" Then
 
             arrOutput(i, colHour) = (nextTime - prevTime) * 24
@@ -71,8 +74,6 @@ Sub MAIN()
                 arrOutput(i, colRealHour) = arrOutput(i, colHour) - 1.5
             End If
 
-        ElseIf attType = "加班" Then
-            arrOutput(i, colOverTime) = (nextTime - prevTime) * 24
         Else
 
             arrOutput(i, colHour) = "-"
@@ -80,31 +81,38 @@ Sub MAIN()
 
         End If
 
+        ' 請假時數
         If arrOutput(i, colRealHour) < 8 Then
             arrOutput(i, colLeave) = 8 - arrOutput(i, colRealHour)
         Else
             arrOutput(i, colLeave) = "-"
         End If
 
+        ' 加班時數
+        If attType = "加班" Then
+            arrOutput(i, colOverTime) = (nextTime - prevTime) * 24
+        End If
+
     Next i
 
+    ' 處理加班是 1.34 還是 1.67
     lower = 2
-    overTime = 0
+    For i = 2 To uBoundInput - 1
 
-    For i = 2 To uBoundInput
+        prevDay = Day(arrInput(i, colDayTime))
+        nextDay = Day(arrInput(i + 1, colDayTime))
 
-        attType = arrInput(i, colAttType)
-        prevDay = Day(arrInput(i - 1, colDayTime))
-        nextDay = Day(arrInput(i, colDayTime))
+        If prevDay <> nextDay Or i + 1 = uBoundInput Then
 
-        If prevDay <> nextDay Then
+            upper = i
 
-            upper = i - 1
-
+            ' 計算當天總時數
+            overTime = 0
             For j = lower To upper
-                overTime = overTime + arrOutput(i, colOverTime)
+                overTime = overTime + arrOutput(j, colOverTime)
             Next j
 
+            ' 判斷是 1.34 或 1.67
             If overTime > 2 Then
                 overTime34 = 2
                 overTime67 = overTime - 2
@@ -113,12 +121,15 @@ Sub MAIN()
                 overTime67 = 0
             End If
 
+            ' 放在第一個加班處
             For j = lower To upper
+
+                attType = arrInput(j, colAttType)
 
                 If attType = "加班" Then
 
-                    arrOutput(i, colOverTime34) = overTime34
-                    arrOutput(i, colOverTime67) = overTime67
+                    arrOutput(j, colOverTime34) = overTime34
+                    arrOutput(j, colOverTime67) = overTime67
 
                     j = upper
 
@@ -126,14 +137,16 @@ Sub MAIN()
 
             Next j
 
-            lower = i
+            lower = i + 1
 
         End If
 
     Next i
 
     ' view
-    ws.Range(ws.Cells(1, colWeek), ws.Cells(UBound(arrOutput), colOverTime67)) = arrOutput
+    Set outputWS = Worksheets("VBA Output")
+    outputWS.Range(outputWS.Columns(1), outputWS.Columns(14))
+    outputWS.Range(outputWS.Cells(1, 1), outputWS.Cells(UBound(arrOutput), UBound(arrOutput, 2))) = arrOutput
 
     Call ran.PerformanceVBA(False)
     Call ran.ExecutionTimeVBA(time0)
