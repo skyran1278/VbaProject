@@ -32,9 +32,28 @@ Sub MAIN()
     colAttType = 4
     colDayTime = 5
 
+    ' check input
+    For i = 2 To uBoundInput - 1
+
+        prevAttType = arrInput(i, colAttType)
+        nextAttType = arrInput(i + 1, colAttType)
+
+        If prevAttType = "上班" Then
+            If nextAttType <> "下班" Then
+                MsgBox "第 " & i & " 列為上班卡。" & vbNewLine & "第 " & i + 1 & " 列應該要打下班卡。", 0, "ERROR"
+                Exit Sub
+            End If
+        ElseIf prevAttType = "加班" Then
+            If nextAttType <> "加班結束" Then
+                MsgBox "第 " & i & " 列為加班卡。" & vbNewLine & "第 " & i + 1 & " 列應該要打加班結束卡。", 0, "ERROR"
+                Exit Sub
+            End If
+        End If
+    Next i
+
     ' condtroller
-    arrOutput = arrInput
-    ReDim Preserve arrOutput(1 To uBoundInput, 1 To 14)
+    ' arrOutput = arrInput
+    ReDim Preserve arrOutput(1 To uBoundInput + 1, 1 To 14)
     colWeek = 6
     colTime = 7
     colHour = 8
@@ -43,6 +62,8 @@ Sub MAIN()
     colOverTime = 11
     colOverTime34 = 13
     colOverTime67 = 14
+    ' 由於後面做比較，所以需要插入一列不同的，這是比較 hack 的部分
+    arrOutput(UBound(arrOutput), colDayTime) = Day(arrInput(uBoundInput, colDayTime)) + 1
 
     ' 星期幾
     ' 時間
@@ -145,8 +166,10 @@ Sub MAIN()
 
     ' view
     Set outputWS = Worksheets("VBA Output")
-    outputWS.Range(outputWS.Columns(1), outputWS.Columns(14))
-    outputWS.Range(outputWS.Cells(1, 1), outputWS.Cells(UBound(arrOutput), UBound(arrOutput, 2))) = arrOutput
+    outputWS.Range(outputWS.Columns(1), outputWS.Columns(14)).ClearContents
+    outputWS.Range(outputWS.Cells(1, 1), outputWS.Cells(uBoundInput, UBound(arrOutput, 2))) = arrOutput
+    outputWS.Range(outputWS.Cells(1, 1), outputWS.Cells(uBoundInput, UBound(arrInput, 2))) = arrInput
+    outputWS.Activate
 
     Call ran.PerformanceVBA(False)
     Call ran.ExecutionTimeVBA(time0)
