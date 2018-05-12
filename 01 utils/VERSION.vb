@@ -7,6 +7,7 @@
 ' LICENSE file in the root directory of this source tree.
 
 ' 手動更新
+' FIXME: 現在還不行
 
 ' * 隨工作簿不同而需更改的參數:
 '       VERSION_URL: 該工作簿 version.txt
