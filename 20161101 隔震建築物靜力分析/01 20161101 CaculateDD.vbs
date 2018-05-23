@@ -33,6 +33,8 @@ Sub caculate_DD()
         ' Qd / (Ku - Kd)
         ATD = 4 * (D - Qd / Ku) * Qd
         Damping = 1 / 2 / 3.14 * (ATD / KeD / (D * D)) + 0.02
+        ' 也可以這樣寫
+        ' Damping = ATD / (2 * 3.14 * (KeD * D ^ 2)) + 0.02
 
         If Damping <= 0.02 Then
             BS = 0.8
