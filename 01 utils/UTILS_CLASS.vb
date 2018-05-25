@@ -10,6 +10,38 @@
 ' If Then is FASTER than IIF
 ' 若想要最佳化效能 還是需要自己寫一個針對的最快
 ' 呼叫 function 比本地直接執行慢 3.5 倍左右，但是通常都還是會拆分 function，所以我認為沒差。
+'
+' 教學
+' Private ran As UTILS_CLASS
+' Set ran = New UTILS_CLASS
+
+
+Function CreateDictionary(arr, colKey, colValue)
+'
+' 取代內建的 VLookup.
+'
+' @since 2.0.0
+' @param {array} [arr] to create dictionary table.
+' @param {number} [colKey] key column.
+' @param {number} [colValue] value column.
+' @return {object} [CreateDictionary] descrip.
+'
+
+    ' 設定 Dictionary
+    Set objDictionary = CreateObject("Scripting.Dictionary")
+
+    lbArr = LBound(arr, 1)
+    ubArr = UBound(arr, 1)
+
+    For rowArr = lbArr To ubArr
+        If Not objDictionary.Exists(arr(rowArr, colKey)) Then
+            Call objDictionary.Add(arr(rowArr, colKey), arr(rowArr, colValue))
+        End If
+    Next rowArr
+
+    Set CreateDictionary = objDictionary
+
+End Function
 
 
 Function GetRangeToArray(ws, rowStart, colStart, rowEnd, colEnd)
