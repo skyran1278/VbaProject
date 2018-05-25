@@ -95,7 +95,7 @@ End Function
 
 Function CalMultiBreakPoint(arrRebarNumber)
 '
-'
+' TODO: refactoring it
 '
 ' @param
 ' @returns
