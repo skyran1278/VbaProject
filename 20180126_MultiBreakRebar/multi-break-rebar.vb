@@ -33,16 +33,15 @@ Function ClearBeforeOutputData()
 End Function
 
 
-Function CalRebarNumber(arrRawData)
+Function CalRebarTotalNumber(arrRawData)
 '
 ' 計算上下排總支數
-' 計算單排最大支數
 '
 ' @param
 ' @returns
 
     Dim arrRebarNumber()
-    Redim arrRebarNumber(1 To UBound(arrRawData), 1 To 3)
+    ReDim arrRebarNumber(1 To UBound(arrRawData), 1 To 3)
 
     rowStart = 1
     rowEnd = UBound(arrRawData)
@@ -56,13 +55,40 @@ Function CalRebarNumber(arrRawData)
             ' 計算上下排總支數
             arrRebarNumber(i, j - 5) = Int(Split(arrRawData(i, j), "-")(0)) + Int(Split(arrRawData(i + 1, j), "-")(0))
 
+        Next
+    Next
+
+    CalRebarTotalNumber = arrRebarNumber
+
+End Function
+
+
+Function CalRebarMaxNumber(arrRawData)
+'
+' 計算單排最大支數
+'
+' @param
+' @returns
+
+    Dim arrRebarNumber()
+    ReDim arrRebarNumber(1 To UBound(arrRawData), 1 To 3)
+
+    rowStart = 1
+    rowEnd = UBound(arrRawData)
+    colStart = 6
+    colEnd = 8
+
+    ' 一二排相加
+    For i = rowStart To rowEnd Step 2
+        For j = colStart To colEnd
+
             ' 計算單排最大支數
-            ' arrRebarNumber(i + 1, j - 5) = ran.Max(Int(Split(arrRawData(i, j), "-")(0)), Int(Split(arrRawData(i + 1, j), "-")(0)))
+            arrRebarNumber(i, j - 5) = ran.Max(Int(Split(arrRawData(i, j), "-")(0)), Int(Split(arrRawData(i + 1, j), "-")(0)))
 
         Next
     Next
 
-    CalRebarNumber = arrRebarNumber
+    CalRebarMaxNumber = arrRebarNumber
 
 End Function
 
@@ -83,7 +109,7 @@ Function CalMultiBreakPoint(arrRebarNumber)
     ubMultiBreakRebar = UBound(arrMultiBreakRebar)
 
     varleft = 1
-    varmid = 2
+    varMid = 2
     varright = 3
 
     For i = 1 To ubMultiBreakRebar Step 4
@@ -93,14 +119,14 @@ Function CalMultiBreakPoint(arrRebarNumber)
         ' 左端到中央
         ratio = 1
         For j = 1 To 11
-            arrMultiBreakRebar(i, j) = RoundUp(Max(ratio * arrRebarNumber(i, varleft), 2))
+            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varleft), 2))
             ratio = ratio - 0.1
         Next j
 
         ' 中央到右端
         ratio = 0.1
         For j = 12 To 21
-            arrMultiBreakRebar(i, j) = RoundUp(Max(ratio * arrRebarNumber(i, varright), 2))
+            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varright), 2))
             ratio = ratio + 0.1
         Next j
 
@@ -113,14 +139,14 @@ Function CalMultiBreakPoint(arrRebarNumber)
         ' 左端到中央
         ratio = 1
         For j = 1 To 11
-            arrMultiBreakRebar(i, j) = RoundUp(Max(ratio * arrRebarNumber(i, varleft), (1 - ratio ^ 2) * arrRebarNumber(i, varmid), 2))
+            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varleft), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2))
             ratio = ratio - 0.1
         Next j
 
         ' 中央到右端
         ratio = 0.1
         For j = 12 To 21
-            arrMultiBreakRebar(i, j) = RoundUp(Max(ratio * arrRebarNumber(i, varright), (1 - ratio ^ 2) * arrRebarNumber(i, varmid), 2))
+            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varright), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2))
             ratio = ratio + 0.1
         Next j
 
@@ -201,8 +227,11 @@ Sub Main()
     Call ClearBeforeOutputData
 
     arrBeam = ran.GetRangeToArray(wsBeam, 3, 1, 5, 16)
-    arrRebarNumber = CalRebarNumber(arrBeam)
-    arrMultiBreakRebar = CalMultiBreakPoint(arrRebarNumber)
+
+    arrRebarTotalNumber = CalRebarTotalNumber(arrBeam)
+    arrRebarMaxNumber = CalRebarMaxNumber(arrBeam)
+
+    arrMultiBreakRebar = CalMultiBreakPoint(arrRebarTotalNumber)
 
     Call PrintResult(arrMultiBreakRebar)
 
