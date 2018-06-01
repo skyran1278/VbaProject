@@ -7,12 +7,56 @@
 ' LICENSE file in the root directory of this source tree.
 
 
-' * 隨工作簿不同而需更改的參數:
-'       VERSION_URL: 該工作簿 version.txt
-'       DOWNLOAD_URL: 該工作簿 下載檔案位置
-' 依據不同工作簿有不同值
-Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value.txt"
+' 隨工作簿不同而需更改的參數:
+' PASSWORD_URL: 該工作簿 pwd.txt
+' VERSION_URL: 該工作簿 version.txt
+' DOWNLOAD_URL: 該工作簿 下載檔案位置
+Private Const PASSWORD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value-pwd.txt"
+Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value-version.txt"
 Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value.xlsm"
+
+
+Private Sub VerifyPassword()
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+
+    Set srvXmlHttp = CreateObject("MSXML2.serverXMLHTTP")
+
+    srvXmlHttp.Open "GET", "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value.txt", False
+
+    inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", type:=2))
+
+    srvXmlHttp.send
+
+    cloudPwd = srvXmlHttp.ResponseText
+
+    ' 消除空白行
+    cloudPwd = Trim(Replace(cloudPwd, Chr(10), ""))
+
+    While inputPwd <> cloudPwd
+
+        inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", type:=2))
+
+    Wend
+
+    If inputPwd = cloudPwd Then
+
+        MsgBox "Sign In Success"
+
+    Else
+
+        MsgBox "Wrong Password"
+        ThisWorkbook.Close SaveChanges:=False
+
+    End If
+
+End Sub
 
 
 Private Sub Workbook_Open()
@@ -35,54 +79,67 @@ Private Sub Workbook_Open()
 
 
     ' 此程序包含的變數
-    Dim VERSION_SHEET As Worksheet
+    Dim ws_version As Worksheet
     Dim project As String
     Dim currentVersion As String
     Dim latestVersion As String
+    Dim srvXmlHttp As Object
+    Dim inputPwd As String
+    Dim cloud_pwd As String
 
+    Set srvXmlHttp = CreateObject("MSXML2.serverXMLHTTP")
 
-    Set VERSION_SHEET = ThisWorkbook.Worksheets("版本資訊")
+    srvXmlHttp.Open "GET", VERSION_URL, False
+
+    Set ws_version = ThisWorkbook.Worksheets("版本資訊")
 
     ' 位置在 Cells(4, 3)
-    With VERSION_SHEET.QueryTables.Add(Connection:="URL;" & VERSION_URL, _
-        Destination:=VERSION_SHEET.Cells(4, 3))
-        .NAME = "version"
-        .FieldNames = True
-        .RowNumbers = False
-        .FillAdjacentFormulas = False
-        ' .PreserveFormatting = True
-        .RefreshOnFileOpen = False
-        .BackgroundQuery = True
-        .RefreshStyle = xlOverwriteCells '覆蓋文字
-        .SavePassword = False
-        .SaveData = True
-        .AdjustColumnWidth = False
-        ' .RefreshPeriod = 0
-        ' .WebSelectionType = xlEntirePage
-        ' .WebFormatting = xlWebFormattingNone
-        ' .WebPreFormattedTextToColumns = True
-        ' .WebConsecutiveDelimitersAsOne = True
-        ' .WebSingleBlockTextImport = False
-        ' .WebDisableDateRecognition = False
-        ' .WebDisableRedirections = False
-        .Refresh BackgroundQuery:=False
-    End With
+    ' With ws_version.QueryTables.Add(Connection:="URL;" & VERSION_URL, _
+    '     Destination:=ws_version.Cells(4, 3))
+    '     .NAME = "version"
+    '     .FieldNames = True
+    '     .RowNumbers = False
+    '     .FillAdjacentFormulas = False
+    '     ' .PreserveFormatting = True
+    '     .RefreshOnFileOpen = False
+    '     .BackgroundQuery = True
+    '     .RefreshStyle = xlOverwriteCells '覆蓋文字
+    '     .SavePassword = False
+    '     .SaveData = True
+    '     .AdjustColumnWidth = False
+    '     ' .RefreshPeriod = 0
+    '     ' .WebSelectionType = xlEntirePage
+    '     ' .WebFormatting = xlWebFormattingNone
+    '     ' .WebPreFormattedTextToColumns = True
+    '     ' .WebConsecutiveDelimitersAsOne = True
+    '     ' .WebSingleBlockTextImport = False
+    '     ' .WebDisableDateRecognition = False
+    '     ' .WebDisableRedirections = False
+    '     .Refresh BackgroundQuery:=False
+    ' End With
 
 
     ' 移除連線
     ' Mac 版本 Connections 錯誤，所以增加下面一行
     ' On Error Resume Next
-    ThisWorkbook.Connections("連線").Delete
+    ' ThisWorkbook.Connections("連線").Delete
 
     ' 移除名稱
     ' 第二次執行會出現錯誤，但一般來說不會出現第二次。所以先註解掉。
     ' On Error Resume Next
-    ThisWorkbook.Names("版本資訊!version").Delete
+    ' ThisWorkbook.Names("版本資訊!version").Delete
 
 
-    project = VERSION_SHEET.Cells(2, 3)
-    currentVersion = VERSION_SHEET.Cells(3, 3)
-    latestVersion = VERSION_SHEET.Cells(4, 3)
+    project = ws_version.Cells(2, 3)
+    currentVersion = ws_version.Cells(3, 3)
+    ' latestVersion = ws_version.Cells(4, 3)
+
+    srvXmlHttp.send
+
+    latestVersion = srvXmlHttp.ResponseText
+
+    ' 消除空白行
+    latestVersion = Trim(Replace(latestVersion, Chr(10), ""))
 
     If latestVersion > currentVersion Then
 
@@ -102,9 +159,9 @@ Private Sub Workbook_Open()
         End If
     End If
 
-    VERSION_SHEET.Cells.Font.NAME = "微軟正黑體"
-    VERSION_SHEET.Cells.Font.NAME = "Calibri"
-    VERSION_SHEET.Activate
+    ws_version.Cells.Font.NAME = "微軟正黑體"
+    ws_version.Cells.Font.NAME = "Calibri"
+    ws_version.Activate
 
 End Sub
 
