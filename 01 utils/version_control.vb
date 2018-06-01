@@ -13,6 +13,7 @@
 ' DOWNLOAD_URL: 該工作簿 下載檔案位置
 Private Const PASSWORD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value-pwd.txt"
 Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value-version.txt"
+Private Const RELEASE_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value-release.txt"
 Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value.xlsm"
 
 
@@ -26,9 +27,13 @@ Private Sub VerifyPassword()
 ' @see dependencies
 '
 
+    Dim srvXmlHttp As Object
+    Dim inputPwd As String
+    Dim cloudPwd As String
+
     Set srvXmlHttp = CreateObject("MSXML2.serverXMLHTTP")
 
-    srvXmlHttp.Open "GET", "https://github.com/skyran1278/VbaProject/raw/master/20170413_BeamZValue/z-value.txt", False
+    srvXmlHttp.Open "GET", PASSWORD_URL, False
 
     inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", type:=2))
 
@@ -39,22 +44,81 @@ Private Sub VerifyPassword()
     ' 消除空白行
     cloudPwd = Trim(Replace(cloudPwd, Chr(10), ""))
 
-    While inputPwd <> cloudPwd
-
-        inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", type:=2))
-
-    Wend
-
-    If inputPwd = cloudPwd Then
-
-        MsgBox "Sign In Success"
-
-    Else
+    If inputPwd <> cloudPwd Then
 
         MsgBox "Wrong Password"
         ThisWorkbook.Close SaveChanges:=False
 
+    Else
+
+        Application.StatusBar = "Sign In Success."
+
     End If
+
+End Sub
+
+Private Sub CheckVersion()
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+
+    ' 此程序包含的變數
+    Dim srvXmlHttp As Object
+    Dim ws_version As Worksheet
+    Dim project As String
+    Dim currentVersion As String
+    Dim latestVersion As String
+
+    Set srvXmlHttp = CreateObject("MSXML2.serverXMLHTTP")
+
+    srvXmlHttp.Open "GET", VERSION_URL, False
+
+    MsgBox "Click To Check Latest Version."
+
+    Application.StatusBar = "Checking Latest Version..."
+
+    Set ws_version = ThisWorkbook.Worksheets("版本資訊")
+
+    currentVersion = ws_version.Cells(3, 3)
+
+    srvXmlHttp.send
+
+    latestVersion = srvXmlHttp.ResponseText
+
+    srvXmlHttp.Open "GET", RELEASE_URL, False
+    srvXmlHttp.send
+    releaseNotes = srvXmlHttp.ResponseText
+
+    ' 消除空白行
+    latestVersion = Trim(Replace(latestVersion, Chr(10), ""))
+
+    If latestVersion > currentVersion Then
+
+        srvXmlHttp.Open "GET", DOWNLOAD_URL, False
+
+        intMessage = MsgBox("Please Download Latest Version." & vbCrLf & releaseNotes, vbYesNo, project)
+
+        If intMessage = vbYes Then
+
+            srvXmlHttp.send
+            releaseNotes = srvXmlHttp.responseBody
+            MsgBox "請關閉此檔案，並使用從瀏覽器下載的最新版本。", vbOKOnly, project
+
+        Else
+
+            MsgBox "使用舊版程式具有無法預期的風險，建議下載最新版程式。" & vbCrLf & "若需下載新版程式請重開檔案。", vbOKOnly, project
+
+        End If
+    End If
+
+    ws_version.Cells.Font.NAME = "微軟正黑體"
+    ws_version.Cells.Font.NAME = "Calibri"
+    ws_version.Activate
 
 End Sub
 
