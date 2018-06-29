@@ -1,4 +1,4 @@
-Private Sub FilterData()
+Sub FilterData()
 
     Set Assemble = Worksheets("Assembled Point Masses")
     Set Material = Worksheets("Material List By Story")
@@ -70,7 +70,7 @@ Private Sub FilterData()
         , Operator:=xlFilterValues
     ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
     ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=1, Criteria1:=EQfloor
-    Assembled
+    AssembledSub
 
 '-----貼上Scan
 
@@ -177,6 +177,6 @@ Private Sub FilterData()
     Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
-    Unload Me
-
 End Sub
+
+

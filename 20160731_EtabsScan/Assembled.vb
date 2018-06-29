@@ -1,4 +1,4 @@
-Sub Assembled()
+Sub AssembledSub()
 
     Sheets("Assembled Point Masses").Select
     Lastrow = Sheets("Assembled Point Masses").UsedRange.Rows.Count '------------抓取最後一行
@@ -30,6 +30,8 @@ Sub Assembled()
     ' End If
 
 End Sub
+
+
 
 
 
