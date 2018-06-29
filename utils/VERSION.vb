@@ -1,4 +1,4 @@
-' @license Version v2.2.1
+' @license Version v2.2.2
 ' Version.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -10,8 +10,8 @@
 ' 隨工作簿不同而需更改的參數:
 ' VERSION_URL: 該工作簿 version.txt
 ' DOWNLOAD_URL: 該工作簿 下載檔案位置
-Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/01%20utils/example.xlsm"
-Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/01%20utils/Version.txt"
+Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/utils/example.xlsm"
+Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/utils/Version.txt"
 
 Sub VerifyPassword()
 '
