@@ -157,7 +157,6 @@ Private Sub Workbook_Open()
 
     VerifyPassword
     CheckVersion
-    ws_version.Activate
 
 End Sub
 
