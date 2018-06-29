@@ -1,4 +1,4 @@
-' @license Version v2.2.0
+' @license Version v2.1.1
 ' Version.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -10,8 +10,8 @@
 ' 隨工作簿不同而需更改的參數:
 ' VERSION_URL: 該工作簿 version.txt
 ' DOWNLOAD_URL: 該工作簿 下載檔案位置
-Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/01%20utils/exampleVersion.txt"
-Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/01%20utils/example.xlsm"
+Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226_LapLength/LapLengthVersion.txt"
+Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170226_LapLength/LapLength.xlsm"
 
 Sub VerifyPassword()
 '
@@ -152,14 +152,9 @@ Private Sub Workbook_Open()
 '       office 2016 in windows 10
 '       Mac 版本容易出現錯誤，不推薦在 Mac 執行
 
-    Dim ws_version As Worksheet
-    Set ws_version = ThisWorkbook.Worksheets("Release Notes")
 
     VerifyPassword
     CheckVersion
-
-    ws_version.Cells.Font.Name = "微軟正黑體"
-    ws_version.Cells.Font.Name = "Calibri"
 
 End Sub
 
