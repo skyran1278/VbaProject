@@ -32,7 +32,7 @@ Sub VerifyPassword()
 
     srvXmlHttp.Open "GET", passwordUrl, False
 
-    inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", type:=2))
+    inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", Type:=2))
 
     srvXmlHttp.send
 
@@ -162,5 +162,6 @@ Private Sub Workbook_Open()
     ws_version.Cells.Font.Name = "Calibri"
 
 End Sub
+
 
 

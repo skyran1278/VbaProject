@@ -1,4 +1,4 @@
-' @license Version v2.2.2
+' @license Version v2.2.3
 ' Version.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -32,7 +32,7 @@ Sub VerifyPassword()
 
     srvXmlHttp.Open "GET", passwordUrl, False
 
-    inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", type:=2))
+    inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", Type:=2))
 
     srvXmlHttp.send
 
