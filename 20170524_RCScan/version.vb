@@ -1,6 +1,142 @@
+' @license Version v2.2.3
+' Version.vb
+'
+' Copyright (c) 2016-present, skyran
+'
+' This source code is licensed under the MIT license found in the
+' LICENSE file in the root directory of this source tree.
+
+
+' 隨工作簿不同而需更改的參數:
+' VERSION_URL: 該工作簿 version.txt
+' DOWNLOAD_URL: 該工作簿 下載檔案位置
+Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170524_RCScan/RCScan.xlsm"
+Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170524_RCScan/Version.txt"
+
+Sub VerifyPassword()
+'
+' 驗證密碼.
+'
+' @since 1.0.0
+'
+
+    Dim srvXmlHttp As Object
+    Dim inputPwd As String
+    Dim cloudPwd As String
+    Dim passwordUrl As String
+
+    ' passwordUrl: pwd.txt
+    passwordUrl = "https://github.com/skyran1278/VbaProject/raw/master/utils/pwd.txt"
+
+    Set srvXmlHttp = CreateObject("MSXML2.serverXMLHTTP")
+
+    srvXmlHttp.Open "GET", passwordUrl, False
+
+    inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", Type:=2))
+
+    srvXmlHttp.send
+
+    cloudPwd = srvXmlHttp.ResponseText
+
+    ' 消除空白行
+    cloudPwd = Trim(Replace(cloudPwd, Chr(10), ""))
+
+    If inputPwd <> cloudPwd Then
+
+        MsgBox "Wrong Password"
+        ThisWorkbook.Close SaveChanges:=False
+
+    Else
+
+        MsgBox "Sign In Success"
+
+    End If
+
+End Sub
+
+
+Sub CheckVersion()
+'
+' 驗證版本號.
+'
+' @since 1.0.0
+'
+
+    ' 此程序包含的變數
+    Dim srvXmlHttp As Object
+    Dim shell As Object
+    Dim ws_version As Worksheet
+    Dim currentVersion As String
+    Dim latestVersion As String
+    Dim releaseNotes As String
+
+    Set srvXmlHttp = CreateObject("MSXML2.serverXMLHTTP")
+
+    Set ws_version = ThisWorkbook.Worksheets("Release Notes")
+
+    Application.StatusBar = "Checking Latest Version..."
+
+    srvXmlHttp.Open "GET", VERSION_URL, False
+
+    srvXmlHttp.send
+
+    latestVersionAndReleaseNotes = srvXmlHttp.ResponseText
+
+    currentVersion = ws_version.Cells(3, 3)
+
+    ' 區分版本號和更新說明
+    latestVersionAndReleaseNotes = Split(latestVersionAndReleaseNotes, Chr(10) & "===" & Chr(10))
+    latestVersion = latestVersionAndReleaseNotes(0)
+    releaseNotes = latestVersionAndReleaseNotes(1)
+
+    If CompareVersion(currentVersion, latestVersion) Then
+
+        If MsgBox(releaseNotes, vbYesNo, "Download Latest Version From Browser") = vbYes Then
+
+            Set shell = CreateObject("Wscript.Shell")
+            shell.Run (DOWNLOAD_URL)
+            MsgBox "Please close this file and use new file from browser.", vbOKOnly
+
+        End If
+
+    End If
+
+End Sub
+
+
+Private Function CompareVersion(currentVersion As String, latestVersion As String)
+'
+' compare which version is latest.
+'
+' @since 1.0.0
+' @param {string} [currentVersion] currentVersion.
+' @param {string} [latestVersion] latestVersion.
+' @return {boolean} [CompareVersion] latestVersion > currentVersion return true.
+'
+
+    arrCurrentVersion = Split(currentVersion, ".")
+    arrLatestVersion = Split(latestVersion, ".")
+
+    If arrLatestVersion(0) > arrCurrentVersion(0) Then
+        CompareVersion = True
+
+    ElseIf arrLatestVersion(1) > arrCurrentVersion(1) Then
+        CompareVersion = True
+
+    ElseIf arrLatestVersion(2) > arrCurrentVersion(2) Then
+        CompareVersion = True
+
+    Else
+        CompareVersion = False
+
+    End If
+
+End Function
+
+
 Private Sub Workbook_Open()
 '
-' * 目的: 檢查程式最新版本，並自動提示更新
+' * 目的: 驗證密碼，檢查程式最新版本，並自動提示更新
 '
 ' * 隨工作簿不同而需更改的參數:
 '       VERSION_URL: 該工作簿 version.txt
@@ -16,86 +152,14 @@ Private Sub Workbook_Open()
 '       office 2016 in windows 10
 '       Mac 版本容易出現錯誤，不推薦在 Mac 執行
 
+    Dim ws_version As Worksheet
+    Set ws_version = ThisWorkbook.Worksheets("Release Notes")
 
-    ' 此程序包含的變數
-    Dim DOWNLOAD_URL As String
-    Dim VERSION_URL As String
+    VerifyPassword
+    CheckVersion
 
-    Dim VERSION_SHEET As Worksheet
-    Dim project As String
-    Dim currentVersion As String
-    Dim latestVersion As String
-
-
-    ' 依據不同工作簿有不同值
-    VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170524_RCScan/version.txt"
-    DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20170524_RCScan/rc-scan.xlsm"
-
-
-    Set VERSION_SHEET = ThisWorkbook.Worksheets("版本資訊")
-
-    ' 位置在 Cells(4, 3)
-    With VERSION_SHEET.QueryTables.Add(Connection:="URL;" & VERSION_URL, _
-        Destination:=VERSION_SHEET.Cells(4, 3))
-        .NAME = "version"
-        .FieldNames = True
-        .RowNumbers = False
-        .FillAdjacentFormulas = False
-        ' .PreserveFormatting = True
-        .RefreshOnFileOpen = False
-        .BackgroundQuery = True
-        .RefreshStyle = xlOverwriteCells '覆蓋文字
-        .SavePassword = False
-        .SaveData = True
-        .AdjustColumnWidth = False
-        ' .RefreshPeriod = 0
-        ' .WebSelectionType = xlEntirePage
-        ' .WebFormatting = xlWebFormattingNone
-        ' .WebPreFormattedTextToColumns = True
-        ' .WebConsecutiveDelimitersAsOne = True
-        ' .WebSingleBlockTextImport = False
-        ' .WebDisableDateRecognition = False
-        ' .WebDisableRedirections = False
-        .Refresh BackgroundQuery:=False
-    End With
-
-
-    ' 移除連線
-    ' Mac 版本 Connections 錯誤，所以增加下面一行
-    ' On Error Resume Next
-    ThisWorkbook.Connections("連線").Delete
-
-    ' 移除名稱
-    ' 第二次執行會出現錯誤，但一般來說不會出現第二次。所以先註解掉。
-    ' On Error Resume Next
-    ThisWorkbook.Names("版本資訊!version").Delete
-
-
-    project = VERSION_SHEET.Cells(2, 3)
-    currentVersion = VERSION_SHEET.Cells(3, 3)
-    latestVersion = VERSION_SHEET.Cells(4, 3)
-
-    If latestVersion > currentVersion Then
-
-        intMessage = MsgBox("下載最新版本...", vbYesNo, project)
-
-        If intMessage = vbYes Then
-
-            ' Mac 版本出現錯誤，不推薦在 Mac 執行
-            Set OBJ_SHELL = CreateObject("Wscript.Shell")
-            OBJ_SHELL.Run (DOWNLOAD_URL)
-            MsgBox "請關閉此檔案，並使用從瀏覽器下載的最新版本。", vbOKOnly, project
-
-        Else
-
-            MsgBox "使用舊版程式具有無法預期的風險，建議下載最新版程式。" & vbCrLf & "若需下載新版程式請重開檔案。", vbOKOnly, project
-
-        End If
-    End If
-
-    VERSION_SHEET.Cells.Font.NAME = "微軟正黑體"
-    VERSION_SHEET.Cells.Font.NAME = "Calibri"
-    VERSION_SHEET.Activate
+    ws_version.Cells.Font.Name = "微軟正黑體"
+    ws_version.Cells.Font.Name = "Calibri"
 
 End Sub
 
