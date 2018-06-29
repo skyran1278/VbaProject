@@ -1,4 +1,33 @@
 // 將您的設定放入此檔案中以覆寫預設值和使用者設定。
 {
-  "editor.tabSize": 4
+  "editor.tabSize": 4,
+  "cSpell.enabledLanguageIds": [
+    "asciidoc",
+    "c",
+    "cpp",
+    "csharp",
+    "css",
+    "go",
+    "handlebars",
+    "html",
+    "jade",
+    "javascript",
+    "javascriptreact",
+    "json",
+    "latex",
+    "less",
+    "markdown",
+    "php",
+    "plaintext",
+    "pub",
+    "python",
+    "restructuredtext",
+    "rust",
+    "scss",
+    "text",
+    "typescript",
+    "typescriptreact",
+    "vb",
+    "yml"
+  ]
 }
