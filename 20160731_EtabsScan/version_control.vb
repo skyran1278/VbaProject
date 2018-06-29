@@ -11,9 +11,9 @@
 ' PASSWORD_URL: 該工作簿 pwd.txt
 ' VERSION_URL: 該工作簿 version.txt
 ' DOWNLOAD_URL: 該工作簿 下載檔案位置
-Private Const PASSWORD_URL = "https://github.com/skyran1278/VbaProject/raw/master/01%20utils/example-pwd.txt"
-Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/01%20utils/example-version.txt"
-Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/01%20utils/example.xlsm"
+Private Const PASSWORD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20160731_EtabsScan/EtabsScanPwd.txt"
+Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20160731_EtabsScan/EtabsScanVersion.txt"
+Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20160731_EtabsScan/EtabsScan.xlsm"
 
 Sub VerifyPassword()
 '
