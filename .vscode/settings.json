@@ -29,5 +29,8 @@
     "typescriptreact",
     "vb",
     "yml"
+  ],
+  "cSpell.words": [
+    "rebar"
   ]
 }
