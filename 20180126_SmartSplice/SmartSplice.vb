@@ -23,7 +23,7 @@ Function GetRebarSizeToDb()
 End Function
 
 
-Function ClearBeforeOutputData()
+Function ClearPrevOutputData()
 '
 ' 清空前次輸出的資料
 '
@@ -108,9 +108,9 @@ Function CalMultiBreakPoint(arrRebarNumber)
 
     ubMultiBreakRebar = UBound(arrMultiBreakRebar)
 
-    varleft = 1
+    varLeft = 1
     varMid = 2
-    varright = 3
+    varRight = 3
 
     For i = 1 To ubMultiBreakRebar Step 4
 
@@ -119,14 +119,14 @@ Function CalMultiBreakPoint(arrRebarNumber)
         ' 左端到中央
         ratio = 1
         For j = 1 To 11
-            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varleft), 2))
+            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varLeft), 2))
             ratio = ratio - 0.1
         Next j
 
         ' 中央到右端
         ratio = 0.1
         For j = 12 To 21
-            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varright), 2))
+            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varRight), 2))
             ratio = ratio + 0.1
         Next j
 
@@ -139,14 +139,14 @@ Function CalMultiBreakPoint(arrRebarNumber)
         ' 左端到中央
         ratio = 1
         For j = 1 To 11
-            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varleft), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2))
+            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varLeft), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2))
             ratio = ratio - 0.1
         Next j
 
         ' 中央到右端
         ratio = 0.1
         For j = 12 To 21
-            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varright), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2))
+            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varRight), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2))
             ratio = ratio + 0.1
         Next j
 
@@ -217,6 +217,7 @@ Sub Main()
 
     Call ran.PerformanceVBA(True)
 
+    ' global var
     Set wsBeam = Worksheets("小梁配筋")
     Set wsResult = Worksheets("最佳化斷筋點")
 
@@ -224,7 +225,7 @@ Sub Main()
 
     Set objRebarSizeToDb = GetRebarSizeToDb()
 
-    Call ClearBeforeOutputData
+    Call ClearPrevOutputData
 
     arrBeam = ran.GetRangeToArray(wsBeam, 3, 1, 5, 16)
 

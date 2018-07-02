@@ -131,6 +131,11 @@ Function CalRebarArea(REBAR)
 
     tmp = Split(REBAR, "-")
 
+    If UBound(tmp) < 1 Then
+        CalRebarArea = 0
+        Exit Function
+    End If
+
     ' 轉換鋼筋尺寸為截面積
     tmp(1) = Application.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
 
@@ -174,6 +179,9 @@ Function RatioData()
     ' 計算鋼筋比
     For i = DATA_ROW_START To DATA_ROW_END
         RATIO_DATA(i, REBAR) = CalRebarArea(RAW_DATA(i, REBAR)) / (RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y))
+        If RATIO_DATA(i, REBAR) = 0 Then
+            MsgBox "Please Check " & i & " row in 柱配筋.", vbOKOnly, "Error"
+        End If
     Next
 
     ' 計算箍筋與繫筋面積
@@ -187,9 +195,9 @@ Function RatioData()
 End Function
 
 
-Function WarningMessage(warinigMessageCode, i)
+Function WarningMessage(warningMessageCode, i)
 
-    MESSAGE(i) = warinigMessageCode & vbCrLf & MESSAGE(i)
+    MESSAGE(i) = warningMessageCode & vbCrLf & MESSAGE(i)
 
 End Function
 
@@ -387,6 +395,7 @@ End Function
 Function EconomicTopStoryRebar()
 '
 ' 頂樓區鋼筋比不大於 1.2 %
+' TOP_STORY 為 RF 不含屋突
 '
 
     ' 頂樓區 1/4
