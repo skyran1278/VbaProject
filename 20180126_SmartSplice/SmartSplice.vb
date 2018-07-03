@@ -225,10 +225,10 @@ Private Function CalLapLength(arrBeam)
         fy_ = objStoryToFy.Item(story)
         fyt_ = objStoryToFyt.Item(story)
         fc_ = objStoryToFc.Item(story)
-        cover_ = objStoryToCover.Item(story)
+        cover = objStoryToCover.Item(story)
 
-        width = arrBeam(i, 3)
-        length = arrBeam(i, 13)
+        width_ = arrBeam(i, 3)
+        length_ = arrBeam(i, 13)
 
         ' loop 左中右
         For j = 6 To 8
@@ -256,9 +256,9 @@ Private Function CalLapLength(arrBeam)
                     fyDb = objRebarSizeToDb.Item(barSize)
 
                     ' 有加主筋之半
-                    cc_ = cover_ + fytDb + fyDb / 2
+                    cc_ = cover + fytDb + fyDb / 2
                     ' 有加主筋之半
-                    cs_ = ((width - fyDb * fyNum - fytDb * 2 - cover_ * 2) / (fyNum - 1) + fyDb) / 2
+                    cs_ = ((width_ - fyDb * fyNum - fytDb * 2 - cover * 2) / (fyNum - 1) + fyDb) / 2
 
                 End If
 
