@@ -1,4 +1,4 @@
-' @license Version v2.2.4
+' @license Version v2.2.5
 ' Version.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -155,8 +155,8 @@ Private Sub Workbook_Open()
     ' Dim ws_version As Worksheet
     ' Set ws_version = ThisWorkbook.Worksheets("Release Notes")
 
-    VerifyPassword
-    CheckVersion
+    Call VerifyPassword
+    Call CheckVersion
 
     ' ws_version.Cells.Font.Name = "微軟正黑體"
     ' ws_version.Cells.Font.Name = "Calibri"

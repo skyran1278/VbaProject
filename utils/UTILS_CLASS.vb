@@ -1,4 +1,4 @@
-' @license UTILS_CLASS v2.0.0
+' @license UTILS_CLASS v2.0.1
 ' UTILS_CLASS.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -25,7 +25,8 @@ Function CreateDictionary(arr, colKey, colValue)
 ' @param {number} [colKey] key column.
 ' @param {number} [colValue] value column.
 ' @return {object} [CreateDictionary] descrip.
-'
+' @example
+' objDictionary.Item(key)
 
     ' 設定 Dictionary
     Set objDictionary = CreateObject("Scripting.Dictionary")

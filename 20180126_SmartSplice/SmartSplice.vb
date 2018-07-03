@@ -1,24 +1,31 @@
+Private ran As UTILS_CLASS
 Private wsBeam As Worksheet
 Private wsResult As Worksheet
 Private objRebarSizeToDb As Object
-Private arrInfo
-Private ran As UTILS_CLASS
+Private objStoryToFy As Object
+Private objStoryToFyt As Object
+Private objStoryToFc As Object
+Private objStoryToCover As Object
 
-
-Function GetRebarSizeToDb()
+Private Function SetGlobalVar()
 '
-' 取得 rebar size area 資料
-' 取代內建的 VLookup，效能大幅提升。
+' set global variable.
 '
-' @returns GetRebarSizeToDb(Object)
+' @since 1.0.0
+'
 
-    Dim wsRebarSize As Worksheet
-    Set wsRebarSize = Worksheets("Rebar Size")
+    ' global var
+    Set wsBeam = Worksheets("小梁配筋")
+    Set wsResult = Worksheets("最佳化斷筋點")
 
-    ' 取資料
-    arrRebar = ran.GetRangeToArray(wsRebarSize, 1, 1, 1, 10)
+    Set objRebarSizeToDb = ran.CreateDictionary(ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10), 1, 7)
 
-    Set GetRebarSizeToDb = ran.CreateDictionary(arrRebar, 1, 7)
+    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 8, 8)
+
+    Set objStoryToFy = ran.CreateDictionary(arrInfo, 1, 2)
+    Set objStoryToFyt = ran.CreateDictionary(arrInfo, 1, 3)
+    Set objStoryToFc = ran.CreateDictionary(arrInfo, 1, 4)
+    Set objStoryToCover = ran.CreateDictionary(arrInfo, 1, 5)
 
 End Function
 
@@ -95,7 +102,6 @@ End Function
 
 Function CalMultiBreakPoint(arrRebarNumber)
 '
-' TODO: refactoring it
 '
 ' @param
 ' @returns
@@ -193,6 +199,80 @@ Function PrintResult(arrResult)
 End Function
 
 
+Private Function CalLapLength(arrBeam)
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+
+    Dim arrLapLength
+
+    ubBeam = UBound(arrBeam)
+
+    ReDim arrLapLength(1 To ubBeam, 1 To 3)
+
+    ubLapLength = UBound(arrLapLength)
+
+    ' loop 全部
+    For i = 1 To ubLapLength Step 4
+
+        story = arrBeam(i, 1)
+
+        fy_ = objStoryToFy.Item(story)
+        fyt_ = objStoryToFyt.Item(story)
+        fc_ = objStoryToFc.Item(story)
+        cover_ = objStoryToCover.Item(story)
+
+        width = arrBeam(i, 3)
+        length = arrBeam(i, 13)
+
+        ' loop 左中右
+        For j = 6 To 8
+
+            colBar = j
+            colStirrup = j + 4
+            colLapLength = j - 5
+
+            tmp = Split(arrBeam(i, colStirrup), "@")
+            stirrupSize = tmp(0)
+            stirrupNum = Int(tmp(1))
+
+            fytDb = objRebarSizeToDb.Item(stirrupSize)
+
+            ' loop 上下排
+            For k = 0 To 4
+
+                tmp = Split(arrBeam(i + k, colBar), "-")
+                fyNum = Int(tmp(0))
+
+                If fyNum = 0 Then
+                    arrLapLength(i + k, colLapLength) = 0
+                Else
+                    barSize = tmp(1)
+                    fyDb = objRebarSizeToDb.Item(barSize)
+
+                    ' 有加主筋之半
+                    cc_ = cover_ + fytDb + fyDb / 2
+                    ' 有加主筋之半
+                    cs_ = ((width - fyDb * fyNum - fytDb * 2 - cover_ * 2) / (fyNum - 1) + fyDb) / 2
+
+                End If
+
+            Next k
+
+        Next j
+
+    Next i
+
+    CalMultiBreakPoint = arrLapLength
+
+End Function
+
+
 Sub Main()
 '
 ' @purpose:
@@ -210,6 +290,7 @@ Sub Main()
 '
 
     Dim time0 As Double
+    Dim objRebarSizeToDb As Object
 
     Set ran = New UTILS_CLASS
 
@@ -217,22 +298,18 @@ Sub Main()
 
     Call ran.PerformanceVBA(True)
 
-    ' global var
-    Set wsBeam = Worksheets("小梁配筋")
-    Set wsResult = Worksheets("最佳化斷筋點")
-
-    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 4, 12)
-
-    Set objRebarSizeToDb = GetRebarSizeToDb()
+    Call SetGlobalVar
 
     Call ClearPrevOutputData
 
+    ' 不包含標題
     arrBeam = ran.GetRangeToArray(wsBeam, 3, 1, 5, 16)
 
     arrRebarTotalNumber = CalRebarTotalNumber(arrBeam)
     arrRebarMaxNumber = CalRebarMaxNumber(arrBeam)
 
     arrMultiBreakRebar = CalMultiBreakPoint(arrRebarTotalNumber)
+    arrMultiBreakRebar = CalLapLength(arrBeam)
 
     Call PrintResult(arrMultiBreakRebar)
 
