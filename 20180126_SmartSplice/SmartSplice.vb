@@ -201,7 +201,7 @@ End Function
 
 Private Function CalLapLength(arrBeam)
 '
-' descrip.
+' TODO: 可以做優化，如果算過了就不用再算一次.
 '
 ' @since 1.0.0
 ' @param {type} [name] descrip.
@@ -210,6 +210,16 @@ Private Function CalLapLength(arrBeam)
 '
 
     Dim arrLapLength
+
+    pi_ = 3.1415926
+
+    ' 鋼筋塗布修正因數
+    ' 未塗布鋼筋
+    psiE = 1
+
+    ' 混凝土單位重之修正因數
+    ' 於常重混凝土內之鋼筋
+    lambda = 1
 
     ubBeam = UBound(arrBeam)
 
@@ -239,12 +249,12 @@ Private Function CalLapLength(arrBeam)
 
             tmp = Split(arrBeam(i, colStirrup), "@")
             stirrupSize = tmp(0)
-            stirrupNum = Int(tmp(1))
+            stirrupSpace = Int(tmp(1))
 
             fytDb = objRebarSizeToDb.Item(stirrupSize)
 
             ' loop 上下排
-            For k = 0 To 4
+            For k = 0 To 3
 
                 tmp = Split(arrBeam(i + k, colBar), "-")
                 fyNum = Int(tmp(0))
@@ -255,10 +265,56 @@ Private Function CalLapLength(arrBeam)
                     barSize = tmp(1)
                     fyDb = objRebarSizeToDb.Item(barSize)
 
+                    If k < 2 Then
+                    ' 上層筋
+                        psiT = 1.3
+                    Else
+                    ' 下層筋
+                        psiT = 1
+                    End If
+
+                    ' 由於詳細計算法沒有收入簡算法可以修正的條件，所以到最後會比簡算法長，所以用簡算法來訂定上限。
+                    ' 鋼筋尺寸修正因數
+                    If fyDb >= 2 Then
+                        simpleLd = 0.19 * fy_ * psiT * psiE * lambda / Sqr(fc_) * fyDb
+                        psiS = 1
+                    Else
+                        simpleLd = 0.15 * fy_ * psiT * psiE * lambda / Sqr(fc_) * fyDb
+                        psiS = 0.8
+                    End If
+
+
+
                     ' 有加主筋之半
                     cc_ = cover + fytDb + fyDb / 2
+
                     ' 有加主筋之半
                     cs_ = ((width_ - fyDb * fyNum - fytDb * 2 - cover * 2) / (fyNum - 1) + fyDb) / 2
+
+                    If cs_ <= cc_ Then
+                    ' 水平劈裂
+
+                        cb_ = cs_
+                        atr_ = 2 * pi_ * fytDb ^ 2 / 4
+                        ktr_ = atr_ * fyt_ / 105 / stirrupSpace / fyNum
+
+                    Else
+                    ' 垂直劈裂
+
+                        cb_ = cc_
+                        atr_ = pi_ * fytDb ^ 2 / 4
+                        ktr_ = atr_ * fyt_ / 105 / stirrupSpace
+
+                    End If
+
+                    ldb_ = 0.28 * fy_ / Sqr(fc_) * fyDb
+
+                    factor = psiT * psiE * psiS * lambda / ran.Min((cb_ + ktr_) / fyDb, 2.5)
+
+                    ld_ = factor * ldb_
+
+                    ' 乙級搭接 * 1.3
+                    arrLapLength(i + k, colLapLength) = Fix(1.3 * ran.Min(ld_, simpleLd)) + 1
 
                 End If
 
@@ -268,7 +324,7 @@ Private Function CalLapLength(arrBeam)
 
     Next i
 
-    CalMultiBreakPoint = arrLapLength
+    CalLapLength = arrLapLength
 
 End Function
 
@@ -308,8 +364,9 @@ Sub Main()
     arrRebarTotalNumber = CalRebarTotalNumber(arrBeam)
     arrRebarMaxNumber = CalRebarMaxNumber(arrBeam)
 
+    arrLapLength = CalLapLength(arrBeam)
+
     arrMultiBreakRebar = CalMultiBreakPoint(arrRebarTotalNumber)
-    arrMultiBreakRebar = CalLapLength(arrBeam)
 
     Call PrintResult(arrMultiBreakRebar)
 
