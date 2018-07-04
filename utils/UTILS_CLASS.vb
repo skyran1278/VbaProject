@@ -1,4 +1,4 @@
-' @license UTILS_CLASS v2.0.1
+' @license UTILS_CLASS v2.0.2
 ' UTILS_CLASS.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -84,7 +84,8 @@ Function FontSetting(ws)
 
 End Function
 
-
+' 使用這個要小心，會怪怪的
+' 估計是遇到了 VBA 底層的問題
 Function RoundUp(ByVal Value As Double)
     If Int(Value) = Value Then
         RoundUp = Value

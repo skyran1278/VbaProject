@@ -1,4 +1,7 @@
+Private Const varSpliceNum = 10
+
 Private ran As UTILS_CLASS
+Private APP
 Private wsBeam As Worksheet
 Private wsResult As Worksheet
 Private objRebarSizeToDb As Object
@@ -15,7 +18,7 @@ Private Function SetGlobalVar()
 '
 
     ' global var
-    Set wsBeam = Worksheets("小梁配筋")
+    Set wsBeam = Worksheets("大梁配筋")
     Set wsResult = Worksheets("最佳化斷筋點")
 
     Set objRebarSizeToDb = ran.CreateDictionary(ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10), 1, 7)
@@ -40,7 +43,7 @@ Function ClearPrevOutputData()
 End Function
 
 
-Function CalRebarTotalNumber(arrRawData)
+Function CalRebarTotalNumber(ByVal arrRawData)
 '
 ' 計算上下排總支數
 '
@@ -70,7 +73,7 @@ Function CalRebarTotalNumber(arrRawData)
 End Function
 
 
-Function CalRebarMaxNumber(arrRawData)
+Function CalRebarMaxNumber(ByVal arrRawData)
 '
 ' 計算單排最大支數
 '
@@ -100,7 +103,7 @@ Function CalRebarMaxNumber(arrRawData)
 End Function
 
 
-Function CalMultiBreakPoint(arrRebarNumber)
+Function CalMultiBreakPoint(ByVal arrRebarNumber)
 '
 '
 ' @param
@@ -110,7 +113,7 @@ Function CalMultiBreakPoint(arrRebarNumber)
 
     ubRebarNumber = UBound(arrRebarNumber)
 
-    ReDim arrMultiBreakRebar(1 To ubRebarNumber, 21)
+    ReDim arrMultiBreakRebar(1 To ubRebarNumber, varSpliceNum)
 
     ubMultiBreakRebar = UBound(arrMultiBreakRebar)
 
@@ -118,22 +121,28 @@ Function CalMultiBreakPoint(arrRebarNumber)
     varMid = 2
     varRight = 3
 
+    ' 一半的地方
+    varHalfOfSpliceNum = APP.RoundUp(varSpliceNum / 2, 0)
+
+    ' 遞減的斜率
+    slope = 1 / varHalfOfSpliceNum
+
     For i = 1 To ubMultiBreakRebar Step 4
 
         arrMultiBreakRebar(i, 0) = "上層"
 
         ' 左端到中央
         ratio = 1
-        For j = 1 To 11
-            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varLeft), 2))
-            ratio = ratio - 0.1
+        For j = 1 To varHalfOfSpliceNum
+            arrMultiBreakRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarNumber(i, varLeft), 2), 0)
+            ratio = ratio - slope
         Next j
 
         ' 中央到右端
-        ratio = 0.1
-        For j = 12 To 21
-            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varRight), 2))
-            ratio = ratio + 0.1
+        ratio = slope
+        For j = varHalfOfSpliceNum + 1 To varSpliceNum
+            arrMultiBreakRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarNumber(i, varRight), 2), 0)
+            ratio = ratio + slope
         Next j
 
     Next i
@@ -144,16 +153,16 @@ Function CalMultiBreakPoint(arrRebarNumber)
 
         ' 左端到中央
         ratio = 1
-        For j = 1 To 11
-            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varLeft), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2))
-            ratio = ratio - 0.1
+        For j = 1 To varHalfOfSpliceNum
+            arrMultiBreakRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarNumber(i, varLeft), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2), 0)
+            ratio = ratio - slope
         Next j
 
         ' 中央到右端
-        ratio = 0.1
-        For j = 12 To 21
-            arrMultiBreakRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarNumber(i, varRight), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2))
-            ratio = ratio + 0.1
+        ratio = slope
+        For j = varHalfOfSpliceNum + 1 To varSpliceNum
+            arrMultiBreakRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarNumber(i, varRight), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2), 0)
+            ratio = ratio + slope
         Next j
 
     Next i
@@ -164,7 +173,7 @@ Function CalMultiBreakPoint(arrRebarNumber)
 End Function
 
 
-Function PrintResult(arrResult)
+Function PrintResult(ByVal arrResult, ByVal colStart)
 '
 ' 列印出最佳化結果
 '
@@ -172,7 +181,6 @@ Function PrintResult(arrResult)
 
     With wsResult
         rowStart = 3
-        colStart = 3
         rowEnd = rowStart + UBound(arrResult, 1) - 1
         colEnd = colStart + UBound(arrResult, 2)
 
@@ -199,14 +207,15 @@ Function PrintResult(arrResult)
 End Function
 
 
-Private Function CalLapLength(arrBeam)
+Private Function CalLapLength(ByVal arrBeam)
 '
 ' TODO: 可以做優化，如果算過了就不用再算一次.
+' 計算不同主筋的搭接長度.
+' 回傳比例 除以梁長.
 '
 ' @since 1.0.0
-' @param {type} [name] descrip.
-' @return {type} [name] descrip.
-' @see dependencies
+' @param {array} [arrBeam] RCAD 匯出的配筋.
+' @return {array} [CalLapLength] 精算法的搭接長度 格式與 arrRebarTotalNumber 對齊.
 '
 
     Dim arrLapLength
@@ -314,7 +323,10 @@ Private Function CalLapLength(arrBeam)
                     ld_ = factor * ldb_
 
                     ' 乙級搭接 * 1.3
-                    arrLapLength(i + k, colLapLength) = Fix(1.3 * ran.Min(ld_, simpleLd)) + 1
+                    arrLapLength(i + k, colLapLength) = APP.RoundUp(1.3 * ran.Min(ld_, simpleLd), 0)
+
+                    ' 換算成比例
+                    arrLapLength(i + k, colLapLength) = arrLapLength(i + k, colLapLength) / length_
 
                 End If
 
@@ -325,6 +337,213 @@ Private Function CalLapLength(arrBeam)
     Next i
 
     CalLapLength = arrLapLength
+
+End Function
+
+
+Function CalMultiLapLength(ByVal arrLapLengthRatio)
+'
+' 有計算 1 2 排最大值
+'
+' @param
+' @returns
+
+    Dim arrMultiLapLength
+
+    ubLapLengthRatio = UBound(arrLapLengthRatio)
+
+    ReDim arrMultiLapLength(1 To ubLapLengthRatio, varSpliceNum)
+
+    ubMultiLapLength = UBound(arrMultiLapLength)
+
+    varLeft = 1
+    varMid = 2
+    varRight = 3
+
+    varOneThreeSpliceNum = APP.RoundUp(varSpliceNum / 3, 0)
+    varTwoThreeSpliceNum = APP.RoundUp(2 * varSpliceNum / 3, 0)
+
+    For i = 1 To ubMultiLapLength
+
+        For j = varLeft To varRight
+
+            ' 轉換成格數
+            arrLapLengthRatio(i, j) = APP.RoundUp(arrLapLengthRatio(i, j) / (1 / varSpliceNum), 0)
+
+        Next j
+
+    Next i
+
+    For i = 1 To ubMultiLapLength Step 2
+
+        ' 這裡有一個 bug 就是要先抽離變數，否則進去 Max 型態會改變造成錯誤.
+        ' 左端
+        For j = 1 To varOneThreeSpliceNum
+            row1 = arrLapLengthRatio(i, varLeft)
+            row2 = arrLapLengthRatio(i + 1, varLeft)
+            arrMultiLapLength(i, j) = APP.RoundUp(ran.Max(row1, row2), 0)
+        Next j
+
+        ' 中央
+        For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum
+            row1 = arrLapLengthRatio(i, varMid)
+            row2 = arrLapLengthRatio(i + 1, varMid)
+            arrMultiLapLength(i, j) = APP.RoundUp(ran.Max(row1, row2), 0)
+        Next j
+
+        ' 右端
+        For j = varTwoThreeSpliceNum + 1 To varSpliceNum
+            row1 = arrLapLengthRatio(i, varRight)
+            row2 = arrLapLengthRatio(i + 1, varRight)
+            arrMultiLapLength(i, j) = APP.RoundUp(ran.Max(row1, row2), 0)
+        Next j
+
+    Next i
+
+    CalMultiLapLength = arrMultiLapLength
+
+
+End Function
+
+
+Private Function CalSplice(ByVal arrMultiBreakRebar, ByVal arrMultiLapLength)
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+
+    Dim arrSplice
+
+    arrSplice = arrMultiBreakRebar
+
+    ubSmartSplice = UBound(arrSplice)
+
+    For i = 1 To ubSmartSplice
+
+        For j = 1 To varSpliceNum
+
+            ' 輸出要延伸幾格
+            lapLength = arrMultiLapLength(i, j)
+
+            For k = 1 To lapLength
+
+                If j + k <= varSpliceNum Then
+
+                    prevBar = arrSplice(i, j + k)
+                    lapBar = arrMultiBreakRebar(i, j)
+
+                    arrSplice(i, j + k) = ran.Max(prevBar, lapBar)
+
+                End If
+
+            Next k
+
+        Next j
+
+        For j = varSpliceNum To 1 Step -1
+
+            ' 輸出要延伸幾格
+            lapLength = arrMultiLapLength(i, j)
+
+            For k = 1 To lapLength
+
+                If j - k >= 1 Then
+
+                    prevBar = arrSplice(i, j - k)
+                    lapBar = arrMultiBreakRebar(i, j)
+
+                    arrSplice(i, j - k) = ran.Max(prevBar, lapBar)
+
+                End If
+
+            Next k
+
+        Next j
+
+    Next i
+
+    CalSplice = arrSplice
+
+End Function
+
+
+Function CalMultiBreakRebarNormal(arrRebarTotalNumber)
+'
+'
+' @param
+' @returns
+
+    Dim arrMultiBreakRebarNormal
+
+    ubRebarNumber = UBound(arrRebarTotalNumber)
+
+    ReDim arrMultiBreakRebarNormal(1 To ubRebarNumber, varSpliceNum)
+
+    ubMultiBreakRebar = UBound(arrMultiBreakRebarNormal)
+
+    varLeft = 1
+    varMid = 2
+    varRight = 3
+
+    varOneThreeSpliceNum = APP.RoundUp(varSpliceNum / 3, 0)
+    varTwoThreeSpliceNum = APP.RoundUp(2 * varSpliceNum / 3, 0)
+
+    For i = 1 To ubMultiBreakRebar Step 2
+
+        ' 這裡有一個 bug 就是要先抽離變數，否則進去 Max 型態會改變造成錯誤.
+        ' 左端
+        For j = 1 To varOneThreeSpliceNum
+            arrMultiBreakRebarNormal(i, j) = arrRebarTotalNumber(i, varLeft)
+        Next j
+
+        ' 中央
+        For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum
+            arrMultiBreakRebarNormal(i, j) = arrRebarTotalNumber(i, varMid)
+        Next j
+
+        ' 右端
+        For j = varTwoThreeSpliceNum + 1 To varSpliceNum
+            arrMultiBreakRebarNormal(i, j) = arrRebarTotalNumber(i, varRight)
+        Next j
+
+    Next i
+
+    CalMultiBreakRebarNormal = arrMultiBreakRebarNormal
+
+
+End Function
+
+Private Function CalOptimizeResult(ByVal arrOptimized, ByVal arrInitial)
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+
+    Dim arrOptimizeResult
+
+    ubOptimized = UBound(arrOptimized)
+
+    ReDim arrOptimizeResult(1 To ubOptimized, varSpliceNum)
+
+    For i = 1 To ubOptimized Step 2
+
+        For j = 1 To varSpliceNum
+
+            arrOptimizeResult(i, j) = arrOptimized(i, j) / arrInitial(i, j)
+
+        Next j
+
+    Next i
+
+    CalOptimizeResult = arrOptimizeResult
 
 End Function
 
@@ -349,6 +568,7 @@ Sub Main()
     Dim objRebarSizeToDb As Object
 
     Set ran = New UTILS_CLASS
+    Set APP = Application.WorksheetFunction
 
     time0 = Timer
 
@@ -363,12 +583,21 @@ Sub Main()
 
     arrRebarTotalNumber = CalRebarTotalNumber(arrBeam)
     arrRebarMaxNumber = CalRebarMaxNumber(arrBeam)
-
-    arrLapLength = CalLapLength(arrBeam)
-
     arrMultiBreakRebar = CalMultiBreakPoint(arrRebarTotalNumber)
+    arrMultiBreakRebarNormal = CalMultiBreakRebarNormal(arrRebarTotalNumber)
 
-    Call PrintResult(arrMultiBreakRebar)
+    arrLapLengthRatio = CalLapLength(arrBeam)
+    arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
+
+    arrSmartSplice = CalSplice(arrMultiBreakRebar, arrMultiLapLength)
+    arrNormalSplice = CalSplice(arrMultiBreakRebarNormal, arrMultiLapLength)
+
+    arrOptimizeResult =  CalOptimizeResult(arrSmartSplice, arrNormalSplice)
+
+    Call PrintResult(arrSmartSplice, 3)
+    Call PrintResult(arrNormalSplice, varSpliceNum + 3 + 1)
+    Call PrintResult(arrOptimizeResult, 2 * varSpliceNum + 3 + 2)
+    wsResult.Cells(2, 2) = APP.Average(arrOptimizeResult)
 
     Call ran.FontSetting(wsResult)
     Call ran.PerformanceVBA(False)
