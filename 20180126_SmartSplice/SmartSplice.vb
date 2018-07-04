@@ -10,6 +10,10 @@ Private objStoryToFyt As Object
 Private objStoryToFc As Object
 Private objStoryToCover As Object
 
+' TODO: 需要重新書裡一次邏輯
+' 大梁考慮耐震
+' 小梁考慮負彎矩
+
 Private Function SetGlobalVar()
 '
 ' set global variable.
