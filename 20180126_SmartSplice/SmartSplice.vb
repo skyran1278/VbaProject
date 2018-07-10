@@ -18,13 +18,12 @@ Private Function SetGlobalVar()
 '
 ' set global variable.
 '
-' @since 1.0.0
-'
 
     ' global var
     Set wsBeam = Worksheets("大梁配筋")
     Set wsResult = Worksheets("最佳化斷筋點")
 
+    ' #3 => 0.9525cm
     Set objRebarSizeToDb = ran.CreateDictionary(ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10), 1, 7)
 
     arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 8, 8)
@@ -39,7 +38,7 @@ End Function
 
 Function ClearPrevOutputData()
 '
-' 清空前次輸出的資料
+' 清空前次輸出的資料.
 '
 
     wsResult.Cells.Clear
@@ -47,79 +46,55 @@ Function ClearPrevOutputData()
 End Function
 
 
-Function CalRebarTotalNumber(ByVal arrRawData)
+Function CalTotalRebar(ByVal arrBeam)
 '
 ' 計算上下排總支數
 '
-' @param
-' @returns
+' @param {Array} [arrBeam] RCAD 輸出資料.
+' @return {Array} [arrTotalRebar] 總支數，列數與 arrBeam 對齊，行數分左中右.
+'
 
-    Dim arrRebarNumber()
-    ReDim arrRebarNumber(1 To UBound(arrRawData), 1 To 3)
+    Dim arrTotalRebar()
+    ReDim arrTotalRebar(1 To UBound(arrBeam), 1 To 3)
 
     rowStart = 1
-    rowEnd = UBound(arrRawData)
+    rowEnd = UBound(arrBeam)
     colStart = 6
     colEnd = 8
 
     ' 一二排相加
     For i = rowStart To rowEnd Step 2
         For j = colStart To colEnd
+
+            colTotalRebar = j - 5
 
             ' 計算上下排總支數
-            arrRebarNumber(i, j - 5) = Int(Split(arrRawData(i, j), "-")(0)) + Int(Split(arrRawData(i + 1, j), "-")(0))
+            arrTotalRebar(i, colTotalRebar) = Int(Split(arrBeam(i, j), "-")(0)) + Int(Split(arrBeam(i + 1, j), "-")(0))
 
         Next
     Next
 
-    CalRebarTotalNumber = arrRebarNumber
+    CalTotalRebar = arrTotalRebar
 
 End Function
 
 
-Function CalRebarMaxNumber(ByVal arrRawData)
+Function OptimizeGirderRebar(ByVal arrTotalRebar)
 '
-' 計算單排最大支數
+' 上層筋由耐震控制.
+' 下層筋由重力與耐震共同控制.
 '
-' @param
-' @returns
-
-    Dim arrRebarNumber()
-    ReDim arrRebarNumber(1 To UBound(arrRawData), 1 To 3)
-
-    rowStart = 1
-    rowEnd = UBound(arrRawData)
-    colStart = 6
-    colEnd = 8
-
-    ' 一二排相加
-    For i = rowStart To rowEnd Step 2
-        For j = colStart To colEnd
-
-            ' 計算單排最大支數
-            arrRebarNumber(i, j - 5) = ran.Max(Int(Split(arrRawData(i, j), "-")(0)), Int(Split(arrRawData(i + 1, j), "-")(0)))
-
-        Next
-    Next
-
-    CalRebarMaxNumber = arrRebarNumber
-
-End Function
-
-
-Function CalMultiBreakPoint(ByVal arrRebarNumber)
+' @param {Array} [arrTotalRebar] 總支數，列數與 arrBeam 對齊，行數分左中右.
+' @return {Array} [arrGirderRebar] descrip.
 '
-'
-' @param
-' @returns
 
-    Dim arrMultiBreakRebar
+    Dim arrGirderRebar
 
-    ubRebarNumber = UBound(arrRebarNumber)
+    ubTotalRebar = UBound(arrTotalRebar)
 
-    ReDim arrMultiBreakRebar(1 To ubRebarNumber, varSpliceNum)
+    ReDim arrGirderRebar(1 To ubTotalRebar, varSpliceNum)
 
-    ubMultiBreakRebar = UBound(arrMultiBreakRebar)
+    ubGirderRebar = UBound(arrGirderRebar)
 
     varLeft = 1
     varMid = 2
@@ -131,47 +106,51 @@ Function CalMultiBreakPoint(ByVal arrRebarNumber)
     ' 遞減的斜率
     slope = 1 / varHalfOfSpliceNum
 
-    For i = 1 To ubMultiBreakRebar Step 4
+    ' 上層筋由耐震控制.
+    For i = 1 To ubGirderRebar Step 4
 
-        arrMultiBreakRebar(i, 0) = "上層"
+        arrGirderRebar(i, 0) = "上層"
 
         ' 左端到中央
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
-            arrMultiBreakRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarNumber(i, varLeft), 2), 0)
+            ' 耐震和 2 支取大值
+            arrGirderRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varLeft), 2), 0)
             ratio = ratio - slope
         Next j
 
         ' 中央到右端
         ratio = slope
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
-            arrMultiBreakRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarNumber(i, varRight), 2), 0)
+            ' 耐震和 2 支取大值
+            arrGirderRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varRight), 2), 0)
             ratio = ratio + slope
         Next j
 
     Next i
 
-    For i = 3 To ubMultiBreakRebar Step 4
+    ' 下層筋由重力與耐震共同控制.
+    For i = 3 To ubGirderRebar Step 4
 
-        arrMultiBreakRebar(i, 0) = "下層"
+        arrGirderRebar(i, 0) = "下層"
 
         ' 左端到中央
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
-            arrMultiBreakRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarNumber(i, varLeft), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2), 0)
+            arrGirderRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varLeft), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
             ratio = ratio - slope
         Next j
 
         ' 中央到右端
         ratio = slope
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
-            arrMultiBreakRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarNumber(i, varRight), (1 - ratio ^ 2) * arrRebarNumber(i, varMid), 2), 0)
+            arrGirderRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varRight), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
             ratio = ratio + slope
         Next j
 
     Next i
 
-    CalMultiBreakPoint = arrMultiBreakRebar
+    OptimizeGirderRebar = arrGirderRebar
 
 
 End Function
@@ -410,7 +389,7 @@ Function CalMultiLapLength(ByVal arrLapLengthRatio)
 End Function
 
 
-Private Function CalSplice(ByVal arrMultiBreakRebar, ByVal arrMultiLapLength)
+Private Function CalSplice(ByVal arrGirderRebar, ByVal arrMultiLapLength)
 '
 ' descrip.
 '
@@ -422,7 +401,7 @@ Private Function CalSplice(ByVal arrMultiBreakRebar, ByVal arrMultiLapLength)
 
     Dim arrSplice
 
-    arrSplice = arrMultiBreakRebar
+    arrSplice = arrGirderRebar
 
     ubSmartSplice = UBound(arrSplice)
 
@@ -438,7 +417,7 @@ Private Function CalSplice(ByVal arrMultiBreakRebar, ByVal arrMultiLapLength)
                 If j + k <= varSpliceNum Then
 
                     prevBar = arrSplice(i, j + k)
-                    lapBar = arrMultiBreakRebar(i, j)
+                    lapBar = arrGirderRebar(i, j)
 
                     arrSplice(i, j + k) = ran.Max(prevBar, lapBar)
 
@@ -458,7 +437,7 @@ Private Function CalSplice(ByVal arrMultiBreakRebar, ByVal arrMultiLapLength)
                 If j - k >= 1 Then
 
                     prevBar = arrSplice(i, j - k)
-                    lapBar = arrMultiBreakRebar(i, j)
+                    lapBar = arrGirderRebar(i, j)
 
                     arrSplice(i, j - k) = ran.Max(prevBar, lapBar)
 
@@ -481,13 +460,13 @@ Function CalMultiBreakRebarNormal(arrRebarTotalNumber)
 ' @param
 ' @returns
 
-    Dim arrMultiBreakRebarNormal
+    Dim arrGirderRebarNormal
 
     ubRebarNumber = UBound(arrRebarTotalNumber)
 
-    ReDim arrMultiBreakRebarNormal(1 To ubRebarNumber, varSpliceNum)
+    ReDim arrGirderRebarNormal(1 To ubRebarNumber, varSpliceNum)
 
-    ubMultiBreakRebar = UBound(arrMultiBreakRebarNormal)
+    ubGirderRebar = UBound(arrGirderRebarNormal)
 
     varLeft = 1
     varMid = 2
@@ -496,27 +475,35 @@ Function CalMultiBreakRebarNormal(arrRebarTotalNumber)
     varOneThreeSpliceNum = APP.RoundUp(varSpliceNum / 3, 0)
     varTwoThreeSpliceNum = APP.RoundUp(2 * varSpliceNum / 3, 0)
 
-    For i = 1 To ubMultiBreakRebar Step 2
+    For i = 1 To ubGirderRebar Step 2
 
-        ' 這裡有一個 bug 就是要先抽離變數，否則進去 Max 型態會改變造成錯誤.
         ' 左端
         For j = 1 To varOneThreeSpliceNum
-            arrMultiBreakRebarNormal(i, j) = arrRebarTotalNumber(i, varLeft)
+            arrGirderRebarNormal(i, j) = arrRebarTotalNumber(i, varLeft)
         Next j
 
         ' 中央
         For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum
-            arrMultiBreakRebarNormal(i, j) = arrRebarTotalNumber(i, varMid)
+            arrGirderRebarNormal(i, j) = arrRebarTotalNumber(i, varMid)
         Next j
 
         ' 右端
         For j = varTwoThreeSpliceNum + 1 To varSpliceNum
-            arrMultiBreakRebarNormal(i, j) = arrRebarTotalNumber(i, varRight)
+            arrGirderRebarNormal(i, j) = arrRebarTotalNumber(i, varRight)
         Next j
+
+        ' 在四捨五入處取大值
+        If arrRebarTotalNumber(i, varMid) > arrGirderRebarNormal(i, varOneThreeSpliceNum) Then
+            arrGirderRebarNormal(i, varOneThreeSpliceNum) = arrRebarTotalNumber(i, varMid)
+        End If
+
+        If arrRebarTotalNumber(i, varRight) > arrGirderRebarNormal(i, varTwoThreeSpliceNum) Then
+            arrGirderRebarNormal(i, varTwoThreeSpliceNum) = arrRebarTotalNumber(i, varRight)
+        End If
 
     Next i
 
-    CalMultiBreakRebarNormal = arrMultiBreakRebarNormal
+    CalMultiBreakRebarNormal = arrGirderRebarNormal
 
 
 End Function
@@ -548,6 +535,37 @@ Private Function CalOptimizeResult(ByVal arrOptimized, ByVal arrInitial)
     Next i
 
     CalOptimizeResult = arrOptimizeResult
+
+End Function
+
+
+Private Function CalOptimizeNoMoreThanNormal(ByVal arrGirderRebar, ByVal arrGirderRebarNormal)
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+
+    ubGirderRebar = UBound(arrGirderRebar)
+
+    For i = 1 To ubGirderRebar Step 2
+
+        For j = 1 To varSpliceNum
+
+            If arrGirderRebar(i, j) > arrGirderRebarNormal(i, j) Then
+
+                arrGirderRebar(i, j) = arrGirderRebarNormal(i, j)
+
+            End If
+
+        Next j
+
+    Next i
+
+    CalOptimizeNoMoreThanNormal = arrGirderRebar
 
 End Function
 
@@ -585,16 +603,21 @@ Sub Main()
     ' 不包含標題
     arrBeam = ran.GetRangeToArray(wsBeam, 3, 1, 5, 16)
 
-    arrRebarTotalNumber = CalRebarTotalNumber(arrBeam)
-    arrRebarMaxNumber = CalRebarMaxNumber(arrBeam)
-    arrMultiBreakRebar = CalMultiBreakPoint(arrRebarTotalNumber)
-    arrMultiBreakRebarNormal = CalMultiBreakRebarNormal(arrRebarTotalNumber)
+    arrTotalRebar = CalTotalRebar(arrBeam)
+
+    arrGirderRebar = OptimizeGirderRebar(arrTotalRebar)
+    arrGirderRebarNormal = CalMultiBreakRebarNormal(arrTotalRebar)
+
+    arrGirderRebar = CalOptimizeNoMoreThanNormal(arrGirderRebar, arrGirderRebarNormal)
 
     arrLapLengthRatio = CalLapLength(arrBeam)
     arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
 
-    arrSmartSplice = CalSplice(arrMultiBreakRebar, arrMultiLapLength)
-    arrNormalSplice = CalSplice(arrMultiBreakRebarNormal, arrMultiLapLength)
+    arrSmartSplice = CalSplice(arrGirderRebar, arrMultiLapLength)
+    arrNormalSplice = CalSplice(arrGirderRebarNormal, arrMultiLapLength)
+
+    ' arrSmartSplice = OptimizeGirderRebar(arrTotalRebar)
+    ' arrNormalSplice = CalMultiBreakRebarNormal(arrTotalRebar)
 
     arrOptimizeResult =  CalOptimizeResult(arrSmartSplice, arrNormalSplice)
 
