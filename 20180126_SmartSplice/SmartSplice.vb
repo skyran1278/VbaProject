@@ -10,7 +10,6 @@ Private objStoryToFyt As Object
 Private objStoryToFc As Object
 Private objStoryToCover As Object
 
-' TODO: 需要重新書裡一次邏輯
 ' 大梁考慮耐震
 ' 小梁考慮負彎矩
 
@@ -105,7 +104,7 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
     varHalfOfSpliceNum = APP.RoundUp(varSpliceNum / 2, 0)
 
     ' 遞減的斜率
-    slope = 1 / varHalfOfSpliceNum
+    slope_ = 1 / varHalfOfSpliceNum
 
     ' 上層筋由耐震控制.
     For i = 1 To ubGirderMultiRebar Step 4
@@ -117,15 +116,15 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         For j = 1 To varHalfOfSpliceNum
             ' 耐震和 2 支取大值
             arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varLeft), 2), 0)
-            ratio = ratio - slope
+            ratio = ratio - slope_
         Next j
 
         ' 中央到右端
-        ratio = slope
+        ratio = slope_
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震和 2 支取大值
             arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varRight), 2), 0)
-            ratio = ratio + slope
+            ratio = ratio + slope_
         Next j
 
     Next i
@@ -140,15 +139,15 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         For j = 1 To varHalfOfSpliceNum
             ' 耐震、重力、2 支取大值
             arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varLeft), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
-            ratio = ratio - slope
+            ratio = ratio - slope_
         Next j
 
         ' 中央到右端
-        ratio = slope
+        ratio = slope_
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震、重力、2 支取大值
             arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varRight), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
-            ratio = ratio + slope
+            ratio = ratio + slope_
         Next j
 
     Next i
@@ -468,7 +467,7 @@ Private Function CalSplice(ByVal arrGirderMultiRebar, ByVal arrMultiLapLength)
 End Function
 
 
-Function CalNormalGirderMultiRebar(byVal arrRebarTotalNumber)
+Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNumber)
 '
 ' 原始配筋
 ' 分成 1/3 1/3 1/3
@@ -622,7 +621,7 @@ Sub Main()
     ' arrSmartSplice = OptimizeGirderMultiRebar(arrTotalRebar)
     ' arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
 
-    arrOptimizeResult =  CalOptimizeResult(arrSmartSplice, arrNormalSplice)
+    arrOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
 
     Call PrintResult(arrSmartSplice, 3)
     Call PrintResult(arrNormalSplice, varSpliceNum + 3 + 1)
