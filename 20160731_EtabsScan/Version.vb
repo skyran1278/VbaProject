@@ -1,5 +1,5 @@
-' @license version_control v2.0.0
-' version_control.vb
+' @license Version v2.3.5
+' Version.vb
 '
 ' Copyright (c) 2016-present, skyran
 '
@@ -13,9 +13,6 @@
 Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20160731_EtabsScan/EtabsScanVersion.txt"
 Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20160731_EtabsScan/EtabsScan.xlsm"
 
-' PASSWORD_URL: pwd.txt
-Private Const PASSWORD_URL = "https://github.com/skyran1278/VbaProject/raw/master/utils/pwd.txt"
-
 Sub VerifyPassword()
 '
 ' 驗證密碼.
@@ -26,12 +23,16 @@ Sub VerifyPassword()
     Dim srvXmlHttp As Object
     Dim inputPwd As String
     Dim cloudPwd As String
+    Dim passwordUrl As String
+
+    ' passwordUrl: pwd.txt
+    passwordUrl = "https://github.com/skyran1278/VbaProject/raw/master/utils/pwd.txt"
 
     Set srvXmlHttp = CreateObject("MSXML2.serverXMLHTTP")
 
-    srvXmlHttp.Open "GET", PASSWORD_URL, False
+    srvXmlHttp.Open "GET", passwordUrl, False
 
-    inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", type:=2))
+    inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", Type:=2))
 
     srvXmlHttp.send
 
@@ -44,10 +45,6 @@ Sub VerifyPassword()
 
         MsgBox "Wrong Password"
         ThisWorkbook.Close SaveChanges:=False
-
-    Else
-
-        MsgBox "Sign In Success"
 
     End If
 
@@ -73,8 +70,6 @@ Sub CheckVersion()
 
     Set ws_version = ThisWorkbook.Worksheets("Release Notes")
 
-    Application.StatusBar = "Checking Latest Version..."
-
     srvXmlHttp.Open "GET", VERSION_URL, False
 
     srvXmlHttp.send
@@ -97,9 +92,6 @@ Sub CheckVersion()
             MsgBox "Please close this file and use new file from browser.", vbOKOnly
 
         End If
-
-    Else
-        MsgBox "It is latest version.", vbOKOnly
 
     End If
 
@@ -154,9 +146,14 @@ Private Sub Workbook_Open()
 '       office 2016 in windows 10
 '       Mac 版本容易出現錯誤，不推薦在 Mac 執行
 
+    ' Dim ws_version As Worksheet
+    ' Set ws_version = ThisWorkbook.Worksheets("Release Notes")
 
-    VerifyPassword
-    CheckVersion
+    Call VerifyPassword
+    Call CheckVersion
+
+    ' ws_version.Cells.Font.Name = "微軟正黑體"
+    ' ws_version.Cells.Font.Name = "Calibri"
 
 End Sub
 
