@@ -25,12 +25,12 @@ Private Function SetGlobalVar()
     ' #3 => 0.9525cm
     Set objRebarSizeToDb = ran.CreateDictionary(ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10), 1, 7)
 
-    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 8, 8)
+    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 4, 12)
 
     Set objStoryToFy = ran.CreateDictionary(arrInfo, 1, 2)
     Set objStoryToFyt = ran.CreateDictionary(arrInfo, 1, 3)
     Set objStoryToFc = ran.CreateDictionary(arrInfo, 1, 4)
-    Set objStoryToCover = ran.CreateDictionary(arrInfo, 1, 5)
+    Set objStoryToCover = ran.CreateDictionary(arrInfo, 1, 9)
 
 End Function
 
@@ -139,6 +139,7 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         For j = 1 To varHalfOfSpliceNum
             ' 耐震、重力、2 支取大值
             arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varLeft), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
+            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrTotalRebar(i, varLeft) - arrTotalRebar(i, varMid)) + arrTotalRebar(i, varMid), 2), 0)
             ratio = ratio - slope_
         Next j
 
@@ -147,6 +148,7 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震、重力、2 支取大值
             arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varRight), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
+            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrTotalRebar(i, varRight) - arrTotalRebar(i, varMid)) + arrTotalRebar(i, varMid), 2), 0)
             ratio = ratio + slope_
         Next j
 
@@ -175,21 +177,21 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
     End With
 
     ' 格式化條件
-    For i = rowStart To rowEnd
-        With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-            .FormatConditions.AddColorScale ColorScaleType:=3
-            .FormatConditions(.FormatConditions.Count).SetFirstPriority
-            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+    ' For i = rowStart To rowEnd
+    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+    '         .FormatConditions.AddColorScale ColorScaleType:=3
+    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
+    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
 
-            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-            .FormatConditions(1).ColorScaleCriteria(2).Value = 50
-            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+    '         .FormatConditions(1).ColorScaleCriteria(2).Value = 50
+    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
 
-            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
-        End With
-    Next i
+    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+    '     End With
+    ' Next i
 
 End Function
 
