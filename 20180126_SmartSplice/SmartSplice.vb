@@ -1,19 +1,19 @@
-Private Const varSpliceNum = 21
+Public Const varSpliceNum = 21
 
-Private ran As UTILS_CLASS
-Private APP
-Private wsBeam As Worksheet
-Private wsResult As Worksheet
-Private objRebarSizeToDb As Object
-Private objStoryToFy As Object
-Private objStoryToFyt As Object
-Private objStoryToFc As Object
-Private objStoryToCover As Object
+Public ran As UTILS_CLASS
+Public APP
+Public wsBeam As Worksheet
+Public wsResult As Worksheet
+Public objRebarSizeToDb As Object
+Public objStoryToFy As Object
+Public objStoryToFyt As Object
+Public objStoryToFc As Object
+Public objStoryToCover As Object
 
 ' 大梁考慮耐震
 ' 小梁考慮負彎矩
 
-Private Function SetGlobalVar()
+Function SetGlobalVar()
 '
 ' set global variable.
 '
@@ -25,12 +25,12 @@ Private Function SetGlobalVar()
     ' #3 => 0.9525cm
     Set objRebarSizeToDb = ran.CreateDictionary(ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10), 1, 7)
 
-    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 4, 12)
+    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 4, 13)
 
     Set objStoryToFy = ran.CreateDictionary(arrInfo, 1, 2)
     Set objStoryToFyt = ran.CreateDictionary(arrInfo, 1, 3)
     Set objStoryToFc = ran.CreateDictionary(arrInfo, 1, 4)
-    Set objStoryToCover = ran.CreateDictionary(arrInfo, 1, 9)
+    Set objStoryToCover = ran.CreateDictionary(arrInfo, 1, 10)
 
 End Function
 
@@ -53,7 +53,7 @@ Function CalTotalRebar(ByVal arrBeam)
 ' @return {Array} [arrTotalRebar] 總支數，列數與 arrBeam 對齊，行數分左中右.
 '
 
-    Dim arrTotalRebar()
+    Dim arrTotalRebar() As Integer
     ReDim arrTotalRebar(1 To UBound(arrBeam), 1 To 3)
 
     rowStart = 1
@@ -196,7 +196,7 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
 End Function
 
 
-Private Function CalLapLengthRatio(ByVal arrBeam)
+Function CalLapLengthRatio(ByVal arrBeam)
 '
 ' TODO: 可以做優化，如果算過了就不用再算一次.
 ' FIXME: 搭接長度還是延伸長度
@@ -317,7 +317,8 @@ Private Function CalLapLengthRatio(ByVal arrBeam)
                     ld_ = factor * ldb_
 
                     ' 乙級搭接 * 1.3
-                    arrLapLengthRatio(i + k, colLapLengthRatio) = APP.RoundUp(1.3 * ran.Min(ld_, simpleLd), 0)
+                    ' 好像不是搭接長度，是延伸長度
+                    arrLapLengthRatio(i + k, colLapLengthRatio) = APP.RoundUp(ran.Min(ld_, simpleLd), 0)
 
                     ' 換算成比例
                     ' 搭接長度 / 梁長
@@ -403,7 +404,7 @@ Function CalMultiLapLength(ByVal arrLapLengthRatio)
 End Function
 
 
-Private Function CalSplice(ByVal arrGirderMultiRebar, ByVal arrMultiLapLength)
+Function CalSplice(ByVal arrGirderMultiRebar, ByVal arrMultiLapLength)
 '
 ' 斷筋點 + 延伸長度.
 '
@@ -527,7 +528,7 @@ Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNumber)
 
 End Function
 
-Private Function CalOptimizeResult(ByVal arrOptimized, ByVal arrInitial)
+Function CalOptimizeResult(ByVal arrOptimized, ByVal arrInitial)
 '
 ' 回傳最佳化結果.
 ' arrOptimized / arrInitial
@@ -558,7 +559,7 @@ Private Function CalOptimizeResult(ByVal arrOptimized, ByVal arrInitial)
 End Function
 
 
-Private Function CalOptimizeNoMoreThanNormal(ByVal arrGirderMultiRebar, ByVal arrNormalGirderMultiRebar)
+Function CalOptimizeNoMoreThanNormal(ByVal arrGirderMultiRebar, ByVal arrNormalGirderMultiRebar)
 '
 ' 最佳化的結果不應該超過初始的.
 ' 如果大於初始 => 最佳化 = 初始
@@ -589,14 +590,17 @@ Private Function CalOptimizeNoMoreThanNormal(ByVal arrGirderMultiRebar, ByVal ar
 End Function
 
 
+
+
+
 Sub Main()
 
     Dim time0 As Double
 
+    time0 = Timer
+
     Set ran = New UTILS_CLASS
     Set APP = Application.WorksheetFunction
-
-    time0 = Timer
 
     Call ran.PerformanceVBA(True)
 

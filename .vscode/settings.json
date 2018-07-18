@@ -20,7 +20,6 @@
     "php",
     "plaintext",
     "pub",
-    "python",
     "restructuredtext",
     "rust",
     "scss",
@@ -33,5 +32,6 @@
   "cSpell.words": [
     "RCAD",
     "rebar"
-  ]
+  ],
+  "python.pythonPath": "C:\\Users\\ElementsStaff\\Anaconda3\\python.exe"
 }
