@@ -93,63 +93,6 @@ Private Function Expect(ByVal bol, Optional ByVal title = "Title")
 End Function
 
 
-' Private Function OptimizeGirderMultiRebarTest(ByVal arrGirderMultiRebar)
-' '
-' ' descrip.
-' '
-' ' @since 1.0.0
-' ' @param {type} [name] descrip.
-' ' @return {type} [name] descrip.
-' ' @see dependencies
-' '
-
-'     Expect arrGirderMultiRebar(1, 1) = 9
-'     Expect arrGirderMultiRebar(1, 2) = 9
-'     Expect arrGirderMultiRebar(1, 3) = 8
-'     Expect arrGirderMultiRebar(1, 4) = 7
-'     Expect arrGirderMultiRebar(1, 5) = 6
-'     Expect arrGirderMultiRebar(1, 6) = 5
-'     Expect arrGirderMultiRebar(1, 7) = 5
-'     Expect arrGirderMultiRebar(1, 8) = 4
-'     Expect arrGirderMultiRebar(1, 9) = 3
-'     Expect arrGirderMultiRebar(1, 10) = 2
-'     Expect arrGirderMultiRebar(1, 11) = 2
-'     Expect arrGirderMultiRebar(1, 12) = 2
-'     Expect arrGirderMultiRebar(1, 13) = 2
-'     Expect arrGirderMultiRebar(1, 14) = 3
-'     Expect arrGirderMultiRebar(1, 15) = 4
-'     Expect arrGirderMultiRebar(1, 16) = 5
-'     Expect arrGirderMultiRebar(1, 17) = 6
-'     Expect arrGirderMultiRebar(1, 18) = 7
-'     Expect arrGirderMultiRebar(1, 19) = 8
-'     Expect arrGirderMultiRebar(1, 20) = 9
-'     Expect arrGirderMultiRebar(1, 21) = 10
-
-'     Expect arrGirderMultiRebar(1, 1) = 10
-'     Expect arrGirderMultiRebar(1, 2) = 10
-'     Expect arrGirderMultiRebar(1, 3) = 9
-'     Expect arrGirderMultiRebar(1, 4) = 8
-'     Expect arrGirderMultiRebar(1, 5) = 7
-'     Expect arrGirderMultiRebar(1, 6) = 6
-'     Expect arrGirderMultiRebar(1, 7) = 5
-'     Expect arrGirderMultiRebar(1, 8) = 5
-'     Expect arrGirderMultiRebar(1, 9) = 5
-'     Expect arrGirderMultiRebar(1, 10) = 5
-'     Expect arrGirderMultiRebar(1, 11) = 5
-'     Expect arrGirderMultiRebar(1, 12) = 5
-'     Expect arrGirderMultiRebar(1, 13) = 5
-'     Expect arrGirderMultiRebar(1, 14) = 5
-'     Expect arrGirderMultiRebar(1, 15) = 5
-'     Expect arrGirderMultiRebar(1, 16) = 5
-'     Expect arrGirderMultiRebar(1, 17) = 5
-'     Expect arrGirderMultiRebar(1, 18) = 6
-'     Expect arrGirderMultiRebar(1, 19) = 7
-'     Expect arrGirderMultiRebar(1, 20) = 8
-'     Expect arrGirderMultiRebar(1, 21) = 9
-
-' End Function
-
-
 
 Sub Test()
 
@@ -187,10 +130,10 @@ Sub Test()
     arrSmartSplice = CalSplice(arrGirderMultiRebar, arrMultiLapLength)
     arrNormalSplice = CalSplice(arrNormalGirderMultiRebar, arrMultiLapLength)
 
-    arrSmartSplice = OptimizeGirderMultiRebar(arrTotalRebar)
-    arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
+    ' arrSmartSplice = OptimizeGirderMultiRebar(arrTotalRebar)
+    ' arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
 
-    arrOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
+    ' arrOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
 
     ' Call PrintResult(arrSmartSplice, 3)
     ' Call PrintResult(arrNormalSplice, varSpliceNum + 3 + 1)
