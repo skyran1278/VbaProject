@@ -45,52 +45,69 @@ Function PrintResult(ByVal arrResult, ByVal rowStart, ByVal colStart)
         .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
     End With
 
-End Function
+    ' 格式化條件
+    ' For i = rowStart To rowEnd
+    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+    '         .FormatConditions.AddColorScale ColorScaleType:=3
+    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
+    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = RGB(233, 88, 73)
 
+    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+    '         .FormatConditions(1).ColorScaleCriteria(2).Value = 50
+    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = RGB(256, 256, 256)
 
-Private Function CalTotalRebarTest(ByVal arrTotalRebar)
-'
-' descrip.
-'
-' @since 1.0.0
-' @param {type} [name] descrip.
-' @return {type} [name] descrip.
-' @see dependencies
-'
-
-    Expect arrTotalRebar(1, 1) = 9
-    Expect arrTotalRebar(1, 2) = 4
-    Expect arrTotalRebar(1, 3) = 10
-
-    Expect arrTotalRebar(2, 1) = 0
-    Expect arrTotalRebar(2, 2) = 0
-    Expect arrTotalRebar(2, 3) = 0
-
-    Expect arrTotalRebar(3, 1) = 10
-    Expect arrTotalRebar(3, 2) = 5
-    Expect arrTotalRebar(3, 3) = 9
-
-    Expect arrTotalRebar(4, 1) = 0
-    Expect arrTotalRebar(4, 2) = 0
-    Expect arrTotalRebar(4, 3) = 0
+    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = RGB(52, 152, 219)
+    '     End With
+    ' Next i
 
 End Function
 
-Private Function Expect(ByVal bol, Optional ByVal title = "Title")
-'
-' descrip.
-'
-' @since 1.0.0
-' @param {type} [name] descrip.
-' @return {type} [name] descrip.
-' @see dependencies
-'
 
-    If Not bol Then
-        MsgBox actual & " <> " & expected, vbOKOnly, title
-    End If
+' Private Function CalTotalRebarTest(ByVal arrTotalRebar)
+' '
+' ' descrip.
+' '
+' ' @since 1.0.0
+' ' @param {type} [name] descrip.
+' ' @return {type} [name] descrip.
+' ' @see dependencies
+' '
 
-End Function
+'     Expect arrTotalRebar(1, 1) = 9
+'     Expect arrTotalRebar(1, 2) = 4
+'     Expect arrTotalRebar(1, 3) = 10
+
+'     Expect arrTotalRebar(2, 1) = 0
+'     Expect arrTotalRebar(2, 2) = 0
+'     Expect arrTotalRebar(2, 3) = 0
+
+'     Expect arrTotalRebar(3, 1) = 10
+'     Expect arrTotalRebar(3, 2) = 5
+'     Expect arrTotalRebar(3, 3) = 9
+
+'     Expect arrTotalRebar(4, 1) = 0
+'     Expect arrTotalRebar(4, 2) = 0
+'     Expect arrTotalRebar(4, 3) = 0
+
+' End Function
+
+' Private Function Expect(ByVal bol, Optional ByVal title = "Title")
+' '
+' ' descrip.
+' '
+' ' @since 1.0.0
+' ' @param {type} [name] descrip.
+' ' @return {type} [name] descrip.
+' ' @see dependencies
+' '
+
+'     If Not bol Then
+'         MsgBox actual & " <> " & expected, vbOKOnly, title
+'     End If
+
+' End Function
 
 
 
@@ -114,7 +131,7 @@ Sub Test()
 
     arrTotalRebar = CalTotalRebar(arrBeam)
 
-    Call CalTotalRebarTest(arrTotalRebar)
+    ' Call CalTotalRebarTest(arrTotalRebar)
 
     arrGirderMultiRebar = OptimizeGirderMultiRebar(arrTotalRebar)
     arrNormalGirderMultiRebar = CalNormalGirderMultiRebar(arrTotalRebar)
@@ -127,13 +144,14 @@ Sub Test()
     arrSmartSplice = CalSplice(arrGirderMultiRebarModify, arrMultiLapLength)
     arrNormalSplice = CalSplice(arrNormalGirderMultiRebar, arrMultiLapLength)
 
-    Call PrintResult(arrGirderMultiRebar, 3, 28)
-    Call PrintResult(arrNormalGirderMultiRebar, 7, 28)
-    Call PrintResult(arrGirderMultiRebarModify, 11, 28)
-    Call PrintResult(arrLapLengthRatio, 15, 29)
-    Call PrintResult(arrMultiLapLength, 19, 28)
-    Call PrintResult(arrSmartSplice, 23, 28)
-    Call PrintResult(arrNormalSplice, 27, 28)
+    Call PrintResult(arrTotalRebar, 3, 29)
+    Call PrintResult(arrGirderMultiRebar, 7, 28)
+    Call PrintResult(arrNormalGirderMultiRebar, 11, 28)
+    Call PrintResult(arrGirderMultiRebarModify, 15, 28)
+    Call PrintResult(arrLapLengthRatio, 19, 29)
+    Call PrintResult(arrMultiLapLength, 23, 28)
+    Call PrintResult(arrSmartSplice, 27, 28)
+    Call PrintResult(arrNormalSplice, 31, 28)
 
     ' arrSmartSplice = OptimizeGirderMultiRebar(arrTotalRebar)
     ' arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
