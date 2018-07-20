@@ -39,8 +39,8 @@ Function PrintResult(ByVal arrResult, ByVal rowStart, ByVal colStart)
 '
 
     With wsResult
-        rowEnd = rowStart + UBound(arrResult, 1) - 1
-        colEnd = colStart + UBound(arrResult, 2)
+        rowEnd = rowStart + UBound(arrResult, 1) - LBound(arrResult, 1)
+        colEnd = colStart + UBound(arrResult, 2) - LBound(arrResult, 2)
 
         .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
     End With
@@ -119,16 +119,21 @@ Sub Test()
     arrGirderMultiRebar = OptimizeGirderMultiRebar(arrTotalRebar)
     arrNormalGirderMultiRebar = CalNormalGirderMultiRebar(arrTotalRebar)
 
-    Call PrintResult(arrGirderMultiRebar, 3, 28)
-    Call PrintResult(arrNormalGirderMultiRebar, 7, 28)
-
-    arrGirderMultiRebar = CalOptimizeNoMoreThanNormal(arrGirderMultiRebar, arrNormalGirderMultiRebar)
+    arrGirderMultiRebarModify = CalOptimizeNoMoreThanNormal(arrGirderMultiRebar, arrNormalGirderMultiRebar)
 
     arrLapLengthRatio = CalLapLengthRatio(arrBeam)
     arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
 
-    arrSmartSplice = CalSplice(arrGirderMultiRebar, arrMultiLapLength)
+    arrSmartSplice = CalSplice(arrGirderMultiRebarModify, arrMultiLapLength)
     arrNormalSplice = CalSplice(arrNormalGirderMultiRebar, arrMultiLapLength)
+
+    Call PrintResult(arrGirderMultiRebar, 3, 28)
+    Call PrintResult(arrNormalGirderMultiRebar, 7, 28)
+    Call PrintResult(arrGirderMultiRebarModify, 11, 28)
+    Call PrintResult(arrLapLengthRatio, 15, 29)
+    Call PrintResult(arrMultiLapLength, 19, 28)
+    Call PrintResult(arrSmartSplice, 23, 28)
+    Call PrintResult(arrNormalSplice, 27, 28)
 
     ' arrSmartSplice = OptimizeGirderMultiRebar(arrTotalRebar)
     ' arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
