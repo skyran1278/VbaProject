@@ -176,7 +176,7 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
         .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
     End With
 
-    ' 格式化條件
+    ' ' 格式化條件
     ' For i = rowStart To rowEnd
     '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
     '         .FormatConditions.AddColorScale ColorScaleType:=3
@@ -234,6 +234,10 @@ Function CalLapLengthRatio(ByVal arrBeam)
         fc_ = objStoryToFc.Item(story)
         cover = objStoryToCover.Item(story)
 
+        If IsEmpty(fy_) Then
+            MsgBox "請確認 " & story & " 是否存在於 General Information", vbOKOnly, "Error"
+        End If
+
         width_ = arrBeam(i, 3)
         length_ = arrBeam(i, 13)
 
@@ -247,9 +251,11 @@ Function CalLapLengthRatio(ByVal arrBeam)
             colLapLengthRatio = j - 5
 
             ' 箍筋
+            ' 避免有雙箍的狀況
             tmp = Split(arrBeam(i, colStirrup), "@")
-            stirrupSize = tmp(0)
             stirrupSpace = Int(tmp(1))
+            tmp = Split(tmp(0), "#")
+            stirrupSize = "#" & tmp(1)
 
             fytDb = objRebarSizeToDb.Item(stirrupSize)
 
@@ -494,7 +500,11 @@ Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNumber)
     varOneThreeSpliceNum = APP.RoundUp(varSpliceNum / 3, 0)
     varTwoThreeSpliceNum = APP.RoundUp(2 * varSpliceNum / 3, 0)
 
-    For i = 1 To ubGirderRebar Step 2
+    varOneFiveSpliceNum = APP.RoundUp(varSpliceNum / 5, 0)
+    varFourFiveSpliceNum = APP.RoundUp(4 * varSpliceNum / 5, 0)
+
+    ' 上層
+    For i = 1 To ubGirderRebar Step 4
 
         ' 左端
         For j = 1 To varOneThreeSpliceNum
@@ -502,23 +512,59 @@ Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNumber)
         Next j
 
         ' 中央
-        For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum
+        ' 中央通常會比較少，取保守由兩端佔滿 1/3 2/3 處
+        For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum - 1
             arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varMid)
         Next j
 
         ' 右端
-        For j = varTwoThreeSpliceNum + 1 To varSpliceNum
+        For j = varTwoThreeSpliceNum To varSpliceNum
             arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varRight)
         Next j
 
-        ' 在四捨五入處取大值 1/3 處
-        If arrRebarTotalNumber(i, varMid) > arrNormalGirderMultiRebar(i, varOneThreeSpliceNum) Then
-            arrNormalGirderMultiRebar(i, varOneThreeSpliceNum) = arrRebarTotalNumber(i, varMid)
+    Next i
+
+    ' 下層
+    For i = 3 To ubGirderRebar Step 4
+
+        ' 中央
+        ' 先填滿全部都是中央
+        For j = 1 To varSpliceNum
+            arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varMid)
+        Next j
+
+        ' 左端
+        If arrRebarTotalNumber(i, varLeft) < arrRebarTotalNumber(i, varMid) Then
+
+            ' 左端比較少
+            For j = 1 To varOneFiveSpliceNum - 1
+                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varLeft)
+            Next j
+
+        Else
+
+            ' 左端比較多
+            For j = 1 To varOneThreeSpliceNum
+                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varLeft)
+            Next j
+
         End If
 
-        ' 在四捨五入處取大值 2/3 處
-        If arrRebarTotalNumber(i, varRight) > arrNormalGirderMultiRebar(i, varTwoThreeSpliceNum) Then
-            arrNormalGirderMultiRebar(i, varTwoThreeSpliceNum) = arrRebarTotalNumber(i, varRight)
+        ' 右端
+        If arrRebarTotalNumber(i, varRight) < arrRebarTotalNumber(i, varMid) Then
+
+            ' 右端比較少
+            For j = varFourFiveSpliceNum + 1 To varSpliceNum
+                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varRight)
+            Next j
+
+        Else
+
+            ' 右端比較多
+            For j = varTwoThreeSpliceNum To varSpliceNum
+                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varRight)
+            Next j
+
         End If
 
     Next i
@@ -535,26 +581,26 @@ Function CalOptimizeResult(ByVal arrOptimized, ByVal arrInitial)
 '
 ' @param {Array} [arrOptimized] 最佳化過後的配筋.
 ' @param {Array} [arrInitial] 原始配筋.
-' @return {Array} [arrOptimizeResult] 回傳最佳化結果.
+' @return {Array} [varOptimized / varInitial] 回傳最佳化結果.
 '
-
-    Dim arrOptimizeResult
 
     ubOptimized = UBound(arrOptimized)
 
-    ReDim arrOptimizeResult(1 To ubOptimized, varSpliceNum)
+    varOptimized = 0
+    varInitial = 0
 
     For i = 1 To ubOptimized Step 2
 
         For j = 1 To varSpliceNum
 
-            arrOptimizeResult(i, j) = arrOptimized(i, j) / arrInitial(i, j)
+            varInitial = varInitial + arrInitial(i, j)
+            varOptimized = varOptimized + arrOptimized(i, j)
 
         Next j
 
     Next i
 
-    CalOptimizeResult = arrOptimizeResult
+    CalOptimizeResult = varOptimized / varInitial
 
 End Function
 
@@ -614,25 +660,23 @@ Sub Main()
     arrTotalRebar = CalTotalRebar(arrBeam)
 
     arrGirderMultiRebar = OptimizeGirderMultiRebar(arrTotalRebar)
-    arrNormalGirderMultiRebar = CalNormalGirderMultiRebar(arrTotalRebar)
-
-    arrGirderMultiRebar = CalOptimizeNoMoreThanNormal(arrGirderMultiRebar, arrNormalGirderMultiRebar)
 
     arrLapLengthRatio = CalLapLengthRatio(arrBeam)
     arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
 
+    arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
+
     arrSmartSplice = CalSplice(arrGirderMultiRebar, arrMultiLapLength)
-    arrNormalSplice = CalSplice(arrNormalGirderMultiRebar, arrMultiLapLength)
+
+    arrSmartSplice = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
     ' arrSmartSplice = OptimizeGirderMultiRebar(arrTotalRebar)
-    ' arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
 
-    arrOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
+    varOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
 
     Call PrintResult(arrSmartSplice, 3)
     Call PrintResult(arrNormalSplice, varSpliceNum + 3 + 1)
-    Call PrintResult(arrOptimizeResult, 2 * varSpliceNum + 3 + 2)
-    wsResult.Cells(2, 2) = APP.Average(arrOptimizeResult)
+    wsResult.Cells(2, 2) = varOptimizeResult
 
     Call ran.FontSetting(wsResult)
     Call ran.PerformanceVBA(False)

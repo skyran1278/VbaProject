@@ -131,37 +131,24 @@ Sub Test()
 
     arrTotalRebar = CalTotalRebar(arrBeam)
 
-    ' Call CalTotalRebarTest(arrTotalRebar)
-
     arrGirderMultiRebar = OptimizeGirderMultiRebar(arrTotalRebar)
-    arrNormalGirderMultiRebar = CalNormalGirderMultiRebar(arrTotalRebar)
-
-    arrGirderMultiRebarModify = CalOptimizeNoMoreThanNormal(arrGirderMultiRebar, arrNormalGirderMultiRebar)
 
     arrLapLengthRatio = CalLapLengthRatio(arrBeam)
     arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
 
-    arrSmartSplice = CalSplice(arrGirderMultiRebarModify, arrMultiLapLength)
-    arrNormalSplice = CalSplice(arrNormalGirderMultiRebar, arrMultiLapLength)
+    arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
+
+    arrSmartSplice = CalSplice(arrGirderMultiRebar, arrMultiLapLength)
+
+    arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
     Call PrintResult(arrTotalRebar, 3, 29)
     Call PrintResult(arrGirderMultiRebar, 7, 28)
-    Call PrintResult(arrNormalGirderMultiRebar, 11, 28)
-    Call PrintResult(arrGirderMultiRebarModify, 15, 28)
-    Call PrintResult(arrLapLengthRatio, 19, 29)
-    Call PrintResult(arrMultiLapLength, 23, 28)
-    Call PrintResult(arrSmartSplice, 27, 28)
-    Call PrintResult(arrNormalSplice, 31, 28)
-
-    ' arrSmartSplice = OptimizeGirderMultiRebar(arrTotalRebar)
-    ' arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
-
-    ' arrOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
-
-    ' Call PrintResult(arrSmartSplice, 3)
-    ' Call PrintResult(arrNormalSplice, varSpliceNum + 3 + 1)
-    ' Call PrintResult(arrOptimizeResult, 2 * varSpliceNum + 3 + 2)
-    ' wsResult.Cells(2, 2) = APP.Average(arrOptimizeResult)
+    Call PrintResult(arrLapLengthRatio, 11, 29)
+    Call PrintResult(arrMultiLapLength, 15, 28)
+    Call PrintResult(arrNormalSplice, 19, 28)
+    Call PrintResult(arrSmartSplice, 23, 28)
+    Call PrintResult(arrSmartSpliceModify, 27, 28)
 
     Call ran.FontSetting(wsResult)
     Call ran.PerformanceVBA(False)
