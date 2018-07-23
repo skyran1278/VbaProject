@@ -25,12 +25,12 @@ Function SetGlobalVar()
     ' #3 => 0.9525cm
     Set objRebarSizeToDb = ran.CreateDictionary(ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10), 1, 7)
 
-    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 4, 13)
+    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 4, 12)
 
     Set objStoryToFy = ran.CreateDictionary(arrInfo, 1, 2)
     Set objStoryToFyt = ran.CreateDictionary(arrInfo, 1, 3)
     Set objStoryToFc = ran.CreateDictionary(arrInfo, 1, 4)
-    Set objStoryToCover = ran.CreateDictionary(arrInfo, 1, 10)
+    Set objStoryToCover = ran.CreateDictionary(arrInfo, 1, 9)
 
 End Function
 

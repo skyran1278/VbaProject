@@ -33,5 +33,6 @@
     "RCAD",
     "rebar"
   ],
-  "python.pythonPath": "C:\\Users\\ElementsStaff\\Anaconda3\\python.exe"
+  "python.pythonPath": "C:\\Users\\ElementsStaff\\Anaconda3\\python.exe",
+  "files.autoGuessEncoding": true
 }
