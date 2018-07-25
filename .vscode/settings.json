@@ -30,9 +30,10 @@
     "yml"
   ],
   "cSpell.words": [
+    "ETABS",
     "RCAD",
     "rebar"
   ],
-  "python.pythonPath": "C:\\Users\\ElementsStaff\\Anaconda3\\python.exe",
-  "files.autoGuessEncoding": true
+  "files.autoGuessEncoding": true,
+  "python.jediEnabled": false,
 }
