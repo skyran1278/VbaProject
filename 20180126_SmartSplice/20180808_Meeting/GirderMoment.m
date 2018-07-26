@@ -46,9 +46,9 @@ grayColor = [0.5 0.5 0.5];
 figure;
 plot(x, midline, 'Color', grayColor, 'LineWidth', 1.5);
 hold on;
-plot(x, EQ, 'Color', greenColor, 'LineWidth', 1.5);
-legendEQ = plot(x, NEQ, 'Color', greenColor, 'LineWidth', 1.5);
-legendGravity = plot(x, DL, 'Color', blueColor, 'LineWidth', 1.5);
+plot(x, EQ, '-', 'Color', redColor, 'LineWidth', 1.5);
+legendEQ = plot(x, NEQ, '-', 'Color', redColor, 'LineWidth', 1.5);
+legendGravity = plot(x, DL, '--', 'Color', redColor, 'LineWidth', 1.5);
 axis([0 beamLength -50 50]);
 legend([legendEQ, legendGravity], 'EQ', 'Gravity', 'Location', 'northeast');
 title('Mn');
@@ -56,10 +56,6 @@ xlabel('m');
 ylabel('tf-m');
 
 % 線性疊加
-% 這裡也包含了載重組合的概念
-% 取一組載重組合為例
-% 1.4DL + E
-% 取包絡線
 figure;
 plot(x, midline, 'Color', grayColor, 'LineWidth', 1.5);
 hold on;
@@ -74,10 +70,29 @@ title('Mn');
 xlabel('m');
 ylabel('tf-m');
 
-% 依據需求所得出的左中右的配筋
 % 左端為 0~1/3 的最大值
 % 中央是 1/4~3/4 的最大值
 % 右端是 2/3~1 的最大值
+figure;
+plot(x, midline, '-k');
+hold on;
+plot(x, EQ, 'Color', grayColor, 'LineWidth', 1.5);
+plot(x, NEQ, 'Color', grayColor, 'LineWidth', 1.5);
+plot(x, DL, 'Color', grayColor, 'LineWidth', 1.5);
+legendMn = plot(x, positiveMn, 'Color', redColor, 'LineWidth', 1.5);
+plot(x, negativeMn, 'Color', redColor, 'LineWidth', 1.5);
+legendActural = plot(0, topLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(beamLength / 2, 0, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(beamLength, topRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(0, -botLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(beamLength / 2, -botMidRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(beamLength, -botRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
+axis([0 beamLength -50 50]);
+legend([legendActural, legendMn(1)], 'Actural Rebar', 'Demand', 'Location', 'northeast');
+title('Mn');
+xlabel('m');
+ylabel('tf-m');
+
 % 實際配筋應該會再大一點
 % 而且最少會有兩支的限制
 % 這裡取最 critical 的情況
@@ -90,7 +105,7 @@ plot(x, DL, 'Color', grayColor, 'LineWidth', 1.5);
 legendMn = plot(x, positiveMn, 'Color', redColor, 'LineWidth', 1.5);
 plot(x, negativeMn, 'Color', redColor, 'LineWidth', 1.5);
 legendActural = plot(0, topLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(beamLength / 2, 0, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(beamLength / 2, 10, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength, topRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(0, -botLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength / 2, -botMidRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
@@ -113,17 +128,17 @@ plot(x, EQ, 'Color', grayColor, 'LineWidth', 1.5);
 plot(x, NEQ, 'Color', grayColor, 'LineWidth', 1.5);
 plot(x, DL, 'Color', grayColor, 'LineWidth', 1.5);
 plot(x, positiveMn, 'Color', grayColor, 'LineWidth', 1.5);
-plot(x, negativeMn, 'Color', grayColor, 'LineWidth', 1.5);
+plot(x, negativeMn, 'Color', redColor, 'LineWidth', 1.5);
 multiRebar = plot(x, topRebar, 'Color', blueColor, 'LineWidth', 1.5);
 % plot(x, botRebar, 'Color', blueColor, 'LineWidth', 1.5);
 legendActural = plot(0, topLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(beamLength / 2, 0, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(beamLength / 2, 10, 'o', 'Color', grayColor, 'LineWidth', 1.5);
 plot(beamLength, topRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(0, -botLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(beamLength / 2, -botMidRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(beamLength, -botRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(0, -botLeftRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+plot(beamLength / 2, -botMidRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+plot(beamLength, -botRightRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
 axis([0 beamLength -50 50]);
-legend([legendActural, multiRebar], 'Actural Rebar', 'Multi Rebar', 'Location', 'northeast');
+legend([legendActural, multiRebar], 'Actural Rebar', 'Multi Rebar', 'Location', 'southeast');
 title('Mn');
 xlabel('m');
 ylabel('tf-m');
@@ -140,15 +155,39 @@ hold on;
 plot(x, EQ, 'Color', grayColor, 'LineWidth', 1.5);
 plot(x, NEQ, 'Color', grayColor, 'LineWidth', 1.5);
 plot(x, DL, 'Color', grayColor, 'LineWidth', 1.5);
-plot(x, positiveMn, 'Color', grayColor, 'LineWidth', 1.5);
+plot(x, positiveMn, 'Color', redColor, 'LineWidth', 1.5);
 plot(x, negativeMn, 'Color', grayColor, 'LineWidth', 1.5);
 multiRebar = plot(x, botRebar, 'Color', blueColor, 'LineWidth', 1.5);
-legendActural = plot(0, topLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(beamLength / 2, 0, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(beamLength, topRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
+legendActural = plot(0, topLeftRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+plot(beamLength / 2, 10, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+plot(beamLength, topRightRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
 plot(0, -botLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength / 2, -botMidRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength, -botRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
+axis([0 beamLength -50 50]);
+legend([legendActural, multiRebar], 'Actural Rebar', 'Multi Rebar', 'Location', 'northeast');
+title('Mn');
+xlabel('m');
+ylabel('tf-m');
+
+% 可以發現綠色圈圈的部分多估了
+% 紅色部分的不保守
+figure;
+plot(x, midline, '-k');
+hold on;
+plot(x, EQ, 'Color', grayColor, 'LineWidth', 1.5);
+plot(x, NEQ, 'Color', grayColor, 'LineWidth', 1.5);
+plot(x, DL, 'Color', grayColor, 'LineWidth', 1.5);
+plot(x, positiveMn, 'Color', grayColor, 'LineWidth', 1.5);
+plot(x, negativeMn, 'Color', grayColor, 'LineWidth', 1.5);
+multiRebar = plot(x, botRebar, 'Color', grayColor, 'LineWidth', 1.5);
+legendActural = plot(0, topLeftRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+plot(beamLength / 2, 10, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+plot(beamLength, topRightRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+plot(0, -botLeftRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+plot(beamLength / 2, -botMidRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+plot(beamLength, -botRightRebar, 'o', 'Color', grayColor, 'LineWidth', 1.5);
+fill(x .* (positiveMn - botRebar > 0), (positiveMn - botRebar) .* (positiveMn - botRebar > 0), greenColor, 'edgeColor', 'none')
 axis([0 beamLength -50 50]);
 legend([legendActural, multiRebar], 'Actural Rebar', 'Multi Rebar', 'Location', 'northeast');
 title('Mn');
@@ -168,7 +207,7 @@ plot(x, positiveMn, 'Color', grayColor, 'LineWidth', 1.5);
 plot(x, negativeMn, 'Color', grayColor, 'LineWidth', 1.5);
 multiRebar = plot(x, botRebarOtherMethod, 'Color', blueColor, 'LineWidth', 1.5);
 legendActural = plot(0, topLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(beamLength / 2, 0, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(beamLength / 2, 10, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength, topRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(0, -botLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength / 2, -botMidRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
@@ -192,7 +231,7 @@ plot(x, negativeMn, 'Color', grayColor, 'LineWidth', 1.5);
 plot(x, topRebar, 'Color', blueColor, 'LineWidth', 1.5);
 multiRebar = plot(x, botRebarOtherMethod, 'Color', blueColor, 'LineWidth', 1.5);
 legendActural = plot(0, topLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(beamLength / 2, 0, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(beamLength / 2, 10, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength, topRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(0, -botLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength / 2, -botMidRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
@@ -214,7 +253,7 @@ legendGravity = plot(x, DL, 'Color', redColor, 'LineWidth', 1.5);
 legendMn = plot(x, positiveMn, 'Color', grayColor, 'LineWidth', 1.5);
 plot(x, negativeMn, 'Color', grayColor, 'LineWidth', 1.5);
 legendActural = plot(0, topLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
-plot(beamLength / 2, 0, 'o', 'Color', redColor, 'LineWidth', 1.5);
+plot(beamLength / 2, 10, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength, topRightRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(0, -botLeftRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
 plot(beamLength / 2, -botMidRebar, 'o', 'Color', redColor, 'LineWidth', 1.5);
