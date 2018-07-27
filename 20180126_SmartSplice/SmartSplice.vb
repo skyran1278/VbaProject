@@ -138,8 +138,8 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
             ' 耐震、重力、2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varLeft), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
-            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrTotalRebar(i, varLeft) - arrTotalRebar(i, varMid)) + arrTotalRebar(i, varMid), 2), 0)
+            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varLeft), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrTotalRebar(i, varLeft) - arrTotalRebar(i, varMid)) + arrTotalRebar(i, varMid), 2), 0)
             ratio = ratio - slope_
         Next j
 
@@ -147,8 +147,8 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         ratio = slope_
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震、重力、2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varRight), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
-            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrTotalRebar(i, varRight) - arrTotalRebar(i, varMid)) + arrTotalRebar(i, varMid), 2), 0)
+            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varRight), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrTotalRebar(i, varRight) - arrTotalRebar(i, varMid)) + arrTotalRebar(i, varMid), 2), 0)
             ratio = ratio + slope_
         Next j
 
