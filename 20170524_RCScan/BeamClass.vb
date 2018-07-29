@@ -10,6 +10,8 @@ Private FIRST_STORY
 Private TOP_STORY
 Private REBAR_NUMBER()
 Private WS As Worksheet
+Private ran As UTILS_CLASS
+Private APP
 
 ' RAW_DATA 資料命名
 Private Const STORY = 1
@@ -53,6 +55,9 @@ Private Sub Class_Initialize()
 ' GetGeneralInformation
 ' GetRebarSize
 
+    Set ran = New UTILS_CLASS
+    Set APP = Application.WorksheetFunction
+
     Call GetGeneralInformation
     Call GetRebarSize
 
@@ -64,15 +69,17 @@ Function GetGeneralInformation()
     Dim generalInformation As Worksheet
     Set generalInformation = Worksheets("General Information")
 
-    rowStart = 1
-    columnStart = 4
-    rowUsed = generalInformation.Cells(Rows.Count, 5).End(xlUp).Row
-    columnUsed = 12
+    GENERAL_INFORMATION = ran.GetRangeToArray(generalInformation, 1, 4, 4, 12)
 
-    GENERAL_INFORMATION = generalInformation.Range(generalInformation.Cells(rowStart, columnStart), generalInformation.Cells(rowUsed, columnUsed))
+    ' rowStart = 1
+    ' columnStart = 4
+    ' rowUsed = generalInformation.Cells(Rows.Count, 5).End(xlUp).Row
+    ' columnUsed = 12
 
-    TOP_STORY = Application.Match(Cells(12, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
-    FIRST_STORY = Application.Match(Cells(13, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    ' GENERAL_INFORMATION = generalInformation.Range(generalInformation.Cells(rowStart, columnStart), generalInformation.Cells(rowUsed, columnUsed))
+
+    TOP_STORY = Application.Match(Cells(12, 15), APP.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    FIRST_STORY = Application.Match(Cells(13, 15), APP.Index(GENERAL_INFORMATION, 0, STORY), 0)
 
 End Function
 
@@ -144,7 +151,7 @@ Function RatioData()
 
     ' 樓層數字化，用以比較上下樓層。
     For i = DATA_ROW_START To DATA_ROW_END
-        RATIO_DATA(i, STORY) = Application.Match(RAW_DATA(i, STORY), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+        RATIO_DATA(i, STORY) = Application.Match(RAW_DATA(i, STORY), APP.Index(GENERAL_INFORMATION, 0, STORY), 0)
     Next
 
     ' 計算鋼筋面積
@@ -178,8 +185,8 @@ Function RatioData()
 
         REBAR = Split(RAW_DATA(i, REBAR_LEFT), "-")
         stirrup = Split(RAW_DATA(i, STIRRUP_LEFT), "@")
-        Db = Application.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
-        tie = Application.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
+        Db = APP.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
+        tie = APP.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
 
         ' 雙排筋
         RATIO_DATA(i, D) = RAW_DATA(i, H) - (4 + tie + Db * 1.5)
@@ -203,7 +210,7 @@ Function CalRebarArea(REBAR)
     If tmp(0) <> 0 Then
 
         ' 轉換鋼筋尺寸為截面積
-        tmp(1) = Application.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
+        tmp(1) = APP.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
 
         CalRebarArea = tmp(0) * tmp(1)
     Else
@@ -225,9 +232,9 @@ Function CalStirrupArea(REBAR)
 
     ' 轉換鋼筋尺寸為截面積
     If bars(0) = "" Then
-        CalStirrupArea = 2 * Application.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
+        CalStirrupArea = 2 * APP.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
     Else
-        CalStirrupArea = 2 * bars(0) * Application.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
+        CalStirrupArea = 2 * bars(0) * APP.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
     End If
 
 End Function
@@ -241,7 +248,7 @@ Function CalSideRebarArea(REBAR)
         tmp = Split(sidebarNoEF, "#")
 
         ' 轉換鋼筋尺寸為截面積
-        tmp(1) = Application.VLookup("#" & tmp(1), REBAR_SIZE, CROSS_AREA, False)
+        tmp(1) = APP.VLookup("#" & tmp(1), REBAR_SIZE, CROSS_AREA, False)
 
         ' 對稱雙排
         CalSideRebarArea = 2 * tmp(1)
@@ -365,8 +372,8 @@ Function SafetyRebarRatioAndSpace()
 
                 If REBAR(0) > 1 Then
 
-                    Db = Application.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
-                    tie = Application.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
+                    Db = APP.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
+                    tie = APP.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
 
                     Spacing = (RAW_DATA(i, BW) - 4 * 2 - tie * 2 - REBAR(0) * Db) / (REBAR(0) - 1)
 
@@ -483,12 +490,12 @@ Function SafetyLoad()
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        maxRatio = Application.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
+        maxRatio = APP.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
 
         ' 轉換 kgw-m => tf-m: * 100000
-        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, SDL, False)) + 1.6 * Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, LL, False)) * band ^ 2 * 100000
+        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, SDL, False)) + 1.6 * APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, LL, False)) * band ^ 2 * 100000
 
-        capacity = maxRatio * Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RATIO_DATA(i, D)
+        capacity = maxRatio * APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RATIO_DATA(i, D)
 
         If 0.6 * mn > capacity Then
             Call WarningMessage("【0312】垂直載重配筋可能不足", i)
@@ -556,8 +563,8 @@ Function Norm3_6()
 
 For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-    code3_3 = 0.8 * Sqr(Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) / Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RAW_DATA(i, BW) * RATIO_DATA(i, D)
-    code3_4 = 14 / Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RAW_DATA(i, BW) * RATIO_DATA(i, D)
+    code3_3 = 0.8 * Sqr(APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) / APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RAW_DATA(i, BW) * RATIO_DATA(i, D)
+    code3_4 = 14 / APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RAW_DATA(i, BW) * RATIO_DATA(i, D)
 
     If RATIO_DATA(i, REBAR_LEFT) < code3_3 Or RATIO_DATA(i, REBAR_LEFT) < code3_4 Then
         Call WarningMessage(GetSheetMessage("【0201】請確認左端上層筋下限，是否符合規範 3.6 規定", "【0301】請確認左端上層筋下限，是否符合規範 3.6 規定", "請確認左端上層筋下限，是否符合規範 3.6 規定"), i)
@@ -596,7 +603,7 @@ Function Norm15_4_2_1()
 
         If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
-            code15_4_2_1 = Application.Min((Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False) + 100) / (4 * Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False)) * RAW_DATA(i, BW) * RATIO_DATA(i, D), 0.025 * RAW_DATA(i, BW) * RATIO_DATA(i, D))
+            code15_4_2_1 = APP.Min((APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False) + 100) / (4 * APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False)) * RAW_DATA(i, BW) * RATIO_DATA(i, D), 0.025 * RAW_DATA(i, BW) * RATIO_DATA(i, D))
 
             If RATIO_DATA(i, REBAR_LEFT) > code15_4_2_1 Then
                 Call WarningMessage("【0212】請確認左端上層筋上限，是否符合規範 15.4.2.1 規定", i)
@@ -638,8 +645,8 @@ Function Norm15_4_2_2()
 
         If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
-            maxRatio = Application.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
-            minRatio = Application.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
+            maxRatio = APP.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
+            minRatio = APP.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
             code15_4_2_2 = minRatio < maxRatio / 4
 
             If code15_4_2_2 Then
@@ -684,7 +691,7 @@ Function EconomicTopRebarRelative()
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        minRatio = Application.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_RIGHT))
+        minRatio = APP.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_RIGHT))
 
         REBAR = Split(RAW_DATA(i, REBAR_MIDDLE), "-")
 
@@ -704,7 +711,7 @@ Function EconomicBotRebarRelativeForGB()
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        minRatio = Application.Min(RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_RIGHT))
+        minRatio = APP.Min(RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_RIGHT))
 
         REBAR = Split(RAW_DATA(i + 2, REBAR_MIDDLE), "-")
 
@@ -737,8 +744,8 @@ Function Norm13_5_1AndSafetyRebarNumber()
             ' 等於 0 直接沒做事
             If REBAR(0) > 1 Then
 
-                Db = Application.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
-                tie = Application.VLookup(SplitStirrup(stirrup(0)), REBAR_SIZE, DIAMETER, False)
+                Db = APP.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
+                tie = APP.VLookup(SplitStirrup(stirrup(0)), REBAR_SIZE, DIAMETER, False)
 
                 ' 第一種方法
                 ' Max = Fix((RAW_DATA(i, BW) - 4 * 2 - tie * 2 - Db) / (2 * Db)) + 1
@@ -802,7 +809,7 @@ Function Norm4_6_6_3()
 
             stirrup = Split(RAW_DATA(i, j), "@")
 
-            avMin = Application.Max(0.2 * Sqr(Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) * data(i, BW) * stirrup(1) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False), 3.5 * data(i, BW) * stirrup(1) / Application.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False))
+            avMin = APP.Max(0.2 * Sqr(APP.VLookup(data(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) * data(i, BW) * stirrup(1) / APP.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False), 3.5 * data(i, BW) * stirrup(1) / APP.VLookup(data(i, STORY), GENERAL_INFORMATION, FYT, False))
             av = RATIO_DATA(i, j)
 
             If av < avMin Then
@@ -827,16 +834,16 @@ Function Norm4_6_7_9()
 
             stirrup = Split(RAW_DATA(i, j), "@")
             REBAR = Split(RAW_DATA(i, j - 4), "-")
-            Db = Application.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
-            tie = Application.VLookup(SplitStirrup(stirrup(0)), REBAR_SIZE, DIAMETER, False)
+            Db = APP.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
+            tie = APP.VLookup(SplitStirrup(stirrup(0)), REBAR_SIZE, DIAMETER, False)
             effectiveDepth = RAW_DATA(i, H) - (4 + tie + Db / 2)
             av = RATIO_DATA(i, j)
 
             ' code4.4.1.1
-            vc = 0.53 * Sqr(Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) * RAW_DATA(i, BW) * effectiveDepth
+            vc = 0.53 * Sqr(APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) * RAW_DATA(i, BW) * effectiveDepth
 
             ' code4.6.7.2
-            vs = av * Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FYT, False) * effectiveDepth / stirrup(1)
+            vs = av * APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FYT, False) * effectiveDepth / stirrup(1)
 
             If vs > 4 * vc * 1.2 Then
                 Call WarningMessage("【0209】請確認剪力鋼筋量上限，是否符合規範 4.6.7.9 規定", i)
