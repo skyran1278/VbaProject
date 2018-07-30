@@ -1,17 +1,19 @@
-Private MESSAGE()
-Private Worksheet
-Private GENERAL_INFORMATION
-Private REBAR_SIZE
-Private RAW_DATA
-Private RATIO_DATA
-Private DATA_ROW_END
-Private DATA_ROW_START
-Private FIRST_STORY
-Private TOP_STORY
-Private REBAR_NUMBER()
-Private WS As Worksheet
 Private ran As UTILS_CLASS
 Private APP
+Private BEAM_TYPE
+Private objInfo
+Private objRebarSize
+Private DATA_ROW_START
+Private DATA_ROW_END
+Private WS_OUTPUT As Worksheet
+Private RAW_DATA
+Private MESSAGE
+Private REBAR_SIZE
+Private RATIO_DATA
+Private FIRST_STORY
+Private TOP_STORY
+Private REBAR_NUMBER
+Private GENERAL_INFORMATION
 
 ' RAW_DATA 資料命名
 Private Const STORY = 1
@@ -20,11 +22,11 @@ Private Const BW = 3
 Private Const H = 4
 Private Const D = 5
 Private Const REBAR_LEFT = 6
-Private Const REBAR_MIDDLE = 7
+Private Const REBAR_MID = 7
 Private Const REBAR_RIGHT = 8
 Private Const SIDE_REBAR = 9
 Private Const STIRRUP_LEFT = 10
-Private Const STIRRUP_MIDDLE = 11
+Private Const STIRRUP_MID = 11
 Private Const STIRRUP_RIGHT = 12
 Private Const BEAM_LENGTH = 13
 Private Const SUPPORT = 14
@@ -37,112 +39,165 @@ Private Const FC_BEAM = 4
 Private Const FC_COLUMN = 5
 Private Const SDL = 6
 Private Const LL = 7
-Private Const SPAN_X = 8
-Private Const SPAN_Y = 9
+Private Const BAND = 8
+Private Const SLAB = 9
+Private Const STORY_NUM = 10
 
 ' REBAR_SIZE 資料命名
 Private Const DIAMETER = 7
 Private Const CROSS_AREA = 10
 
 ' 輸出資料位置
-Private Const MESSAGE_POSITION = 16
+Private Const COL_MESSAGE = 16
 
 ' -------------------------------------------------------------------------
 ' -------------------------------------------------------------------------
 
 Private Sub Class_Initialize()
 ' Called automatically when class is created
-' GetGeneralInformation
-' GetRebarSize
 
     Set ran = New UTILS_CLASS
     Set APP = Application.WorksheetFunction
 
-    Call GetGeneralInformation
-    Call GetRebarSize
-
 End Sub
 
 
-Function GetGeneralInformation()
-
-    Dim generalInformation As Worksheet
-    Set generalInformation = Worksheets("General Information")
-
-    GENERAL_INFORMATION = ran.GetRangeToArray(generalInformation, 1, 4, 4, 12)
-
-    ' rowStart = 1
-    ' columnStart = 4
-    ' rowUsed = generalInformation.Cells(Rows.Count, 5).End(xlUp).Row
-    ' columnUsed = 12
-
-    ' GENERAL_INFORMATION = generalInformation.Range(generalInformation.Cells(rowStart, columnStart), generalInformation.Cells(rowUsed, columnUsed))
-
-    TOP_STORY = Application.Match(Cells(12, 15), APP.Index(GENERAL_INFORMATION, 0, STORY), 0)
-    FIRST_STORY = Application.Match(Cells(13, 15), APP.Index(GENERAL_INFORMATION, 0, STORY), 0)
-
-End Function
-
-
-Function GetRebarSize()
-
-    Dim rebarSize As Worksheet
-    Set rebarSize = Worksheets("Rebar Size")
-
-    rowStart = 1
-    columnStart = 1
-    rowUsed = rebarSize.Cells(Rows.Count, 5).End(xlUp).Row
-    columnUsed = 10
-
-    REBAR_SIZE = rebarSize.Range(rebarSize.Cells(rowStart, columnStart), rebarSize.Cells(rowUsed, columnUsed))
-
-End Function
-
-
-Function GetData(sheet)
-
-    Worksheet = sheet
-
-    Set WS = Worksheets(Worksheet)
-
-    rowStart = 1
-    columnStart = 1
-    rowUsed = WS.Cells(Rows.Count, 5).End(xlUp).Row
-    columnUsed = 16
-
-    RAW_DATA = WS.Range(WS.Cells(rowStart, columnStart), WS.Cells(rowUsed, columnUsed))
-
-End Function
-
-
-Function NoData()
+Function Initialize(ByVal sheet)
 '
-' 如果沒有資料，就回傳 false
+' 由於 VBA Class_Initialize 不能傳變數，所以這裡再做一次 Initialize.
 '
-' @returns NoData(Boolean)
-
-    NoData = UBound(RAW_DATA) < 4
-
-End Function
-
-
-Function Initialize()
+' @param {String} [sheet] descrip.
+' @return {type} [name] descrip.
 '
-' DATA_ROW_START
-' DATA_ROW_END
-' MESSAGE
-' RatioData
 
-    WS.Columns(MESSAGE_POSITION).ClearContents
-    WS.Cells(1, MESSAGE_POSITION) = "Warning Message"
-    DATA_ROW_START = 3
-    DATA_ROW_END = UBound(RAW_DATA)
+    BEAM_TYPE = sheet
+
+    Call GetGeneralInformation
+    Call GetRebarSize
+    Call SortRawData(sheet)
 
     ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
 
     ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) To UBound(RAW_DATA, 2))
 
     Call RatioData
+
+End Function
+
+
+Function GetGeneralInformation()
+'
+'
+
+    Dim wsGeneralInformation As Worksheet
+    Set wsGeneralInformation = Worksheets("General Information")
+
+    ' 後面多空出一行，以增加代號
+    arrGeneralInformation = ran.GetRangeToArray(wsGeneralInformation, 1, 4, 4, 13)
+
+    lbGeneralInformation = LBound(arrGeneralInformation)
+    ubGeneralInformation = UBound(arrGeneralInformation)
+
+    j = 1
+
+    For i = ubGeneralInformation To lbGeneralInformation Step -1
+        arrGeneralInformation(i, STORY_NUM) = j
+        j = j + 1
+    Next i
+
+    Set objInfo = ran.CreateDictionary(arrGeneralInformation, 1, False)
+
+    ' Use Cells(13, 15).Text instead of .Value
+    TOP_STORY = objInfo.Item(wsGeneralInformation.Cells(13, 15).Text)(STORY_NUM)
+    FIRST_STORY = objInfo.Item(wsGeneralInformation.Cells(14, 15).Text)(STORY_NUM)
+
+End Function
+
+
+Private Function GetRebarSize()
+'
+'
+
+    arrRebarSize = ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 5, 10)
+
+    Set objRebarSize = ran.CreateDictionary(arrRebarSize, 1, False)
+
+End Function
+
+
+Private Function SortRawData(ByVal sheet)
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+
+
+    Set WS_OUTPUT = Worksheets(sheet & "配筋 - Output")
+
+    ' 清空前一次輸入
+    WS_OUTPUT.Cells.Clear
+
+    arrRawData = ran.GetRangeToArray(Worksheets(sheet & "配筋 - Input"), 1, 1, 5, 15)
+
+    DATA_ROW_START = 3
+    DATA_ROW_END = UBound(arrRawData)
+
+    rowStartRawData = LBound(arrRawData, 1)
+    colStartRawData = LBound(arrRawData, 2)
+    colEndRawData = UBound(arrRawData, 2)
+
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+        arrRawData(i + 1, STORY) = arrRawData(i, STORY)
+        arrRawData(i + 2, STORY) = arrRawData(i, STORY)
+        arrRawData(i + 3, STORY) = arrRawData(i, STORY)
+        arrRawData(i + 1, NUMBER) = arrRawData(i, NUMBER)
+        arrRawData(i + 2, NUMBER) = arrRawData(i, NUMBER)
+        arrRawData(i + 3, NUMBER) = arrRawData(i, NUMBER)
+    Next i
+
+    With WS_OUTPUT
+
+        .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)) = arrRawData
+
+        .Sort.SortFields.Clear
+        .Sort.SortFields.Add2 Key:=.Range(.Cells(DATA_ROW_START, STORY), .Cells(DATA_ROW_END, STORY)), SortOn:=xlSortOnValues, Order:=xlDescending, DataOption:=xlSortNormal
+        .Sort.SortFields.Add2 Key:=.Range(.Cells(DATA_ROW_START, NUMBER), .Cells(DATA_ROW_END, NUMBER)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+        With .Sort
+            .SetRange WS_OUTPUT.Range(WS_OUTPUT.Cells(DATA_ROW_START, colStartRawData), WS_OUTPUT.Cells(DATA_ROW_END, colEndRawData))
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
+
+        Application.DisplayAlerts = False
+
+        ' TODO: 更多合併儲存格
+        For i = DATA_ROW_START To DATA_ROW_END Step 4
+            With .Range(.Cells(i, STORY), .Cells(i + 3, STORY))
+                .HorizontalAlignment = xlCenter
+                .VerticalAlignment = xlCenter
+                .WrapText = False
+                .Orientation = 0
+                .AddIndent = False
+                .IndentLevel = 0
+                .ShrinkToFit = False
+                .ReadingOrder = xlContext
+                .MergeCells = False
+                .Merge
+            End With
+        Next i
+
+        Application.DisplayAlerts = True
+
+        .Cells(1, COL_MESSAGE) = "Warning Message"
+        ' .Columns(COL_MESSAGE).EntireColumn.AutoFit
+
+    End With
 
 End Function
 
@@ -262,38 +317,38 @@ End Function
 
 Function GetSheetMessage(Girder, Beam, GroundBeam)
 
-    If Worksheet = "大梁配筋" Then
+    If BEAM_TYPE = "大梁配筋" Then
         GetSheetMessage = Girder
-    ElseIf Worksheet = "小梁配筋" Then
+    ElseIf BEAM_TYPE = "小梁配筋" Then
         GetSheetMessage = Beam
-    ElseIf Worksheet = "地梁配筋" Then
+    ElseIf BEAM_TYPE = "地梁配筋" Then
         GetSheetMessage = GroundBeam
     End If
 
 End Function
 
-Function WarningMessage(warinigMessageCode, i)
+Function WarningMessage(warningMessageCode, i)
 
-    MESSAGE(i) = warinigMessageCode & vbCrLf & MESSAGE(i)
+    MESSAGE(i) = warningMessageCode & vbCrLf & MESSAGE(i)
 
 End Function
 
 Function PrintMessage()
 
     ' 不知道為什麼不能直接給值，只好用 for loop
-    ' Range(Cells(DATA_ROW_START, MESSAGE_POSITION), Cells(DATA_ROW_END, MESSAGE_POSITION)) = MESSAGE()
+    ' Range(Cells(DATA_ROW_START, COL_MESSAGE), Cells(DATA_ROW_END, COL_MESSAGE)) = MESSAGE()
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        WS.Range(WS.Cells(i, MESSAGE_POSITION), WS.Cells(i + 3, MESSAGE_POSITION)).Merge
+        WS_OUTPUT.Range(WS_OUTPUT.Cells(i, COL_MESSAGE), WS_OUTPUT.Cells(i + 3, COL_MESSAGE)).Merge
 
         If MESSAGE(i) = "" Then
             MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
-            WS.Cells(i, MESSAGE_POSITION).Style = "好"
+            WS_OUTPUT.Cells(i, COL_MESSAGE).Style = "好"
         Else
-            WS.Cells(i, MESSAGE_POSITION).Style = "壞"
+            WS_OUTPUT.Cells(i, COL_MESSAGE).Style = "壞"
             MESSAGE(i) = Left(MESSAGE(i), Len(MESSAGE(i)) - 1)
         End If
-        WS.Cells(i, MESSAGE_POSITION) = MESSAGE(i)
+        WS_OUTPUT.Cells(i, COL_MESSAGE) = MESSAGE(i)
 
     Next
 
@@ -309,11 +364,11 @@ Function PrintRebarRatio()
     rowStart = 3
     rowUsed = UBound(REBAR_NUMBER) + 1
 
-    If Worksheet = "大梁配筋" Then
+    If BEAM_TYPE = "大梁" Then
         columnStart = 4
-    ElseIf Worksheet = "小梁配筋" Then
+    ElseIf BEAM_TYPE = "小梁" Then
         columnStart = 7
-    ElseIf Worksheet = "地梁配筋" Then
+    ElseIf BEAM_TYPE = "地梁" Then
         columnStart = 10
     End If
 
@@ -325,10 +380,10 @@ End Function
 
 Function FontSetting()
 
-    WS.Cells.Font.Name = "微軟正黑體"
-    WS.Cells.Font.Name = "Calibri"
-    WS.Cells.HorizontalAlignment = xlCenter
-    WS.Cells.VerticalAlignment = xlCenter
+    WS_OUTPUT.Cells.Font.Name = "微軟正黑體"
+    WS_OUTPUT.Cells.Font.Name = "Calibri"
+    WS_OUTPUT.Cells.HorizontalAlignment = xlCenter
+    WS_OUTPUT.Cells.VerticalAlignment = xlCenter
 
 End Function
 
@@ -486,14 +541,14 @@ Function SafetyLoad()
 ' 載重預警
 ' 假設帶寬 3m ,則 0.6 * 1/8 * wu * L^2 <= As * fy * d
 
-    band = 3
+    BAND = 3
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        maxRatio = APP.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
+        maxRatio = APP.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MID), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MID), RATIO_DATA(i + 2, REBAR_RIGHT))
 
         ' 轉換 kgw-m => tf-m: * 100000
-        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, SDL, False)) + 1.6 * APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, LL, False)) * band ^ 2 * 100000
+        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, SDL, False)) + 1.6 * APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, LL, False)) * BAND ^ 2 * 100000
 
         capacity = maxRatio * APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RATIO_DATA(i, D)
 
@@ -570,7 +625,7 @@ For i = DATA_ROW_START To DATA_ROW_END Step 4
         Call WarningMessage(GetSheetMessage("【0201】請確認左端上層筋下限，是否符合規範 3.6 規定", "【0301】請確認左端上層筋下限，是否符合規範 3.6 規定", "請確認左端上層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
-    If RATIO_DATA(i, REBAR_MIDDLE) < code3_3 Or RATIO_DATA(i, REBAR_MIDDLE) < code3_4 Then
+    If RATIO_DATA(i, REBAR_MID) < code3_3 Or RATIO_DATA(i, REBAR_MID) < code3_4 Then
         Call WarningMessage(GetSheetMessage("【0202】請確認中央上層筋下限，是否符合規範 3.6 規定", "【0302】請確認中央上層筋下限，是否符合規範 3.6 規定", "請確認中央上層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
@@ -582,7 +637,7 @@ For i = DATA_ROW_START To DATA_ROW_END Step 4
         Call WarningMessage(GetSheetMessage("【0204】請確認左端下層筋下限，是否符合規範 3.6 規定", "【0304】請確認左端下層筋下限，是否符合規範 3.6 規定", "請確認左端下層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
-    If RATIO_DATA(i + 2, REBAR_MIDDLE) < code3_3 Or RATIO_DATA(i + 2, REBAR_MIDDLE) < code3_4 Then
+    If RATIO_DATA(i + 2, REBAR_MID) < code3_3 Or RATIO_DATA(i + 2, REBAR_MID) < code3_4 Then
         Call WarningMessage(GetSheetMessage("【0205】請確認中央下層筋下限，是否符合規範 3.6 規定", "【0305】請確認中央下層筋下限，是否符合規範 3.6 規定", "請確認中央下層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
@@ -609,7 +664,7 @@ Function Norm15_4_2_1()
                 Call WarningMessage("【0212】請確認左端上層筋上限，是否符合規範 15.4.2.1 規定", i)
             End If
 
-            If RATIO_DATA(i, REBAR_MIDDLE) > code15_4_2_1 Then
+            If RATIO_DATA(i, REBAR_MID) > code15_4_2_1 Then
                 Call WarningMessage("【0213】請確認中央上層筋上限，是否符合規範 15.4.2.1 規定", i)
             End If
 
@@ -621,7 +676,7 @@ Function Norm15_4_2_1()
                 Call WarningMessage("【0215】請確認左端下層筋上限，是否符合規範 15.4.2.1 規定", i)
             End If
 
-            If RATIO_DATA(i + 2, REBAR_MIDDLE) > code15_4_2_1 Then
+            If RATIO_DATA(i + 2, REBAR_MID) > code15_4_2_1 Then
                 Call WarningMessage("【0216】請確認中央下層筋上限，是否符合規範 15.4.2.1 規定", i)
             End If
 
@@ -645,8 +700,8 @@ Function Norm15_4_2_2()
 
         If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
-            maxRatio = APP.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
-            minRatio = APP.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MIDDLE), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MIDDLE), RATIO_DATA(i + 2, REBAR_RIGHT))
+            maxRatio = APP.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MID), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MID), RATIO_DATA(i + 2, REBAR_RIGHT))
+            minRatio = APP.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MID), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MID), RATIO_DATA(i + 2, REBAR_RIGHT))
             code15_4_2_2 = minRatio < maxRatio / 4
 
             If code15_4_2_2 Then
@@ -670,11 +725,11 @@ Function EconomicTopRebarRelativeForGB()
         rebarLEFT = Split(RAW_DATA(i, REBAR_LEFT), "-")
         rebarRIGHT = Split(RAW_DATA(i, REBAR_RIGHT), "-")
 
-        If RATIO_DATA(i, REBAR_MIDDLE) * 0.7 < RATIO_DATA(i, REBAR_LEFT) And rebarLEFT(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
+        If RATIO_DATA(i, REBAR_MID) * 0.7 < RATIO_DATA(i, REBAR_LEFT) And rebarLEFT(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
             Call WarningMessage("【0111】請確認左端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
         End If
 
-        If RATIO_DATA(i, REBAR_MIDDLE) * 0.7 < RATIO_DATA(i, REBAR_RIGHT) And rebarRIGHT(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
+        If RATIO_DATA(i, REBAR_MID) * 0.7 < RATIO_DATA(i, REBAR_RIGHT) And rebarRIGHT(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
             Call WarningMessage("【0112】請確認右端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
         End If
 
@@ -693,9 +748,9 @@ Function EconomicTopRebarRelative()
 
         minRatio = APP.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_RIGHT))
 
-        REBAR = Split(RAW_DATA(i, REBAR_MIDDLE), "-")
+        REBAR = Split(RAW_DATA(i, REBAR_MID), "-")
 
-        If RATIO_DATA(i, REBAR_MIDDLE) > minRatio * 0.7 And REBAR(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
+        If RATIO_DATA(i, REBAR_MID) > minRatio * 0.7 And REBAR(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
             Call WarningMessage("【0221】請確認中央上層筋相對鋼筋量，是否符合中央上層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
@@ -713,9 +768,9 @@ Function EconomicBotRebarRelativeForGB()
 
         minRatio = APP.Min(RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_RIGHT))
 
-        REBAR = Split(RAW_DATA(i + 2, REBAR_MIDDLE), "-")
+        REBAR = Split(RAW_DATA(i + 2, REBAR_MID), "-")
 
-        If RATIO_DATA(i + 2, REBAR_MIDDLE) > minRatio * 0.7 And REBAR(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
+        If RATIO_DATA(i + 2, REBAR_MID) > minRatio * 0.7 And REBAR(0) > 3 And RATIO_DATA(i, BEAM_LENGTH) > 400 Then
             Call WarningMessage("【0110】請確認中央下層筋相對鋼筋量，是否符合中央下層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 

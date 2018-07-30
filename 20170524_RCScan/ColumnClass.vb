@@ -66,8 +66,8 @@ Function GetGeneralInformation()
 
     GENERAL_INFORMATION = generalInformation.Range(generalInformation.Cells(rowStart, columnStart), generalInformation.Cells(rowUsed, columnUsed))
 
-    TOP_STORY = Application.Match(Cells(12, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
-    FIRST_STORY = Application.Match(Cells(13, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    TOP_STORY = Application.Match(Cells(13, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    FIRST_STORY = Application.Match(Cells(14, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
 
 End Function
 

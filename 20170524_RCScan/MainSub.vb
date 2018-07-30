@@ -33,11 +33,7 @@ Sub CheckGroundBeamNorm()
     Dim GroundBeam As BeamClass
     Set GroundBeam = New BeamClass
 
-    GroundBeam.GetData ("地梁配筋")
-
-    If GroundBeam.NoData Then
-        Exit Sub
-    End If
+    GroundBeam.GetData ("地梁")
 
     GroundBeam.Initialize
 
@@ -63,11 +59,7 @@ Sub CheckBeamNorm()
     Dim Beam As BeamClass
     Set Beam = New BeamClass
 
-    Beam.GetData ("小梁配筋")
-
-    If Beam.NoData Then
-        Exit Sub
-    End If
+    Beam.GetData ("小梁")
 
     Beam.Initialize
 
@@ -87,16 +79,13 @@ End Sub
 
 Sub CheckGirderNorm()
 
-    Dim Girder As BeamClass
-    Set Girder = New BeamClass
+    Dim ran As New UTILS_CLASS
+    Dim Girder As New BeamClass
 
-    Girder.GetData ("大梁配筋")
+    Call ran.ExecutionTime(True)
+    Call ran.PerformanceVBA(True)
 
-    If Girder.NoData Then
-        Exit Sub
-    End If
-
-    Girder.Initialize
+    Girder.Initialize("大梁")
 
     ' 實作規範
     Girder.Norm3_6
@@ -113,48 +102,9 @@ Sub CheckGirderNorm()
     Girder.PrintMessage
 
     Girder.CountRebarNumber
-    Girder.PrintRebarRatio
+    ' Girder.PrintRebarRatio
 
-End Sub
-
-Function ExecutionTime(time0)
-
-    If Timer - time0 < 60 Then
-        MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
-    Else
-        MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
-    End If
-
-End Function
-
-Sub Main()
-'
-' * 目的
-'       Check Norm
-
-' * 環境
-'       Excel
-
-' * 輸出入格式
-'       輸入：
-'       輸出：
-
-' * 執行時間
-'       0.06 Sec
-
-' * 輸出結果的精確度與檢驗方式
-'
-    Dim time0 As Double
-    Call PerformanceVBA(True)
-
-    time0 = Timer
-
-    Call CheckColumnNorm
-    Call CheckGirderNorm
-    Call CheckBeamNorm
-    Call CheckGroundBeamNorm
-
-    Call PerformanceVBA(False)
-    Call ExecutionTimeVBA(time0)
+    Call ran.PerformanceVBA(False)
+    Call ran.ExecutionTime(False)
 
 End Sub

@@ -1,29 +1,50 @@
-' @license UTILS_CLASS v2.0.2
+' @license UTILS_CLASS v3.0.0
 ' UTILS_CLASS.vb
 '
 ' Copyright (c) 2016-present, skyran
 '
 ' This source code is licensed under the MIT license found in the
 ' LICENSE file in the root directory of this source tree.
-
-' TODO: 參考 lodash 文檔
-' If Then is FASTER than IIF
-' 若想要最佳化效能 還是需要自己寫一個針對的最快
-' 呼叫 function 比本地直接執行慢 3.5 倍左右，但是通常都還是會拆分 function，所以我認為沒差。
 '
-' 教學
-' Private ran As UTILS_CLASS
-' Set ran = New UTILS_CLASS
+' - Getting Start
+' Dim ran As New UTILS_CLASS
+'
+' - Add
+' ExecutionTime
+'
+' - Change
+' CreateDictionary
+' RoundUp
+'
+'
+' - Remove
+' FontSetting
+' ExecutionTimeVBA
+'
+' - All API
+' CreateDictionary
+' GetRangeToArray
+' GetRowEnd
+' RoundUp
+' ExecutionTime
+' PerformanceVBA
+' Min
+' Max
+' QuickSortArray
+'
+'
+
+Private time0 As Double
 
 
-Function CreateDictionary(arr, colKey, colValue)
+Function CreateDictionary(ByVal arr, ByVal colKey, ByVal colValue)
 '
 ' 取代內建的 VLookup.
 '
 ' @since 2.0.0
 ' @param {array} [arr] to create dictionary table.
 ' @param {number} [colKey] key column.
-' @param {number} [colValue] value column.
+' @param {number|boolean} [colValue] value column or false to use all value.
 ' @return {object} [CreateDictionary] descrip.
 ' @example
 ' objDictionary.Item(key)
@@ -34,11 +55,23 @@ Function CreateDictionary(arr, colKey, colValue)
     lbArr = LBound(arr, 1)
     ubArr = UBound(arr, 1)
 
-    For rowArr = lbArr To ubArr
-        If Not objDictionary.Exists(arr(rowArr, colKey)) Then
-            Call objDictionary.Add(arr(rowArr, colKey), arr(rowArr, colValue))
-        End If
-    Next rowArr
+    If colValue Then
+        For rowArr = lbArr To ubArr
+            If Not objDictionary.Exists(arr(rowArr, colKey)) Then
+                Call objDictionary.Add(arr(rowArr, colKey), arr(rowArr, colValue))
+            End If
+        Next rowArr
+    Else
+        For rowArr = lbArr To ubArr
+            If Not objDictionary.Exists(arr(rowArr, colKey)) Then
+                ' VBA 不能方便的存取整列整欄，所以用 Index
+                ' Application.WorksheetFunction.Index(array, 0, columnYouWant)
+                ' Application.WorksheetFunction.Index(array, rowYouWant, 0)
+                Call objDictionary.Add(arr(rowArr, colKey), Application.WorksheetFunction.Index(arr, rowArr, 0))
+            End If
+        Next rowArr
+    End If
+
 
     Set CreateDictionary = objDictionary
 
@@ -69,43 +102,39 @@ Function GetRowEnd(ws, col)
 
 End Function
 
-
-Function FontSetting(ws)
-'
-' 美化格式
-'
-
-    With ws
-        .Cells.Font.Name = "微軟正黑體"
-        .Cells.Font.Name = "Calibri"
-        .Cells.HorizontalAlignment = xlCenter
-        .Cells.VerticalAlignment = xlCenter
-    End With
-
-End Function
-
 ' 使用這個要小心，會怪怪的
 ' 估計是遇到了 VBA 底層的問題
 Function RoundUp(ByVal Value As Double)
+'
+' 取代內建的 RoundUp
+'
+
     If Int(Value) = Value Then
         RoundUp = Value
     Else
         RoundUp = Int(Value) + 1
     End If
+
 End Function
 
 
-Sub ExecutionTimeVBA(time0 As Double)
+Sub ExecutionTime(ByVal isOn As Boolean)
 '
-' 計算執行時間
+' 計算執行時間，取代 ExecutionTimeVBA
 '
-' @param time0(Double)
-
-    If Timer - time0 < 60 Then
-        MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
+' @since 2.2.0
+' @param {Boolean} [isOn] True = time0, False = show Msg.
+'
+    If isOn Then
+        time0 = Timer
     Else
-        MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
+        If Timer - time0 < 60 Then
+            MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
+        Else
+            MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
+        End If
     End If
+
 
 End Sub
 
@@ -164,7 +193,7 @@ Function Max(ParamArray values() As Variant) As Variant
 End Function
 
 
-Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin As Long = -1, Optional lngMax As Long = -1, Optional lngColumn As Long = 0)
+Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin = -1, Optional lngMax = -1, Optional lngColumn = 0)
     On Error Resume Next
 
     'Sort a 2-Dimensional array
@@ -280,28 +309,21 @@ Sub SpeedTest()
     Dim a As Double
 
     time0 = Timer
-    Set app = Application.WorksheetFunction
-    For i = 1 To 1000000
-        a = app.Max(11, 2, 3)
-    Next i
-    Debug.Print Timer - time0
 
-    time0 = Timer
-    For i = 1 To 1000000
-        a = Application.WorksheetFunction.Max(11, 2, 3)
-    Next i
-    Debug.Print Timer - time0
+    Set APP = Application.WorksheetFunction
+    Dim ran As New UTILS_CLASS
 
-    time0 = Timer
-    For i = 1 To 1000000
-        a = Application.Max(11, 2, 3)
-    Next i
-    Debug.Print Timer - time0
+    Dim generalInformation As Worksheet
+    Set generalInformation = Worksheets("General Information")
 
-    time0 = Timer
-    For i = 1 To 1000000
-        a = Max(11, 2, 3)
-    Next i
+    GENERAL_INFORMATION = ran.GetRangeToArray(generalInformation, 1, 4, 4, 12)
+
+    Set objDictionary = CreateDictionary(GENERAL_INFORMATION, 1, False)
+
+    Debug.Print objDictionary.Item("RF")(1)
+
+
     Debug.Print Timer - time0
 
 End Sub
+
