@@ -80,7 +80,7 @@ Function Initialize(ByVal sheet)
 
     ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) To UBound(RAW_DATA, 2))
 
-    Call RatioData
+    Call GetRatioData
 
 End Function
 
@@ -174,39 +174,79 @@ Private Function SortRawData(ByVal sheet)
             .Apply
         End With
 
-        Application.DisplayAlerts = False
+        ' Application.DisplayAlerts = False
 
-        ' TODO: 更多合併儲存格
-        For i = DATA_ROW_START To DATA_ROW_END Step 4
-            With .Range(.Cells(i, STORY), .Cells(i + 3, STORY))
-                .HorizontalAlignment = xlCenter
-                .VerticalAlignment = xlCenter
-                .WrapText = False
-                .Orientation = 0
-                .AddIndent = False
-                .IndentLevel = 0
-                .ShrinkToFit = False
-                .ReadingOrder = xlContext
-                .MergeCells = False
-                .Merge
-            End With
-        Next i
+        ' ' TODO: 更多合併儲存格
+        ' For i = DATA_ROW_START To DATA_ROW_END Step 4
+        '     With .Range(.Cells(i, STORY), .Cells(i + 3, STORY))
+        '         .HorizontalAlignment = xlCenter
+        '         .VerticalAlignment = xlCenter
+        '         .Merge
+        '     End With
+        '     With .Range(.Cells(i, NUMBER), .Cells(i + 3, NUMBER))
+        '         .HorizontalAlignment = xlCenter
+        '         .VerticalAlignment = xlCenter
+        '         .Merge
+        '     End With
+        '     With .Range(.Cells(i, BW), .Cells(i + 3, BW))
+        '         .HorizontalAlignment = xlCenter
+        '         .VerticalAlignment = xlCenter
+        '         .Merge
+        '     End With
+        '     With .Range(.Cells(i, H), .Cells(i + 3, H))
+        '         .HorizontalAlignment = xlCenter
+        '         .VerticalAlignment = xlCenter
+        '         .Merge
+        '     End With
+        '     With .Range(.Cells(i, SIDE_REBAR), .Cells(i + 3, SIDE_REBAR))
+        '         .HorizontalAlignment = xlCenter
+        '         .VerticalAlignment = xlCenter
+        '         .Merge
+        '     End With
+        '     With .Range(.Cells(i, STIRRUP_LEFT), .Cells(i + 3, STIRRUP_LEFT))
+        '         .HorizontalAlignment = xlCenter
+        '         .VerticalAlignment = xlCenter
+        '         .Merge
+        '     End With
+        '     With .Range(.Cells(i, STIRRUP_MID), .Cells(i + 3, STIRRUP_MID))
+        '         .HorizontalAlignment = xlCenter
+        '         .VerticalAlignment = xlCenter
+        '         .Merge
+        '     End With
+        ' Next i
 
-        Application.DisplayAlerts = True
+        ' Application.DisplayAlerts = True
 
         .Cells(1, COL_MESSAGE) = "Warning Message"
         ' .Columns(COL_MESSAGE).EntireColumn.AutoFit
 
     End With
 
+    RAW_DATA = ran.GetRangeToArray(Worksheets(sheet & "配筋 - Output"), 1, 1, 5, 16)
+
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+        RAW_DATA(i + 1, STORY) = Empty
+        RAW_DATA(i + 2, STORY) = Empty
+        RAW_DATA(i + 3, STORY) = Empty
+        RAW_DATA(i + 1, NUMBER) = Empty
+        RAW_DATA(i + 2, NUMBER) = Empty
+        RAW_DATA(i + 3, NUMBER) = Empty
+    Next i
+
 End Function
 
 
-Function RatioData()
+Function GetRatioData()
 
     ' 樓層數字化，用以比較上下樓層。
-    For i = DATA_ROW_START To DATA_ROW_END
-        RATIO_DATA(i, STORY) = Application.Match(RAW_DATA(i, STORY), APP.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+        RATIO_DATA(i, STORY) = objInfo.Item(RAW_DATA(i, STORY))(STORY_NUM)
+
+        If IsEmpty(RATIO_DATA(i, STORY)) Then
+            MsgBox "請確認 " & RAW_DATA(i, STORY) & " 是否存在於 General Information", vbOKOnly, "Error"
+        End If
+        ' RATIO_DATA(i, STORY) = Application.Match(RAW_DATA(i, STORY), APP.Index(GENERAL_INFORMATION, 0, STORY), 0)
     Next
 
     ' 計算鋼筋面積
@@ -250,22 +290,16 @@ Function RatioData()
 
 End Function
 
-Function SplitStirrup(REBAR)
 
-    bars = Split(REBAR, "#")
+Function CalRebarArea(rebar)
 
-    SplitStirrup = "#" & bars(1)
-
-End Function
-
-Function CalRebarArea(REBAR)
-
-    tmp = Split(REBAR, "-")
+    tmp = Split(rebar, "-")
 
     If tmp(0) <> 0 Then
 
         ' 轉換鋼筋尺寸為截面積
-        tmp(1) = APP.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
+        tmp(1) = objRebarSize.Item(tmp(1))(CROSS_AREA)
+        ' tmp(1) = APP.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
 
         CalRebarArea = tmp(0) * tmp(1)
     Else
@@ -274,11 +308,12 @@ Function CalRebarArea(REBAR)
 
 End Function
 
-Function CalStirrupArea(REBAR)
+
+Function CalStirrupArea(rebar)
 '
 ' 考量雙箍
 '
-    tmp = Split(REBAR, "@")
+    tmp = Split(rebar, "@")
 
     bars = Split(tmp(0), "#")
 
@@ -293,6 +328,16 @@ Function CalStirrupArea(REBAR)
     End If
 
 End Function
+
+
+Function SplitStirrup(REBAR)
+
+    bars = Split(REBAR, "#")
+
+    SplitStirrup = "#" & bars(1)
+
+End Function
+
 
 Function CalSideRebarArea(REBAR)
 
