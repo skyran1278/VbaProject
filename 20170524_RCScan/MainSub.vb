@@ -1,4 +1,4 @@
-Sub CheckColumnNorm()
+Sub ScanColumnNorm()
 
     Dim Column As ColumnClass
     Set Column = New ColumnClass
@@ -28,33 +28,36 @@ Sub CheckColumnNorm()
 
 End Sub
 
-' Sub CheckGroundBeamNorm()
+' Sub ScanFoundationBeamNorm()
+' '
+' ' TODO:處理筏基版厚、上下版厚
+' '
 
-'     Dim GroundBeam As BeamClass
-'     Set GroundBeam = New BeamClass
+'     Dim FoundationBeam As BeamClass
+'     Set FoundationBeam = New BeamClass
 
-'     GroundBeam.GetData ("地梁")
+'     FoundationBeam.GetData ("地梁")
 
-'     GroundBeam.Initialize
+'     FoundationBeam.Initialize
 
 '     ' 實作規範
-'     GroundBeam.Norm4_9_3
-'     GroundBeam.Norm4_9_4
-'     GroundBeam.EconomicNorm4_9_4
-'     GroundBeam.SafetyRebarRatioAndSpace
-'     GroundBeam.SafetyRebarRatioForGB
-'     GroundBeam.EconomicBotRebarRelativeForGB
-'     GroundBeam.EconomicTopRebarRelativeForGB
-'     GroundBeam.SafetyStirrupSpace
+'     FoundationBeam.Norm4_9_3
+'     FoundationBeam.Norm4_9_4
+'     FoundationBeam.EconomicNorm4_9_4
+'     FoundationBeam.SafetyRebarRatioAndSpace
+'     FoundationBeam.SafetyRebarRatioForGB
+'     FoundationBeam.EconomicBotRebarRelativeForGB
+'     FoundationBeam.EconomicTopRebarRelativeForGB
+'     FoundationBeam.SafetyStirrupSpace
 
-'     GroundBeam.PrintMessage
+'     FoundationBeam.PrintMessage
 
-'     GroundBeam.CountRebarNumber
-'     GroundBeam.PrintRebarRatio
+'     FoundationBeam.CountRebarNumber
+'     FoundationBeam.PrintRebarRatio
 
 ' End Sub
 
-' Sub CheckBeamNorm()
+' Sub ScanBeamNorm()
 
 '     Dim Beam As BeamClass
 '     Set Beam = New BeamClass
@@ -77,7 +80,7 @@ End Sub
 
 ' End Sub
 
-Sub CheckGirderNorm()
+Sub ScanGirderNorm()
 
     Dim ran As New UTILS_CLASS
     Dim Girder As New BeamClass
@@ -88,16 +91,16 @@ Sub CheckGirderNorm()
     Girder.Initialize("大梁")
 
     ' 實作規範
-    ' Girder.Norm3_6
-    ' Girder.Norm3_7_5
-    ' Girder.Norm3_8_1
-    ' Girder.Norm4_6_7_9
-    ' Girder.Norm13_5_1AndSafetyRebarNumber
+    Girder.Norm3_6
+    Girder.Norm3_7_5
+    Girder.Norm3_8_1
+    Girder.Norm4_6_7_9
+    Girder.Norm13_5_1AndSafetyRebarNumber
 
-    ' Girder.Norm15_4_2_1
-    ' Girder.Norm15_4_2_2
-    ' Girder.SafetyStirrupSpace
-    ' Girder.EconomicTopRebarRelative
+    Girder.Norm15_4_2_1
+    Girder.Norm15_4_2_2
+    Girder.SafetyStirrupSpace
+    Girder.EconomicTopRebarRelative
 
     Girder.PrintResult
 
