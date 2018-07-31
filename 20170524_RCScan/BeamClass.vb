@@ -1,25 +1,33 @@
 Private ran As UTILS_CLASS
 Private APP
+
 Private BEAM_TYPE
+
 Private objInfo
+Private TOP_STORY
+Private FIRST_STORY
+
 Private objRebarSize
+
+Private WS_OUTPUT As Worksheet
 Private DATA_ROW_START
 Private DATA_ROW_END
-Private WS_OUTPUT As Worksheet
 Private RAW_DATA
-Private MESSAGE
-Private REBAR_SIZE
+
 Private RATIO_DATA
-Private FIRST_STORY
-Private TOP_STORY
+
 Private REBAR_NUMBER
+
 Private GENERAL_INFORMATION
+Private REBAR_SIZE
+Private MESSAGE
 
 ' RAW_DATA 資料命名
 Private Const STORY = 1
 Private Const NUMBER = 2
 Private Const BW = 3
 Private Const H = 4
+' 由於第幾排無用，所以放置 D 有效深度
 Private Const D = 5
 Private Const REBAR_LEFT = 6
 Private Const REBAR_MID = 7
@@ -31,6 +39,8 @@ Private Const STIRRUP_RIGHT = 12
 Private Const BEAM_LENGTH = 13
 Private Const SUPPORT = 14
 Private Const LOCATION = 15
+' 輸出資料位置
+Private Const COL_MESSAGE = 16
 
 ' GENERAL_INFORMATION 資料命名
 Private Const FY = 2
@@ -41,17 +51,15 @@ Private Const SDL = 6
 Private Const LL = 7
 Private Const BAND = 8
 Private Const SLAB = 9
-Private Const STORY_NUM = 10
+Private Const COVER = 10
+Private Const STORY_NUM = 11
 
-' REBAR_SIZE 資料命名
 Private Const DIAMETER = 7
 Private Const CROSS_AREA = 10
 
-' 輸出資料位置
-Private Const COL_MESSAGE = 16
-
 ' -------------------------------------------------------------------------
 ' -------------------------------------------------------------------------
+' REBAR_SIZE 資料命名
 
 Private Sub Class_Initialize()
 ' Called automatically when class is created
@@ -72,11 +80,20 @@ Function Initialize(ByVal sheet)
 
     BEAM_TYPE = sheet
 
+    ' 輸出 objInfo
     Call GetGeneralInformation
+
+    ' 輸出 objRebarSize
     Call GetRebarSize
+
+    ' 輸出
+    ' WS_OUTPUT
+    ' DATA_ROW_START
+    ' DATA_ROW_END
+    ' RAW_DATA
     Call SortRawData(sheet)
 
-    ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
+    ' ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
 
     ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) To UBound(RAW_DATA, 2))
 
@@ -93,7 +110,7 @@ Function GetGeneralInformation()
     Set wsGeneralInformation = Worksheets("General Information")
 
     ' 後面多空出一行，以增加代號
-    arrGeneralInformation = ran.GetRangeToArray(wsGeneralInformation, 1, 4, 4, 13)
+    arrGeneralInformation = ran.GetRangeToArray(wsGeneralInformation, 1, 4, 4, 14)
 
     lbGeneralInformation = LBound(arrGeneralInformation)
     ubGeneralInformation = UBound(arrGeneralInformation)
@@ -107,9 +124,9 @@ Function GetGeneralInformation()
 
     Set objInfo = ran.CreateDictionary(arrGeneralInformation, 1, False)
 
-    ' Use Cells(13, 15).Text instead of .Value
-    TOP_STORY = objInfo.Item(wsGeneralInformation.Cells(13, 15).Text)(STORY_NUM)
-    FIRST_STORY = objInfo.Item(wsGeneralInformation.Cells(14, 15).Text)(STORY_NUM)
+    ' Use Cells(13, 16).Text instead of .Value
+    TOP_STORY = objInfo.Item(wsGeneralInformation.Cells(13, 16).Text)(STORY_NUM)
+    FIRST_STORY = objInfo.Item(wsGeneralInformation.Cells(14, 16).Text)(STORY_NUM)
 
 End Function
 
@@ -174,51 +191,7 @@ Private Function SortRawData(ByVal sheet)
             .Apply
         End With
 
-        ' Application.DisplayAlerts = False
-
-        ' ' TODO: 更多合併儲存格
-        ' For i = DATA_ROW_START To DATA_ROW_END Step 4
-        '     With .Range(.Cells(i, STORY), .Cells(i + 3, STORY))
-        '         .HorizontalAlignment = xlCenter
-        '         .VerticalAlignment = xlCenter
-        '         .Merge
-        '     End With
-        '     With .Range(.Cells(i, NUMBER), .Cells(i + 3, NUMBER))
-        '         .HorizontalAlignment = xlCenter
-        '         .VerticalAlignment = xlCenter
-        '         .Merge
-        '     End With
-        '     With .Range(.Cells(i, BW), .Cells(i + 3, BW))
-        '         .HorizontalAlignment = xlCenter
-        '         .VerticalAlignment = xlCenter
-        '         .Merge
-        '     End With
-        '     With .Range(.Cells(i, H), .Cells(i + 3, H))
-        '         .HorizontalAlignment = xlCenter
-        '         .VerticalAlignment = xlCenter
-        '         .Merge
-        '     End With
-        '     With .Range(.Cells(i, SIDE_REBAR), .Cells(i + 3, SIDE_REBAR))
-        '         .HorizontalAlignment = xlCenter
-        '         .VerticalAlignment = xlCenter
-        '         .Merge
-        '     End With
-        '     With .Range(.Cells(i, STIRRUP_LEFT), .Cells(i + 3, STIRRUP_LEFT))
-        '         .HorizontalAlignment = xlCenter
-        '         .VerticalAlignment = xlCenter
-        '         .Merge
-        '     End With
-        '     With .Range(.Cells(i, STIRRUP_MID), .Cells(i + 3, STIRRUP_MID))
-        '         .HorizontalAlignment = xlCenter
-        '         .VerticalAlignment = xlCenter
-        '         .Merge
-        '     End With
-        ' Next i
-
-        ' Application.DisplayAlerts = True
-
         .Cells(1, COL_MESSAGE) = "Warning Message"
-        ' .Columns(COL_MESSAGE).EntireColumn.AutoFit
 
     End With
 
@@ -232,6 +205,9 @@ Private Function SortRawData(ByVal sheet)
         RAW_DATA(i + 2, NUMBER) = Empty
         RAW_DATA(i + 3, NUMBER) = Empty
     Next i
+
+    ' 清空前一次輸入
+    WS_OUTPUT.Cells.Clear
 
 End Function
 
@@ -278,13 +254,15 @@ Function GetRatioData()
     ' 計算有效深度
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        REBAR = Split(RAW_DATA(i, REBAR_LEFT), "-")
+        rebar = Split(RAW_DATA(i, REBAR_LEFT), "-")
         stirrup = Split(RAW_DATA(i, STIRRUP_LEFT), "@")
-        Db = APP.VLookup(REBAR(1), REBAR_SIZE, DIAMETER, False)
-        tie = APP.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
+        Db = objRebarSize.Item(rebar(1))(DIAMETER)
+        ' Db = APP.VLookup(rebar(1), REBAR_SIZE, DIAMETER, False)
+        tie = objRebarSize.Item(SplitStirrup(stirrup(0)))(DIAMETER)
+        ' tie = APP.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, DIAMETER, False)
 
         ' 雙排筋
-        RATIO_DATA(i, D) = RAW_DATA(i, H) - (4 + tie + Db * 1.5)
+        RATIO_DATA(i, D) = RAW_DATA(i, H) - (objInfo.Item(RAW_DATA(i, STORY))(COVER) + tie + Db * 1.5)
 
     Next
 
@@ -322,33 +300,29 @@ Function CalStirrupArea(rebar)
 
     ' 轉換鋼筋尺寸為截面積
     If bars(0) = "" Then
-        CalStirrupArea = 2 * APP.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
+        CalStirrupArea = 2 * objRebarSize.Item(bars(1))(CROSS_AREA)
+        ' CalStirrupArea = 2 * APP.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
     Else
-        CalStirrupArea = 2 * bars(0) * APP.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
+        CalStirrupArea = 2 * bars(0) * objRebarSize.Item(bars(1))(CROSS_AREA)
+        ' CalStirrupArea = 2 * bars(0) * APP.VLookup(bars(1), REBAR_SIZE, CROSS_AREA, False)
     End If
 
 End Function
 
 
-Function SplitStirrup(REBAR)
+Function CalSideRebarArea(rebar)
 
-    bars = Split(REBAR, "#")
+    If rebar <> "-" Then
 
-    SplitStirrup = "#" & bars(1)
-
-End Function
-
-
-Function CalSideRebarArea(REBAR)
-
-    If REBAR <> "-" Then
-
-        sidebarNoEF = Left(REBAR, Len(REBAR) - 2)
+        ' 去掉 EF
+        ' 1#4EF => 1#4
+        sidebarNoEF = Left(rebar, Len(rebar) - 2)
 
         tmp = Split(sidebarNoEF, "#")
 
         ' 轉換鋼筋尺寸為截面積
-        tmp(1) = APP.VLookup("#" & tmp(1), REBAR_SIZE, CROSS_AREA, False)
+        tmp(1) = objRebarSize.Item("#" & tmp(1))(CROSS_AREA)
+        ' tmp(1) = APP.VLookup("#" & tmp(1), REBAR_SIZE, CROSS_AREA, False)
 
         ' 對稱雙排
         CalSideRebarArea = 2 * tmp(1)
@@ -356,6 +330,17 @@ Function CalSideRebarArea(REBAR)
     Else
         CalSideRebarArea = 0
     End If
+
+End Function
+
+
+Function SplitStirrup(rebar)
+'
+' 處理雙箍的情況
+'
+    bars = Split(rebar, "#")
+
+    SplitStirrup = "#" & bars(1)
 
 End Function
 
@@ -374,63 +359,179 @@ End Function
 
 Function WarningMessage(warningMessageCode, i)
 
-    MESSAGE(i) = warningMessageCode & vbCrLf & MESSAGE(i)
+    RAW_DATA(i, COL_MESSAGE) = warningMessageCode & vbCrLf & RAW_DATA(i, COL_MESSAGE)
 
 End Function
 
-Function PrintMessage()
+Function PrintResult()
 
-    ' 不知道為什麼不能直接給值，只好用 for loop
-    ' Range(Cells(DATA_ROW_START, COL_MESSAGE), Cells(DATA_ROW_END, COL_MESSAGE)) = MESSAGE()
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        WS_OUTPUT.Range(WS_OUTPUT.Cells(i, COL_MESSAGE), WS_OUTPUT.Cells(i + 3, COL_MESSAGE)).Merge
+        With WS_OUTPUT
 
-        If MESSAGE(i) = "" Then
-            MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
-            WS_OUTPUT.Cells(i, COL_MESSAGE).Style = "好"
-        Else
-            WS_OUTPUT.Cells(i, COL_MESSAGE).Style = "壞"
-            MESSAGE(i) = Left(MESSAGE(i), Len(MESSAGE(i)) - 1)
-        End If
-        WS_OUTPUT.Cells(i, COL_MESSAGE) = MESSAGE(i)
+            For j = STORY To H
+                .Range(.Cells(i, j), .Cells(i + 3, j)).Merge
+            Next j
+
+            For j = SIDE_REBAR To COL_MESSAGE
+                .Range(.Cells(i, j), .Cells(i + 3, j)).Merge
+            Next j
+
+            If RAW_DATA(i, COL_MESSAGE) = "" Then
+                .Cells(i, COL_MESSAGE).Style = "好"
+                RAW_DATA(i, COL_MESSAGE) = "(S), (E), (i) - SCAN 結果 ok"
+            Else
+                .Cells(i, COL_MESSAGE).Style = "壞"
+                RAW_DATA(i, COL_MESSAGE) = Left(RAW_DATA(i, COL_MESSAGE), Len(RAW_DATA(i, COL_MESSAGE)) - 1)
+            End If
+
+        End With
 
     Next
+
+    With WS_OUTPUT
+        .Range(.Cells(LBound(RAW_DATA, 1), LBound(RAW_DATA, 2)), .Cells(UBound(RAW_DATA, 1), UBound(RAW_DATA, 2))) = RAW_DATA
+
+        .Columns(COL_MESSAGE).EntireColumn.AutoFit
+
+    End With
 
     Call FontSetting
 
 End Function
 
-Function PrintRebarRatio()
-
-    Dim rebarRatio As Worksheet
-    Set rebarRatio = Worksheets("鋼筋號數比")
-
-    rowStart = 3
-    rowUsed = UBound(REBAR_NUMBER) + 1
-
-    If BEAM_TYPE = "大梁" Then
-        columnStart = 4
-    ElseIf BEAM_TYPE = "小梁" Then
-        columnStart = 7
-    ElseIf BEAM_TYPE = "地梁" Then
-        columnStart = 10
-    End If
-
-    columnUsed = columnStart + 2
-
-    rebarRatio.Range(rebarRatio.Cells(rowStart, columnStart), rebarRatio.Cells(rowUsed, columnUsed)) = REBAR_NUMBER
-
-End Function
 
 Function FontSetting()
 
-    WS_OUTPUT.Cells.Font.Name = "微軟正黑體"
-    WS_OUTPUT.Cells.Font.Name = "Calibri"
-    WS_OUTPUT.Cells.HorizontalAlignment = xlCenter
-    WS_OUTPUT.Cells.VerticalAlignment = xlCenter
+    With WS_OUTPUT
+
+        .Cells.Font.Name = "微軟正黑體"
+        .Cells.Font.Name = "Calibri"
+        .Cells.HorizontalAlignment = xlCenter
+        .Cells.VerticalAlignment = xlCenter
+
+    End With
 
 End Function
+
+
+' Function PrintRebarRatio()
+
+'     Dim rebarRatio As Worksheet
+'     Set rebarRatio = Worksheets("鋼筋號數比")
+
+'     rowStart = 3
+'     rowUsed = UBound(REBAR_NUMBER) + 1
+
+'     If BEAM_TYPE = "大梁" Then
+'         columnStart = 4
+'     ElseIf BEAM_TYPE = "小梁" Then
+'         columnStart = 7
+'     ElseIf BEAM_TYPE = "地梁" Then
+'         columnStart = 10
+'     End If
+
+'     columnUsed = columnStart + 2
+
+'     rebarRatio.Range(rebarRatio.Cells(rowStart, columnStart), rebarRatio.Cells(rowUsed, columnUsed)) = REBAR_NUMBER
+
+' End Function
+
+
+
+' Function CountRebarNumber()
+
+'     rowStart = 2
+'     rowEnd = UBound(REBAR_SIZE)
+'     ReDim REBAR_NUMBER(rowStart To rowEnd, 1 To 3)
+
+'     ' 主筋
+'     For i = DATA_ROW_START To DATA_ROW_END
+
+'         For j = REBAR_LEFT To REBAR_RIGHT
+
+'             rebarNumber = Split(RAW_DATA(i, j), "-")
+
+'             If rebarNumber(0) > 0 Then
+'                 rebarNumber = rebarNumber(1)
+'             Else
+'                 rebarNumber = ""
+'             End If
+
+'             For k = rowStart To rowEnd
+
+'                 If rebarNumber = REBAR_SIZE(k, 1) Then
+'                     REBAR_NUMBER(k, 1) = REBAR_NUMBER(k, 1) + 1
+'                 End If
+
+'             Next
+
+'         Next
+
+'     Next
+
+'     ' 腰筋
+'     For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+'         If RAW_DATA(i, SIDE_REBAR) <> "-" Then
+
+'             sideRebar = Left(RAW_DATA(i, SIDE_REBAR), Len(RAW_DATA(i, SIDE_REBAR)) - 2)
+
+'             rebarNumber = Split(sideRebar, "#")
+
+'             rebarNumber = "#" & rebarNumber(1)
+
+'             For j = rowStart To rowEnd
+
+'                 If rebarNumber = REBAR_SIZE(j, 1) Then
+'                     REBAR_NUMBER(j, 2) = REBAR_NUMBER(j, 2) + 1
+'                 End If
+
+'             Next
+
+'         End If
+
+'     Next
+
+'     ' 箍筋
+'     For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+'         For j = STIRRUP_LEFT To STIRRUP_RIGHT
+
+'             rebarNumber = Split(RAW_DATA(i, j), "@")(0)
+'             rebarNumber = Split(rebarNumber, "#")
+'             rebarNumber = "#" & rebarNumber(1)
+
+'             For k = rowStart To rowEnd
+
+'                 If rebarNumber = REBAR_SIZE(k, 1) Then
+'                     REBAR_NUMBER(k, 3) = REBAR_NUMBER(k, 3) + 1
+'                 End If
+
+'             Next
+
+'         Next
+
+'     Next
+
+'     ' 轉換成比例
+'     Dim sum(1 To 3)
+'     For i = rowStart To rowEnd
+'         For j = 1 To 3
+'             sum(j) = sum(j) + REBAR_NUMBER(i, j)
+'         Next
+'     Next
+'     For j = 1 To 3
+'         For i = rowStart To rowEnd
+'             If REBAR_NUMBER(i, j) <> 0 Then
+'                 REBAR_NUMBER(i, j) = REBAR_NUMBER(i, j) / sum(j)
+'             End If
+'         Next
+'     Next
+
+' End Function
+
+
 
 Private Sub Class_Terminate()
 
@@ -983,98 +1084,6 @@ Function Norm3_7_5()
             Call WarningMessage(GetSheetMessage("【0207】請確認是否符合 規範 3.7.5", "【0307】請確認是否符合 規範 3.7.5", "請確認是否符合 規範 3.7.5"), i)
         End If
 
-    Next
-
-End Function
-
-Function CountRebarNumber()
-
-    rowStart = 2
-    rowEnd = UBound(REBAR_SIZE)
-    ReDim REBAR_NUMBER(rowStart To rowEnd, 1 To 3)
-
-    ' 主筋
-    For i = DATA_ROW_START To DATA_ROW_END
-
-        For j = REBAR_LEFT To REBAR_RIGHT
-
-            rebarNumber = Split(RAW_DATA(i, j), "-")
-
-            If rebarNumber(0) > 0 Then
-                rebarNumber = rebarNumber(1)
-            Else
-                rebarNumber = ""
-            End If
-
-            For k = rowStart To rowEnd
-
-                If rebarNumber = REBAR_SIZE(k, 1) Then
-                    REBAR_NUMBER(k, 1) = REBAR_NUMBER(k, 1) + 1
-                End If
-
-            Next
-
-        Next
-
-    Next
-
-    ' 腰筋
-    For i = DATA_ROW_START To DATA_ROW_END Step 4
-
-        If RAW_DATA(i, SIDE_REBAR) <> "-" Then
-
-            sideRebar = Left(RAW_DATA(i, SIDE_REBAR), Len(RAW_DATA(i, SIDE_REBAR)) - 2)
-
-            rebarNumber = Split(sideRebar, "#")
-
-            rebarNumber = "#" & rebarNumber(1)
-
-            For j = rowStart To rowEnd
-
-                If rebarNumber = REBAR_SIZE(j, 1) Then
-                    REBAR_NUMBER(j, 2) = REBAR_NUMBER(j, 2) + 1
-                End If
-
-            Next
-
-        End If
-
-    Next
-
-    ' 箍筋
-    For i = DATA_ROW_START To DATA_ROW_END Step 4
-
-        For j = STIRRUP_LEFT To STIRRUP_RIGHT
-
-            rebarNumber = Split(RAW_DATA(i, j), "@")(0)
-            rebarNumber = Split(rebarNumber, "#")
-            rebarNumber = "#" & rebarNumber(1)
-
-            For k = rowStart To rowEnd
-
-                If rebarNumber = REBAR_SIZE(k, 1) Then
-                    REBAR_NUMBER(k, 3) = REBAR_NUMBER(k, 3) + 1
-                End If
-
-            Next
-
-        Next
-
-    Next
-
-    ' 轉換成比例
-    Dim sum(1 To 3)
-    For i = rowStart To rowEnd
-        For j = 1 To 3
-            sum(j) = sum(j) + REBAR_NUMBER(i, j)
-        Next
-    Next
-    For j = 1 To 3
-        For i = rowStart To rowEnd
-            If REBAR_NUMBER(i, j) <> 0 Then
-                REBAR_NUMBER(i, j) = REBAR_NUMBER(i, j) / sum(j)
-            End If
-        Next
     Next
 
 End Function

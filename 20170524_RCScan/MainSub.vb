@@ -28,54 +28,54 @@ Sub CheckColumnNorm()
 
 End Sub
 
-Sub CheckGroundBeamNorm()
+' Sub CheckGroundBeamNorm()
 
-    Dim GroundBeam As BeamClass
-    Set GroundBeam = New BeamClass
+'     Dim GroundBeam As BeamClass
+'     Set GroundBeam = New BeamClass
 
-    GroundBeam.GetData ("地梁")
+'     GroundBeam.GetData ("地梁")
 
-    GroundBeam.Initialize
+'     GroundBeam.Initialize
 
-    ' 實作規範
-    GroundBeam.Norm4_9_3
-    GroundBeam.Norm4_9_4
-    GroundBeam.EconomicNorm4_9_4
-    GroundBeam.SafetyRebarRatioAndSpace
-    GroundBeam.SafetyRebarRatioForGB
-    GroundBeam.EconomicBotRebarRelativeForGB
-    GroundBeam.EconomicTopRebarRelativeForGB
-    GroundBeam.SafetyStirrupSpace
+'     ' 實作規範
+'     GroundBeam.Norm4_9_3
+'     GroundBeam.Norm4_9_4
+'     GroundBeam.EconomicNorm4_9_4
+'     GroundBeam.SafetyRebarRatioAndSpace
+'     GroundBeam.SafetyRebarRatioForGB
+'     GroundBeam.EconomicBotRebarRelativeForGB
+'     GroundBeam.EconomicTopRebarRelativeForGB
+'     GroundBeam.SafetyStirrupSpace
 
-    GroundBeam.PrintMessage
+'     GroundBeam.PrintMessage
 
-    GroundBeam.CountRebarNumber
-    GroundBeam.PrintRebarRatio
+'     GroundBeam.CountRebarNumber
+'     GroundBeam.PrintRebarRatio
 
-End Sub
+' End Sub
 
-Sub CheckBeamNorm()
+' Sub CheckBeamNorm()
 
-    Dim Beam As BeamClass
-    Set Beam = New BeamClass
+'     Dim Beam As BeamClass
+'     Set Beam = New BeamClass
 
-    Beam.GetData ("小梁")
+'     Beam.GetData ("小梁")
 
-    Beam.Initialize
+'     Beam.Initialize
 
-    ' 實作規範
-    Beam.Norm3_6
-    Beam.Norm3_7_5
-    Beam.Norm13_5_1AndSafetyRebarNumber
-    Beam.SafetyRebarRatioForSB
-    Beam.SafetyLoad
+'     ' 實作規範
+'     Beam.Norm3_6
+'     Beam.Norm3_7_5
+'     Beam.Norm13_5_1AndSafetyRebarNumber
+'     Beam.SafetyRebarRatioForSB
+'     Beam.SafetyLoad
 
-    Beam.PrintMessage
+'     Beam.PrintMessage
 
-    Beam.CountRebarNumber
-    Beam.PrintRebarRatio
+'     Beam.CountRebarNumber
+'     Beam.PrintRebarRatio
 
-End Sub
+' End Sub
 
 Sub CheckGirderNorm()
 
@@ -88,20 +88,20 @@ Sub CheckGirderNorm()
     Girder.Initialize("大梁")
 
     ' 實作規範
-    Girder.Norm3_6
-    Girder.Norm3_7_5
-    Girder.Norm3_8_1
-    Girder.Norm4_6_7_9
-    Girder.Norm13_5_1AndSafetyRebarNumber
+    ' Girder.Norm3_6
+    ' Girder.Norm3_7_5
+    ' Girder.Norm3_8_1
+    ' Girder.Norm4_6_7_9
+    ' Girder.Norm13_5_1AndSafetyRebarNumber
 
-    Girder.Norm15_4_2_1
-    Girder.Norm15_4_2_2
-    Girder.SafetyStirrupSpace
-    Girder.EconomicTopRebarRelative
+    ' Girder.Norm15_4_2_1
+    ' Girder.Norm15_4_2_2
+    ' Girder.SafetyStirrupSpace
+    ' Girder.EconomicTopRebarRelative
 
-    Girder.PrintMessage
+    Girder.PrintResult
 
-    Girder.CountRebarNumber
+    ' Girder.CountRebarNumber
     ' Girder.PrintRebarRatio
 
     Call ran.PerformanceVBA(False)
