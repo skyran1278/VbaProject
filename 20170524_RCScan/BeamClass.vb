@@ -18,9 +18,9 @@ Private RATIO_DATA
 
 Private REBAR_NUMBER
 
-Private GENERAL_INFORMATION
-Private REBAR_SIZE
-Private MESSAGE
+' Private GENERAL_INFORMATION
+' Private REBAR_SIZE
+' Private MESSAGE
 
 ' RAW_DATA 資料命名
 Private Const STORY = 1
@@ -131,9 +131,9 @@ Function GetGeneralInformation()
 End Function
 
 
-Private Function WarnEmpty(ByVal value, Optional ByVal warning = "Something is Empty")
+Private Function WarnDicEmpty(ByVal arr, ByVal value, Optional ByVal warning = "Something is Empty")
 '
-' 如果 value 為空，則 show error.
+' 如果 arr 為空，則 show error.
 '
 ' @since 3.0.0
 ' @param {Variant} [value] 需要驗證的值.
@@ -142,7 +142,7 @@ Private Function WarnEmpty(ByVal value, Optional ByVal warning = "Something is E
 ' @see dependencies
 '
 
-    If IsEmpty(value) Then
+    If IsEmpty(arr) Then
         MsgBox warning, vbOKOnly, "Error"
     End If
 
@@ -181,7 +181,8 @@ Private Function SortRawData(ByVal sheet)
     ' 清空前一次輸入
     ' WS_OUTPUT.Cells.Clear
 
-    arrRawData = ran.GetRangeToArray(Worksheets(sheet & "配筋 - Input"), 1, 1, 5, 15)
+    ' 多抓兩行用來排序
+    arrRawData = ran.GetRangeToArray(Worksheets(sheet & "配筋 - Input"), 1, 1, 5, 17)
 
     DATA_ROW_START = 3
     DATA_ROW_END = UBound(arrRawData)
@@ -189,6 +190,13 @@ Private Function SortRawData(ByVal sheet)
     rowStartRawData = LBound(arrRawData, 1)
     colStartRawData = LBound(arrRawData, 2)
     colEndRawData = UBound(arrRawData, 2)
+
+    ' 樓層數字化，用以比較上下樓層。
+    For i = DATA_ROW_START To DATA_ROW_END Step 4
+
+        RATIO_DATA(i, STORY) = WarnEmpty(objInfo.Item(RAW_DATA(i, STORY)), "請確認 " & RAW_DATA(i, STORY) & " 是否存在於 General Information")(STORY_NUM)
+        ' RATIO_DATA(i, STORY) = Application.Match(RAW_DATA(i, STORY), APP.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    Next
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
         arrRawData(i + 1, STORY) = arrRawData(i, STORY)
@@ -199,16 +207,19 @@ Private Function SortRawData(ByVal sheet)
         arrRawData(i + 3, NUMBER) = arrRawData(i, NUMBER)
     Next i
 
+
+
     ' TODO:由底往上排
     With WS_OUTPUT
 
         .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)) = arrRawData
 
         .Sort.SortFields.Clear
-        .Sort.SortFields.Add2 Key:=.Range(.Cells(DATA_ROW_START, STORY), .Cells(DATA_ROW_END, STORY)), SortOn:=xlSortOnValues, Order:=xlDescending, DataOption:=xlSortNormal
-        .Sort.SortFields.Add2 Key:=.Range(.Cells(DATA_ROW_START, NUMBER), .Cells(DATA_ROW_END, NUMBER)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+        .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, STORY), .Cells(DATA_ROW_END, STORY)), SortOn:=xlSortOnValues, Order:=xlDescending, DataOption:=xlSortNormal
+        .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, NUMBER), .Cells(DATA_ROW_END, NUMBER)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+        .Sort.SetRange .Range(.Cells(DATA_ROW_START, colStartRawData), .Cells(DATA_ROW_END, colEndRawData))
+
         With .Sort
-            .SetRange WS_OUTPUT.Range(WS_OUTPUT.Cells(DATA_ROW_START, colStartRawData), WS_OUTPUT.Cells(DATA_ROW_END, colEndRawData))
             .MatchCase = False
             .Orientation = xlTopToBottom
             .SortMethod = xlPinYin
