@@ -16,10 +16,10 @@
 ' CreateDictionary
 ' RoundUp
 '
-'
 ' - Remove
 ' FontSetting
 ' ExecutionTimeVBA
+' QuickSortArray
 '
 ' - All API
 ' CreateDictionary
@@ -30,7 +30,6 @@
 ' PerformanceVBA
 ' Min
 ' Max
-' QuickSortArray
 '
 '
 
@@ -193,99 +192,99 @@ Function Max(ParamArray values() As Variant) As Variant
 End Function
 
 
-Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin = -1, Optional lngMax = -1, Optional lngColumn = 0)
-    On Error Resume Next
+' Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin = -1, Optional lngMax = -1, Optional lngColumn = 0)
+'     On Error Resume Next
 
-    'Sort a 2-Dimensional array
+'     'Sort a 2-Dimensional array
 
-    ' SampleUsage: sort arrData by the contents of column 3
-    '
-    '   QuickSortArray arrData, , , 3
+'     ' SampleUsage: sort arrData by the contents of column 3
+'     '
+'     '   QuickSortArray arrData, , , 3
 
-    '
-    'Posted by Jim Rech 10/20/98 Excel.Programming
+'     '
+'     'Posted by Jim Rech 10/20/98 Excel.Programming
 
-    'Modifications, Nigel Heffernan:
+'     'Modifications, Nigel Heffernan:
 
-    '       ' Escape failed comparison with empty variant
-    '       ' Defensive coding: check inputs
+'     '       ' Escape failed comparison with empty variant
+'     '       ' Defensive coding: check inputs
 
-    Dim i As Long
-    Dim j As Long
-    Dim varMid As Variant
-    Dim arrRowTemp As Variant
-    Dim lngColTemp As Long
+'     Dim i As Long
+'     Dim j As Long
+'     Dim varMid As Variant
+'     Dim arrRowTemp As Variant
+'     Dim lngColTemp As Long
 
-    If IsEmpty(SortArray) Then
-        Exit Sub
-    End If
-    If InStr(TypeName(SortArray), "()") < 1 Then  'IsArray() is somewhat broken: Look for brackets in the type name
-        Exit Sub
-    End If
-    If lngMin = -1 Then
-        lngMin = LBound(SortArray, 1)
-    End If
-    If lngMax = -1 Then
-        lngMax = UBound(SortArray, 1)
-    End If
-    If lngMin >= lngMax Then    ' no sorting required
-        Exit Sub
-    End If
+'     If IsEmpty(SortArray) Then
+'         Exit Sub
+'     End If
+'     If InStr(TypeName(SortArray), "()") < 1 Then  'IsArray() is somewhat broken: Look for brackets in the type name
+'         Exit Sub
+'     End If
+'     If lngMin = -1 Then
+'         lngMin = LBound(SortArray, 1)
+'     End If
+'     If lngMax = -1 Then
+'         lngMax = UBound(SortArray, 1)
+'     End If
+'     If lngMin >= lngMax Then    ' no sorting required
+'         Exit Sub
+'     End If
 
-    i = lngMin
-    j = lngMax
+'     i = lngMin
+'     j = lngMax
 
-    varMid = Empty
-    varMid = SortArray((lngMin + lngMax) \ 2, lngColumn)
+'     varMid = Empty
+'     varMid = SortArray((lngMin + lngMax) \ 2, lngColumn)
 
-    ' We  send 'Empty' and invalid data items to the end of the list:
-    If IsObject(varMid) Then  ' note that we don't check isObject(SortArray(n)) - varMid *might* pick up a valid default member or property
-        i = lngMax
-        j = lngMin
-    ElseIf IsEmpty(varMid) Then
-        i = lngMax
-        j = lngMin
-    ElseIf IsNull(varMid) Then
-        i = lngMax
-        j = lngMin
-    ElseIf varMid = "" Then
-        i = lngMax
-        j = lngMin
-    ElseIf VarType(varMid) = vbError Then
-        i = lngMax
-        j = lngMin
-    ElseIf VarType(varMid) > 17 Then
-        i = lngMax
-        j = lngMin
-    End If
+'     ' We  send 'Empty' and invalid data items to the end of the list:
+'     If IsObject(varMid) Then  ' note that we don't check isObject(SortArray(n)) - varMid *might* pick up a valid default member or property
+'         i = lngMax
+'         j = lngMin
+'     ElseIf IsEmpty(varMid) Then
+'         i = lngMax
+'         j = lngMin
+'     ElseIf IsNull(varMid) Then
+'         i = lngMax
+'         j = lngMin
+'     ElseIf varMid = "" Then
+'         i = lngMax
+'         j = lngMin
+'     ElseIf VarType(varMid) = vbError Then
+'         i = lngMax
+'         j = lngMin
+'     ElseIf VarType(varMid) > 17 Then
+'         i = lngMax
+'         j = lngMin
+'     End If
 
-    While i <= j
-        While SortArray(i, lngColumn) < varMid And i < lngMax
-            i = i + 1
-        Wend
-        While varMid < SortArray(j, lngColumn) And j > lngMin
-            j = j - 1
-        Wend
+'     While i <= j
+'         While SortArray(i, lngColumn) < varMid And i < lngMax
+'             i = i + 1
+'         Wend
+'         While varMid < SortArray(j, lngColumn) And j > lngMin
+'             j = j - 1
+'         Wend
 
-        If i <= j Then
-            ' Swap the rows
-            ReDim arrRowTemp(LBound(SortArray, 2) To UBound(SortArray, 2))
-            For lngColTemp = LBound(SortArray, 2) To UBound(SortArray, 2)
-                arrRowTemp(lngColTemp) = SortArray(i, lngColTemp)
-                SortArray(i, lngColTemp) = SortArray(j, lngColTemp)
-                SortArray(j, lngColTemp) = arrRowTemp(lngColTemp)
-            Next lngColTemp
-            Erase arrRowTemp
+'         If i <= j Then
+'             ' Swap the rows
+'             ReDim arrRowTemp(LBound(SortArray, 2) To UBound(SortArray, 2))
+'             For lngColTemp = LBound(SortArray, 2) To UBound(SortArray, 2)
+'                 arrRowTemp(lngColTemp) = SortArray(i, lngColTemp)
+'                 SortArray(i, lngColTemp) = SortArray(j, lngColTemp)
+'                 SortArray(j, lngColTemp) = arrRowTemp(lngColTemp)
+'             Next lngColTemp
+'             Erase arrRowTemp
 
-            i = i + 1
-            j = j - 1
-        End If
-    Wend
+'             i = i + 1
+'             j = j - 1
+'         End If
+'     Wend
 
-    If (lngMin < j) Then Call QuickSortArray(SortArray, lngMin, j, lngColumn)
-    If (i < lngMax) Then Call QuickSortArray(SortArray, i, lngMax, lngColumn)
+'     If (lngMin < j) Then Call QuickSortArray(SortArray, lngMin, j, lngColumn)
+'     If (i < lngMax) Then Call QuickSortArray(SortArray, i, lngMax, lngColumn)
 
-End Sub
+' End Sub
 
 ' Private Sub Workbook_Open()
 '     application.onkey("^+v", TextOnly)
