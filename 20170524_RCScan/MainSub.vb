@@ -46,7 +46,7 @@ Sub ScanFBNorm()
     Call ran.ExecutionTime(True)
     ' Call ran.PerformanceVBA(True)
 
-    FB.Initialize("地梁")
+    Call FB.Initialize("地梁")
 
     ' 實作規範
     FB.Norm4_9_3
@@ -76,7 +76,7 @@ Sub ScanBeamNorm()
     Call ran.ExecutionTime(True)
     ' Call ran.PerformanceVBA(True)
 
-    Beam.Initialize("小梁")
+    Call Beam.Initialize("小梁")
 
     ' 實作規範
     Beam.Norm3_6
@@ -103,9 +103,9 @@ Sub ScanGirderNorm()
     Call ran.ExecutionTime(True)
     ' Call ran.PerformanceVBA(True)
 
-    On Error GoTo ErrorHandler
+    ' On Error GoTo ErrorHandler
 
-    Girder.Initialize("大梁")
+    Call Girder.Initialize("大梁")
 
     ' 實作規範
     Girder.Norm3_6
@@ -121,13 +121,15 @@ Sub ScanGirderNorm()
 
     Girder.PrintResult
 
-ErrorHandler:
-    Girder.PrintError(Err)
-
     ' Girder.CountRebarNumber
     ' Girder.PrintRebarRatio
 
     ' Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
+
+    Exit Sub
+
+ErrorHandler:
+    Call Girder.PrintError(Err.NUMBER, Err.Source, Err.Description)
 
 End Sub
