@@ -16,11 +16,11 @@ Private RAW_DATA
 Private RATIO_DATA
 
 ' 準備拋棄
-Private REBAR_NUMBER()
+' Private REBAR_NUMBER()
 
-Private MESSAGE()
-Private GENERAL_INFORMATION
-Private REBAR_SIZE
+' Private MESSAGE()
+' Private GENERAL_INFORMATION
+' Private REBAR_SIZE
 
 ' RAW_DATA 資料命名
 Private Const STORY = 1

@@ -103,6 +103,8 @@ Sub ScanGirderNorm()
     Call ran.ExecutionTime(True)
     ' Call ran.PerformanceVBA(True)
 
+    On Error GoTo ErrorHandler
+
     Girder.Initialize("大梁")
 
     ' 實作規範
@@ -118,6 +120,9 @@ Sub ScanGirderNorm()
     Girder.EconomicTopRebarRelative
 
     Girder.PrintResult
+
+ErrorHandler:
+    Girder.PrintError(Err)
 
     ' Girder.CountRebarNumber
     ' Girder.PrintRebarRatio
