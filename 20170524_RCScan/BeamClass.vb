@@ -145,11 +145,15 @@ Private Function WarnDicEmpty(ByVal arr, ByVal value, Optional ByVal warning = "
 ' @see dependencies
 '
 
-    If IsEmpty(arr) Then
+    If Not IsEmpty(arr) Then
+
+        WarnDicEmpty = arr(value)
+
+    Else
+
         errorMessage.Add warning
         WarnDicEmpty = Empty
-    Else
-        WarnDicEmpty = arr(value)
+
     End If
 
 End Function
@@ -177,8 +181,6 @@ Private Function SortRawData(ByVal sheet)
 '
 
 
-    Set WS_OUTPUT = ThisWorkbook.Sheets.Add(After:=Worksheets("General Information"))
-
     ' WS_OUTPUT.Name = sheet & "配筋 - Output"
     ' Set WS_OUTPUT = Worksheets(sheet & "配筋 - Output")
 
@@ -201,16 +203,16 @@ Private Function SortRawData(ByVal sheet)
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
         ' 樓層數字化，用以比較上下樓層。
-        arrRawData(i, colStoryNum) = WarnDicEmpty(objInfo.Item(RAW_DATA(i, STORY)), STORY_NUM, "請確認 " & RAW_DATA(i, STORY) & " 是否存在於 General Information")
+        arrRawData(i, colStoryNum) = WarnDicEmpty(objInfo.Item(arrRawData(i, STORY)), STORY_NUM, "請確認 " & arrRawData(i, STORY) & " 是否存在於 General Information")
 
         ' 去掉 大寫與小寫開頭的 C，用以排序
-        If LCase(Left(RAW_DATA(i, NUMBER), 1)) <> "c" Then
+        If LCase(Left(arrRawData(i, NUMBER), 1)) <> "c" Then
 
-            arrRawData(i, colNumberNoC) = RAW_DATA(i, NUMBER)
+            arrRawData(i, colNumberNoC) = arrRawData(i, NUMBER)
 
         Else
 
-            arrRawData(i, colNumberNoC) = Right(RAW_DATA(i, NUMBER), Len(RAW_DATA(i, NUMBER)) - 1)
+            arrRawData(i, colNumberNoC) = Right(arrRawData(i, NUMBER), Len(arrRawData(i, NUMBER)) - 1)
 
         End If
 
@@ -224,48 +226,41 @@ Private Function SortRawData(ByVal sheet)
 
     Next
 
+
     ' 排序由低到高
-    ran.QuickSortArray(arrRawData, 3, , colNumberNoC)
-    ran.QuickSortArray(arrRawData, 3, , colStoryNum)
+    ' Call ran.QuickSortArray(arrRawData, 3, , colNumberNoC)
+    ' With WS_OUTPUT
+    '     .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)) = arrRawData
+    ' End With
+    ' Call ran.QuickSortArray(arrRawData, 3, , colStoryNum)
+
+    Set WS_OUTPUT = ThisWorkbook.Sheets.Add(After:=Worksheets("General Information"))
 
 
     ' TODO:由底往上排
-    ' With WS_OUTPUT
+    With WS_OUTPUT
 
-    '     .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)) = arrRawData
+        .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)) = arrRawData
 
-    '     .Sort.SortFields.Clear
-    '     .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, STORY), .Cells(DATA_ROW_END, STORY)), SortOn:=xlSortOnValues, Order:=xlDescending, DataOption:=xlSortNormal
-    '     .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, NUMBER), .Cells(DATA_ROW_END, NUMBER)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    '     .Sort.SetRange .Range(.Cells(DATA_ROW_START, colStartRawData), .Cells(DATA_ROW_END, colEndRawData))
+        .Sort.SortFields.Clear
+        .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colStoryNum), .Cells(DATA_ROW_END, colStoryNum)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+        .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colNumberNoC), .Cells(DATA_ROW_END, colNumberNoC)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+        .Sort.SetRange .Range(.Cells(DATA_ROW_START, colStartRawData), .Cells(DATA_ROW_END, colEndRawData))
 
-    '     With .Sort
-    '         .MatchCase = False
-    '         .Orientation = xlTopToBottom
-    '         .SortMethod = xlPinYin
-    '         .Apply
-    '     End With
+        With .Sort
+            .MatchCase = False
+            .Orientation = xlTopToBottom
+            .SortMethod = xlPinYin
+            .Apply
+        End With
 
-    '     .Cells(1, COL_MESSAGE) = "Warning Message"
+        ' 收入資料
+        RAW_DATA = .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData - 2))
 
-    ' End With
-
-    RAW_DATA = arrRawData
-
-    ' 扣掉最後用來排序的兩行
-    ReDim Preserve RAW_DATA(rowStartRawData To DATA_ROW_END, colStartRawData To colEndRawData - 2)
-
-    ' For i = DATA_ROW_START To DATA_ROW_END Step 4
-    '     RAW_DATA(i + 1, STORY) = Empty
-    '     RAW_DATA(i + 2, STORY) = Empty
-    '     RAW_DATA(i + 3, STORY) = Empty
-    '     RAW_DATA(i + 1, NUMBER) = Empty
-    '     RAW_DATA(i + 2, NUMBER) = Empty
-    '     RAW_DATA(i + 3, NUMBER) = Empty
-    ' Next i
+    End With
 
     ' ' 清空前一次輸入
-    ' WS_OUTPUT.Cells.Clear
+    WS_OUTPUT.Cells.Clear
 
 End Function
 
