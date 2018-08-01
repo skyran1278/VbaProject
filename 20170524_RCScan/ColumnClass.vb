@@ -116,7 +116,7 @@ Function GetGeneralInformation()
         For j = lbColGeneralInformation To ubColGeneralInformation
 
             If arrGeneralInformation(i, j) = "" Then
-                collectErrorMessage.Add "General Information " & arrGeneralInformation(i, STORY) & " " &arrGeneralInformation(1, j) & " 空白"
+                collectErrorMessage.Add "General Information " & arrGeneralInformation(i, STORY) & " " & arrGeneralInformation(1, j) & " 空白"
             End If
 
         Next j
@@ -608,7 +608,7 @@ Function Norm15_5_4_1()
 
             stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
             rebarSize = stirrup(0)
-            spacing = stirrup(1)
+            spacing_ = stirrup(1)
 
             bcX = RAW_DATA(i, WIDTH_X) - cover_ * 2 - objRebarSize.Item(rebarSize)(DIAMETER)
             ' bcX = RAW_DATA(i, WIDTH_X) - 4 * 2 - Application.VLookup(rebarSize, REBAR_SIZE, DIAMETER, False)
@@ -621,10 +621,10 @@ Function Norm15_5_4_1()
             ag = RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y)
             ach = (RAW_DATA(i, WIDTH_X) - cover_ * 2) * (RAW_DATA(i, WIDTH_Y) - cover_ * 2)
 
-            code15_3_X = 0.3 * spacing * bcX * fcColumn / fytColumn * (ag / ach - 1)
-            code15_3_Y = 0.3 * spacing * bcY * fcColumn / fytColumn * (ag / ach - 1)
-            code15_4_X = 0.09 * spacing * bcX * fcColumn / fytColumn
-            code15_4_Y = 0.09 * spacing * bcY * fcColumn / fytColumn
+            code15_3_X = 0.3 * spacing_ * bcX * fcColumn / fytColumn * (ag / ach - 1)
+            code15_3_Y = 0.3 * spacing_ * bcY * fcColumn / fytColumn * (ag / ach - 1)
+            code15_4_X = 0.09 * spacing_ * bcX * fcColumn / fytColumn
+            code15_4_Y = 0.09 * spacing_ * bcY * fcColumn / fytColumn
 
             If ashY < code15_3_X Or ashY < code15_4_X Then
                 Call WarningMessage("【0404】請確認 Y 向橫向鋼筋，是否符合 規範 15.5.4.1 規定", i)
