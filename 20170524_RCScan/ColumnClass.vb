@@ -1,14 +1,26 @@
+Private ran As UTILS_CLASS
+Private APP
+Private collectErrorMessage As Collection
+
+Private objInfo
+Private TOP_STORY
+Private FIRST_STORY
+
+Private objRebarSize
+
+Private WS_OUTPUT As Worksheet
+Private DATA_ROW_START
+Private DATA_ROW_END
+Private RAW_DATA
+
+Private RATIO_DATA
+
+' 準備拋棄
+Private REBAR_NUMBER()
+
 Private MESSAGE()
 Private GENERAL_INFORMATION
 Private REBAR_SIZE
-Private RAW_DATA
-Private RATIO_DATA
-Private DATA_ROW_END
-Private DATA_ROW_START
-Private FIRST_STORY
-Private TOP_STORY
-Private REBAR_NUMBER()
-Private WS As Worksheet
 
 ' RAW_DATA 資料命名
 Private Const STORY = 1
@@ -22,6 +34,9 @@ Private Const BOUND_AREA = 8
 Private Const NON_BOUND_AREA = 9
 Private Const TIE_X = 10
 Private Const TIE_Y = 11
+' 輸出資料位置
+Private Const COL_MESSAGE = 12
+Private Const COL_REBAR_RATIO = 13
 
 ' GENERAL_INFORMATION 資料命名
 Private Const FY = 2
@@ -30,15 +45,16 @@ Private Const FC_BEAM = 4
 Private Const FC_COLUMN = 5
 Private Const SDL = 6
 Private Const LL = 7
-Private Const SPAN_X = 8
-Private Const SPAN_Y = 9
+Private Const BAND = 8
+Private Const SLAB = 9
+Private Const COVER = 10
+Private Const STORY_NUM = 11
 
 ' REBAR_SIZE 資料命名
 Private Const DIAMETER = 7
 Private Const CROSS_AREA = 10
 
-' 輸出資料位置
-Private Const MESSAGE_POSITION = 12
+
 
 ' -------------------------------------------------------------------------
 ' -------------------------------------------------------------------------
@@ -48,81 +64,262 @@ Private Sub Class_Initialize()
 ' GetGeneralInformation
 ' GetRebarSize
 
+    Set ran = New UTILS_CLASS
+    Set APP = Application.WorksheetFunction
+
+    Set collectErrorMessage = New Collection
+
+    ' 輸出 objInfo
     Call GetGeneralInformation
+
+    ' 輸出 objRebarSize
     Call GetRebarSize
+
+    ' 輸出
+    ' WS_OUTPUT
+    ' DATA_ROW_START
+    ' DATA_ROW_END
+    ' RAW_DATA
+    Call SortRawData("柱")
+
+    ' ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
+
+    ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) To UBound(RAW_DATA, 2))
+
+    Call GetRatioData
 
 End Sub
 
 
 Function GetGeneralInformation()
 
-    Dim generalInformation As Worksheet
-    Set generalInformation = Worksheets("General Information")
+    Dim wsGeneralInformation As Worksheet
+    Set wsGeneralInformation = Worksheets("General Information")
 
-    rowStart = 1
-    columnStart = 4
-    rowUsed = generalInformation.Cells(Rows.Count, 5).End(xlUp).Row
-    columnUsed = 12
+    ' 後面多空出一行，以增加代號
+    arrGeneralInformation = ran.GetRangeToArray(wsGeneralInformation, 1, 4, 4, 14)
 
-    GENERAL_INFORMATION = generalInformation.Range(generalInformation.Cells(rowStart, columnStart), generalInformation.Cells(rowUsed, columnUsed))
+    lbGeneralInformation = LBound(arrGeneralInformation, 1)
+    ubGeneralInformation = UBound(arrGeneralInformation, 1)
+    lbColGeneralInformation = LBound(arrGeneralInformation, 2)
+    ubColGeneralInformation = UBound(arrGeneralInformation, 2)
 
-    TOP_STORY = Application.Match(Cells(13, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
-    FIRST_STORY = Application.Match(Cells(14, 15), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
+    j = 1
+
+    For i = ubGeneralInformation To lbGeneralInformation Step -1
+        arrGeneralInformation(i, STORY_NUM) = j
+        j = j + 1
+    Next i
+
+    ' 掃描是否有沒輸入的數值
+    For i = lbGeneralInformation To ubGeneralInformation
+        For j = lbColGeneralInformation To ubColGeneralInformation
+
+            If arrGeneralInformation(i, j) = "" Then
+                collectErrorMessage.Add "General Information " & arrGeneralInformation(i, STORY) & " " &arrGeneralInformation(1, j) & " 空白"
+            End If
+
+        Next j
+    Next i
+
+    Set objInfo = ran.CreateDictionary(arrGeneralInformation, 1, False)
+
+    ' Use Cells(13, 16).Text instead of .Value
+    TOP_STORY = WarnDicEmpty(objInfo.Item(wsGeneralInformation.Cells(13, 16).Text), STORY_NUM, "搜尋不到頂樓樓層")
+    FIRST_STORY = WarnDicEmpty(objInfo.Item(wsGeneralInformation.Cells(14, 16).Text), STORY_NUM, "搜尋不到地面層")
 
 End Function
 
 
-Function GetRebarSize()
+Private Function WarnDicEmpty(ByVal arr, ByVal value, Optional ByVal warning = "Key is Empty")
+'
+' 如果 arr 為空，則 show error.
+'
+' @since 3.0.0
+' @param {Array} [arr] 需要驗證的值.
+' @param {Number} [value] 陣列位置.
+' @param {String} [warning] 錯誤訊息.
+' @return {Variant} [value] 需要驗證的值.
+' @see dependencies
+'
 
-    Dim rebarSize As Worksheet
-    Set rebarSize = Worksheets("Rebar Size")
+    If Not IsEmpty(arr) Then
 
-    rowStart = 1
-    columnStart = 1
-    rowUsed = rebarSize.Cells(Rows.Count, 5).End(xlUp).Row
-    columnUsed = 10
+        WarnDicEmpty = arr(value)
 
-    REBAR_SIZE = rebarSize.Range(rebarSize.Cells(rowStart, columnStart), rebarSize.Cells(rowUsed, columnUsed))
+    Else
+
+        collectErrorMessage.Add warning
+        WarnDicEmpty = Empty
+
+    End If
 
 End Function
 
 
-Function GetData(sheet)
+Private Function GetRebarSize()
+
+    arrRebarSize = ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 5, 10)
+
+    Set objRebarSize = ran.CreateDictionary(arrRebarSize, 1, False)
+
+End Function
+
+
+Private Function SortRawData(ByVal sheet)
 '
-' 多了排序，邊界值改變
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
 '
 
-    Set WS = Worksheets(sheet)
+    ' 多抓兩行用來排序
+    arrRawData = ran.GetRangeToArray(Worksheets(sheet), 1, 1, 5, 15)
 
-    rowStart = 1
-    columnStart = 1
+    rowLbRawData = LBound(arrRawData, 1)
+    colLbRawData = LBound(arrRawData, 2)
+    rowUbRawData = UBound(arrRawData, 1)
+    colUbRawData = UBound(arrRawData, 2)
 
-    ' 之所以 + 1 ，是為了之後不要超出索引範圍準備
-    rowUsed = WS.Cells(Rows.Count, 5).End(xlUp).Row + 1
+    DATA_ROW_START = 3
 
-    columnUsed = 11
+    DATA_ROW_END = rowUbRawData
 
-    ' 排序
-    WS.Range(WS.Cells(3, columnStart), WS.Cells(rowUsed - 1, columnUsed)).Sort _
-        Key1:=WS.Range(WS.Cells(3, NUMBER), WS.Cells(rowUsed - 1, NUMBER)), Order1:=xlAscending
+    colStoryNum = 14
+    colNumberNoC = 15
 
-    ' 裁掉多餘的空白
-    For i = rowStart To rowUsed
-        WS.Cells(i, REBAR) = Trim(WS.Cells(i, REBAR))
+    For i = DATA_ROW_START To DATA_ROW_END
+
+        ' 樓層數字化，用以比較上下樓層。
+        arrRawData(i, colStoryNum) = WarnDicEmpty(objInfo.Item(arrRawData(i, STORY)), STORY_NUM, "請確認 " & arrRawData(i, STORY) & " 是否存在於 General Information")
+
+        ' 裁掉多餘的空白
+        arrRawData(i, REBAR) = Trim(arrRawData(i, REBAR))
+
+        ' 去掉 大寫與小寫開頭的 C，用以排序
+        arrRawData(i, colNumberNoC) = Right(arrRawData(i, NUMBER), Len(arrRawData(i, NUMBER)) - 1)
+
+
     Next
 
-    RAW_DATA = WS.Range(WS.Cells(rowStart, columnStart), WS.Cells(rowUsed, columnUsed))
+    Set WS_OUTPUT = ThisWorkbook.Sheets.Add(After:=Worksheets("General Information"))
+
+    With WS_OUTPUT
+
+        .Range(.Cells(rowLbRawData, colLbRawData), .Cells(rowUbRawData, colUbRawData)) = arrRawData
+
+        .Range(.Cells(DATA_ROW_START, colLbRawData), .Cells(rowUbRawData, colUbRawData)).Sort _
+            Key1:=.Range(.Cells(DATA_ROW_START, colNumberNoC), .Cells(rowUbRawData, colNumberNoC)), Order1:=xlAscending, DataOption1:=xlSortNormal, _
+            Header:=xlNo, MatchCase:=False, Orientation:=xlTopToBottom, SortMethod:=xlPinYin
+
+        ' 收入資料
+        ' row 之所以 + 1 ，是為了之後不要超出索引範圍準備
+        RAW_DATA = .Range(.Cells(rowLbRawData, colLbRawData), .Cells(rowUbRawData + 1, colUbRawData - 2))
+
+    End With
+
+    ' ' 清空前一次輸入
+    WS_OUTPUT.Cells.Clear
 
 End Function
 
 
-Function NoData()
-'
-' 如果沒有資料，就回傳 false
-'
-' @returns NoData(Boolean)
+' Function GetData(sheet)
+' '
+' ' 多了排序，邊界值改變
+' '
 
-    NoData = UBound(RAW_DATA) < 4
+'     Set WS_OUTPUT = Worksheets(sheet)
+
+'     rowStart = 1
+'     columnStart = 1
+
+'     ' 之所以 + 1 ，是為了之後不要超出索引範圍準備
+'     rowUsed = WS_OUTPUT.Cells(Rows.Count, 5).End(xlUp).Row + 1
+
+'     columnUsed = 11
+
+'     ' 排序
+'     WS_OUTPUT.Range(WS_OUTPUT.Cells(3, columnStart), WS_OUTPUT.Cells(rowUsed - 1, columnUsed)).Sort _
+'         Key1:=WS_OUTPUT.Range(WS_OUTPUT.Cells(3, NUMBER), WS_OUTPUT.Cells(rowUsed - 1, NUMBER)), Order1:=xlAscending
+
+'     ' 裁掉多餘的空白
+'     For i = rowStart To rowUsed
+'         WS_OUTPUT.Cells(i, REBAR) = Trim(WS_OUTPUT.Cells(i, REBAR))
+'     Next
+
+'     RAW_DATA = WS_OUTPUT.Range(WS_OUTPUT.Cells(rowStart, columnStart), WS_OUTPUT.Cells(rowUsed, columnUsed))
+
+' End Function
+
+
+' Function NoData()
+' '
+' ' 如果沒有資料，就回傳 false
+' '
+' ' @returns NoData(Boolean)
+
+'     NoData = UBound(RAW_DATA) < 4
+
+' End Function
+
+
+' Function Initialize()
+' '
+' ' DATA_ROW_START
+' ' DATA_ROW_END
+' ' MESSAGE
+' ' RatioData
+
+'     ' WS_OUTPUT.Range(WS_OUTPUT.Columns(COL_MESSAGE), WS_OUTPUT.Columns(COL_MESSAGE + 1)).ClearContents
+'     ' WS_OUTPUT.Cells(1, COL_MESSAGE) = "Warning Message"
+'     ' DATA_ROW_START = 3
+
+'     ' 之所以 - 1 ，是為了還原取到的位置，讓之後不要超出索引範圍準備
+'     ' DATA_ROW_END = UBound(RAW_DATA) - 1
+
+'     ' ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
+
+'     ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) To UBound(RAW_DATA, 2))
+
+'     Call RatioData
+
+' End Function
+
+
+Function GetRatioData()
+'
+' 主筋比、箍筋與繫筋面積
+'
+    ' 樓層數字化，用以比較上下樓層。
+    For i = DATA_ROW_START To DATA_ROW_END
+        RATIO_DATA(i, STORY) = WarnDicEmpty(objInfo.Item(RAW_DATA(i, STORY)), STORY_NUM)
+    Next
+
+    ' 計算鋼筋比
+    For i = DATA_ROW_START To DATA_ROW_END
+
+        RATIO_DATA(i, REBAR) = CalRebarArea(RAW_DATA(i, REBAR)) / (RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y))
+
+        RAW_DATA(i, COL_REBAR_RATIO) = RATIO_DATA(i, REBAR)
+
+        If RATIO_DATA(i, REBAR) = 0 Then
+            MsgBox "請確認第 " & i & " 列是否有問題.", vbOKOnly, "Error"
+        End If
+
+    Next
+
+    ' 計算箍筋與繫筋面積
+    For i = DATA_ROW_START To DATA_ROW_END
+        stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
+        stirrup = objRebarSize.Item(stirrup(0))(CROSS_AREA)
+        ' stirrup = Application.VLookup(stirrup(0), REBAR_SIZE, CROSS_AREA, False)
+        RATIO_DATA(i, TIE_X) = stirrup * (RAW_DATA(i, TIE_X) + 2)
+        RATIO_DATA(i, TIE_Y) = stirrup * (RAW_DATA(i, TIE_Y) + 2)
+    Next
 
 End Function
 
@@ -133,142 +330,188 @@ Function CalRebarArea(REBAR)
 
     If UBound(tmp) < 1 Then
         CalRebarArea = 0
-        Exit Function
+    Else
+
+        ' 轉換鋼筋尺寸為截面積
+        tmp(1) = objRebarSize.Item(tmp(1))(CROSS_AREA)
+
+        CalRebarArea = tmp(0) * tmp(1)
+
     End If
-
-    ' 轉換鋼筋尺寸為截面積
-    tmp(1) = Application.VLookup(tmp(1), REBAR_SIZE, CROSS_AREA, False)
-
-    CalRebarArea = tmp(0) * tmp(1)
-
-End Function
-
-
-Function Initialize()
-'
-' DATA_ROW_START
-' DATA_ROW_END
-' MESSAGE
-' RatioData
-
-    WS.Range(WS.Columns(MESSAGE_POSITION), WS.Columns(MESSAGE_POSITION + 1)).ClearContents
-    WS.Cells(1, MESSAGE_POSITION) = "Warning Message"
-    DATA_ROW_START = 3
-
-    ' 之所以 - 1 ，是為了還原取到的位置，讓之後不要超出索引範圍準備
-    DATA_ROW_END = UBound(RAW_DATA) - 1
-
-    ReDim MESSAGE(DATA_ROW_START To DATA_ROW_END)
-
-    ReDim RATIO_DATA(LBound(RAW_DATA, 1) To UBound(RAW_DATA, 1), LBound(RAW_DATA, 2) To UBound(RAW_DATA, 2))
-
-    Call RatioData
-
-End Function
-
-
-Function RatioData()
-'
-' 主筋比、箍筋與繫筋面積
-'
-    ' 樓層數字化，用以比較上下樓層。
-    For i = DATA_ROW_START To DATA_ROW_END
-        RATIO_DATA(i, STORY) = Application.Match(RAW_DATA(i, STORY), Application.Index(GENERAL_INFORMATION, 0, STORY), 0)
-    Next
-
-    ' 計算鋼筋比
-    For i = DATA_ROW_START To DATA_ROW_END
-        RATIO_DATA(i, REBAR) = CalRebarArea(RAW_DATA(i, REBAR)) / (RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y))
-        If RATIO_DATA(i, REBAR) = 0 Then
-            MsgBox "Please Check " & i & " row in 柱配筋.", vbOKOnly, "Error"
-        End If
-    Next
-
-    ' 計算箍筋與繫筋面積
-    For i = DATA_ROW_START To DATA_ROW_END
-        stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
-        stirrup = Application.VLookup(stirrup(0), REBAR_SIZE, CROSS_AREA, False)
-        RATIO_DATA(i, TIE_X) = stirrup * (RAW_DATA(i, TIE_X) + 2)
-        RATIO_DATA(i, TIE_Y) = stirrup * (RAW_DATA(i, TIE_Y) + 2)
-    Next
 
 End Function
 
 
 Function WarningMessage(warningMessageCode, i)
 
-    MESSAGE(i) = warningMessageCode & vbCrLf & MESSAGE(i)
+    RAW_DATA(i, COL_MESSAGE) = warningMessageCode & vbCrLf & RAW_DATA(i, COL_MESSAGE)
 
 End Function
 
 
-Function PrintMessage()
+Function PrintResult()
 
-    ' 不知道為什麼不能直接給值，只好用 for loop
-    ' Range(Cells(DATA_ROW_START, MESSAGE_POSITION), Cells(DATA_ROW_END, MESSAGE_POSITION)) = MESSAGE()
+    rowLbRawData = LBound(RAW_DATA, 1)
+    colLbRawData = LBound(RAW_DATA, 2)
+    rowUbRawData = UBound(RAW_DATA, 1)
+    colUbRawData = UBound(RAW_DATA, 2)
+
     For i = DATA_ROW_START To DATA_ROW_END
-        If MESSAGE(i) = "" Then
-            MESSAGE(i) = "(S), (E), (i) - check 結果 ok"
-            WS.Cells(i, MESSAGE_POSITION).Style = "好"
+
+        If RAW_DATA(i, COL_MESSAGE) = "" Then
+            RAW_DATA(i, COL_MESSAGE) = "(S), (E), (i) - SCAN 結果 ok"
         Else
-            WS.Cells(i, MESSAGE_POSITION).Style = "壞"
-            MESSAGE(i) = Left(MESSAGE(i), Len(MESSAGE(i)) - 1)
+            WS_OUTPUT.Cells(i, COL_MESSAGE).Style = "壞"
+            RAW_DATA(i, COL_MESSAGE) = Left(RAW_DATA(i, COL_MESSAGE), Len(RAW_DATA(i, COL_MESSAGE)) - 1)
         End If
-        WS.Cells(i, MESSAGE_POSITION) = MESSAGE(i)
+
     Next
 
-End Function
+    With WS_OUTPUT
 
+        .Range(.Cells(rowLbRawData, colLbRawData), .Cells(rowUbRawData, colUbRawData)) = RAW_DATA
 
-Function PrintRebarRatio()
+        .Columns(COL_MESSAGE).EntireColumn.AutoFit
 
-    rowStart = 1
-    rowUsed = UBound(RATIO_DATA)
-    columnUsed = 13
+        With .Columns(COL_REBAR_RATIO)
 
-    WS.Range(WS.Cells(rowStart, columnUsed), WS.Cells(rowUsed, columnUsed)) = Application.Index(RATIO_DATA, 0, REBAR)
-    WS.Cells(1, MESSAGE_POSITION + 1) = "鋼筋比"
+            .NumberFormatLocal = "0.00%"
+            .FormatConditions.AddColorScale ColorScaleType:=2
+            .FormatConditions(.FormatConditions.Count).SetFirstPriority
+            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 16776444
+            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValueHighestValue
+            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8109667
+
+        End With
+
+    End With
+
+    ' Columns("M:M").Select
+    ' Selection.Style = "Percent"
+    ' Selection.NumberFormatLocal = "0.0%"
+    ' Selection.NumberFormatLocal = "0.00%"
+    ' Selection.FormatConditions.AddColorScale ColorScaleType:=2
+    ' Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority
+    ' Selection.FormatConditions(1).ColorScaleCriteria(1).Type = _
+    '     xlConditionValueLowestValue
+    ' With Selection.FormatConditions(1).ColorScaleCriteria(1).FormatColor
+    '     .Color = 16776444
+    '     .TintAndShade = 0
+    ' End With
+    ' Selection.FormatConditions(1).ColorScaleCriteria(2).Type = _
+    '     xlConditionValueHighestValue
+    ' With Selection.FormatConditions(1).ColorScaleCriteria(2).FormatColor
+    '     .Color = 8109667
+    '     .TintAndShade = 0
+    ' End With
+
+    Call PrintError
 
     Call FontSetting
 
 End Function
 
 
-Function PrintRebarRatioInAnotherSheets()
+Private Function PrintError()
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+    Dim arrErrorMessage
 
-    Dim columnRatio As Worksheet
-    Dim rebarRatio As Worksheet
-    Set columnRatio = Worksheets("柱鋼筋比")
-    Set rebarRatio = Worksheets("鋼筋號數比")
+    ubErrorMessage = collectErrorMessage.Count
 
-    rowStart = 1
-    rowUsed = UBound(RATIO_DATA)
-    columnStart = 1
-    columnUsed = 5
+    ReDim arrErrorMessage(0 To ubErrorMessage, 1 To 2)
 
-    columnRatio.Range(columnRatio.Cells(rowStart, columnUsed), columnRatio.Cells(rowUsed, columnUsed)) = Application.Index(RATIO_DATA, 0, REBAR)
+    arrErrorMessage(0, 1) = "Number"
+    arrErrorMessage(0, 2) = "Error Message"
 
-    ' 由於修改 RATIO_DATA 樓層部分，改以數字呈現，所以用 RAW_DATA 再覆蓋一次。
-    columnRatio.Range(columnRatio.Cells(rowStart, columnStart), columnRatio.Cells(rowUsed, columnUsed - 1)) = RAW_DATA
+    For i = 1 To ubErrorMessage
+        arrErrorMessage(i, 1) = i
+        arrErrorMessage(i, 2) = collectErrorMessage(i)
+    Next i
 
-    Call FontSetting
+    With Worksheets("Error")
 
-    rowStart = 3
-    rowUsed = UBound(REBAR_NUMBER) + 1
-    columnStart = 2
-    columnUsed = 3
+        ' 清空資料保留格式
+        .Cells.ClearContents
 
-    rebarRatio.Range(rebarRatio.Cells(rowStart, columnStart), rebarRatio.Cells(rowUsed, columnUsed)) = REBAR_NUMBER
+        .Range(.Cells(1, 1), .Cells(ubErrorMessage + 1, 2)) = arrErrorMessage
+
+        If Not ubErrorMessage = 0 Then
+            .Activate
+        End If
+
+    End With
 
 End Function
+
+
+' Function PrintRebarRatio()
+
+'     rowStart = 1
+'     rowUsed = UBound(RATIO_DATA)
+'     columnUsed = 13
+
+'     WS_OUTPUT.Range(WS_OUTPUT.Cells(rowStart, columnUsed), WS_OUTPUT.Cells(rowUsed, columnUsed)) = Application.Index(RATIO_DATA, 0, REBAR)
+'     WS_OUTPUT.Cells(1, COL_MESSAGE + 1) = "鋼筋比"
+
+'     Call FontSetting
+
+' End Function
+
+
+' Function PrintRebarRatioInAnotherSheets()
+
+'     Dim columnRatio As Worksheet
+'     Dim rebarRatio As Worksheet
+'     Set columnRatio = Worksheets("柱鋼筋比")
+'     Set rebarRatio = Worksheets("鋼筋號數比")
+
+'     rowStart = 1
+'     rowUsed = UBound(RATIO_DATA)
+'     columnStart = 1
+'     columnUsed = 5
+
+'     columnRatio.Range(columnRatio.Cells(rowStart, columnUsed), columnRatio.Cells(rowUsed, columnUsed)) = Application.Index(RATIO_DATA, 0, REBAR)
+
+'     ' 由於修改 RATIO_DATA 樓層部分，改以數字呈現，所以用 RAW_DATA 再覆蓋一次。
+'     columnRatio.Range(columnRatio.Cells(rowStart, columnStart), columnRatio.Cells(rowUsed, columnUsed - 1)) = RAW_DATA
+
+'     Call FontSetting
+
+'     rowStart = 3
+'     rowUsed = UBound(REBAR_NUMBER) + 1
+'     columnStart = 2
+'     columnUsed = 3
+
+'     rebarRatio.Range(rebarRatio.Cells(rowStart, columnStart), rebarRatio.Cells(rowUsed, columnUsed)) = REBAR_NUMBER
+
+' End Function
 
 
 Function FontSetting()
 
-    WS.Cells.Font.Name = "微軟正黑體"
-    WS.Cells.Font.Name = "Calibri"
-    WS.Cells.HorizontalAlignment = xlCenter
-    WS.Cells.VerticalAlignment = xlCenter
+    With WS_OUTPUT
+
+        .Cells.Font.Name = "微軟正黑體"
+        .Cells.Font.Name = "Calibri"
+        .Cells.HorizontalAlignment = xlCenter
+        .Cells.VerticalAlignment = xlCenter
+
+    End With
+
+    With Worksheets("Error")
+
+        .Cells.Font.Name = "微軟正黑體"
+        .Cells.Font.Name = "Calibri"
+
+    End With
 
 End Function
 
@@ -356,26 +599,32 @@ Function Norm15_5_4_1()
 
         If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
-            fcColumn = Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_COLUMN, False)
-            fytColumn = Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FYT, False)
+            fcColumn = objInfo.Item(RAW_DATA(i, STORY))(FC_COLUMN)
+            ' fcColumn = Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_COLUMN, False)
+            fytColumn = objInfo.Item(RAW_DATA(i, STORY))(FYT)
+            ' fytColumn = Application.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FYT, False)
+
+            cover_ = objInfo.Item(RAW_DATA(i, STORY))(COVER)
 
             stirrup = Split(RAW_DATA(i, BOUND_AREA), "@")
             rebarSize = stirrup(0)
-            s = stirrup(1)
+            spacing = stirrup(1)
 
-            bcX = RAW_DATA(i, WIDTH_X) - 4 * 2 - Application.VLookup(rebarSize, REBAR_SIZE, DIAMETER, False)
-            bcY = RAW_DATA(i, WIDTH_Y) - 4 * 2 - Application.VLookup(rebarSize, REBAR_SIZE, DIAMETER, False)
+            bcX = RAW_DATA(i, WIDTH_X) - cover_ * 2 - objRebarSize.Item(rebarSize)(DIAMETER)
+            ' bcX = RAW_DATA(i, WIDTH_X) - 4 * 2 - Application.VLookup(rebarSize, REBAR_SIZE, DIAMETER, False)
+            bcY = RAW_DATA(i, WIDTH_Y) - cover_ * 2 - objRebarSize.Item(rebarSize)(DIAMETER)
+            ' bcY = RAW_DATA(i, WIDTH_Y) - 4 * 2 - Application.VLookup(rebarSize, REBAR_SIZE, DIAMETER, False)
 
             ashX = RATIO_DATA(i, TIE_X)
             ashY = RATIO_DATA(i, TIE_Y)
 
             ag = RAW_DATA(i, WIDTH_X) * RAW_DATA(i, WIDTH_Y)
-            ach = (RAW_DATA(i, WIDTH_X) - 4 * 2) * (RAW_DATA(i, WIDTH_Y) - 4 * 2)
+            ach = (RAW_DATA(i, WIDTH_X) - cover_ * 2) * (RAW_DATA(i, WIDTH_Y) - cover_ * 2)
 
-            code15_3_X = 0.3 * s * bcX * fcColumn / fytColumn * (ag / ach - 1)
-            code15_3_Y = 0.3 * s * bcY * fcColumn / fytColumn * (ag / ach - 1)
-            code15_4_X = 0.09 * s * bcX * fcColumn / fytColumn
-            code15_4_Y = 0.09 * s * bcY * fcColumn / fytColumn
+            code15_3_X = 0.3 * spacing * bcX * fcColumn / fytColumn * (ag / ach - 1)
+            code15_3_Y = 0.3 * spacing * bcY * fcColumn / fytColumn * (ag / ach - 1)
+            code15_4_X = 0.09 * spacing * bcX * fcColumn / fytColumn
+            code15_4_Y = 0.09 * spacing * bcY * fcColumn / fytColumn
 
             If ashY < code15_3_X Or ashY < code15_4_X Then
                 Call WarningMessage("【0404】請確認 Y 向橫向鋼筋，是否符合 規範 15.5.4.1 規定", i)
@@ -399,10 +648,10 @@ Function EconomicTopStoryRebar()
 '
 
     ' 頂樓區 1/4
-    checkStoryNumber = Fix((FIRST_STORY - TOP_STORY + 1) / 4) + TOP_STORY
+    checkStoryNumber = TOP_STORY - Fix((TOP_STORY - FIRST_STORY + 1) / 4)
 
     For i = DATA_ROW_START To DATA_ROW_END
-        If RATIO_DATA(i, STORY) >= TOP_STORY And RATIO_DATA(i, STORY) <= checkStoryNumber And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
+        If RATIO_DATA(i, STORY) >= checkStoryNumber And RATIO_DATA(i, STORY) <= TOP_STORY And RATIO_DATA(i, REBAR) > 0.01 * 1.2 Then
                 Call WarningMessage("【0405】請確認高樓區鋼筋比，是否超過 1.2 %", i)
         End If
     Next

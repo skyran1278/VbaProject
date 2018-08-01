@@ -6,28 +6,28 @@ Sub ScanColumnNorm()
     Call ran.ExecutionTime(True)
     ' Call ran.PerformanceVBA(True)
 
-    Column.GetData ("柱配筋")
+    ' Column.GetData ("柱配筋")
 
     ' 沒有資料就跳出
     ' If Column.NoData Then
     '     Exit Sub
     ' End If
 
-    Column.Initialize
+    ' Column.Initialize
 
     ' 實作規範
     Column.EconomicSmooth
     Column.Norm15_5_4_1
     Column.EconomicTopStoryRebar
 
-    ' FIXME: Function Name
+    ' ' FIXME: Function Name
     Column.Norm15_5_4_100
 
-    Column.PrintMessage
-    Column.PrintRebarRatio
+    Column.PrintResult
+    ' Column.PrintRebarRatio
 
-    Column.CountRebarNumber
-    Column.PrintRebarRatioInAnotherSheets
+    ' Column.CountRebarNumber
+    ' Column.PrintRebarRatioInAnotherSheets
 
     ' Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)

@@ -17,7 +17,8 @@ Private RAW_DATA
 
 Private RATIO_DATA
 
-Private REBAR_NUMBER
+' 準備拋棄
+' Private REBAR_NUMBER
 
 ' Private GENERAL_INFORMATION
 ' Private REBAR_SIZE
@@ -115,14 +116,27 @@ Function GetGeneralInformation()
     ' 後面多空出一行，以增加代號
     arrGeneralInformation = ran.GetRangeToArray(wsGeneralInformation, 1, 4, 4, 14)
 
-    lbGeneralInformation = LBound(arrGeneralInformation)
-    ubGeneralInformation = UBound(arrGeneralInformation)
+    lbGeneralInformation = LBound(arrGeneralInformation, 1)
+    ubGeneralInformation = UBound(arrGeneralInformation, 1)
+    lbColGeneralInformation = LBound(arrGeneralInformation, 2)
+    ubColGeneralInformation = UBound(arrGeneralInformation, 2)
 
     j = 1
 
     For i = ubGeneralInformation To lbGeneralInformation Step -1
         arrGeneralInformation(i, STORY_NUM) = j
         j = j + 1
+    Next i
+
+    ' 掃描是否有沒輸入的數值
+    For i = lbGeneralInformation To ubGeneralInformation
+        For j = lbColGeneralInformation To ubColGeneralInformation
+
+            If arrGeneralInformation(i, j) = "" Then
+                collectErrorMessage.Add "General Information " & arrGeneralInformation(i, STORY) & " " &arrGeneralInformation(1, j) & " 空白"
+            End If
+
+        Next j
     Next i
 
     Set objInfo = ran.CreateDictionary(arrGeneralInformation, 1, False)
@@ -189,14 +203,15 @@ Private Function SortRawData(ByVal sheet)
     ' WS_OUTPUT.Cells.Clear
 
     ' 多抓兩行用來排序
-    arrRawData = ran.GetRangeToArray(Worksheets(sheet & "配筋 - Input"), 1, 1, 5, 18)
+    arrRawData = ran.GetRangeToArray(Worksheets(sheet), 1, 1, 5, 18)
+
+    rowLbRawData = LBound(arrRawData, 1)
+    colLbRawData = LBound(arrRawData, 2)
+    rowUbRawData = UBound(arrRawData, 1)
+    colUbRawData = UBound(arrRawData, 2)
 
     DATA_ROW_START = 3
-    DATA_ROW_END = UBound(arrRawData)
-
-    rowStartRawData = LBound(arrRawData, 1)
-    colStartRawData = LBound(arrRawData, 2)
-    colEndRawData = UBound(arrRawData, 2)
+    DATA_ROW_END = rowUbRawData
 
     colStoryNum = 17
     colNumberNoC = 18
@@ -231,7 +246,7 @@ Private Function SortRawData(ByVal sheet)
     ' 排序由低到高
     ' Call ran.QuickSortArray(arrRawData, 3, , colNumberNoC)
     ' With WS_OUTPUT
-    '     .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)) = arrRawData
+    '     .Range(.Cells(rowLbRawData, colLbRawData), .Cells(DATA_ROW_END, colUbRawData)) = arrRawData
     ' End With
     ' Call ran.QuickSortArray(arrRawData, 3, , colStoryNum)
 
@@ -241,19 +256,19 @@ Private Function SortRawData(ByVal sheet)
     ' TODO:由底往上排
     With WS_OUTPUT
 
-        .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)) = arrRawData
+        .Range(.Cells(rowLbRawData, colLbRawData), .Cells(rowUbRawData, colUbRawData)) = arrRawData
 
-        .Range(.Cells(DATA_ROW_START, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)).Sort _
-            Key1:=.Range(.Cells(DATA_ROW_START, colStoryNum), .Cells(DATA_ROW_END, colStoryNum)), Order1:=xlAscending, DataOption1:=xlSortNormal, _
-            Key2:=.Range(.Cells(DATA_ROW_START, colNumberNoC), .Cells(DATA_ROW_END, colNumberNoC)), Order2:=xlAscending, DataOption2:=xlSortNormal, _
-            Header:=xlNo, MatchCase:=False, Orientation:=xlTopToBottom, SortMethod:=xlPinYin
+        .Range(.Cells(DATA_ROW_START, colLbRawData), .Cells(rowUbRawData, colUbRawData)).Sort _
+            Key1:=.Range(.Cells(DATA_ROW_START, colStoryNum), .Cells(rowUbRawData, colStoryNum)), Order1:=xlAscending, DataOption1:=xlSortNormal, _
+            Key2:=.Range(.Cells(DATA_ROW_START, colNumberNoC), .Cells(rowUbRawData, colNumberNoC)), Order2:=xlAscending, DataOption2:=xlSortNormal, _
+            Header:=xlNo, MatchCase:=True, Orientation:=xlTopToBottom, SortMethod:=xlPinYin
 
 
 
         ' .Sort.SortFields.Clear
-        ' .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colStoryNum), .Cells(DATA_ROW_END, colStoryNum)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-        ' .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colNumberNoC), .Cells(DATA_ROW_END, colNumberNoC)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-        ' .Sort.SetRange .Range(.Cells(DATA_ROW_START, colStartRawData), .Cells(DATA_ROW_END, colEndRawData))
+        ' .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colStoryNum), .Cells(rowUbRawData, colStoryNum)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+        ' .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colNumberNoC), .Cells(rowUbRawData, colNumberNoC)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+        ' .Sort.SetRange .Range(.Cells(DATA_ROW_START, colLbRawData), .Cells(rowUbRawData, colUbRawData))
 
         ' With .Sort
         '     .MatchCase = False
@@ -263,7 +278,7 @@ Private Function SortRawData(ByVal sheet)
         ' End With
 
         ' 收入資料
-        RAW_DATA = .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData - 2))
+        RAW_DATA = .Range(.Cells(rowLbRawData, colLbRawData), .Cells(rowUbRawData, colUbRawData - 2))
 
     End With
 
@@ -278,7 +293,7 @@ Function GetRatioData()
     ' 樓層數字化，用以比較上下樓層。
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        RATIO_DATA(i, STORY) = WarnDicEmpty(objInfo.Item(RAW_DATA(i, STORY)), STORY_NUM, "請確認 " & RAW_DATA(i, STORY) & " 是否存在於 General Information")
+        RATIO_DATA(i, STORY) = WarnDicEmpty(objInfo.Item(RAW_DATA(i, STORY)), STORY_NUM)
         ' RATIO_DATA(i, STORY) = Application.Match(RAW_DATA(i, STORY), APP.Index(GENERAL_INFORMATION, 0, STORY), 0)
     Next
 
@@ -483,6 +498,9 @@ Private Function PrintError()
     Next i
 
     With Worksheets("Error")
+
+        ' 清空資料保留格式
+        .Cells.ClearContents
 
         .Range(.Cells(1, 1), .Cells(ubErrorMessage + 1, 2)) = arrErrorMessage
 
@@ -793,10 +811,10 @@ Function SafetyLoad()
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        maxRatio = APP.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MID), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MID), RATIO_DATA(i + 2, REBAR_RIGHT))
+        maxRatio = ran.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MID), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MID), RATIO_DATA(i + 2, REBAR_RIGHT))
 
         ' 轉換 kgw-m => tf-m: * 100000
-        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + objInfo.Item(RAW_DATA(i, STORY))(SDL) * objInfo.Item(RAW_DATA(i, STORY))(BAND)) + 1.6 * objInfo.Item(RAW_DATA(i, STORY))(LL) *  * objInfo.Item(RAW_DATA(i, STORY))(BAND)) * RAW_DATA(i, BEAM_LENGTH) ^ 2 * 100000
+        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + objInfo.Item(RAW_DATA(i, STORY))(SDL) * objInfo.Item(RAW_DATA(i, STORY))(BAND)) + 1.6 * objInfo.Item(RAW_DATA(i, STORY))(LL) * objInfo.Item(RAW_DATA(i, STORY))(BAND)) * RAW_DATA(i, BEAM_LENGTH) ^ 2 * 100000
         ' mn = 1 / 8 * (1.2 * (0.15 * 2.4 + APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, SDL, False)) + 1.6 * APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, LL, False)) * BAND ^ 2 * 100000
 
         capacity = maxRatio * objInfo.Item(RAW_DATA(i, STORY))(FY) * RATIO_DATA(i, D)
@@ -910,7 +928,7 @@ Function Norm15_4_2_1()
 
         If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
-            code15_4_2_1 = APP.Min((objInfo.Item(RAW_DATA(i, STORY))(FC_BEAM) + 100) / (4 * objInfo.Item(RAW_DATA(i, STORY))(FY)) * RAW_DATA(i, BW) * RATIO_DATA(i, D), 0.025 * RAW_DATA(i, BW) * RATIO_DATA(i, D))
+            code15_4_2_1 = ran.Min((objInfo.Item(RAW_DATA(i, STORY))(FC_BEAM) + 100) / (4 * objInfo.Item(RAW_DATA(i, STORY))(FY)) * RAW_DATA(i, BW) * RATIO_DATA(i, D), 0.025 * RAW_DATA(i, BW) * RATIO_DATA(i, D))
             ' code15_4_2_1 = APP.Min((APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False) + 100) / (4 * APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False)) * RAW_DATA(i, BW) * RATIO_DATA(i, D), 0.025 * RAW_DATA(i, BW) * RATIO_DATA(i, D))
 
             If RATIO_DATA(i, REBAR_LEFT) > code15_4_2_1 Then
@@ -953,8 +971,8 @@ Function Norm15_4_2_2()
 
         If RATIO_DATA(i, STORY) < FIRST_STORY Then
 
-            maxRatio = APP.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MID), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MID), RATIO_DATA(i + 2, REBAR_RIGHT))
-            minRatio = APP.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MID), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MID), RATIO_DATA(i + 2, REBAR_RIGHT))
+            maxRatio = ran.Max(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MID), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MID), RATIO_DATA(i + 2, REBAR_RIGHT))
+            minRatio = ran.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_MID), RATIO_DATA(i, REBAR_RIGHT), RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_MID), RATIO_DATA(i + 2, REBAR_RIGHT))
             code15_4_2_2 = minRatio < maxRatio / 4
 
             If code15_4_2_2 Then
@@ -999,7 +1017,7 @@ Function EconomicTopRebarRelative()
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        minRatio = APP.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_RIGHT))
+        minRatio = ran.Min(RATIO_DATA(i, REBAR_LEFT), RATIO_DATA(i, REBAR_RIGHT))
 
         rebar = Split(RAW_DATA(i, REBAR_MID), "-")
 
@@ -1019,7 +1037,7 @@ Function EconomicBotRebarRelativeForGB()
 
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
-        minRatio = APP.Min(RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_RIGHT))
+        minRatio = ran.Min(RATIO_DATA(i + 2, REBAR_LEFT), RATIO_DATA(i + 2, REBAR_RIGHT))
 
         rebar = Split(RAW_DATA(i + 2, REBAR_MID), "-")
 
@@ -1119,7 +1137,7 @@ Function Norm4_6_6_3()
 
             stirrup = Split(RAW_DATA(i, j), "@")
 
-            avMin = APP.Max(0.2 * Sqr(objInfo.Item(RAW_DATA(i, STORY))(FC_BEAM)) * RAW_DATA(i, BW) * stirrup(1) / objInfo.Item(RAW_DATA(i, STORY))(FYT), 3.5 * RAW_DATA(i, BW) * stirrup(1) / objInfo.Item(RAW_DATA(i, STORY))(FYT))
+            avMin = ran.Max(0.2 * Sqr(objInfo.Item(RAW_DATA(i, STORY))(FC_BEAM)) * RAW_DATA(i, BW) * stirrup(1) / objInfo.Item(RAW_DATA(i, STORY))(FYT), 3.5 * RAW_DATA(i, BW) * stirrup(1) / objInfo.Item(RAW_DATA(i, STORY))(FYT))
             ' avMin = APP.Max(0.2 * Sqr(APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FC_BEAM, False)) * RAW_DATA(i, BW) * stirrup(1) / APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FYT, False), 3.5 * RAW_DATA(i, BW) * stirrup(1) / APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FYT, False))
             av = RATIO_DATA(i, j)
 
