@@ -34,34 +34,34 @@ Sub ScanColumnNorm()
 
 End Sub
 
-Sub ScanFoundationBeamNorm()
+Sub ScanFBNorm()
 '
 ' TODO:處理筏基版厚、上下版厚
 '
 
     Dim ran As New UTILS_CLASS
-    Dim FoundationBeam As New BeamClass
-    ' Set FoundationBeam = New BeamClass
+    Dim FB As New BeamClass
+    ' Set FB = New BeamClass
 
     Call ran.ExecutionTime(True)
     ' Call ran.PerformanceVBA(True)
 
-    FoundationBeam.Initialize("地梁")
+    FB.Initialize("地梁")
 
     ' 實作規範
-    FoundationBeam.Norm4_9_3
-    FoundationBeam.Norm4_9_4
-    FoundationBeam.EconomicNorm4_9_4
-    FoundationBeam.SafetyRebarRatioAndSpace
-    FoundationBeam.SafetyRebarRatioForGB
-    FoundationBeam.EconomicBotRebarRelativeForGB
-    FoundationBeam.EconomicTopRebarRelativeForGB
-    FoundationBeam.SafetyStirrupSpace
+    FB.Norm4_9_3
+    FB.Norm4_9_4
+    FB.EconomicNorm4_9_4
+    FB.SafetyRebarRatioAndSpace
+    FB.SafetyRebarRatioForGB
+    FB.EconomicBotRebarRelativeForGB
+    FB.EconomicTopRebarRelativeForGB
+    FB.SafetyStirrupSpace
 
-    FoundationBeam.PrintResult
+    FB.PrintResult
 
-    ' FoundationBeam.CountRebarNumber
-    ' FoundationBeam.PrintRebarRatio
+    ' FB.CountRebarNumber
+    ' FB.PrintRebarRatio
 
     ' Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
