@@ -1,14 +1,17 @@
 Sub ScanColumnNorm()
 
-    Dim Column As ColumnClass
-    Set Column = New ColumnClass
+    Dim ran As New UTILS_CLASS
+    Dim Column As New ColumnClass
+
+    Call ran.ExecutionTime(True)
+    ' Call ran.PerformanceVBA(True)
 
     Column.GetData ("柱配筋")
 
     ' 沒有資料就跳出
-    If Column.NoData Then
-        Exit Sub
-    End If
+    ' If Column.NoData Then
+    '     Exit Sub
+    ' End If
 
     Column.Initialize
 
@@ -26,59 +29,71 @@ Sub ScanColumnNorm()
     Column.CountRebarNumber
     Column.PrintRebarRatioInAnotherSheets
 
+    ' Call ran.PerformanceVBA(False)
+    Call ran.ExecutionTime(False)
+
 End Sub
 
-' Sub ScanFoundationBeamNorm()
-' '
-' ' TODO:處理筏基版厚、上下版厚
-' '
+Sub ScanFoundationBeamNorm()
+'
+' TODO:處理筏基版厚、上下版厚
+'
 
-'     Dim FoundationBeam As BeamClass
-'     Set FoundationBeam = New BeamClass
+    Dim ran As New UTILS_CLASS
+    Dim FoundationBeam As New BeamClass
+    ' Set FoundationBeam = New BeamClass
 
-'     FoundationBeam.GetData ("地梁")
+    Call ran.ExecutionTime(True)
+    ' Call ran.PerformanceVBA(True)
 
-'     FoundationBeam.Initialize
+    FoundationBeam.Initialize("地梁")
 
-'     ' 實作規範
-'     FoundationBeam.Norm4_9_3
-'     FoundationBeam.Norm4_9_4
-'     FoundationBeam.EconomicNorm4_9_4
-'     FoundationBeam.SafetyRebarRatioAndSpace
-'     FoundationBeam.SafetyRebarRatioForGB
-'     FoundationBeam.EconomicBotRebarRelativeForGB
-'     FoundationBeam.EconomicTopRebarRelativeForGB
-'     FoundationBeam.SafetyStirrupSpace
+    ' 實作規範
+    FoundationBeam.Norm4_9_3
+    FoundationBeam.Norm4_9_4
+    FoundationBeam.EconomicNorm4_9_4
+    FoundationBeam.SafetyRebarRatioAndSpace
+    FoundationBeam.SafetyRebarRatioForGB
+    FoundationBeam.EconomicBotRebarRelativeForGB
+    FoundationBeam.EconomicTopRebarRelativeForGB
+    FoundationBeam.SafetyStirrupSpace
 
-'     FoundationBeam.PrintMessage
+    FoundationBeam.PrintResult
 
-'     FoundationBeam.CountRebarNumber
-'     FoundationBeam.PrintRebarRatio
+    ' FoundationBeam.CountRebarNumber
+    ' FoundationBeam.PrintRebarRatio
 
-' End Sub
+    ' Call ran.PerformanceVBA(False)
+    Call ran.ExecutionTime(False)
 
-' Sub ScanBeamNorm()
+End Sub
 
-'     Dim Beam As BeamClass
-'     Set Beam = New BeamClass
+Sub ScanBeamNorm()
 
-'     Beam.GetData ("小梁")
+    Dim ran As New UTILS_CLASS
+    Dim Beam As New BeamClass
 
-'     Beam.Initialize
+    Call ran.ExecutionTime(True)
+    ' Call ran.PerformanceVBA(True)
 
-'     ' 實作規範
-'     Beam.Norm3_6
-'     Beam.Norm3_7_5
-'     Beam.Norm13_5_1AndSafetyRebarNumber
-'     Beam.SafetyRebarRatioForSB
-'     Beam.SafetyLoad
+    Beam.Initialize("小梁")
 
-'     Beam.PrintMessage
+    ' 實作規範
+    Beam.Norm3_6
+    Beam.Norm3_7_5
+    Beam.Norm13_5_1AndSafetyRebarNumber
+    Beam.SafetyRebarRatioForSB
+    Beam.SafetyLoad
 
-'     Beam.CountRebarNumber
-'     Beam.PrintRebarRatio
+    Beam.PrintResult
 
-' End Sub
+    ' Beam.CountRebarNumber
+    ' Beam.PrintRebarRatio
+
+    ' Call ran.PerformanceVBA(False)
+    Call ran.ExecutionTime(False)
+
+End Sub
 
 Sub ScanGirderNorm()
 
@@ -86,7 +101,7 @@ Sub ScanGirderNorm()
     Dim Girder As New BeamClass
 
     Call ran.ExecutionTime(True)
-    Call ran.PerformanceVBA(True)
+    ' Call ran.PerformanceVBA(True)
 
     Girder.Initialize("大梁")
 
@@ -107,7 +122,7 @@ Sub ScanGirderNorm()
     ' Girder.CountRebarNumber
     ' Girder.PrintRebarRatio
 
-    Call ran.PerformanceVBA(False)
+    ' Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
 
 End Sub

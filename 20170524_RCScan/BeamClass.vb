@@ -1,6 +1,6 @@
 Private ran As UTILS_CLASS
-Private errorMessage As Collection
 Private APP
+Private collectErrorMessage As Collection
 
 Private BEAM_TYPE
 
@@ -66,8 +66,9 @@ Private Sub Class_Initialize()
 ' Called automatically when class is created
 
     Set ran = New UTILS_CLASS
-    Set errorMessage = New Collection
     Set APP = Application.WorksheetFunction
+
+    Set collectErrorMessage = New Collection
 
 End Sub
 
@@ -151,7 +152,7 @@ Private Function WarnDicEmpty(ByVal arr, ByVal value, Optional ByVal warning = "
 
     Else
 
-        errorMessage.Add warning
+        collectErrorMessage.Add warning
         WarnDicEmpty = Empty
 
     End If
@@ -242,17 +243,24 @@ Private Function SortRawData(ByVal sheet)
 
         .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)) = arrRawData
 
-        .Sort.SortFields.Clear
-        .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colStoryNum), .Cells(DATA_ROW_END, colStoryNum)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-        .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colNumberNoC), .Cells(DATA_ROW_END, colNumberNoC)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-        .Sort.SetRange .Range(.Cells(DATA_ROW_START, colStartRawData), .Cells(DATA_ROW_END, colEndRawData))
+        .Range(.Cells(DATA_ROW_START, colStartRawData), .Cells(DATA_ROW_END, colEndRawData)).Sort _
+            Key1:=.Range(.Cells(DATA_ROW_START, colStoryNum), .Cells(DATA_ROW_END, colStoryNum)), Order1:=xlAscending, DataOption1:=xlSortNormal, _
+            Key2:=.Range(.Cells(DATA_ROW_START, colNumberNoC), .Cells(DATA_ROW_END, colNumberNoC)), Order2:=xlAscending, DataOption2:=xlSortNormal, _
+            Header:=xlNo, MatchCase:=False, Orientation:=xlTopToBottom, SortMethod:=xlPinYin
 
-        With .Sort
-            .MatchCase = False
-            .Orientation = xlTopToBottom
-            .SortMethod = xlPinYin
-            .Apply
-        End With
+
+
+        ' .Sort.SortFields.Clear
+        ' .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colStoryNum), .Cells(DATA_ROW_END, colStoryNum)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+        ' .Sort.SortFields.Add Key:=.Range(.Cells(DATA_ROW_START, colNumberNoC), .Cells(DATA_ROW_END, colNumberNoC)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+        ' .Sort.SetRange .Range(.Cells(DATA_ROW_START, colStartRawData), .Cells(DATA_ROW_END, colEndRawData))
+
+        ' With .Sort
+        '     .MatchCase = False
+        '     .Orientation = xlTopToBottom
+        '     .SortMethod = xlPinYin
+        '     .Apply
+        ' End With
 
         ' 收入資料
         RAW_DATA = .Range(.Cells(rowStartRawData, colStartRawData), .Cells(DATA_ROW_END, colEndRawData - 2))
@@ -394,14 +402,14 @@ Function SplitStirrup(rebar)
 End Function
 
 
-Function GetSheetMessage(Girder, Beam, GroundBeam)
+Function GetTypeMessage(Girder, Beam, GroundBeam)
 
-    If BEAM_TYPE = "大梁配筋" Then
-        GetSheetMessage = Girder
-    ElseIf BEAM_TYPE = "小梁配筋" Then
-        GetSheetMessage = Beam
-    ElseIf BEAM_TYPE = "地梁配筋" Then
-        GetSheetMessage = GroundBeam
+    If BEAM_TYPE = "大梁" Then
+        GetTypeMessage = Girder
+    ElseIf BEAM_TYPE = "小梁" Then
+        GetTypeMessage = Beam
+    ElseIf BEAM_TYPE = "地梁" Then
+        GetTypeMessage = GroundBeam
     End If
 
 End Function
@@ -444,7 +452,45 @@ Function PrintResult()
 
     End With
 
+    Call PrintError
+
     Call FontSetting
+
+End Function
+
+
+Private Function PrintError()
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+    Dim arrErrorMessage
+
+    ubErrorMessage = collectErrorMessage.Count
+
+    ReDim arrErrorMessage(0 To ubErrorMessage, 1 To 2)
+
+    arrErrorMessage(0, 1) = "Number"
+    arrErrorMessage(0, 2) = "Error Message"
+
+    For i = 1 To ubErrorMessage
+        arrErrorMessage(i, 1) = i
+        arrErrorMessage(i, 2) = collectErrorMessage(i)
+    Next i
+
+    With Worksheets("Error")
+
+        .Range(.Cells(1, 1), .Cells(ubErrorMessage + 1, 2)) = arrErrorMessage
+
+        If Not ubErrorMessage = 0 Then
+            .Activate
+        End If
+
+    End With
 
 End Function
 
@@ -457,6 +503,13 @@ Function FontSetting()
         .Cells.Font.Name = "Calibri"
         .Cells.HorizontalAlignment = xlCenter
         .Cells.VerticalAlignment = xlCenter
+
+    End With
+
+    With Worksheets("Error")
+
+        .Cells.Font.Name = "微軟正黑體"
+        .Cells.Font.Name = "Calibri"
 
     End With
 
@@ -821,27 +874,27 @@ For i = DATA_ROW_START To DATA_ROW_END Step 4
     ' code3_4 = 14 / APP.VLookup(RAW_DATA(i, STORY), GENERAL_INFORMATION, FY, False) * RAW_DATA(i, BW) * RATIO_DATA(i, D)
 
     If RATIO_DATA(i, REBAR_LEFT) < code3_3 Or RATIO_DATA(i, REBAR_LEFT) < code3_4 Then
-        Call WarningMessage(GetSheetMessage("【0201】請確認左端上層筋下限，是否符合規範 3.6 規定", "【0301】請確認左端上層筋下限，是否符合規範 3.6 規定", "請確認左端上層筋下限，是否符合規範 3.6 規定"), i)
+        Call WarningMessage(GetTypeMessage("【0201】請確認左端上層筋下限，是否符合規範 3.6 規定", "【0301】請確認左端上層筋下限，是否符合規範 3.6 規定", "請確認左端上層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
     If RATIO_DATA(i, REBAR_MID) < code3_3 Or RATIO_DATA(i, REBAR_MID) < code3_4 Then
-        Call WarningMessage(GetSheetMessage("【0202】請確認中央上層筋下限，是否符合規範 3.6 規定", "【0302】請確認中央上層筋下限，是否符合規範 3.6 規定", "請確認中央上層筋下限，是否符合規範 3.6 規定"), i)
+        Call WarningMessage(GetTypeMessage("【0202】請確認中央上層筋下限，是否符合規範 3.6 規定", "【0302】請確認中央上層筋下限，是否符合規範 3.6 規定", "請確認中央上層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
     If RATIO_DATA(i, REBAR_RIGHT) < code3_3 Or RATIO_DATA(i, REBAR_RIGHT) < code3_4 Then
-        Call WarningMessage(GetSheetMessage("【0203】請確認右端上層筋下限，是否符合規範 3.6 規定", "【0303】請確認右端上層筋下限，是否符合規範 3.6 規定", "請確認右端上層筋下限，是否符合規範 3.6 規定"), i)
+        Call WarningMessage(GetTypeMessage("【0203】請確認右端上層筋下限，是否符合規範 3.6 規定", "【0303】請確認右端上層筋下限，是否符合規範 3.6 規定", "請確認右端上層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
     If RATIO_DATA(i + 2, REBAR_LEFT) < code3_3 Or RATIO_DATA(i + 2, REBAR_LEFT) < code3_4 Then
-        Call WarningMessage(GetSheetMessage("【0204】請確認左端下層筋下限，是否符合規範 3.6 規定", "【0304】請確認左端下層筋下限，是否符合規範 3.6 規定", "請確認左端下層筋下限，是否符合規範 3.6 規定"), i)
+        Call WarningMessage(GetTypeMessage("【0204】請確認左端下層筋下限，是否符合規範 3.6 規定", "【0304】請確認左端下層筋下限，是否符合規範 3.6 規定", "請確認左端下層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
     If RATIO_DATA(i + 2, REBAR_MID) < code3_3 Or RATIO_DATA(i + 2, REBAR_MID) < code3_4 Then
-        Call WarningMessage(GetSheetMessage("【0205】請確認中央下層筋下限，是否符合規範 3.6 規定", "【0305】請確認中央下層筋下限，是否符合規範 3.6 規定", "請確認中央下層筋下限，是否符合規範 3.6 規定"), i)
+        Call WarningMessage(GetTypeMessage("【0205】請確認中央下層筋下限，是否符合規範 3.6 規定", "【0305】請確認中央下層筋下限，是否符合規範 3.6 規定", "請確認中央下層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
     If RATIO_DATA(i + 2, REBAR_RIGHT) < code3_3 Or RATIO_DATA(i + 2, REBAR_RIGHT) < code3_4 Then
-        Call WarningMessage(GetSheetMessage("【0206】請確認右端下層筋下限，是否符合規範 3.6 規定", "【0306】請確認右端下層筋下限，是否符合規範 3.6 規定", "請確認右端下層筋下限，是否符合規範 3.6 規定"), i)
+        Call WarningMessage(GetTypeMessage("【0206】請確認右端下層筋下限，是否符合規範 3.6 規定", "【0306】請確認右端下層筋下限，是否符合規範 3.6 規定", "請確認右端下層筋下限，是否符合規範 3.6 規定"), i)
     End If
 
 Next
@@ -1016,14 +1069,14 @@ Function Norm13_5_1AndSafetyRebarNumber()
                 ' Norm13_5_1
                 ' 淨距不少於1Db
                 If Spacing < fyDb Or Spacing < 2.5 Then
-                    Call WarningMessage(GetSheetMessage("【0210】請確認單排支數上限，是否符合淨距不少於 1 Db 規定", "【0308】請確認單排支數上限，是否符合淨距不少於 1 Db 規定", "請確認單排支數上限，是否符合淨距不少於 1 Db 規定"), i)
+                    Call WarningMessage(GetTypeMessage("【0210】請確認單排支數上限，是否符合淨距不少於 1 Db 規定", "【0308】請確認單排支數上限，是否符合淨距不少於 1 Db 規定", "請確認單排支數上限，是否符合淨距不少於 1 Db 規定"), i)
                 End If
 
             ElseIf rebar(0) = "1" Then
 
                 ' 排除掉1支的狀況，避免除以0
                 ' 不少於2支
-                Call WarningMessage(GetSheetMessage("【0211】請確認是否符合 單排支數下限 規定", "【0309】請確認是否符合 單排支數下限 規定", "請確認是否符合 單排支數下限 規定"), i)
+                Call WarningMessage(GetTypeMessage("【0211】請確認是否符合 單排支數下限 規定", "【0309】請確認是否符合 單排支數下限 規定", "請確認是否符合 單排支數下限 規定"), i)
 
             End If
 
@@ -1045,9 +1098,9 @@ Function SafetyStirrupSpace()
             stirrup = Split(RAW_DATA(i, j), "@")
 
             If stirrup(1) < 10 Then
-                Call WarningMessage(GetSheetMessage("【0219】請確認箍筋間距下限，是否符合 10cm 以上規定", "請確認箍筋間距下限，是否符合 10cm 以上規定", "【0113】請確認箍筋間距下限，是否符合 10cm 以上規定"), i)
+                Call WarningMessage(GetTypeMessage("【0219】請確認箍筋間距下限，是否符合 10cm 以上規定", "請確認箍筋間距下限，是否符合 10cm 以上規定", "【0113】請確認箍筋間距下限，是否符合 10cm 以上規定"), i)
             ElseIf stirrup(1) > 30 Then
-                Call WarningMessage(GetSheetMessage("【0220】請確認箍筋間距上限，是否符合 30cm 以下規定", "請確認箍筋間距上限，是否符合 30cm 以下規定", "【0114】請確認箍筋間距上限，是否符合 30cm 以下規定"), i)
+                Call WarningMessage(GetTypeMessage("【0220】請確認箍筋間距上限，是否符合 30cm 以下規定", "請確認箍筋間距上限，是否符合 30cm 以下規定", "【0114】請確認箍筋間距上限，是否符合 30cm 以下規定"), i)
             End If
 
         Next
@@ -1143,7 +1196,7 @@ Function Norm3_7_5()
     For i = DATA_ROW_START To DATA_ROW_END Step 4
 
         If RAW_DATA(i, H) > 90 Then
-            Call WarningMessage(GetSheetMessage("【0207】請確認是否符合 規範 3.7.5", "【0307】請確認是否符合 規範 3.7.5", "請確認是否符合 規範 3.7.5"), i)
+            Call WarningMessage(GetTypeMessage("【0207】請確認是否符合 規範 3.7.5", "【0307】請確認是否符合 規範 3.7.5", "請確認是否符合 規範 3.7.5"), i)
         End If
 
     Next
