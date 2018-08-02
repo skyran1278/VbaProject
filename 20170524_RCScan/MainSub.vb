@@ -6,14 +6,7 @@ Sub ScanColumnNorm()
     Call ran.ExecutionTime(True)
     Call ran.PerformanceVBA(True)
 
-    ' Column.GetData ("柱配筋")
-
-    ' 沒有資料就跳出
-    ' If Column.NoData Then
-    '     Exit Sub
-    ' End If
-
-    ' Column.Initialize
+    On Error GoTo ErrorHandler
 
     ' 實作規範
     Column.EconomicSmooth
@@ -31,6 +24,11 @@ Sub ScanColumnNorm()
 
     Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
+
+    Exit Sub
+
+ErrorHandler:
+    Call Column.PrintError(Err.NUMBER, Err.Source, Err.Description)
 
 End Sub
 
