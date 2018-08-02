@@ -1,4 +1,4 @@
-' @license Version v2.2.2
+' @license Version v2.3.5
 ' Version.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -46,10 +46,6 @@ Sub VerifyPassword()
         MsgBox "Wrong Password"
         ThisWorkbook.Close SaveChanges:=False
 
-    Else
-
-        MsgBox "Sign In Success"
-
     End If
 
 End Sub
@@ -73,8 +69,6 @@ Sub CheckVersion()
     Set srvXmlHttp = CreateObject("MSXML2.serverXMLHTTP")
 
     Set ws_version = ThisWorkbook.Worksheets("Release Notes")
-
-    Application.StatusBar = "Checking Latest Version..."
 
     srvXmlHttp.Open "GET", VERSION_URL, False
 
@@ -152,16 +146,15 @@ Private Sub Workbook_Open()
 '       office 2016 in windows 10
 '       Mac 版本容易出現錯誤，不推薦在 Mac 執行
 
-    Dim ws_version As Worksheet
-    Set ws_version = ThisWorkbook.Worksheets("Release Notes")
+    ' Dim ws_version As Worksheet
+    ' Set ws_version = ThisWorkbook.Worksheets("Release Notes")
 
-    VerifyPassword
-    CheckVersion
+    Call VerifyPassword
+    Call CheckVersion
 
-    ws_version.Cells.Font.Name = "微軟正黑體"
-    ws_version.Cells.Font.Name = "Calibri"
+    ' ws_version.Cells.Font.Name = "微軟正黑體"
+    ' ws_version.Cells.Font.Name = "Calibri"
 
 End Sub
-
 
 

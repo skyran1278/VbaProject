@@ -5,12 +5,20 @@ Dim CONTROL_COMBO
 Function AutoFill()
 ' 公式自動填滿
 
-    Worksheets("EtabsPMMCombo").Activate
-    comboRowUsed = Cells(Rows.Count, 1).End(xlUp).row
+    ' Worksheets("EtabsPMMCombo").Activate
+    ' comboRowUsed = Cells(Rows.Count, 1).End(xlUp).row
+    comboRowUsed = Worksheets("EtabsPMMCombo").Cells(Rows.Count, 1).End(xlUp).row
 
-    Worksheets("PMM").Activate
-    Range(Cells(3, 1), Cells(3, Cells(Rows.Count, 1).End(xlUp).row)).ClearContents
-    Range(Cells(2, 1), Cells(2, 6)).AutoFill Destination:=Range(Cells(2, 1), Cells(comboRowUsed, 6))
+    ' Worksheets("PMM").Activate
+    ' Range(Cells(3, 1), Cells(3, Cells(Rows.Count, 1).End(xlUp).row)).ClearContents
+    ' Range(Cells(2, 1), Cells(2, 6)).AutoFill Destination:=Range(Cells(2, 1), Cells(comboRowUsed, 6))
+
+    With Worksheets("PMM")
+
+        .Range(.Cells(3, 1), .Cells(.Cells(Rows.Count, 1).End(xlUp).row, 7)).ClearContents
+        .Range(.Cells(2, 1), .Cells(2, 6)).AutoFill Destination:=.Range(.Cells(2, 1), .Cells(comboRowUsed, 6))
+
+    End With
 
 End Function
 
@@ -112,7 +120,7 @@ Function ReadCurve(row)
     For Column = 1 To 3
 
         loading = Column * 4 + 1
-        mement = Column * 4 + 2
+        moment = Column * 4 + 2
 
         For Point = 1 To 20
 
@@ -122,7 +130,7 @@ Function ReadCurve(row)
             curve(pointCumulativeNumber, 0) = Cells(row + Point, loading)
 
             ' M
-            curve(pointCumulativeNumber, Column) = Cells(row + Point, mement)
+            curve(pointCumulativeNumber, Column) = Cells(row + Point, moment)
 
         Next
 
