@@ -295,9 +295,9 @@ Function GetRatioData()
     ' 計算鋼筋比
     For i = LB_REBAR To UB_REBAR
 
-        ARR_RATIO(i, COL_REBAR) = CalRebarArea(ARR_REBAR(i, COL_REBAR)) / (ARR_REBAR(i, COL_WIDTH_X) * ARR_REBAR(i, COL_WIDTH_Y))
 
-        ARR_REBAR(i, COL_REBAR_RATIO) = ARR_RATIO(i, COL_REBAR)
+        ARR_RATIO(i, COL_REBAR) = CalRebarArea(ARR_REBAR(i, COL_REBAR))
+        ARR_REBAR(i, COL_REBAR_RATIO) = ARR_RATIO(i, COL_REBAR) / (ARR_REBAR(i, COL_WIDTH_X) * ARR_REBAR(i, COL_WIDTH_Y))
 
         If ARR_RATIO(i, COL_REBAR) = 0 Then
             MsgBox "請確認第 " & i & " 列是否有問題.", vbOKOnly, "Error"
@@ -648,7 +648,7 @@ Function EconomicTopStoryRebar()
     checkStoryNumber = NUM_TOP_STORY - Fix((NUM_TOP_STORY - NUM_FIRST_STORY + 1) / 4)
 
     For i = LB_REBAR To UB_REBAR
-        If ARR_RATIO(i, COL_STORY) >= checkStoryNumber And ARR_RATIO(i, COL_STORY) <= NUM_TOP_STORY And ARR_RATIO(i, COL_REBAR) > 0.01 * 1.2 Then
+        If ARR_RATIO(i, COL_STORY) >= checkStoryNumber And ARR_RATIO(i, COL_STORY) <= NUM_TOP_STORY And ARR_REBAR(i, COL_REBAR_RATIO) > 0.01 * 1.2 Then
                 Call WarningMessage("【0405】請確認高樓區鋼筋比，是否超過 1.2 %", i)
         End If
     Next

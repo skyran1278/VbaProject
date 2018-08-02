@@ -28,6 +28,7 @@ Sub ScanColumnNorm()
     Exit Sub
 
 ErrorHandler:
+    Call ran.PerformanceVBA(False)
     Call Column.PrintError(Err.NUMBER, Err.Source, Err.Description)
 
 End Sub
@@ -69,6 +70,7 @@ Sub ScanFBNorm()
     Exit Sub
 
 ErrorHandler:
+    Call ran.PerformanceVBA(False)
     Call FB.PrintError(Err.NUMBER, Err.Source, Err.Description)
 
 End Sub
@@ -103,6 +105,7 @@ Sub ScanBeamNorm()
     Exit Sub
 
 ErrorHandler:
+    Call ran.PerformanceVBA(False)
     Call Beam.PrintError(Err.NUMBER, Err.Source, Err.Description)
 
 End Sub
@@ -142,6 +145,7 @@ Sub ScanGirderNorm()
     Exit Sub
 
 ErrorHandler:
+    Call ran.PerformanceVBA(False)
     Call Girder.PrintError(Err.NUMBER, Err.Source, Err.Description)
 
 End Sub
