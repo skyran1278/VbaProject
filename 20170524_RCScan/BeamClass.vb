@@ -128,7 +128,7 @@ Function GetGeneralInformation()
         For j = lbColGeneralInformation To ubColGeneralInformation
 
             If arrGeneralInformation(i, j) = "" Then
-                OBJ_ERR_MSG.Add "General Information " & arrGeneralInformation(i, COL_STORY) & " " & arrGeneralInformation(1, j) & " 空白"
+                OBJ_ERR_MSG.Add "General Information " & arrGeneralInformation(i, COL_STORY) & " " & arrGeneralInformation(1, j) & " 是否空白？"
             End If
 
         Next j
@@ -137,13 +137,13 @@ Function GetGeneralInformation()
     Set OBJ_INFO = ran.CreateDictionary(arrGeneralInformation, 1, False)
 
     ' Use Cells(13, 16).Text instead of .Value
-    NUM_TOP_STORY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 16).Text), COL_STORY_NUM, "搜尋不到頂樓樓層")
-    NUM_FIRST_STORY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 16).Text), COL_STORY_NUM, "搜尋不到地面樓層")
+    NUM_TOP_STORY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 16).Text), COL_STORY_NUM, "搜尋不到頂樓樓層")
+    NUM_FIRST_STORY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 16).Text), COL_STORY_NUM, "搜尋不到地面樓層")
 
 End Function
 
 
-Private Function WarnDicEmpty(ByVal arr, ByVal value, Optional ByVal warning = "Key is Empty")
+Private Function DicIsEmpty(ByVal arr, ByVal value, Optional ByVal warning = "Dictionary is Empty")
 '
 ' 如果 arr 為空，則 show error.
 '
@@ -156,12 +156,12 @@ Private Function WarnDicEmpty(ByVal arr, ByVal value, Optional ByVal warning = "
 
     If Not IsEmpty(arr) Then
 
-        WarnDicEmpty = arr(value)
+        DicIsEmpty = arr(value)
 
     Else
 
         OBJ_ERR_MSG.Add warning
-        WarnDicEmpty = Empty
+        DicIsEmpty = Empty
 
     End If
 
@@ -194,6 +194,11 @@ Private Function SortRawData(ByVal sheet)
     rowUbRawData = UBound(arrRawData, 1)
     colUbRawData = UBound(arrRawData, 2)
 
+    ' 確認有沒有少貼資料
+    If (rowUbRawData - 2) Mod 4 Then
+        OBJ_ERR_MSG.Add "列數與預期不同，請確認資料是否齊全。"
+    End If
+
     LB_REBAR = 3
     UB_REBAR = rowUbRawData
 
@@ -204,7 +209,7 @@ Private Function SortRawData(ByVal sheet)
     For i = LB_REBAR To UB_REBAR Step 4
 
         ' 樓層數字化，用以比較上下樓層。
-        arrRawData(i, colStoryNum) = WarnDicEmpty(OBJ_INFO.Item(arrRawData(i, COL_STORY)), COL_STORY_NUM, "請確認 " & arrRawData(i, COL_STORY) & " 是否存在於 General Information")
+        arrRawData(i, colStoryNum) = DicIsEmpty(OBJ_INFO.Item(arrRawData(i, COL_STORY)), COL_STORY_NUM, "請確認 " & arrRawData(i, COL_STORY) & " 是否存在於 General Information")
 
         ' 去掉 大寫與小寫開頭的 C，用以排序
         If LCase(Left(arrRawData(i, COL_NUMBER), 1)) <> "c" Then
@@ -257,9 +262,7 @@ Function GetRatioData()
 
     ' 樓層數字化，用以比較上下樓層。
     For i = LB_REBAR To UB_REBAR Step 4
-
-        ARR_RATIO(i, COL_STORY) = WarnDicEmpty(OBJ_INFO.Item(ARR_REBAR(i, COL_STORY)), COL_STORY_NUM)
-        ' ARR_RATIO(i, COL_STORY) = Application.Match(ARR_REBAR(i, COL_STORY), APP.Index(GENERAL_INFORMATION, 0, COL_STORY), 0)
+        ARR_RATIO(i, COL_STORY) = DicIsEmpty(OBJ_INFO.Item(ARR_REBAR(i, COL_STORY)), COL_STORY_NUM)
     Next
 
     ' 計算鋼筋面積
@@ -297,9 +300,10 @@ Function GetRatioData()
         ' fyDb = APP.VLookup(rebar_(1), REBAR_SIZE, COL_DB, False)
         fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
         ' fytDb = APP.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, COL_DB, False)
+        cover_ = OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_COVER)
 
         ' 雙排筋
-        ARR_RATIO(i, COL_D) = ARR_REBAR(i, COL_H) - (OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_COVER) + fytDb + fyDb * 1.5)
+        ARR_RATIO(i, COL_D) = ARR_REBAR(i, COL_H) - (cover_ + fytDb + fyDb * 1.5)
 
     Next
 
@@ -313,7 +317,7 @@ Function CalRebarArea(rebar_)
     If tmp(0) <> 0 Then
 
         ' 轉換鋼筋尺寸為截面積
-        tmp(1) = OBJ_REBAR_SIZE.Item(tmp(1))(COL_AREA)
+        tmp(1) = DicIsEmpty(OBJ_REBAR_SIZE.Item(tmp(1)), COL_AREA, rebar_ & "主筋尺寸搜尋不到，請確認格式是否有誤。")
         ' tmp(1) = APP.VLookup(tmp(1), REBAR_SIZE, COL_AREA, False)
 
         CalRebarArea = tmp(0) * tmp(1)
@@ -335,12 +339,14 @@ Function CalStirrupArea(rebar_)
     ' 箍筋號數
     bars(1) = "#" & bars(1)
 
+    stirrupArea = DicIsEmpty(OBJ_REBAR_SIZE.Item(bars(1)), COL_AREA, rebar_ & "箍筋尺寸搜尋不到，請確認格式是否有誤。")
+
     ' 轉換鋼筋尺寸為截面積
     If bars(0) = "" Then
-        CalStirrupArea = 2 * OBJ_REBAR_SIZE.Item(bars(1))(COL_AREA)
+        CalStirrupArea = 2 * stirrupArea
         ' CalStirrupArea = 2 * APP.VLookup(bars(1), REBAR_SIZE, COL_AREA, False)
     Else
-        CalStirrupArea = 2 * bars(0) * OBJ_REBAR_SIZE.Item(bars(1))(COL_AREA)
+        CalStirrupArea = 2 * bars(0) * stirrupArea
         ' CalStirrupArea = 2 * bars(0) * APP.VLookup(bars(1), REBAR_SIZE, COL_AREA, False)
     End If
 
@@ -358,7 +364,7 @@ Function CalSideRebarArea(rebar_)
         tmp = Split(sidebarNoEF, "#")
 
         ' 轉換鋼筋尺寸為截面積
-        tmp(1) = OBJ_REBAR_SIZE.Item("#" & tmp(1))(COL_AREA)
+        tmp(1) = DicIsEmpty(OBJ_REBAR_SIZE.Item("#" & tmp(1)), COL_AREA, rebar_ & "側筋尺寸搜尋不到，請確認格式是否有誤。")
         ' tmp(1) = APP.VLookup("#" & tmp(1), REBAR_SIZE, COL_AREA, False)
 
         ' 對稱雙排
@@ -386,10 +392,13 @@ Function GetTypeMessage(Girder, Beam, GroundBeam)
 
     If S_BEAM_TYPE = "大梁" Then
         GetTypeMessage = Girder
+
     ElseIf S_BEAM_TYPE = "小梁" Then
         GetTypeMessage = Beam
+
     ElseIf S_BEAM_TYPE = "地梁" Then
         GetTypeMessage = GroundBeam
+
     End If
 
 End Function

@@ -4,7 +4,7 @@ Sub ScanColumnNorm()
     Dim Column As New ColumnClass
 
     Call ran.ExecutionTime(True)
-    ' Call ran.PerformanceVBA(True)
+    Call ran.PerformanceVBA(True)
 
     ' Column.GetData ("柱配筋")
 
@@ -29,7 +29,7 @@ Sub ScanColumnNorm()
     ' Column.CountRebarNumber
     ' Column.PrintRebarRatioInAnotherSheets
 
-    ' Call ran.PerformanceVBA(False)
+    Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
 
 End Sub
@@ -44,7 +44,9 @@ Sub ScanFBNorm()
     ' Set FB = New BeamClass
 
     Call ran.ExecutionTime(True)
-    ' Call ran.PerformanceVBA(True)
+    Call ran.PerformanceVBA(True)
+
+    On Error GoTo ErrorHandler
 
     Call FB.Initialize("地梁")
 
@@ -63,8 +65,13 @@ Sub ScanFBNorm()
     ' FB.CountRebarNumber
     ' FB.PrintRebarRatio
 
-    ' Call ran.PerformanceVBA(False)
+    Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
+
+    Exit Sub
+
+ErrorHandler:
+    Call FB.PrintError(Err.NUMBER, Err.Source, Err.Description)
 
 End Sub
 
@@ -74,7 +81,9 @@ Sub ScanBeamNorm()
     Dim Beam As New BeamClass
 
     Call ran.ExecutionTime(True)
-    ' Call ran.PerformanceVBA(True)
+    Call ran.PerformanceVBA(True)
+
+    On Error GoTo ErrorHandler
 
     Call Beam.Initialize("小梁")
 
@@ -90,8 +99,13 @@ Sub ScanBeamNorm()
     ' Beam.CountRebarNumber
     ' Beam.PrintRebarRatio
 
-    ' Call ran.PerformanceVBA(False)
+    Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
+
+    Exit Sub
+
+ErrorHandler:
+    Call Beam.PrintError(Err.NUMBER, Err.Source, Err.Description)
 
 End Sub
 
@@ -101,9 +115,9 @@ Sub ScanGirderNorm()
     Dim Girder As New BeamClass
 
     Call ran.ExecutionTime(True)
-    ' Call ran.PerformanceVBA(True)
+    Call ran.PerformanceVBA(True)
 
-    ' On Error GoTo ErrorHandler
+    On Error GoTo ErrorHandler
 
     Call Girder.Initialize("大梁")
 
@@ -124,7 +138,7 @@ Sub ScanGirderNorm()
     ' Girder.CountRebarNumber
     ' Girder.PrintRebarRatio
 
-    ' Call ran.PerformanceVBA(False)
+    Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
 
     Exit Sub
