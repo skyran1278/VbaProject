@@ -25,7 +25,7 @@ Private Const COL_STORY = 1
 Private Const COL_NUMBER = 2
 Private Const COL_BW = 3
 Private Const COL_H = 4
-' 由於第幾排無用，所以放置 COL_D 有效深度
+' 由於第幾排無用，所以放置 COL_D 有效深度，用於 ARR_RATIO
 Private Const COL_D = 5
 Private Const COL_REBAR_LEFT = 6
 Private Const COL_REBAR_MID = 7
