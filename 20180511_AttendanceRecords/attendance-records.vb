@@ -185,10 +185,8 @@ End Sub
 Function FontSetting()
 
     With Worksheets("修改後DATA")
-
         .Range(.Columns(1), .Columns(5)).Copy
     End With
-
 
     With Worksheets("VBA Output")
 
