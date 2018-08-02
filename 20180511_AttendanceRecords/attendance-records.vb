@@ -190,6 +190,7 @@ Function FontSetting()
 
     With Worksheets("VBA Output")
 
+        ' Output 顏色同步 Input
         .Cells(1, 1).PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
         Application.CutCopyMode = False
         .Range(.Columns(1), .Columns(5)).Borders.LineStyle = xlContinuous
