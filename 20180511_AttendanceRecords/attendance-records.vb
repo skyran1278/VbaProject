@@ -19,7 +19,7 @@ Sub MAIN()
     Dim prevTime As Date
     Dim nextTime As Date
 
-    ' Golobal Var
+    ' Global Var
     Set ran = New UTILS_CLASS
     Set ws = Worksheets("修改後DATA")
 
@@ -165,14 +165,41 @@ Sub MAIN()
     Next i
 
     ' view
-    Set outputWS = Worksheets("VBA Output")
-    outputWS.Range(outputWS.Columns(1), outputWS.Columns(14)).ClearContents
-    outputWS.Range(outputWS.Cells(1, 1), outputWS.Cells(uBoundInput, UBound(arrOutput, 2))) = arrOutput
-    outputWS.Range(outputWS.Cells(1, 1), outputWS.Cells(uBoundInput, UBound(arrInput, 2))) = arrInput
-    outputWS.Activate
+    With Worksheets("VBA Output")
+
+        .Range(.Columns(1), .Columns(14)).ClearContents
+        .Range(.Cells(1, 1), .Cells(uBoundInput, UBound(arrOutput, 2))) = arrOutput
+        .Range(.Cells(1, 1), .Cells(uBoundInput, UBound(arrInput, 2))) = arrInput
+        .Activate
+
+    End With
+
+    Call FontSetting
 
     Call ran.PerformanceVBA(False)
     Call ran.ExecutionTimeVBA(time0)
 
 End Sub
 
+
+Function FontSetting()
+
+    With Worksheets("修改後DATA")
+
+        .Range(.Columns(1), .Columns(5)).Copy
+    End With
+
+
+    With Worksheets("VBA Output")
+
+        .Cells(1, 1).PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
+        Application.CutCopyMode = False
+        .Range(.Columns(1), .Columns(5)).Borders.LineStyle = xlContinuous
+        .Cells.Font.Name = "微軟正黑體"
+        .Cells.Font.Name = "Calibri"
+        .Cells.HorizontalAlignment = xlCenter
+        .Cells.VerticalAlignment = xlCenter
+
+    End With
+
+End Function
