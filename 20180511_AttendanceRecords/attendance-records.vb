@@ -51,7 +51,7 @@ Sub MAIN()
         End If
     Next i
 
-    ' condtroller
+    ' controller
     ' arrOutput = arrInput
     ReDim Preserve arrOutput(1 To uBoundInput + 1, 1 To 14)
     colWeek = 6
