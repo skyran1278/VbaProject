@@ -1,16 +1,9 @@
-Sub TestSortRawData()
+Sub Test()
 '
+' 只測試規範
+' 不要分開
 '
 
-    On Error GoTo ErrorHandler
-
-    Dim Beam As New BeamClass
-
-    Call Beam.Initialize("列數不合")
-
-    Exit Sub
-
-ErrorHandler:
-    Call Beam.PrintError
+    Dim Girder As New BeamClass
 
 End Sub
