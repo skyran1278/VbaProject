@@ -33,7 +33,10 @@
     "Calibri",
     "ESDOF",
     "ETABS",
+    "MDOF",
+    "NTHA",
     "RCAD",
+    "Unif",
     "rebar"
   ],
   "files.autoGuessEncoding": true,
