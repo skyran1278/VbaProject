@@ -3,7 +3,7 @@
 # Abstract
 
 # Introduction
-- IDA => ESDOF
+IDA => ESDOF
 
 # Case study of single-column RC bridge structures
 - General configurations and analytical model

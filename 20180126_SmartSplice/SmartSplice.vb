@@ -8,6 +8,10 @@ Public objRebarSizeToDb As Object
 Public objStoryToFy As Object
 Public objStoryToFyt As Object
 Public objStoryToFc As Object
+Public objStoryToSDL As Object
+Public objStoryToLL As Object
+Public objStoryToBand As Object
+Public objStoryToSlab As Object
 Public objStoryToCover As Object
 
 ' 大梁考慮耐震
@@ -30,6 +34,10 @@ Function SetGlobalVar()
     Set objStoryToFy = ran.CreateDictionary(arrInfo, 1, 2)
     Set objStoryToFyt = ran.CreateDictionary(arrInfo, 1, 3)
     Set objStoryToFc = ran.CreateDictionary(arrInfo, 1, 4)
+    Set objStoryToSDL = ran.CreateDictionary(arrInfo, 1, 5)
+    Set objStoryToLL = ran.CreateDictionary(arrInfo, 1, 6)
+    Set objStoryToBand = ran.CreateDictionary(arrInfo, 1, 7)
+    Set objStoryToSlab = ran.CreateDictionary(arrInfo, 1, 8)
     Set objStoryToCover = ran.CreateDictionary(arrInfo, 1, 9)
 
 End Function
@@ -176,22 +184,22 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
         .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
     End With
 
-    ' ' 格式化條件
-    ' For i = rowStart To rowEnd
-    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-    '         .FormatConditions.AddColorScale ColorScaleType:=3
-    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
-    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+    ' 格式化條件
+    For i = rowStart To rowEnd
+        With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+            .FormatConditions.AddColorScale ColorScaleType:=3
+            .FormatConditions(.FormatConditions.Count).SetFirstPriority
+            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
 
-    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-    '         .FormatConditions(1).ColorScaleCriteria(2).Value = 50
-    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+            .FormatConditions(1).ColorScaleCriteria(2).Value = 50
+            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
 
-    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
-    '     End With
-    ' Next i
+            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+        End With
+    Next i
 
 End Function
 
