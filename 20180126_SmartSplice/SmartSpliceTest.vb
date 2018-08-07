@@ -142,20 +142,20 @@ Sub Test()
 
     arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
-    row = 3
-    Call PrintResult(arrRebarTotalNum, row, 29)
-    row = row + 4
-    Call PrintResult(arrNormalSplice, row, 28)
-    row = row + 4
-    Call PrintResult(arrGirderMultiRebar, row, 28)
-    row = row + 4
-    Call PrintResult(arrLapLengthRatio, row, 29)
-    row = row + 4
-    Call PrintResult(arrMultiLapLength, row, 28)
-    row = row + 4
-    Call PrintResult(arrSmartSplice, row, 28)
-    row = row + 4
-    Call PrintResult(arrSmartSpliceModify, row, 28)
+    row_ = 3
+    Call PrintResult(arrRebarTotalNum, row_, 29)
+    row_ = row_ + 4
+    Call PrintResult(arrNormalSplice, row_, 28)
+    row_ = row_ + 4
+    Call PrintResult(arrGirderMultiRebar, row_, 28)
+    row_ = row_ + 4
+    Call PrintResult(arrLapLengthRatio, row_, 29)
+    row_ = row_ + 4
+    Call PrintResult(arrMultiLapLength, row_, 28)
+    row_ = row_ + 4
+    Call PrintResult(arrSmartSplice, row_, 28)
+    row_ = row_ + 4
+    Call PrintResult(arrSmartSpliceModify, row_, 28)
 
     Call ran.FontSetting(wsResult)
     Call ran.PerformanceVBA(False)

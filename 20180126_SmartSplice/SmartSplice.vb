@@ -156,8 +156,8 @@ Function CalGravityDemand(ByVal arrBeam)
 
     For i = rowStart To rowEnd Step 4
 
-        top = i
-        bot = i + 2
+        top_ = i
+        bot_ = i + 2
 
         story = arrBeam(i, 1)
         span = arrBeam(i, 13)
