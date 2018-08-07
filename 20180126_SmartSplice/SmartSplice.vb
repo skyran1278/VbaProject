@@ -59,89 +59,6 @@ Function ClearPrevOutputData()
 End Function
 
 
-Function CalRebarTotalArea(ByVal arrBeam)
-'
-' 計算上下排總鋼筋量
-'
-' @param {Array} [arrBeam] RCAD 輸出資料.
-' @return {Array} [arrRebarTotalArea] 總鋼筋量，列數與 arrBeam 對齊，行數分左中右.
-'
-
-    Dim arrRebarTotalArea() As Double
-    ReDim arrRebarTotalArea(1 To UBound(arrBeam), 1 To 3)
-
-    rowStart = 1
-    rowEnd = UBound(arrBeam)
-    colLeft = 6
-    colRight = 8
-
-    ' 一二排相加
-    For i = rowStart To rowEnd Step 4
-        For j = colLeft To colRight
-
-            colRebarTotalArea = j - 5
-
-            top_ = i
-            bot_ = i + 2
-
-            rebarTop1st = Split(arrBeam(top_, j), "-")
-            rebarTop2nd = Split(arrBeam(top_ + 1, j), "-")
-            rebarBot2nd = Split(arrBeam(bot_, j), "-")
-            rebarBot1st = Split(arrBeam(bot_ + 1, j), "-")
-
-            rebarTop1stNum = Int(rebarTop1st(0))
-            rebarTop2ndNum = Int(rebarTop2nd(0))
-            rebarBot2ndNum = Int(rebarBot2nd(0))
-            rebarBot1stNum = Int(rebarBot1st(0))
-
-            ' 判斷第二排是否有鋼筋
-            If rebarTop2ndNum = 0 Then
-
-                ' 第一排鋼筋量
-                arrRebarTotalArea(top_, colRebarTotalArea) = rebarTop1stNum * objRebarSizeToArea.Item(rebarTop1stSize)
-
-            ' 第二排有鋼筋的話，確定第一排與第二排的號數相同
-            ElseIf rebarTop1st(1) = rebarTop2nd(1) Then
-
-                ' 第一排加第二排鋼筋量
-                arrRebarTotalArea(top_, colRebarTotalArea) = (rebarTop1stNum + rebarTop2ndNum) * objRebarSizeToArea.Item(rebarTop1st(1))
-
-            ' 有鋼筋，但號數不同，則 ERROR
-            Else
-
-                MsgBox "第" & top_ & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
-
-            End If
-
-            ' 判斷第二排是否有鋼筋
-            If rebarBot2ndNum = 0 Then
-
-                ' 第一排鋼筋量
-                arrRebarTotalArea(bot_, colRebarTotalArea) = rebarBot1stNum * objRebarSizeToArea.Item(rebarBot1stSize)
-
-            ' 第二排有鋼筋的話，確定第一排與第二排的號數相同
-            ElseIf rebarBot1st(1) = rebarBot2nd(1) Then
-
-                ' 第一排加第二排鋼筋量
-                arrRebarTotalArea(bot_, colRebarTotalArea) = (rebarBot1stNum + rebarBot2ndNum) * objRebarSizeToArea.Item(rebarBot1st(1))
-
-            ' 有鋼筋，但號數不同，則 ERROR
-            Else
-
-                MsgBox "第" & bot_ & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
-
-            End If
-
-
-
-        Next
-    Next
-
-    CalRebarTotalArea = arrRebarTotalArea
-
-End Function
-
-
 Function CalRebarTotalNum(ByVal arrBeam)
 '
 ' 計算上下排總支數
@@ -171,6 +88,124 @@ Function CalRebarTotalNum(ByVal arrBeam)
     Next
 
     CalRebarTotalNum = arrRebarTotalNum
+
+End Function
+
+
+Function CalRebarTotalArea(ByVal arrBeam)
+'
+' 計算上下排總鋼筋量
+'
+' @param {Array} [arrBeam] RCAD 輸出資料.
+' @return {Array} [arrRebarTotalArea] 總鋼筋量，列數與 arrBeam 對齊，行數分左中右.
+'
+
+    Dim arrRebarTotalArea() As Double
+    ReDim arrRebarTotalArea(1 To UBound(arrBeam), 1 To 3)
+
+    rowStart = 1
+    rowEnd = UBound(arrBeam)
+    colLeft = 6
+    colRight = 8
+
+    ' 確認鋼筋號數左中右相等
+    ' 上排
+    For i = 1 To rowEnd Step 4
+
+        rebarLeft = Split(arrBeam(i, 6), "-")(1)
+        rebarMid = Split(arrBeam(i, 7), "-")(1)
+        rebarRight = Split(arrBeam(i, 8), "-")(1)
+
+        If rebarLeft <> rebarMid Or rebarLeft <> rebarRight Then
+            MsgBox "第" & i & " 列鋼筋左中右號數不相等", vbOKOnly, "Error"
+        End If
+
+    Next i
+
+    ' 確認鋼筋號數左中右相等
+    ' 下排
+    For i = 4 To rowEnd Step 4
+
+        rebarLeft = Split(arrBeam(i, 6), "-")(1)
+        rebarMid = Split(arrBeam(i, 7), "-")(1)
+        rebarRight = Split(arrBeam(i, 8), "-")(1)
+
+        If rebarLeft <> rebarMid Or rebarLeft <> rebarRight Then
+            MsgBox "第" & i & " 列鋼筋左中右號數不相等", vbOKOnly, "Error"
+        End If
+
+    Next i
+
+    ' 一二排相加
+    For i = rowStart To rowEnd Step 4
+        For j = colLeft To colRight
+
+            colRebarTotalArea = j - 5
+
+            top_ = i
+            bot_ = i + 2
+
+            rebarTop1st = Split(arrBeam(top_, j), "-")
+            rebarTop2nd = Split(arrBeam(top_ + 1, j), "-")
+            rebarBot2nd = Split(arrBeam(bot_, j), "-")
+            rebarBot1st = Split(arrBeam(bot_ + 1, j), "-")
+
+            rebarTop1stNum = Int(rebarTop1st(0))
+            rebarTop2ndNum = Int(rebarTop2nd(0))
+            rebarBot2ndNum = Int(rebarBot2nd(0))
+            rebarBot1stNum = Int(rebarBot1st(0))
+
+            rebarTop1stSize = rebarTop1st(1)
+            rebarBot1stSize = rebarBot1st(1)
+
+            ' 由於可能會沒有第二排的鋼筋號數，所以在 IF 裡面才取
+            ' rebarTop2ndSize = rebarTop2nd(1)
+            ' rebarBot2ndSize = rebarBot2nd(1)
+
+            ' 判斷第二排是否有鋼筋
+            If rebarTop2ndNum = 0 Then
+
+                ' 第一排鋼筋量
+                arrRebarTotalArea(top_, colRebarTotalArea) = rebarTop1stNum * objRebarSizeToArea.Item(rebarTop1stSize)
+
+            ' 第二排有鋼筋的話，確定第一排與第二排的號數相同
+            ElseIf rebarTop1stSize = rebarTop2nd(1) Then
+
+                ' 第一排加第二排鋼筋量
+                arrRebarTotalArea(top_, colRebarTotalArea) = (rebarTop1stNum + rebarTop2ndNum) * objRebarSizeToArea.Item(rebarTop1stSize)
+
+            ' 有鋼筋，但號數不同，則 ERROR
+            Else
+
+                MsgBox "第" & top_ & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
+
+            End If
+
+            ' 判斷第二排是否有鋼筋
+            If rebarBot2ndNum = 0 Then
+
+                ' 第一排鋼筋量
+                arrRebarTotalArea(bot_, colRebarTotalArea) = rebarBot1stNum * objRebarSizeToArea.Item(rebarBot1stSize)
+
+            ' 第二排有鋼筋的話，確定第一排與第二排的號數相同
+            ElseIf rebarBot1stSize = rebarBot2nd(1) Then
+
+                ' 第一排加第二排鋼筋量
+                arrRebarTotalArea(bot_, colRebarTotalArea) = (rebarBot1stNum + rebarBot2ndNum) * objRebarSizeToArea.Item(rebarBot1stSize)
+
+            ' 有鋼筋，但號數不同，則 ERROR
+            Else
+
+                MsgBox "第" & bot_ & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
+
+            End If
+
+
+
+        Next
+    Next
+
+    CalRebarTotalArea = arrRebarTotalArea
 
 End Function
 
@@ -216,21 +251,21 @@ Function CalGravityDemand(ByVal arrBeam)
 End Function
 
 
-Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalNum)
+Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
 '
 ' 上層筋由耐震控制.
 ' 下層筋由重力與耐震共同控制.
 ' FIXME: 隱含了鋼筋必須相同的限制，思考要不要轉換成鋼筋量
 ' FIXME: 演算法具有問題
 '
-' @param {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
+' @param {Array} [arrRebarTotalArea] 總鋼筋量，列數與 arrBeam 對齊，行數分左中右.
 ' @param {Array} [arrBeam] RCAD 輸出資料.
 ' @return {Array} [arrGirderMultiRebar] 依據演算法的配筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 '
 
     Dim arrGirderMultiRebar
 
-    ubRebarTotalNum = UBound(arrRebarTotalNum)
+    ubRebarTotalNum = UBound(arrRebarTotalArea)
 
     ReDim arrGirderMultiRebar(1 To ubRebarTotalNum, varSpliceNum)
 
@@ -251,11 +286,14 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalNum)
 
         arrGirderMultiRebar(i, 0) = "上層"
 
+        rebar1stSize = Split(arrBeam(i, 6), "-")(1)
+        area_ = objRebarSizeToArea.Item(rebar1stSize)
+
         ' 左端到中央
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
             ' 耐震和 2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalNum(i, varLeft), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varLeft) / area_, 2), 0)
             ratio = ratio - slope_
         Next j
 
@@ -263,7 +301,7 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalNum)
         ratio = slope_
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震和 2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalNum(i, varRight), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, 2), 0)
             ratio = ratio + slope_
         Next j
 
@@ -274,12 +312,15 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalNum)
 
         arrGirderMultiRebar(i, 0) = "下層"
 
+        rebar1stSize = Split(arrBeam(i + 1, 6), "-")(1)
+        area_ = objRebarSizeToArea.Item(rebar1stSize)
+
         ' 左端到中央
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
             ' 耐震、重力、2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalNum(i, varLeft), (1 - ratio ^ 2) * arrRebarTotalNum(i, varMid), 2), 0)
-            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrRebarTotalNum(i, varLeft) - arrRebarTotalNum(i, varMid)) + arrRebarTotalNum(i, varMid), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varLeft) / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2), 0)
+            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrRebarTotalArea(i, varLeft) / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2), 0)
             ratio = ratio - slope_
         Next j
 
@@ -287,8 +328,8 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalNum)
         ratio = slope_
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震、重力、2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalNum(i, varRight), (1 - ratio ^ 2) * arrRebarTotalNum(i, varMid), 2), 0)
-            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrRebarTotalNum(i, varRight) - arrRebarTotalNum(i, varMid)) + arrRebarTotalNum(i, varMid), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2), 0)
+            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrRebarTotalArea(i, varRight) / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2), 0)
             ratio = ratio + slope_
         Next j
 
@@ -802,7 +843,7 @@ Sub Main()
 
     arrRebarTotalArea = CalRebarTotalArea(arrBeam)
 
-    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrBeam, arrRebarTotalNum)
+    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrBeam, arrRebarTotalArea)
 
     arrLapLengthRatio = CalLapLengthRatio(arrBeam)
     arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)

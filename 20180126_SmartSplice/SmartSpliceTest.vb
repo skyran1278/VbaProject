@@ -7,14 +7,23 @@ Function SetTestGlobalVar()
     Set wsBeam = Worksheets("大梁配筋 TEST")
     Set wsResult = Worksheets("最佳化斷筋點 TEST")
 
+    arrRebarSize = ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10)
+
     ' #3 => 0.9525cm
-    Set objRebarSizeToDb = ran.CreateDictionary(ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10), 1, 7)
+    Set objRebarSizeToDb = ran.CreateDictionary(arrRebarSize, 1, 7)
+
+    ' #3 => 0.71cm^2
+    Set objRebarSizeToArea = ran.CreateDictionary(arrRebarSize, 1, 10)
 
     arrInfo = ran.GetRangeToArray(Worksheets("General Information TEST"), 2, 4, 4, 12)
 
     Set objStoryToFy = ran.CreateDictionary(arrInfo, 1, 2)
     Set objStoryToFyt = ran.CreateDictionary(arrInfo, 1, 3)
     Set objStoryToFc = ran.CreateDictionary(arrInfo, 1, 4)
+    Set objStoryToSDL = ran.CreateDictionary(arrInfo, 1, 5)
+    Set objStoryToLL = ran.CreateDictionary(arrInfo, 1, 6)
+    Set objStoryToBand = ran.CreateDictionary(arrInfo, 1, 7)
+    Set objStoryToSlab = ran.CreateDictionary(arrInfo, 1, 8)
     Set objStoryToCover = ran.CreateDictionary(arrInfo, 1, 9)
 
 End Function
@@ -36,6 +45,7 @@ Function PrintResult(ByVal arrResult, ByVal rowStart, ByVal colStart)
 '
 ' @param {Array} [arrResult] 需要 print 出的陣列.
 ' @param {Array} [colStart] 從哪一列開始.
+' @return {Number} [rowStartNext] 回傳下一次從第幾列 print.
 '
 
     With wsResult
@@ -45,70 +55,10 @@ Function PrintResult(ByVal arrResult, ByVal rowStart, ByVal colStart)
         .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
     End With
 
-    ' 格式化條件
-    ' For i = rowStart To rowEnd
-    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-    '         .FormatConditions.AddColorScale ColorScaleType:=3
-    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
-    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = RGB(233, 88, 73)
-
-    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-    '         .FormatConditions(1).ColorScaleCriteria(2).Value = 50
-    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = RGB(256, 256, 256)
-
-    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = RGB(52, 152, 219)
-    '     End With
-    ' Next i
+    rowStartNext = rowStart + 4
+    PrintResult = rowStartNext
 
 End Function
-
-
-' Private Function CalTotalRebarTest(ByVal arrTotalRebar)
-' '
-' ' descrip.
-' '
-' ' @since 1.0.0
-' ' @param {type} [name] descrip.
-' ' @return {type} [name] descrip.
-' ' @see dependencies
-' '
-
-'     Expect arrTotalRebar(1, 1) = 9
-'     Expect arrTotalRebar(1, 2) = 4
-'     Expect arrTotalRebar(1, 3) = 10
-
-'     Expect arrTotalRebar(2, 1) = 0
-'     Expect arrTotalRebar(2, 2) = 0
-'     Expect arrTotalRebar(2, 3) = 0
-
-'     Expect arrTotalRebar(3, 1) = 10
-'     Expect arrTotalRebar(3, 2) = 5
-'     Expect arrTotalRebar(3, 3) = 9
-
-'     Expect arrTotalRebar(4, 1) = 0
-'     Expect arrTotalRebar(4, 2) = 0
-'     Expect arrTotalRebar(4, 3) = 0
-
-' End Function
-
-' Private Function Expect(ByVal bol, Optional ByVal title = "Title")
-' '
-' ' descrip.
-' '
-' ' @since 1.0.0
-' ' @param {type} [name] descrip.
-' ' @return {type} [name] descrip.
-' ' @see dependencies
-' '
-
-'     If Not bol Then
-'         MsgBox actual & " <> " & expected, vbOKOnly, title
-'     End If
-
-' End Function
-
 
 
 Sub Test()
@@ -133,7 +83,9 @@ Sub Test()
 
     arrNormalSplice = CalNormalGirderMultiRebar(arrRebarTotalNum)
 
-    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrBeam, arrRebarTotalNum)
+    arrRebarTotalArea = CalRebarTotalArea(arrBeam)
+
+    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrBeam, arrRebarTotalArea)
 
     arrLapLengthRatio = CalLapLengthRatio(arrBeam)
     arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
@@ -142,20 +94,14 @@ Sub Test()
 
     arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
-    row_ = 3
-    Call PrintResult(arrRebarTotalNum, row_, 29)
-    row_ = row_ + 4
-    Call PrintResult(arrNormalSplice, row_, 28)
-    row_ = row_ + 4
-    Call PrintResult(arrGirderMultiRebar, row_, 28)
-    row_ = row_ + 4
-    Call PrintResult(arrLapLengthRatio, row_, 29)
-    row_ = row_ + 4
-    Call PrintResult(arrMultiLapLength, row_, 28)
-    row_ = row_ + 4
-    Call PrintResult(arrSmartSplice, row_, 28)
-    row_ = row_ + 4
-    Call PrintResult(arrSmartSpliceModify, row_, 28)
+    rowStartNext = PrintResult(arrRebarTotalNum, 3, 29)
+    rowStartNext = PrintResult(arrRebarTotalArea, rowStartNext, 29)
+    rowStartNext = PrintResult(arrNormalSplice, rowStartNext, 28)
+    rowStartNext = PrintResult(arrGirderMultiRebar, rowStartNext, 28)
+    rowStartNext = PrintResult(arrLapLengthRatio, rowStartNext, 29)
+    rowStartNext = PrintResult(arrMultiLapLength, rowStartNext, 28)
+    rowStartNext = PrintResult(arrSmartSplice, rowStartNext, 28)
+    rowStartNext = PrintResult(arrSmartSpliceModify, rowStartNext, 28)
 
     Call ran.FontSetting(wsResult)
     Call ran.PerformanceVBA(False)
