@@ -129,26 +129,33 @@ Sub Test()
     ' 不包含標題
     arrBeam = ran.GetRangeToArray(wsBeam, 3, 1, 5, 16)
 
-    arrTotalRebar = CalTotalRebar(arrBeam)
+    arrRebarTotalNum = CalRebarTotalNum(arrBeam)
 
-    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrTotalRebar)
+    arrNormalSplice = CalNormalGirderMultiRebar(arrRebarTotalNum)
+
+    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrBeam, arrRebarTotalNum)
 
     arrLapLengthRatio = CalLapLengthRatio(arrBeam)
     arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
-
-    arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
 
     arrSmartSplice = CalSplice(arrGirderMultiRebar, arrMultiLapLength)
 
     arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
-    Call PrintResult(arrTotalRebar, 3, 29)
-    Call PrintResult(arrLapLengthRatio, 7, 29)
-    Call PrintResult(arrGirderMultiRebar, 11, 28)
-    Call PrintResult(arrMultiLapLength, 15, 28)
-    Call PrintResult(arrSmartSplice, 19, 28)
-    Call PrintResult(arrNormalSplice, 23, 28)
-    Call PrintResult(arrSmartSpliceModify, 27, 28)
+    row = 3
+    Call PrintResult(arrRebarTotalNum, row, 29)
+    row = row + 4
+    Call PrintResult(arrNormalSplice, row, 28)
+    row = row + 4
+    Call PrintResult(arrGirderMultiRebar, row, 28)
+    row = row + 4
+    Call PrintResult(arrLapLengthRatio, row, 29)
+    row = row + 4
+    Call PrintResult(arrMultiLapLength, row, 28)
+    row = row + 4
+    Call PrintResult(arrSmartSplice, row, 28)
+    row = row + 4
+    Call PrintResult(arrSmartSpliceModify, row, 28)
 
     Call ran.FontSetting(wsResult)
     Call ran.PerformanceVBA(False)

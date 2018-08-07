@@ -34,7 +34,7 @@ Private Const COL_SIDEBAR = 9
 Private Const COL_STIRRUP_LEFT = 10
 Private Const COL_STIRRUP_MID = 11
 Private Const COL_STIRRUP_RIGHT = 12
-Private Const COL_BEAM_L = 13
+Private Const COL_SPAN = 13
 Private Const COL_SUPPORT = 14
 Private Const COL_LOCATION = 15
 ' 輸出資料位置
@@ -792,7 +792,7 @@ Function SafetyLoad()
         maxRatio = ran.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
 
         ' 轉換 kgw-m => tf-m: * 100000
-        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_SDL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_BAND)) + 1.6 * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_LL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_BAND)) * ARR_REBAR(i, COL_BEAM_L) ^ 2 * 100000
+        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_SDL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_BAND)) + 1.6 * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_LL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_BAND)) * ARR_REBAR(i, COL_SPAN) ^ 2 * 100000
         ' mn = 1 / 8 * (1.2 * (0.15 * 2.4 + APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_SDL, False)) + 1.6 * APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_LL, False)) * COL_BAND ^ 2 * 100000
 
         capacity = maxRatio * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FY) * ARR_RATIO(i, COL_D)
@@ -974,11 +974,11 @@ Function EconomicTopRebarRelativeForGB()
         rebarLEFT = Split(ARR_REBAR(i, COL_REBAR_LEFT), "-")
         rebarRIGHT = Split(ARR_REBAR(i, COL_REBAR_RIGHT), "-")
 
-        If ARR_RATIO(i, COL_REBAR_MID) * 0.7 < ARR_RATIO(i, COL_REBAR_LEFT) And rebarLEFT(0) > 3 And ARR_RATIO(i, COL_BEAM_L) > 400 Then
+        If ARR_RATIO(i, COL_REBAR_MID) * 0.7 < ARR_RATIO(i, COL_REBAR_LEFT) And rebarLEFT(0) > 3 And ARR_RATIO(i, COL_SPAN) > 400 Then
             Call WarningMessage("【0111】請確認左端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
         End If
 
-        If ARR_RATIO(i, COL_REBAR_MID) * 0.7 < ARR_RATIO(i, COL_REBAR_RIGHT) And rebarRIGHT(0) > 3 And ARR_RATIO(i, COL_BEAM_L) > 400 Then
+        If ARR_RATIO(i, COL_REBAR_MID) * 0.7 < ARR_RATIO(i, COL_REBAR_RIGHT) And rebarRIGHT(0) > 3 And ARR_RATIO(i, COL_SPAN) > 400 Then
             Call WarningMessage("【0112】請確認右端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
         End If
 
@@ -999,7 +999,7 @@ Function EconomicTopRebarRelative()
 
         rebar_ = Split(ARR_REBAR(i, COL_REBAR_MID), "-")
 
-        If ARR_RATIO(i, COL_REBAR_MID) > minRatio * 0.7 And rebar_(0) > 3 And ARR_RATIO(i, COL_BEAM_L) > 400 Then
+        If ARR_RATIO(i, COL_REBAR_MID) > minRatio * 0.7 And rebar_(0) > 3 And ARR_RATIO(i, COL_SPAN) > 400 Then
             Call WarningMessage("【0221】請確認中央上層筋相對鋼筋量，是否符合中央上層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
@@ -1019,7 +1019,7 @@ Function EconomicBotRebarRelativeForGB()
 
         rebar_ = Split(ARR_REBAR(i + 2, COL_REBAR_MID), "-")
 
-        If ARR_RATIO(i + 2, COL_REBAR_MID) > minRatio * 0.7 And rebar_(0) > 3 And ARR_RATIO(i, COL_BEAM_L) > 400 Then
+        If ARR_RATIO(i + 2, COL_REBAR_MID) > minRatio * 0.7 And rebar_(0) > 3 And ARR_RATIO(i, COL_SPAN) > 400 Then
             Call WarningMessage("【0110】請確認中央下層筋相對鋼筋量，是否符合中央下層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
@@ -1179,7 +1179,7 @@ Function Norm3_8_1()
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        If ARR_REBAR(i, COL_BEAM_L) <> "" And ARR_REBAR(i, COL_SUPPORT) <> "" And (ARR_REBAR(i, COL_BEAM_L) - ARR_REBAR(i, COL_SUPPORT)) <= 4 * ARR_REBAR(i, COL_H) Then
+        If ARR_REBAR(i, COL_SPAN) <> "" And ARR_REBAR(i, COL_SUPPORT) <> "" And (ARR_REBAR(i, COL_SPAN) - ARR_REBAR(i, COL_SUPPORT)) <= 4 * ARR_REBAR(i, COL_H) Then
             Call WarningMessage("【0208】請確認是否為深梁", i)
         End If
 

@@ -5,6 +5,7 @@ Public APP
 Public wsBeam As Worksheet
 Public wsResult As Worksheet
 Public objRebarSizeToDb As Object
+Public objRebarSizeToArea As Object
 Public objStoryToFy As Object
 Public objStoryToFyt As Object
 Public objStoryToFc As Object
@@ -26,8 +27,13 @@ Function SetGlobalVar()
     Set wsBeam = Worksheets("大梁配筋")
     Set wsResult = Worksheets("最佳化斷筋點")
 
+    arrRebarSize = ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10)
+
     ' #3 => 0.9525cm
-    Set objRebarSizeToDb = ran.CreateDictionary(ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10), 1, 7)
+    Set objRebarSizeToDb = ran.CreateDictionary(arrRebarSize, 1, 7)
+
+    ' #3 => 0.71cm^2
+    Set objRebarSizeToArea = ran.CreateDictionary(arrRebarSize, 1, 10)
 
     arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 4, 12)
 
@@ -53,16 +59,16 @@ Function ClearPrevOutputData()
 End Function
 
 
-Function CalTotalRebar(ByVal arrBeam)
+Function CalRebarTotalArea(ByVal arrBeam)
 '
-' 計算上下排總支數
+' 計算上下排總鋼筋量
 '
 ' @param {Array} [arrBeam] RCAD 輸出資料.
-' @return {Array} [arrTotalRebar] 總支數，列數與 arrBeam 對齊，行數分左中右.
+' @return {Array} [arrRebarTotalArea] 總鋼筋量，列數與 arrBeam 對齊，行數分左中右.
 '
 
-    Dim arrTotalRebar() As Integer
-    ReDim arrTotalRebar(1 To UBound(arrBeam), 1 To 3)
+    Dim arrRebarTotalArea() As Double
+    ReDim arrRebarTotalArea(1 To UBound(arrBeam), 1 To 3)
 
     rowStart = 1
     rowEnd = UBound(arrBeam)
@@ -73,34 +79,125 @@ Function CalTotalRebar(ByVal arrBeam)
     For i = rowStart To rowEnd Step 2
         For j = colStart To colEnd
 
-            colTotalRebar = j - 5
+            colRebarTotalArea = j - 5
 
-            ' 計算上下排總支數
-            arrTotalRebar(i, colTotalRebar) = Int(Split(arrBeam(i, j), "-")(0)) + Int(Split(arrBeam(i + 1, j), "-")(0))
+            rebar1st = Split(arrBeam(i, j), "-")
+            rebar1stNum = Int(rebar1st(0))
+            rebar1stSize = rebar1st(1)
+
+            rebar2nd = Split(arrBeam(i + 1, j), "-")
+            rebar2ndNum = Int(rebar2nd(0))
+            rebar2ndSize = rebar2nd(1)
+
+            If rebar1stSize = rebar2ndSize Then
+
+                ' 計算鋼筋量
+                arrRebarTotalArea(i, colRebarTotalArea) = (rebar1stNum + rebar2ndNum) * objRebarSizeToArea.Item(rebar1stSize)
+
+            Else
+
+                MsgBox "第" & i & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
+            End If
 
         Next
     Next
 
-    CalTotalRebar = arrTotalRebar
+    CalRebarTotalArea = arrRebarTotalArea
 
 End Function
 
 
-Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
+Function CalRebarTotalNum(ByVal arrBeam)
+'
+' 計算上下排總支數
+'
+' @param {Array} [arrBeam] RCAD 輸出資料.
+' @return {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
+'
+
+    Dim arrRebarTotalNum() As Integer
+    ReDim arrRebarTotalNum(1 To UBound(arrBeam), 1 To 3)
+
+    rowStart = 1
+    rowEnd = UBound(arrBeam)
+    colStart = 6
+    colEnd = 8
+
+    ' 一二排相加
+    For i = rowStart To rowEnd Step 2
+        For j = colStart To colEnd
+
+            colRebarTotalNum = j - 5
+
+            ' 計算上下排總支數
+            arrRebarTotalNum(i, colRebarTotalNum) = Int(Split(arrBeam(i, j), "-")(0)) + Int(Split(arrBeam(i + 1, j), "-")(0))
+
+        Next
+    Next
+
+    CalRebarTotalNum = arrRebarTotalNum
+
+End Function
+
+
+Function CalGravityDemand(ByVal arrBeam)
+'
+' 計算重力所需要的鋼筋量
+'
+' @param {Array} [arrBeam] RCAD 輸出資料.
+' @return {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
+'
+
+    Dim arrGravity() As Integer
+    ReDim arrGravity(1 To UBound(arrBeam), 1 To 3)
+
+    rowStart = 1
+    rowEnd = UBound(arrBeam)
+
+    For i = rowStart To rowEnd Step 4
+
+        top = i
+        bot = i + 2
+
+        story = arrBeam(i, 1)
+        span = arrBeam(i, 13)
+
+        fy_ = objStoryToFy.Item(story)
+        fyt_ = objStoryToFyt.Item(story)
+        fc_ = objStoryToFc.Item(story)
+        SDL = objStoryToSDL.Item(story)
+        LL = objStoryToLL.Item(story)
+        band = objStoryToBand.Item(story)
+        slab = objStoryToSlab.Item(story)
+        cover = objStoryToCover.Item(story)
+
+        mn = 1 / 24 * (0.9 * ((SDL + 2.4 * slab) * band)) * (span ^ 2)
+
+
+
+
+    Next
+
+End Function
+
+
+Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalNum)
 '
 ' 上層筋由耐震控制.
 ' 下層筋由重力與耐震共同控制.
+' FIXME: 隱含了鋼筋必須相同的限制，思考要不要轉換成鋼筋量
 ' FIXME: 演算法具有問題
 '
-' @param {Array} [arrTotalRebar] 總支數，列數與 arrBeam 對齊，行數分左中右.
+' @param {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
+' @param {Array} [arrBeam] RCAD 輸出資料.
 ' @return {Array} [arrGirderMultiRebar] 依據演算法的配筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 '
 
     Dim arrGirderMultiRebar
 
-    ubTotalRebar = UBound(arrTotalRebar)
+    ubRebarTotalNum = UBound(arrRebarTotalNum)
 
-    ReDim arrGirderMultiRebar(1 To ubTotalRebar, varSpliceNum)
+    ReDim arrGirderMultiRebar(1 To ubRebarTotalNum, varSpliceNum)
 
     ubGirderMultiRebar = UBound(arrGirderMultiRebar)
 
@@ -123,7 +220,7 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
             ' 耐震和 2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varLeft), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalNum(i, varLeft), 2), 0)
             ratio = ratio - slope_
         Next j
 
@@ -131,7 +228,7 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         ratio = slope_
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震和 2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varRight), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalNum(i, varRight), 2), 0)
             ratio = ratio + slope_
         Next j
 
@@ -146,8 +243,8 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
             ' 耐震、重力、2 支取大值
-            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varLeft), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrTotalRebar(i, varLeft) - arrTotalRebar(i, varMid)) + arrTotalRebar(i, varMid), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalNum(i, varLeft), (1 - ratio ^ 2) * arrRebarTotalNum(i, varMid), 2), 0)
+            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrRebarTotalNum(i, varLeft) - arrRebarTotalNum(i, varMid)) + arrRebarTotalNum(i, varMid), 2), 0)
             ratio = ratio - slope_
         Next j
 
@@ -155,8 +252,8 @@ Function OptimizeGirderMultiRebar(ByVal arrTotalRebar)
         ratio = slope_
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震、重力、2 支取大值
-            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrTotalRebar(i, varRight), (1 - ratio ^ 2) * arrTotalRebar(i, varMid), 2), 0)
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrTotalRebar(i, varRight) - arrTotalRebar(i, varMid)) + arrTotalRebar(i, varMid), 2), 0)
+            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalNum(i, varRight), (1 - ratio ^ 2) * arrRebarTotalNum(i, varMid), 2), 0)
+            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrRebarTotalNum(i, varRight) - arrRebarTotalNum(i, varMid)) + arrRebarTotalNum(i, varMid), 2), 0)
             ratio = ratio + slope_
         Next j
 
@@ -185,21 +282,21 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
     End With
 
     ' 格式化條件
-    For i = rowStart To rowEnd
-        With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-            .FormatConditions.AddColorScale ColorScaleType:=3
-            .FormatConditions(.FormatConditions.Count).SetFirstPriority
-            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+    ' For i = rowStart To rowEnd
+    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+    '         .FormatConditions.AddColorScale ColorScaleType:=3
+    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
+    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
 
-            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-            .FormatConditions(1).ColorScaleCriteria(2).Value = 50
-            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+    '         .FormatConditions(1).ColorScaleCriteria(2).Value = 50
+    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
 
-            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
-        End With
-    Next i
+    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+    '     End With
+    ' Next i
 
 End Function
 
@@ -207,7 +304,7 @@ End Function
 Function CalLapLengthRatio(ByVal arrBeam)
 '
 ' TODO: 可以做優化，如果算過了就不用再算一次.
-' FIXME: 搭接長度還是延伸長度
+' 搭接長度還是延伸長度，是延伸長度。
 ' 計算不同主筋的搭接長度.
 '
 ' @param {Array} [arrBeam] RCAD 輸出資料.
@@ -330,8 +427,7 @@ Function CalLapLengthRatio(ByVal arrBeam)
 
                     ld_ = factor * ldb_
 
-                    ' 乙級搭接 * 1.3
-                    ' 好像不是搭接長度，是延伸長度
+                    ' 不是搭接長度，是延伸長度
                     arrLapLengthRatio(i + k, colLapLengthRatio) = APP.RoundUp(ran.Min(ld_, simpleLd), 0)
 
                     ' 換算成比例
@@ -489,8 +585,8 @@ Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNumber)
 ' 原始配筋
 ' 分成 1/3 1/3 1/3
 '
-' @param {Array} [arrTotalRebar] 總支數，列數與 arrBeam 對齊，行數分左中右.
-' @return {Array} [arrNormalGirderMultiRebar] 依據 arrTotalRebar，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+' @param {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
+' @return {Array} [arrNormalGirderMultiRebar] 依據 arrRebarTotalNum，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 '
 
     Dim arrNormalGirderMultiRebar
@@ -619,7 +715,7 @@ Function CalOptimizeNoMoreThanNormal(ByVal arrGirderMultiRebar, ByVal arrNormalG
 ' 如果大於初始 => 最佳化 = 初始
 '
 ' @param {Array} [arrGirderMultiRebar] 依據演算法的配筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
-' @param {Array} [arrNormalGirderMultiRebar] 依據 arrTotalRebar，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+' @param {Array} [arrNormalGirderMultiRebar] 依據 arrRebarTotalNum，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 ' @return {Array} [arrGirderMultiRebar] 回傳不大於初始的最佳化配筋.
 '
 
@@ -665,20 +761,22 @@ Sub Main()
     ' 不包含標題
     arrBeam = ran.GetRangeToArray(wsBeam, 3, 1, 5, 16)
 
-    arrTotalRebar = CalTotalRebar(arrBeam)
+    arrRebarTotalNum = CalRebarTotalNum(arrBeam)
 
-    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrTotalRebar)
+    arrNormalSplice = CalNormalGirderMultiRebar(arrRebarTotalNum)
+
+    ' arrRebarTotalArea = CalRebarTotalArea(arrBeam)
+
+    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrBeam, arrRebarTotalNum)
 
     arrLapLengthRatio = CalLapLengthRatio(arrBeam)
     arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
-
-    arrNormalSplice = CalNormalGirderMultiRebar(arrTotalRebar)
 
     arrSmartSplice = CalSplice(arrGirderMultiRebar, arrMultiLapLength)
 
     arrSmartSplice = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
-    ' arrSmartSplice = OptimizeGirderMultiRebar(arrTotalRebar)
+    ' arrSmartSplice = OptimizeGirderMultiRebar(arrRebarTotalNum)
 
     varOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
 
