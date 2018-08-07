@@ -72,32 +72,67 @@ Function CalRebarTotalArea(ByVal arrBeam)
 
     rowStart = 1
     rowEnd = UBound(arrBeam)
-    colStart = 6
-    colEnd = 8
+    colLeft = 6
+    colRight = 8
 
     ' 一二排相加
-    For i = rowStart To rowEnd Step 2
-        For j = colStart To colEnd
+    For i = rowStart To rowEnd Step 4
+        For j = colLeft To colRight
 
             colRebarTotalArea = j - 5
 
-            rebar1st = Split(arrBeam(i, j), "-")
-            rebar1stNum = Int(rebar1st(0))
-            rebar1stSize = rebar1st(1)
+            top_ = i
+            bot_ = i + 2
 
-            rebar2nd = Split(arrBeam(i + 1, j), "-")
-            rebar2ndNum = Int(rebar2nd(0))
-            rebar2ndSize = rebar2nd(1)
+            rebarTop1st = Split(arrBeam(top_, j), "-")
+            rebarTop2nd = Split(arrBeam(top_ + 1, j), "-")
+            rebarBot2nd = Split(arrBeam(bot_, j), "-")
+            rebarBot1st = Split(arrBeam(bot_ + 1, j), "-")
 
-            If rebar1stSize = rebar2ndSize Then
+            rebarTop1stNum = Int(rebarTop1st(0))
+            rebarTop2ndNum = Int(rebarTop2nd(0))
+            rebarBot2ndNum = Int(rebarBot2nd(0))
+            rebarBot1stNum = Int(rebarBot1st(0))
 
-                ' 計算鋼筋量
-                arrRebarTotalArea(i, colRebarTotalArea) = (rebar1stNum + rebar2ndNum) * objRebarSizeToArea.Item(rebar1stSize)
+            ' 判斷第二排是否有鋼筋
+            If rebarTop2ndNum = 0 Then
 
+                ' 第一排鋼筋量
+                arrRebarTotalArea(top_, colRebarTotalArea) = rebarTop1stNum * objRebarSizeToArea.Item(rebarTop1stSize)
+
+            ' 第二排有鋼筋的話，確定第一排與第二排的號數相同
+            ElseIf rebarTop1st(1) = rebarTop2nd(1) Then
+
+                ' 第一排加第二排鋼筋量
+                arrRebarTotalArea(top_, colRebarTotalArea) = (rebarTop1stNum + rebarTop2ndNum) * objRebarSizeToArea.Item(rebarTop1st(1))
+
+            ' 有鋼筋，但號數不同，則 ERROR
             Else
 
-                MsgBox "第" & i & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
+                MsgBox "第" & top_ & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
+
             End If
+
+            ' 判斷第二排是否有鋼筋
+            If rebarBot2ndNum = 0 Then
+
+                ' 第一排鋼筋量
+                arrRebarTotalArea(bot_, colRebarTotalArea) = rebarBot1stNum * objRebarSizeToArea.Item(rebarBot1stSize)
+
+            ' 第二排有鋼筋的話，確定第一排與第二排的號數相同
+            ElseIf rebarBot1st(1) = rebarBot2nd(1) Then
+
+                ' 第一排加第二排鋼筋量
+                arrRebarTotalArea(bot_, colRebarTotalArea) = (rebarBot1stNum + rebarBot2ndNum) * objRebarSizeToArea.Item(rebarBot1st(1))
+
+            ' 有鋼筋，但號數不同，則 ERROR
+            Else
+
+                MsgBox "第" & bot_ & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
+
+            End If
+
+
 
         Next
     Next
@@ -765,7 +800,7 @@ Sub Main()
 
     arrNormalSplice = CalNormalGirderMultiRebar(arrRebarTotalNum)
 
-    ' arrRebarTotalArea = CalRebarTotalArea(arrBeam)
+    arrRebarTotalArea = CalRebarTotalArea(arrBeam)
 
     arrGirderMultiRebar = OptimizeGirderMultiRebar(arrBeam, arrRebarTotalNum)
 
