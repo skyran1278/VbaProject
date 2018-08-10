@@ -276,7 +276,7 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
     varRight = 3
 
     ' 一半的地方
-    varHalfOfSpliceNum = APP.RoundUp(varSpliceNum / 2, 0)
+    varHalfOfSpliceNum = ran.RoundUp(varSpliceNum / 2)
 
     ' 遞減的斜率
     slope_ = 1 / varHalfOfSpliceNum
@@ -293,7 +293,7 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
             ' 耐震和 2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varLeft) / area_, 2), 0)
+            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varLeft) / area_, 2))
             ratio = ratio - slope_
         Next j
 
@@ -301,7 +301,7 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
         ratio = slope_
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震和 2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, 2), 0)
+            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, 2))
             ratio = ratio + slope_
         Next j
 
@@ -319,8 +319,8 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
             ' 耐震、重力、2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varLeft) / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2), 0)
-            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrRebarTotalArea(i, varLeft) / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2), 0)
+            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varLeft) / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
+            ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (arrRebarTotalArea(i, varLeft) / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2))
             ratio = ratio - slope_
         Next j
 
@@ -328,8 +328,8 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
         ratio = slope_
         For j = varHalfOfSpliceNum + 1 To varSpliceNum
             ' 耐震、重力、2 支取大值
-            arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2), 0)
-            ' arrGirderMultiRebar(i, j) = APP.RoundUp(ran.Max(ratio * (arrRebarTotalArea(i, varRight) / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2), 0)
+            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
+            ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (arrRebarTotalArea(i, varRight) / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2))
             ratio = ratio + slope_
         Next j
 
@@ -358,21 +358,21 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
     End With
 
     ' 格式化條件
-    ' For i = rowStart To rowEnd
-    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-    '         .FormatConditions.AddColorScale ColorScaleType:=3
-    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
-    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+    For i = rowStart To rowEnd
+        With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+            .FormatConditions.AddColorScale ColorScaleType:=3
+            .FormatConditions(.FormatConditions.Count).SetFirstPriority
+            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
 
-    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-    '         .FormatConditions(1).ColorScaleCriteria(2).Value = 50
-    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+            .FormatConditions(1).ColorScaleCriteria(2).Value = 50
+            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
 
-    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
-    '     End With
-    ' Next i
+            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+        End With
+    Next i
 
 End Function
 
@@ -504,7 +504,7 @@ Function CalLapLengthRatio(ByVal arrBeam)
                     ld_ = factor * ldb_
 
                     ' 不是搭接長度，是延伸長度
-                    arrLapLengthRatio(i + k, colLapLengthRatio) = APP.RoundUp(ran.Min(ld_, simpleLd), 0)
+                    arrLapLengthRatio(i + k, colLapLengthRatio) = ran.RoundUp(ran.Min(ld_, simpleLd))
 
                     ' 換算成比例
                     ' 搭接長度 / 梁長
@@ -544,15 +544,15 @@ Function CalMultiLapLength(ByVal arrLapLengthRatio)
     varMid = 2
     varRight = 3
 
-    varOneThreeSpliceNum = APP.RoundUp(varSpliceNum / 3, 0)
-    varTwoThreeSpliceNum = APP.RoundUp(2 * varSpliceNum / 3, 0)
+    varOneThreeSpliceNum = ran.RoundUp(varSpliceNum / 3)
+    varTwoThreeSpliceNum = ran.RoundUp(2 * varSpliceNum / 3)
 
     For i = 1 To ubMultiLapLength
 
         For j = varLeft To varRight
 
             ' 轉換成格數
-            arrLapLengthRatio(i, j) = APP.RoundUp(arrLapLengthRatio(i, j) * varSpliceNum, 0)
+            arrLapLengthRatio(i, j) = ran.RoundUp(arrLapLengthRatio(i, j) * varSpliceNum)
 
         Next j
 
@@ -565,21 +565,21 @@ Function CalMultiLapLength(ByVal arrLapLengthRatio)
         For j = 1 To varOneThreeSpliceNum
             row1 = arrLapLengthRatio(i, varLeft)
             row2 = arrLapLengthRatio(i + 1, varLeft)
-            arrMultiLapLength(i, j) = APP.RoundUp(ran.Max(row1, row2), 0)
+            arrMultiLapLength(i, j) = ran.RoundUp(ran.Max(row1, row2))
         Next j
 
         ' 中央
         For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum
             row1 = arrLapLengthRatio(i, varMid)
             row2 = arrLapLengthRatio(i + 1, varMid)
-            arrMultiLapLength(i, j) = APP.RoundUp(ran.Max(row1, row2), 0)
+            arrMultiLapLength(i, j) = ran.RoundUp(ran.Max(row1, row2))
         Next j
 
         ' 右端
         For j = varTwoThreeSpliceNum + 1 To varSpliceNum
             row1 = arrLapLengthRatio(i, varRight)
             row2 = arrLapLengthRatio(i + 1, varRight)
-            arrMultiLapLength(i, j) = APP.RoundUp(ran.Max(row1, row2), 0)
+            arrMultiLapLength(i, j) = ran.RoundUp(ran.Max(row1, row2))
         Next j
 
     Next i
@@ -677,11 +677,11 @@ Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNum)
     varMid = 2
     varRight = 3
 
-    varOneThreeSpliceNum = APP.RoundUp(varSpliceNum / 3, 0)
-    varTwoThreeSpliceNum = APP.RoundUp(2 * varSpliceNum / 3, 0)
+    varOneThreeSpliceNum = ran.RoundUp(varSpliceNum / 3)
+    varTwoThreeSpliceNum = ran.RoundUp(2 * varSpliceNum / 3)
 
-    varOneFiveSpliceNum = APP.RoundUp(varSpliceNum / 5, 0)
-    varFourFiveSpliceNum = APP.RoundUp(4 * varSpliceNum / 5, 0)
+    varOneFiveSpliceNum = ran.RoundUp(varSpliceNum / 5)
+    varFourFiveSpliceNum = ran.RoundUp(4 * varSpliceNum / 5)
 
     ' 上層
     For i = 1 To ubGirderRebar Step 4
@@ -832,7 +832,7 @@ Private Function ThreePoints(ByVal arrSmartSplice)
 
     For i = 1 To ubSmartSplice Step 2
 
-        For j = Fix(0.15 * varSpliceNum) To Fix(0.4 * varSpliceNum)
+        For j = ran.RoundUp(0.15 * varSpliceNum) To Fix(0.4 * varSpliceNum)
 
             If arrGirderMultiRebar(i, j) > arrNormalGirderMultiRebar(i, j) Then
 
@@ -845,9 +845,6 @@ Private Function ThreePoints(ByVal arrSmartSplice)
     Next i
 
 End Function
-
-
-
 
 
 Sub Main()
