@@ -656,7 +656,7 @@ Function CalSplice(ByVal arrGirderMultiRebar, ByVal arrMultiLapLength)
 End Function
 
 
-Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNumber)
+Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNum)
 '
 ' 原始配筋
 ' 分成 1/3 1/3 1/3
@@ -667,7 +667,7 @@ Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNumber)
 
     Dim arrNormalGirderMultiRebar
 
-    ubRebarNumber = UBound(arrRebarTotalNumber)
+    ubRebarNumber = UBound(arrRebarTotalNum)
 
     ReDim arrNormalGirderMultiRebar(1 To ubRebarNumber, varSpliceNum)
 
@@ -688,18 +688,18 @@ Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNumber)
 
         ' 左端
         For j = 1 To varOneThreeSpliceNum
-            arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varLeft)
+            arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varLeft)
         Next j
 
         ' 中央
         ' 中央通常會比較少，取保守由兩端佔滿 1/3 2/3 處
         For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum - 1
-            arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varMid)
+            arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varMid)
         Next j
 
         ' 右端
         For j = varTwoThreeSpliceNum To varSpliceNum
-            arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varRight)
+            arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varRight)
         Next j
 
     Next i
@@ -710,39 +710,39 @@ Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNumber)
         ' 中央
         ' 先填滿全部都是中央
         For j = 1 To varSpliceNum
-            arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varMid)
+            arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varMid)
         Next j
 
         ' 左端
-        If arrRebarTotalNumber(i, varLeft) < arrRebarTotalNumber(i, varMid) Then
+        If arrRebarTotalNum(i, varLeft) < arrRebarTotalNum(i, varMid) Then
 
             ' 左端比較少
             For j = 1 To varOneFiveSpliceNum - 1
-                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varLeft)
+                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varLeft)
             Next j
 
         Else
 
             ' 左端比較多
             For j = 1 To varOneThreeSpliceNum
-                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varLeft)
+                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varLeft)
             Next j
 
         End If
 
         ' 右端
-        If arrRebarTotalNumber(i, varRight) < arrRebarTotalNumber(i, varMid) Then
+        If arrRebarTotalNum(i, varRight) < arrRebarTotalNum(i, varMid) Then
 
             ' 右端比較少
             For j = varFourFiveSpliceNum + 1 To varSpliceNum
-                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varRight)
+                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varRight)
             Next j
 
         Else
 
             ' 右端比較多
             For j = varTwoThreeSpliceNum To varSpliceNum
-                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNumber(i, varRight)
+                arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varRight)
             Next j
 
         End If
@@ -816,18 +816,46 @@ Function CalOptimizeNoMoreThanNormal(ByVal arrGirderMultiRebar, ByVal arrNormalG
 End Function
 
 
+Private Function ThreePoints(ByVal arrSmartSplice)
+'
+' 從無限多點限縮到三個點.
+'
+' @since 1.0.0
+' @param {Array} [arrSmartSplice] 最佳化配筋.
+' @return {type} [name] descrip.
+'
+
+    ubSmartSplice = UBound(arrSmartSplice)
+
+    Dim arrThreeSmartSplice
+    ReDim arrThreeSmartSplice(1 To ubSmartSplice, 1 To 3)
+
+    For i = 1 To ubSmartSplice Step 2
+
+        For j = Fix(0.15 * varSpliceNum) To Fix(0.4 * varSpliceNum)
+
+            If arrGirderMultiRebar(i, j) > arrNormalGirderMultiRebar(i, j) Then
+
+                arrGirderMultiRebar(i, j) = arrNormalGirderMultiRebar(i, j)
+
+            End If
+
+        Next j
+
+    Next i
+
+End Function
+
+
 
 
 
 Sub Main()
 
-    Dim time0 As Double
-
-    time0 = Timer
-
     Set ran = New UTILS_CLASS
     Set APP = Application.WorksheetFunction
 
+    Call ran.ExecutionTime(True)
     Call ran.PerformanceVBA(True)
 
     Call SetGlobalVar
@@ -860,8 +888,7 @@ Sub Main()
     Call PrintResult(arrNormalSplice, varSpliceNum + 3 + 1)
     wsResult.Cells(2, 2) = varOptimizeResult
 
-    Call ran.FontSetting(wsResult)
     Call ran.PerformanceVBA(False)
-    Call ran.ExecutionTimeVBA(time0)
+    Call ran.ExecutionTime(False)
 
 End Sub

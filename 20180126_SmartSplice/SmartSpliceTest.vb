@@ -63,13 +63,11 @@ End Function
 
 Sub Test()
 
-    Dim time0 As Double
-
-    time0 = Timer
 
     Set ran = New UTILS_CLASS
     Set APP = Application.WorksheetFunction
 
+    Call ran.ExecutionTime(True)
     Call ran.PerformanceVBA(True)
 
     Call SetTestGlobalVar
@@ -103,8 +101,7 @@ Sub Test()
     rowStartNext = PrintResult(arrSmartSplice, rowStartNext, 28)
     rowStartNext = PrintResult(arrSmartSpliceModify, rowStartNext, 28)
 
-    Call ran.FontSetting(wsResult)
     Call ran.PerformanceVBA(False)
-    Call ran.ExecutionTimeVBA(time0)
+    Call ran.ExecutionTime(False)
 
 End Sub
