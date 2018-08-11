@@ -828,19 +828,39 @@ Private Function ThreePoints(ByVal arrSmartSplice)
     ubSmartSplice = UBound(arrSmartSplice)
 
     Dim arrThreeSmartSplice
+    Dim rebarUsage
     ReDim arrThreeSmartSplice(1 To ubSmartSplice, 1 To 3)
+    ReDim rebarUsage(1 To 36)
 
     For i = 1 To ubSmartSplice Step 2
 
+        m = 1
+
         For j = ran.RoundUp(0.15 * varSpliceNum) To Fix(0.4 * varSpliceNum)
 
-            If arrGirderMultiRebar(i, j) > arrNormalGirderMultiRebar(i, j) Then
+            leftRebar = arrSmartSplice(i, 1) * j
 
-                arrGirderMultiRebar(i, j) = arrNormalGirderMultiRebar(i, j)
+            For k = ran.RoundUp(0.6 * varSpliceNum) To Fix(0.85 * varSpliceNum)
 
-            End If
+                midMaxRebar = 0
+
+                For l = j + 1 To k - 1
+                    midMaxRebar = ran.Max(midMaxRebar, arrSmartSplice(i, l))
+                Next l
+
+                midRebar = midMaxRebar * (k - 1 - j - 1)
+
+                rightRebar = arrSmartSplice(i, varSpliceNum) * (varSpliceNum - k + 1)
+
+                rebarUsage(m) = leftRebar + midRebar + rightRebar
+
+                m = m + 1
+
+            Next k
 
         Next j
+
+        rebarUsageMinIndex = APP.Index(APP.Min(rebarUsage), rebarUsage, 0)
 
     Next i
 
