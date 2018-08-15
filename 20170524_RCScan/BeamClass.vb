@@ -789,7 +789,7 @@ Function SafetyLoad()
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        maxRatio = ran.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
+        maxRatio = APP.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
 
         ' 轉換 kgw-m => tf-m: * 100000
         mn = 1 / 8 * (1.2 * (0.15 * 2.4 + OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_SDL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_BAND)) + 1.6 * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_LL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_BAND)) * ARR_REBAR(i, COL_SPAN) ^ 2 * 100000
@@ -906,7 +906,7 @@ Function Norm15_4_2_1()
 
         If ARR_RATIO(i, COL_STORY) < NUM_FIRST_STORY Then
 
-            code15_4_2_1 = ran.Min((OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FC_BEAM) + 100) / (4 * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FY)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D), 0.025 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D))
+            code15_4_2_1 = APP.Min((OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FC_BEAM) + 100) / (4 * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FY)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D), 0.025 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D))
             ' code15_4_2_1 = APP.Min((APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FC_BEAM, False) + 100) / (4 * APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FY, False)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D), 0.025 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D))
 
             If ARR_RATIO(i, COL_REBAR_LEFT) > code15_4_2_1 Then
@@ -949,8 +949,8 @@ Function Norm15_4_2_2()
 
         If ARR_RATIO(i, COL_STORY) < NUM_FIRST_STORY Then
 
-            maxRatio = ran.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
-            minRatio = ran.Min(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
+            maxRatio = APP.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
+            minRatio = APP.Min(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
             code15_4_2_2 = minRatio < maxRatio / 4
 
             If code15_4_2_2 Then
@@ -995,7 +995,7 @@ Function EconomicTopRebarRelative()
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        minRatio = ran.Min(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_RIGHT))
+        minRatio = APP.Min(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_RIGHT))
 
         rebar_ = Split(ARR_REBAR(i, COL_REBAR_MID), "-")
 
@@ -1015,7 +1015,7 @@ Function EconomicBotRebarRelativeForGB()
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        minRatio = ran.Min(ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
+        minRatio = APP.Min(ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
 
         rebar_ = Split(ARR_REBAR(i + 2, COL_REBAR_MID), "-")
 
@@ -1115,7 +1115,7 @@ Function Norm4_6_6_3()
 
             stirrup = Split(ARR_REBAR(i, j), "@")
 
-            avMin = ran.Max(0.2 * Sqr(OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FC_BEAM)) * ARR_REBAR(i, COL_BW) * stirrup(1) / OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FYT), 3.5 * ARR_REBAR(i, COL_BW) * stirrup(1) / OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FYT))
+            avMin = APP.Max(0.2 * Sqr(OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FC_BEAM)) * ARR_REBAR(i, COL_BW) * stirrup(1) / OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FYT), 3.5 * ARR_REBAR(i, COL_BW) * stirrup(1) / OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FYT))
             ' avMin = APP.Max(0.2 * Sqr(APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FC_BEAM, False)) * ARR_REBAR(i, COL_BW) * stirrup(1) / APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FYT, False), 3.5 * ARR_REBAR(i, COL_BW) * stirrup(1) / APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FYT, False))
             av = ARR_RATIO(i, j)
 

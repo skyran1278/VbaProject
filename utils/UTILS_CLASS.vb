@@ -163,14 +163,15 @@ Sub PerformanceVBA(isOn As Boolean)
 
 End Sub
 
-
+' 速度是 APP.Min 的 10 倍
+' FIXME: 不知道為甚麼 ran 無法
 Function Min(ParamArray values() As Variant) As Variant
-   Dim minValue, Value As Variant
+   Dim minValue, value As Variant
 
    minValue = values(0)
 
-   For Each Value In values
-       If Value < minValue Then minValue = Value
+   For Each value In values
+       If value < minValue Then minValue = value
    Next
 
    Min = minValue
@@ -179,12 +180,12 @@ End Function
 
 
 Function Max(ParamArray values() As Variant) As Variant
-   Dim maxValue, Value As Variant
+   Dim maxValue, value As Variant
 
    maxValue = values(0)
 
-   For Each Value In values
-       If Value > maxValue Then maxValue = Value
+   For Each value In values
+       If value > maxValue Then maxValue = value
    Next
 
    Max = maxValue

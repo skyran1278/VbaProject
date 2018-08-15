@@ -344,6 +344,7 @@ End Function
 Function PrintResult(ByVal arrResult, ByVal colStart)
 '
 ' 列印出最佳化結果
+' 隱含著從 0 開始
 '
 ' @param {Array} [arrResult] 需要 print 出的陣列.
 ' @param {Array} [colStart] 從哪一列開始.
@@ -656,7 +657,7 @@ Function CalSplice(ByVal arrGirderMultiRebar, ByVal arrMultiLapLength)
 End Function
 
 
-Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNum)
+Function CalNormalSplice(ByVal arrRebarTotalNum)
 '
 ' 原始配筋
 ' 分成 1/3 1/3 1/3
@@ -749,7 +750,7 @@ Function CalNormalGirderMultiRebar(ByVal arrRebarTotalNum)
 
     Next i
 
-    CalNormalGirderMultiRebar = arrNormalGirderMultiRebar
+    CalNormalSplice = arrNormalGirderMultiRebar
 
 
 End Function
@@ -816,7 +817,7 @@ Function CalOptimizeNoMoreThanNormal(ByVal arrGirderMultiRebar, ByVal arrNormalG
 End Function
 
 
-Private Function ThreePoints(ByVal arrSmartSplice)
+Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
 '
 ' 從無限多點限縮到三個點.
 '
@@ -827,42 +828,68 @@ Private Function ThreePoints(ByVal arrSmartSplice)
 
     ubSmartSplice = UBound(arrSmartSplice)
 
-    Dim arrThreeSmartSplice
-    Dim rebarUsage
-    ReDim arrThreeSmartSplice(1 To ubSmartSplice, 1 To 3)
-    ReDim rebarUsage(1 To 36)
+    ubLeft = ran.RoundUp(0.15 * varSpliceNum)
+    lbMid = Fix(0.4 * varSpliceNum)
+    ubMid = ran.RoundUp(0.6 * varSpliceNum)
+    lbRight = Fix(0.85 * varSpliceNum)
 
-    For i = 1 To ubSmartSplice Step 2
+    combo = (lbMid - ubLeft + 1) * (lbRight - ubMid + 1)
 
-        m = 1
+    Dim arrThreePoints
+    Dim arrComboUsage
+    Dim arrCombo
+    ReDim arrThreePoints(1 To ubSmartSplice, 6)
+    ReDim arrCombo(1 To combo, 1 To 6)
+    ReDim arrComboUsage(1 To combo)
 
-        For j = ran.RoundUp(0.15 * varSpliceNum) To Fix(0.4 * varSpliceNum)
+    For row_ = 1 To ubSmartSplice Step 2
 
-            leftRebar = arrSmartSplice(i, 1) * j
+        i = 1
 
-            For k = ran.RoundUp(0.6 * varSpliceNum) To Fix(0.85 * varSpliceNum)
+        For colLeft = ubLeft To lbMid
+
+            For colRight = ubMid To lbRight
 
                 midMaxRebar = 0
 
-                For l = j + 1 To k - 1
-                    midMaxRebar = ran.Max(midMaxRebar, arrSmartSplice(i, l))
-                Next l
+                For colMid = colLeft + 1 To colRight - 1
+                    midMaxRebar = ran.Max(midMaxRebar, arrSmartSplice(row_, colMid) * 1)
+                Next colMid
 
-                midRebar = midMaxRebar * (k - 1 - j - 1)
+                arrCombo(i, 1) = arrSmartSplice(row_, 1)
+                arrCombo(i, 4) = colLeft / varSpliceNum
 
-                rightRebar = arrSmartSplice(i, varSpliceNum) * (varSpliceNum - k + 1)
+                arrCombo(i, 2) = midMaxRebar
+                arrCombo(i, 5) = (colRight - colLeft - 1) / varSpliceNum
 
-                rebarUsage(m) = leftRebar + midRebar + rightRebar
+                arrCombo(i, 3) = arrSmartSplice(row_, varSpliceNum)
+                arrCombo(i, 6) = (varSpliceNum - colRight + 1) / varSpliceNum
 
-                m = m + 1
+                leftUsage = arrCombo(i, 1) * arrCombo(i, 4)
 
-            Next k
+                midUsage = arrCombo(i, 2) * arrCombo(i, 5)
 
-        Next j
+                rightUsage = arrCombo(i, 3) * arrCombo(i, 6)
 
-        rebarUsageMinIndex = APP.Index(APP.Min(rebarUsage), rebarUsage, 0)
+                arrComboUsage(i) = leftUsage + midUsage + rightUsage
 
-    Next i
+                i = i + 1
+
+            Next colRight
+
+        Next colLeft
+
+        arrComboUsageMin = APP.Min(arrComboUsage)
+
+        comboUsageMinIndex = APP.Match(arrComboUsageMin, arrComboUsage, 0)
+
+        For i = 1 To 6
+            arrThreePoints(row_, i) = arrCombo(comboUsageMinIndex, i)
+        Next i
+
+    Next row_
+
+    ThreePoints = arrThreePoints
 
 End Function
 
@@ -884,7 +911,7 @@ Sub Main()
 
     arrRebarTotalNum = CalRebarTotalNum(arrBeam)
 
-    arrNormalSplice = CalNormalGirderMultiRebar(arrRebarTotalNum)
+    arrNormalSplice = CalNormalSplice(arrRebarTotalNum)
 
     arrRebarTotalArea = CalRebarTotalArea(arrBeam)
 
@@ -897,12 +924,13 @@ Sub Main()
 
     arrSmartSplice = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
+    arrThreePoints = ThreePoints(arrBeam, arrSmartSplice)
     ' arrSmartSplice = OptimizeGirderMultiRebar(arrRebarTotalNum)
 
     varOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
 
     Call PrintResult(arrSmartSplice, 3)
-    Call PrintResult(arrNormalSplice, varSpliceNum + 3 + 1)
+    Call PrintResult(arrThreePoints, varSpliceNum + 5)
     wsResult.Cells(2, 2) = varOptimizeResult
 
     Call ran.PerformanceVBA(False)

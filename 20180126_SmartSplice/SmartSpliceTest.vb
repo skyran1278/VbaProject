@@ -79,7 +79,7 @@ Sub Test()
 
     arrRebarTotalNum = CalRebarTotalNum(arrBeam)
 
-    arrNormalSplice = CalNormalGirderMultiRebar(arrRebarTotalNum)
+    arrNormalSplice = CalNormalSplice(arrRebarTotalNum)
 
     arrRebarTotalArea = CalRebarTotalArea(arrBeam)
 
@@ -92,6 +92,8 @@ Sub Test()
 
     arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
+    arrThreePoints = ThreePoints(arrBeam, arrSmartSplice)
+
     rowStartNext = PrintResult(arrRebarTotalNum, 3, 29)
     rowStartNext = PrintResult(arrRebarTotalArea, rowStartNext, 29)
     rowStartNext = PrintResult(arrNormalSplice, rowStartNext, 28)
@@ -100,6 +102,7 @@ Sub Test()
     rowStartNext = PrintResult(arrMultiLapLength, rowStartNext, 28)
     rowStartNext = PrintResult(arrSmartSplice, rowStartNext, 28)
     rowStartNext = PrintResult(arrSmartSpliceModify, rowStartNext, 28)
+    rowStartNext = PrintResult(arrThreePoints, rowStartNext, 28)
 
     Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
