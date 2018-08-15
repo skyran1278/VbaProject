@@ -92,7 +92,7 @@ Sub Test()
 
     arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
-    arrThreePoints = ThreePoints(arrBeam, arrSmartSplice)
+    arrThreePoints = ThreePoints(arrBeam, arrSmartSpliceModify)
 
     rowStartNext = PrintResult(arrRebarTotalNum, 3, 29)
     rowStartNext = PrintResult(arrRebarTotalArea, rowStartNext, 29)
@@ -108,3 +108,19 @@ Sub Test()
     Call ran.ExecutionTime(False)
 
 End Sub
+
+Function func()
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+
+    For i = 1 To 5.5
+        Debug.Print i
+    Next i
+
+End Function

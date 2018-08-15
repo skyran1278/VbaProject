@@ -276,7 +276,7 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
     varRight = 3
 
     ' 一半的地方
-    varHalfOfSpliceNum = ran.RoundUp(varSpliceNum / 2)
+    varHalfOfSpliceNum = (varSpliceNum / 2)
 
     ' 遞減的斜率
     slope_ = 1 / varHalfOfSpliceNum
@@ -297,12 +297,12 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
             ratio = ratio - slope_
         Next j
 
-        ' 中央到右端
-        ratio = slope_
-        For j = varHalfOfSpliceNum + 1 To varSpliceNum
+        ' 右端到中央
+        ratio = 1
+        For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
             ' 耐震和 2 支取大值
             arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, 2))
-            ratio = ratio + slope_
+            ratio = ratio - slope_
         Next j
 
     Next i
@@ -325,12 +325,12 @@ Function OptimizeGirderMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
         Next j
 
         ' 中央到右端
-        ratio = slope_
-        For j = varHalfOfSpliceNum + 1 To varSpliceNum
+        ratio = 1
+        For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
             ' 耐震、重力、2 支取大值
             arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
             ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (arrRebarTotalArea(i, varRight) / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2))
-            ratio = ratio + slope_
+            ratio = ratio - slope_
         Next j
 
     Next i
@@ -678,11 +678,11 @@ Function CalNormalSplice(ByVal arrRebarTotalNum)
     varMid = 2
     varRight = 3
 
-    varOneThreeSpliceNum = ran.RoundUp(varSpliceNum / 3)
-    varTwoThreeSpliceNum = ran.RoundUp(2 * varSpliceNum / 3)
+    varOneThreeSpliceNum = (varSpliceNum / 3)
+    varTwoThreeSpliceNum = (2 * varSpliceNum / 3)
 
-    varOneFiveSpliceNum = ran.RoundUp(varSpliceNum / 5)
-    varFourFiveSpliceNum = ran.RoundUp(4 * varSpliceNum / 5)
+    varOneFiveSpliceNum = (varSpliceNum / 5)
+    varFourFiveSpliceNum = (4 * varSpliceNum / 5)
 
     ' 上層
     For i = 1 To ubGirderRebar Step 4
@@ -694,12 +694,12 @@ Function CalNormalSplice(ByVal arrRebarTotalNum)
 
         ' 中央
         ' 中央通常會比較少，取保守由兩端佔滿 1/3 2/3 處
-        For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum - 1
+        For j = Fix(varOneThreeSpliceNum) + 1 To varTwoThreeSpliceNum
             arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varMid)
         Next j
 
         ' 右端
-        For j = varTwoThreeSpliceNum To varSpliceNum
+        For j = Fix(varTwoThreeSpliceNum) + 1 To varSpliceNum
             arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varRight)
         Next j
 
@@ -718,14 +718,14 @@ Function CalNormalSplice(ByVal arrRebarTotalNum)
         If arrRebarTotalNum(i, varLeft) < arrRebarTotalNum(i, varMid) Then
 
             ' 左端比較少
-            For j = 1 To varOneFiveSpliceNum - 1
+            For j = 1 To varOneFiveSpliceNum
                 arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varLeft)
             Next j
 
         Else
 
             ' 左端比較多
-            For j = 1 To varOneThreeSpliceNum
+            For j = 1 To ran.RoundUp(varOneThreeSpliceNum)
                 arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varLeft)
             Next j
 
@@ -735,14 +735,14 @@ Function CalNormalSplice(ByVal arrRebarTotalNum)
         If arrRebarTotalNum(i, varRight) < arrRebarTotalNum(i, varMid) Then
 
             ' 右端比較少
-            For j = varFourFiveSpliceNum + 1 To varSpliceNum
+            For j = varSpliceNum To Fix(varFourFiveSpliceNum) + 1 Step -1
                 arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varRight)
             Next j
 
         Else
 
             ' 右端比較多
-            For j = varTwoThreeSpliceNum To varSpliceNum
+            For j = varSpliceNum To Fix(varTwoThreeSpliceNum) + 1 Step -1
                 arrNormalGirderMultiRebar(i, j) = arrRebarTotalNum(i, varRight)
             Next j
 
@@ -930,7 +930,8 @@ Sub Main()
     varOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
 
     Call PrintResult(arrSmartSplice, 3)
-    Call PrintResult(arrThreePoints, varSpliceNum + 5)
+    Call PrintResult(arrNormalSplice, varSpliceNum + 5)
+    Call PrintResult(arrThreePoints, 2 * (varSpliceNum + 5))
     wsResult.Cells(2, 2) = varOptimizeResult
 
     Call ran.PerformanceVBA(False)
