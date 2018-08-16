@@ -230,6 +230,7 @@ Function CalGravityDemand(ByVal arrBeam)
         bot_ = i + 2
 
         story = arrBeam(i, 1)
+        h = arrBeam(i, 4)
         span = arrBeam(i, 13)
 
         fy_ = objStoryToFy.Item(story)
@@ -241,7 +242,12 @@ Function CalGravityDemand(ByVal arrBeam)
         slab = objStoryToSlab.Item(story)
         cover = objStoryToCover.Item(story)
 
-        mn = 1 / 24 * (0.9 * ((SDL + 2.4 * slab) * band)) * (span ^ 2)
+        mn_top = 1 / 24 * (0.9 * ((SDL + 2.4 * slab) * band)) * (span ^ 2)
+        mn_bot = 1 / 8 * (1.2 * ((SDL + 2.4 * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
+
+        ' 隨便寫寫的
+        as_top = mn_top / (fy_ * 0.9 * (h - cover - 1.5875 - 1.5 * 3.226))
+        as_bot = mn_bot / (fy_ * 0.9 * (h - cover - 1.5875 - 1.5 * 3.226))
 
 
 
