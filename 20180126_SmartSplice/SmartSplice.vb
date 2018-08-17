@@ -229,18 +229,18 @@ Function CalGravityDemand(ByVal arrBeam)
         top_ = i
         bot_ = i + 2
 
-        story = arrBeam(i, 1)
+        storey = arrBeam(i, 1)
         h = arrBeam(i, 4)
         span = arrBeam(i, 13)
 
-        fy_ = objStoryToFy.Item(story)
-        fyt_ = objStoryToFyt.Item(story)
-        fc_ = objStoryToFc.Item(story)
-        SDL = objStoryToSDL.Item(story)
-        LL = objStoryToLL.Item(story)
-        band = objStoryToBand.Item(story)
-        slab = objStoryToSlab.Item(story)
-        cover = objStoryToCover.Item(story)
+        fy_ = objStoryToFy.Item(storey)
+        fyt_ = objStoryToFyt.Item(storey)
+        fc_ = objStoryToFc.Item(storey)
+        SDL = objStoryToSDL.Item(storey)
+        LL = objStoryToLL.Item(storey)
+        band = objStoryToBand.Item(storey)
+        slab = objStoryToSlab.Item(storey)
+        cover = objStoryToCover.Item(storey)
 
         mn_top = 1 / 24 * (0.9 * ((SDL + 2.4 * slab) * band)) * (span ^ 2)
         mn_bot = 1 / 8 * (1.2 * ((SDL + 2.4 * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
@@ -415,15 +415,15 @@ Function CalLapLengthRatio(ByVal arrBeam)
     ' loop 全部
     For i = 1 To ubLapLengthRatio Step 4
 
-        story = arrBeam(i, 1)
+        storey = arrBeam(i, 1)
 
-        fy_ = objStoryToFy.Item(story)
-        fyt_ = objStoryToFyt.Item(story)
-        fc_ = objStoryToFc.Item(story)
-        cover = objStoryToCover.Item(story)
+        fy_ = objStoryToFy.Item(storey)
+        fyt_ = objStoryToFyt.Item(storey)
+        fc_ = objStoryToFc.Item(storey)
+        cover = objStoryToCover.Item(storey)
 
         If IsEmpty(fy_) Then
-            MsgBox "請確認 " & story & " 是否存在於 General Information", vbOKOnly, "Error"
+            MsgBox "請確認 " & storey & " 是否存在於 General Information", vbOKOnly, "Error"
         End If
 
         width_ = arrBeam(i, 3)

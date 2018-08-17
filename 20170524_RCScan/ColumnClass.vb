@@ -3,8 +3,8 @@ Private APP
 Private OBJ_ERR_MSG As Collection
 
 Private OBJ_INFO
-Private NUM_TOP_STORY
-Private NUM_FIRST_STORY
+Private NUM_TOP_STOREY
+Private NUM_FIRST_STOREY
 
 Private OBJ_REBAR_SIZE
 
@@ -19,7 +19,7 @@ Private ARR_RATIO
 ' Private REBAR_NUMBER
 
 ' ARR_REBAR 資料命名
-Private Const COL_STORY = 1
+Private Const COL_STOREY = 1
 Private Const COL_NUMBER = 2
 Private Const COL_WIDTH_X = 3
 Private Const COL_WIDTH_Y = 4
@@ -44,7 +44,7 @@ Private Const COL_LL = 7
 Private Const COL_BAND = 8
 Private Const COL_SLAB = 9
 Private Const COL_COVER = 10
-Private Const COL_STORY_NUM = 11
+Private Const COL_STOREY_NUM = 11
 
 ' REBAR_SIZE 資料命名
 Private Const COL_DB = 7
@@ -103,7 +103,7 @@ Function GetGeneralInformation()
     j = 1
 
     For i = ubGeneralInformation To lbGeneralInformation Step -1
-        arrGeneralInformation(i, COL_STORY_NUM) = j
+        arrGeneralInformation(i, COL_STOREY_NUM) = j
         j = j + 1
     Next i
 
@@ -112,7 +112,7 @@ Function GetGeneralInformation()
         For j = lbColGeneralInformation To ubColGeneralInformation
 
             If arrGeneralInformation(i, j) = "" Then
-                OBJ_ERR_MSG.Add "General Information " & arrGeneralInformation(i, COL_STORY) & " " & arrGeneralInformation(1, j) & " 空白"
+                OBJ_ERR_MSG.Add "General Information " & arrGeneralInformation(i, COL_STOREY) & " " & arrGeneralInformation(1, j) & " 空白"
             End If
 
         Next j
@@ -121,8 +121,8 @@ Function GetGeneralInformation()
     Set OBJ_INFO = ran.CreateDictionary(arrGeneralInformation, 1, False)
 
     ' Use Cells(13, 16).Text instead of .Value
-    NUM_TOP_STORY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 16).Text), COL_STORY_NUM, "搜尋不到頂樓樓層")
-    NUM_FIRST_STORY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 16).Text), COL_STORY_NUM, "搜尋不到地面層")
+    NUM_TOP_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 16).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
+    NUM_FIRST_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 16).Text), COL_STOREY_NUM, "搜尋不到地面層")
 
 End Function
 
@@ -181,13 +181,13 @@ Private Function SortRawData(ByVal sheet)
 
     UB_REBAR = rowUbRawData
 
-    colStoryNum = 14
+    colStoreyNum = 14
     colNumberNoC = 15
 
     For i = LB_REBAR To UB_REBAR
 
         ' 樓層數字化，用以比較上下樓層。
-        arrRawData(i, colStoryNum) = WarnDicEmpty(OBJ_INFO.Item(arrRawData(i, COL_STORY)), COL_STORY_NUM, "請確認 " & arrRawData(i, COL_STORY) & " 是否存在於 General Information")
+        arrRawData(i, colStoreyNum) = WarnDicEmpty(OBJ_INFO.Item(arrRawData(i, COL_STOREY)), COL_STOREY_NUM, "請確認 " & arrRawData(i, COL_STOREY) & " 是否存在於 General Information")
 
         ' 裁掉多餘的空白
         arrRawData(i, COL_REBAR) = Trim(arrRawData(i, COL_REBAR))
@@ -289,7 +289,7 @@ Function GetRatioData()
 '
     ' 樓層數字化，用以比較上下樓層。
     For i = LB_REBAR To UB_REBAR
-        ARR_RATIO(i, COL_STORY) = WarnDicEmpty(OBJ_INFO.Item(ARR_REBAR(i, COL_STORY)), COL_STORY_NUM)
+        ARR_RATIO(i, COL_STOREY) = WarnDicEmpty(OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY)), COL_STOREY_NUM)
     Next
 
     ' 計算鋼筋比
@@ -529,7 +529,7 @@ Function Norm15_5_4_100()
 
     For i = LB_REBAR To UB_REBAR
 
-        If ARR_RATIO(i, COL_STORY) < NUM_FIRST_STORY Then
+        If ARR_RATIO(i, COL_STOREY) < NUM_FIRST_STOREY Then
 
             If ARR_REBAR(i, COL_TIE_Y) < Int((ARR_REBAR(i, COL_REBAR_X) - 1) / 2) - 1 Then
                 Call WarningMessage("【0407】Y 向繫筋未符合隔根勾", i)
@@ -594,14 +594,14 @@ Function Norm15_5_4_1()
 
     For i = LB_REBAR To UB_REBAR
 
-        If ARR_RATIO(i, COL_STORY) < NUM_FIRST_STORY Then
+        If ARR_RATIO(i, COL_STOREY) < NUM_FIRST_STOREY Then
 
-            fcColumn = OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FC_COLUMN)
-            ' fcColumn = Application.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FC_COLUMN, False)
-            fytColumn = OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FYT)
-            ' fytColumn = Application.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FYT, False)
+            fcColumn = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FC_COLUMN)
+            ' fcColumn = Application.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FC_COLUMN, False)
+            fytColumn = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FYT)
+            ' fytColumn = Application.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FYT, False)
 
-            cover_ = OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_COVER)
+            cover_ = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_COVER)
 
             stirrup = Split(ARR_REBAR(i, COL_BOUND_AREA), "@")
             rebarSize = stirrup(0)
@@ -638,17 +638,17 @@ Function Norm15_5_4_1()
 End Function
 
 
-Function EconomicTopStoryRebar()
+Function EconomicTopStoreyRebar()
 '
 ' 頂樓區鋼筋比不大於 1.2 %
-' NUM_TOP_STORY 為 RF 不含屋突
+' NUM_TOP_STOREY 為 RF 不含屋突
 '
 
     ' 頂樓區 1/4
-    checkStoryNumber = NUM_TOP_STORY - Fix((NUM_TOP_STORY - NUM_FIRST_STORY + 1) / 4)
+    checkStoreyNumber = NUM_TOP_STOREY - Fix((NUM_TOP_STOREY - NUM_FIRST_STOREY + 1) / 4)
 
     For i = LB_REBAR To UB_REBAR
-        If ARR_RATIO(i, COL_STORY) >= checkStoryNumber And ARR_RATIO(i, COL_STORY) <= NUM_TOP_STORY And ARR_REBAR(i, COL_REBAR_RATIO) > 0.01 * 1.2 Then
+        If ARR_RATIO(i, COL_STOREY) >= checkStoreyNumber And ARR_RATIO(i, COL_STOREY) <= NUM_TOP_STOREY And ARR_REBAR(i, COL_REBAR_RATIO) > 0.01 * 1.2 Then
                 Call WarningMessage("【0405】請確認高樓區鋼筋比，是否超過 1.2 %", i)
         End If
     Next

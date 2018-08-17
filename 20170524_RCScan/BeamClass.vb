@@ -5,8 +5,8 @@ Private OBJ_ERR_MSG As Collection
 Private S_BEAM_TYPE
 
 Private OBJ_INFO
-Private NUM_TOP_STORY
-Private NUM_FIRST_STORY
+Private NUM_TOP_STOREY
+Private NUM_FIRST_STOREY
 
 Private OBJ_REBAR_SIZE
 
@@ -21,7 +21,7 @@ Private ARR_RATIO
 ' Private REBAR_NUMBER
 
 ' ARR_REBAR 資料命名
-Private Const COL_STORY = 1
+Private Const COL_STOREY = 1
 Private Const COL_NUMBER = 2
 Private Const COL_BW = 3
 Private Const COL_H = 4
@@ -50,7 +50,7 @@ Private Const COL_LL = 7
 Private Const COL_BAND = 8
 Private Const COL_SLAB = 9
 Private Const COL_COVER = 10
-Private Const COL_STORY_NUM = 11
+Private Const COL_STOREY_NUM = 11
 
 Private Const COL_DB = 7
 Private Const COL_AREA = 10
@@ -119,7 +119,7 @@ Function GetGeneralInformation()
     j = 1
 
     For i = ubGeneralInformation To lbGeneralInformation Step -1
-        arrGeneralInformation(i, COL_STORY_NUM) = j
+        arrGeneralInformation(i, COL_STOREY_NUM) = j
         j = j + 1
     Next i
 
@@ -128,7 +128,7 @@ Function GetGeneralInformation()
         For j = lbColGeneralInformation To ubColGeneralInformation
 
             If arrGeneralInformation(i, j) = "" Then
-                OBJ_ERR_MSG.Add "General Information " & arrGeneralInformation(i, COL_STORY) & " " & arrGeneralInformation(1, j) & " 是否空白？"
+                OBJ_ERR_MSG.Add "General Information " & arrGeneralInformation(i, COL_STOREY) & " " & arrGeneralInformation(1, j) & " 是否空白？"
             End If
 
         Next j
@@ -137,8 +137,8 @@ Function GetGeneralInformation()
     Set OBJ_INFO = ran.CreateDictionary(arrGeneralInformation, 1, False)
 
     ' Use Cells(13, 16).Text instead of .Value
-    NUM_TOP_STORY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 16).Text), COL_STORY_NUM, "搜尋不到頂樓樓層")
-    NUM_FIRST_STORY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 16).Text), COL_STORY_NUM, "搜尋不到地面樓層")
+    NUM_TOP_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 16).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
+    NUM_FIRST_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 16).Text), COL_STOREY_NUM, "搜尋不到地面樓層")
 
 End Function
 
@@ -203,13 +203,13 @@ Private Function SortRawData(ByVal sheet)
     UB_REBAR = rowUbRawData
 
     ' 利用最後兩行來做排序處理
-    colStoryNum = colUbRawData - 1
+    colStoreyNum = colUbRawData - 1
     colNumberNoC = colUbRawData
 
     For i = LB_REBAR To UB_REBAR Step 4
 
         ' 樓層數字化，用以比較上下樓層。
-        arrRawData(i, colStoryNum) = DicIsEmpty(OBJ_INFO.Item(arrRawData(i, COL_STORY)), COL_STORY_NUM, "請確認 " & arrRawData(i, COL_STORY) & " 是否存在於 General Information")
+        arrRawData(i, colStoreyNum) = DicIsEmpty(OBJ_INFO.Item(arrRawData(i, COL_STOREY)), COL_STOREY_NUM, "請確認 " & arrRawData(i, COL_STOREY) & " 是否存在於 General Information")
 
         ' 去掉 大寫與小寫開頭的 C，用以排序
         If LCase(Left(arrRawData(i, COL_NUMBER), 1)) <> "c" Then
@@ -223,9 +223,9 @@ Private Function SortRawData(ByVal sheet)
         End If
 
         ' 填滿以用於排序
-        arrRawData(i + 1, colStoryNum) = arrRawData(i, colStoryNum)
-        arrRawData(i + 2, colStoryNum) = arrRawData(i, colStoryNum)
-        arrRawData(i + 3, colStoryNum) = arrRawData(i, colStoryNum)
+        arrRawData(i + 1, colStoreyNum) = arrRawData(i, colStoreyNum)
+        arrRawData(i + 2, colStoreyNum) = arrRawData(i, colStoreyNum)
+        arrRawData(i + 3, colStoreyNum) = arrRawData(i, colStoreyNum)
         arrRawData(i + 1, colNumberNoC) = arrRawData(i, colNumberNoC)
         arrRawData(i + 2, colNumberNoC) = arrRawData(i, colNumberNoC)
         arrRawData(i + 3, colNumberNoC) = arrRawData(i, colNumberNoC)
@@ -243,7 +243,7 @@ Private Function SortRawData(ByVal sheet)
 
         ' 以樓層排序，再以去掉 c 的文字排序
         .Range(.Cells(LB_REBAR, colLbRawData), .Cells(rowUbRawData, colUbRawData)).Sort _
-            Key1:=.Range(.Cells(LB_REBAR, colStoryNum), .Cells(rowUbRawData, colStoryNum)), Order1:=xlAscending, DataOption1:=xlSortNormal, _
+            Key1:=.Range(.Cells(LB_REBAR, colStoreyNum), .Cells(rowUbRawData, colStoreyNum)), Order1:=xlAscending, DataOption1:=xlSortNormal, _
             Key2:=.Range(.Cells(LB_REBAR, colNumberNoC), .Cells(rowUbRawData, colNumberNoC)), Order2:=xlAscending, DataOption2:=xlSortNormal, _
             Header:=xlNo, MatchCase:=True, Orientation:=xlTopToBottom, SortMethod:=xlPinYin
 
@@ -262,7 +262,7 @@ Function GetRatioData()
 
     ' 樓層數字化，用以比較上下樓層。
     For i = LB_REBAR To UB_REBAR Step 4
-        ARR_RATIO(i, COL_STORY) = DicIsEmpty(OBJ_INFO.Item(ARR_REBAR(i, COL_STORY)), COL_STORY_NUM)
+        ARR_RATIO(i, COL_STOREY) = DicIsEmpty(OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY)), COL_STOREY_NUM)
     Next
 
     ' 計算鋼筋面積
@@ -300,7 +300,7 @@ Function GetRatioData()
         ' fyDb = APP.VLookup(rebar_(1), REBAR_SIZE, COL_DB, False)
         fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
         ' fytDb = APP.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, COL_DB, False)
-        cover_ = OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_COVER)
+        cover_ = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_COVER)
 
         ' 雙排筋
         ARR_RATIO(i, COL_D) = ARR_REBAR(i, COL_H) - (cover_ + fytDb + fyDb * 1.5)
@@ -415,7 +415,7 @@ Function PrintResult()
 
         With WS_OUTPUT
 
-            For j = COL_STORY To COL_H
+            For j = COL_STOREY To COL_H
                 .Range(.Cells(i, j), .Cells(i + 3, j)).Merge
             Next j
 
@@ -676,7 +676,7 @@ Function SafetyRebarRatioAndSpace()
                     fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
                     ' fytDb = APP.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, COL_DB, False)
 
-                    Spacing = (ARR_REBAR(i, COL_BW) - OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_COVER) * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
+                    Spacing = (ARR_REBAR(i, COL_BW) - OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_COVER) * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
 
                     If Spacing > 25 Then
                         Call WarningMessage("【0106】請確認鋼筋間距下限，是否符合鋼筋間距 25 cm 以下規定", i)
@@ -792,11 +792,11 @@ Function SafetyLoad()
         maxRatio = APP.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
 
         ' 轉換 kgw-m => tf-m: * 100000
-        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_SDL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_BAND)) + 1.6 * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_LL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_BAND)) * ARR_REBAR(i, COL_SPAN) ^ 2 * 100000
-        ' mn = 1 / 8 * (1.2 * (0.15 * 2.4 + APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_SDL, False)) + 1.6 * APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_LL, False)) * COL_BAND ^ 2 * 100000
+        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_SDL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_BAND)) + 1.6 * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_LL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_BAND)) * ARR_REBAR(i, COL_SPAN) ^ 2 * 100000
+        ' mn = 1 / 8 * (1.2 * (0.15 * 2.4 + APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_SDL, False)) + 1.6 * APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_LL, False)) * COL_BAND ^ 2 * 100000
 
-        capacity = maxRatio * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FY) * ARR_RATIO(i, COL_D)
-        ' capacity = maxRatio * APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FY, False) * ARR_RATIO(i, COL_D)
+        capacity = maxRatio * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FY) * ARR_RATIO(i, COL_D)
+        ' capacity = maxRatio * APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FY, False) * ARR_RATIO(i, COL_D)
 
         If 0.6 * mn > capacity Then
             Call WarningMessage("【0312】垂直載重配筋可能不足", i)
@@ -864,10 +864,10 @@ Function Norm3_6()
 
 For i = LB_REBAR To UB_REBAR Step 4
 
-    code3_3 = 0.8 * Sqr(OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FC_BEAM)) / OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FY) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
-    ' code3_3 = 0.8 * Sqr(APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FC_BEAM, False)) / APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FY, False) *ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
-    code3_4 = 14 / OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FY) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
-    ' code3_4 = 14 / APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FY, False) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
+    code3_3 = 0.8 * Sqr(OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FC_BEAM)) / OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FY) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
+    ' code3_3 = 0.8 * Sqr(APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FC_BEAM, False)) / APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FY, False) *ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
+    code3_4 = 14 / OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FY) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
+    ' code3_4 = 14 / APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FY, False) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
 
     If ARR_RATIO(i, COL_REBAR_LEFT) < code3_3 Or ARR_RATIO(i, COL_REBAR_LEFT) < code3_4 Then
         Call WarningMessage(GetTypeMessage("【0201】請確認左端上層筋下限，是否符合規範 3.6 規定", "【0301】請確認左端上層筋下限，是否符合規範 3.6 規定", "請確認左端上層筋下限，是否符合規範 3.6 規定"), i)
@@ -904,10 +904,10 @@ Function Norm15_4_2_1()
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        If ARR_RATIO(i, COL_STORY) < NUM_FIRST_STORY Then
+        If ARR_RATIO(i, COL_STOREY) < NUM_FIRST_STOREY Then
 
-            code15_4_2_1 = APP.Min((OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FC_BEAM) + 100) / (4 * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FY)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D), 0.025 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D))
-            ' code15_4_2_1 = APP.Min((APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FC_BEAM, False) + 100) / (4 * APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FY, False)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D), 0.025 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D))
+            code15_4_2_1 = APP.Min((OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FC_BEAM) + 100) / (4 * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FY)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D), 0.025 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D))
+            ' code15_4_2_1 = APP.Min((APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FC_BEAM, False) + 100) / (4 * APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FY, False)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D), 0.025 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D))
 
             If ARR_RATIO(i, COL_REBAR_LEFT) > code15_4_2_1 Then
                 Call WarningMessage("【0212】請確認左端上層筋上限，是否符合規範 15.4.2.1 規定", i)
@@ -947,7 +947,7 @@ Function Norm15_4_2_2()
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        If ARR_RATIO(i, COL_STORY) < NUM_FIRST_STORY Then
+        If ARR_RATIO(i, COL_STOREY) < NUM_FIRST_STOREY Then
 
             maxRatio = APP.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
             minRatio = APP.Min(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
@@ -1115,8 +1115,8 @@ Function Norm4_6_6_3()
 
             stirrup = Split(ARR_REBAR(i, j), "@")
 
-            avMin = APP.Max(0.2 * Sqr(OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FC_BEAM)) * ARR_REBAR(i, COL_BW) * stirrup(1) / OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FYT), 3.5 * ARR_REBAR(i, COL_BW) * stirrup(1) / OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FYT))
-            ' avMin = APP.Max(0.2 * Sqr(APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FC_BEAM, False)) * ARR_REBAR(i, COL_BW) * stirrup(1) / APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FYT, False), 3.5 * ARR_REBAR(i, COL_BW) * stirrup(1) / APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FYT, False))
+            avMin = APP.Max(0.2 * Sqr(OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FC_BEAM)) * ARR_REBAR(i, COL_BW) * stirrup(1) / OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FYT), 3.5 * ARR_REBAR(i, COL_BW) * stirrup(1) / OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FYT))
+            ' avMin = APP.Max(0.2 * Sqr(APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FC_BEAM, False)) * ARR_REBAR(i, COL_BW) * stirrup(1) / APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FYT, False), 3.5 * ARR_REBAR(i, COL_BW) * stirrup(1) / APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FYT, False))
             av = ARR_RATIO(i, j)
 
             If av < avMin Then
@@ -1150,12 +1150,12 @@ Function Norm4_6_7_9()
             av = ARR_RATIO(i, j)
 
             ' code4.4.1.1
-            vc = 0.53 * Sqr(OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FC_BEAM)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
-            ' vc = 0.53 * Sqr(APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FC_BEAM, False)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
+            vc = 0.53 * Sqr(OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FC_BEAM)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
+            ' vc = 0.53 * Sqr(APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FC_BEAM, False)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
 
             ' code4.6.7.2
-            vs = av * OBJ_INFO.Item(ARR_REBAR(i, COL_STORY))(COL_FYT) * ARR_RATIO(i, COL_D) / stirrup(1)
-            ' vs = av * APP.VLookup(ARR_REBAR(i, COL_STORY), GENERAL_INFORMATION, COL_FYT, False) * ARR_RATIO(i, COL_D) / stirrup(1)
+            vs = av * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FYT) * ARR_RATIO(i, COL_D) / stirrup(1)
+            ' vs = av * APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FYT, False) * ARR_RATIO(i, COL_D) / stirrup(1)
 
             If vs > 4 * vc * 1.2 Then
                 Call WarningMessage("【0209】請確認剪力鋼筋量上限，是否符合規範 4.6.7.9 規定", i)
