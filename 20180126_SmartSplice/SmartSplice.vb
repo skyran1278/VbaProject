@@ -109,13 +109,14 @@ Function GetRebar1stNum(ByVal arrBeam)
     colEnd = 8
 
     ' 一二排相加
-    For i = rowStart To rowEnd Step 2
+    For i = rowStart To rowEnd Step 4
         For j = colStart To colEnd
 
             colRebarTotalNum = j - 5
 
             ' 計算上下排總支數
             arrRebar1stNum(i, colRebarTotalNum) = Int(Split(arrBeam(i, j), "-")(0))
+            arrRebar1stNum(i + 2, colRebarTotalNum) = Int(Split(arrBeam(i + 3, j), "-")(0))
 
         Next
     Next
@@ -398,7 +399,7 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
     End With
 
     ' 格式化條件
-    For i = rowStart To rowEnd
+    For i = rowStart To rowEnd Step 2
         With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
             .FormatConditions.AddColorScale ColorScaleType:=3
             .FormatConditions(.FormatConditions.Count).SetFirstPriority
@@ -462,98 +463,121 @@ Function CalLapLength(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrMultiRebar)
             MsgBox "請確認 " & storey & " 是否存在於 General Information", vbOKOnly, "Error"
         End If
 
-        For j = 1 To varSpliceNum
+        ' loop 上下排
+        ' j = 0 => 上層第一排
+        ' 這裡不另外做一個 function 的原因是，傳太多參數感覺也會亂，所以用兩次 for loop 來解決上下排的問題
+        For j = 1 To 2
 
-            arrRebar1stNum()
+            If j = 1 Then
+                ' 上排
+                row_ = i
+                rowBeam = i
+            Else
+                ' 下排
+                row_ = i + 2
+                rowBeam = i + 3
+            End If
 
-            colBar = j
-            colStirrup = j + 4
+            maxRebarCapacity = APP.Max(arrRebar1stNum(row_, 1), arrRebar1stNum(row_, 2), arrRebar1stNum(row_, 3))
 
-            ' arrLapLength 的行數
-            ' colLapLength = j - 5
+            For col_ = 1 To varSpliceNum
 
-            ' 箍筋
-            ' 避免有雙箍的狀況
-            tmp = Split(arrBeam(i, colStirrup), "@")
-            stirrupSpace = Int(tmp(1))
-            tmp = Split(tmp(0), "#")
-            stirrupSize = "#" & tmp(1)
+                If col_ <= varSpliceNum / 4 Then
+                    ' 左
+                    colStirrup = 10
+                ElseIf col_ >= 3 * varSpliceNum / 4 Then
+                    ' 右
+                    colStirrup = 12
+                Else
+                    ' 中
+                    colStirrup = 11
+                End If
 
-            fytDb = objRebarSizeToDb.Item(stirrupSize)
+                ' 箍筋
+                ' 避免有雙箍的狀況
+                tmp = Split(arrBeam(i, colStirrup), "@")
+                stirrupSpace = Int(tmp(1))
+                tmp = Split(tmp(0), "#")
+                stirrupSize = "#" & tmp(1)
 
-            ' loop 上下排
-            ' k = 0 => 上層第一排
-            For k = 0 To 3
+                fytDb = objRebarSizeToDb.Item(stirrupSize)
 
-                tmp = Split(arrBeam(i + k, colBar), "-")
-                fyNum = Int(tmp(0))
+
+
+                tmp = Split(arrBeam(rowBeam, 6), "-")
+                ' fyNum = Int(tmp(0))
+
+                ' 只比可容納多出一支，由於第二排不能只排一支，所以要扣 2 支
+                If arrMultiRebar(row_, col_) - maxRebarCapacity = 1 Then
+                    fyNum = arrMultiRebar(row_, col_) - 2
+                Else
+                    fyNum = APP.Min(arrMultiRebar(row_, col_), maxRebarCapacity)
+                End If
 
                 ' 看主筋支數有幾根
                 ' 0 的話代表沒有配筋，所以搭接長度也為 0
-                If fyNum = 0 Then
-                    arrLapLength(i + k, colLapLength) = 0
+                ' If fyNum = 0 Then
+                '     arrLapLength(i + j, colLapLength) = 0
 
+                ' Else
+                ' 之所以這裡才取 tmp(1)，是因為如果 fyNum = 0，會沒有 tmp(1)
+                barSize = tmp(1)
+                fyDb = objRebarSizeToDb.Item(barSize)
+
+                ' 鋼筋位置修正因數
+                If j = 1 Then
+                    ' 水平鋼筋其下混凝土一次澆置厚度大於30 cm者
+                    ' 上層筋 1.3 倍
+                    psiT = 1.3
                 Else
-                    ' 之所以這裡才取 tmp(1)，是因為如果 fyNum = 0，會沒有 tmp(1)
-                    barSize = tmp(1)
-                    fyDb = objRebarSizeToDb.Item(barSize)
-
-                    ' 鋼筋位置修正因數
-                    If k < 2 Then
-                        ' 水平鋼筋其下混凝土一次澆置厚度大於30 cm者
-                        ' 上層筋 1.3 倍
-                        psiT = 1.3
-                    Else
-                        ' 下層筋
-                        psiT = 1
-                    End If
-
-                    ' 由於詳細計算法沒有收入簡算法可以修正的條件，所以到最後會比簡算法長，所以用簡算法來訂定上限。
-                    ' 鋼筋尺寸修正因數
-                    If fyDb <= 2 Then
-                        ' D19或較小之鋼筋及麻面鋼線
-                        simpleLd = 0.15 * fy_ * psiT * psiE * lambda / Sqr(fc_) * fyDb
-                        psiS = 0.8
-                    Else
-                        ' D22或較大之鋼筋
-                        simpleLd = 0.19 * fy_ * psiT * psiE * lambda / Sqr(fc_) * fyDb
-                        psiS = 1
-                    End If
-
-                    ' 有加主筋之半
-                    cc_ = cover + fytDb + fyDb / 2
-
-                    ' 有加主筋之半
-                    cs_ = ((width_ - fyDb * fyNum - fytDb * 2 - cover * 2) / (fyNum - 1) + fyDb) / 2
-
-                    If cs_ <= cc_ Then
-                        ' 水平劈裂
-                        cb_ = cs_
-                        atr_ = 2 * pi_ * fytDb ^ 2 / 4
-                        ktr_ = atr_ * fyt_ / 105 / stirrupSpace / fyNum
-                    Else
-                        ' 垂直劈裂
-                        cb_ = cc_
-                        atr_ = pi_ * fytDb ^ 2 / 4
-                        ktr_ = atr_ * fyt_ / 105 / stirrupSpace
-                    End If
-
-                    ldb_ = 0.28 * fy_ / Sqr(fc_) * fyDb
-
-                    factor = psiT * psiE * psiS * lambda / ran.Min((cb_ + ktr_) / fyDb, 2.5)
-
-                    ld_ = factor * ldb_
-
-                    ' 不是搭接長度，是延伸長度
-                    arrLapLength(i + k, colLapLength) = ran.RoundUp(ran.Min(ld_, simpleLd))
-
-                    ' 換算成比例
-                    ' 搭接長度 / 梁長
-                    arrLapLength(i + k, colLapLength) = arrLapLength(i + k, colLapLength) / length_
-
+                    ' 下層筋
+                    psiT = 1
                 End If
 
-            Next k
+                ' 由於詳細計算法沒有收入簡算法可以修正的條件，所以到最後會比簡算法長，所以用簡算法來訂定上限。
+                ' 鋼筋尺寸修正因數
+                If fyDb <= 2 Then
+                    ' D19或較小之鋼筋及麻面鋼線
+                    simpleLd = 0.15 * fy_ * psiT * psiE * lambda / Sqr(fc_) * fyDb
+                    psiS = 0.8
+                Else
+                    ' D22或較大之鋼筋
+                    simpleLd = 0.19 * fy_ * psiT * psiE * lambda / Sqr(fc_) * fyDb
+                    psiS = 1
+                End If
+
+                ' 有加主筋之半
+                cc_ = cover + fytDb + fyDb / 2
+
+                ' 有加主筋之半
+                cs_ = ((width_ - fyDb * fyNum - fytDb * 2 - cover * 2) / (fyNum - 1) + fyDb) / 2
+
+                If cs_ <= cc_ Then
+                    ' 水平劈裂
+                    cb_ = cs_
+                    atr_ = 2 * pi_ * fytDb ^ 2 / 4
+                    ktr_ = atr_ * fyt_ / 105 / stirrupSpace / fyNum
+                Else
+                    ' 垂直劈裂
+                    cb_ = cc_
+                    atr_ = pi_ * fytDb ^ 2 / 4
+                    ktr_ = atr_ * fyt_ / 105 / stirrupSpace
+                End If
+
+                ldb_ = 0.28 * fy_ / Sqr(fc_) * fyDb
+
+                factor = psiT * psiE * psiS * lambda / ran.Min((cb_ + ktr_) / fyDb, 2.5)
+
+                ld_ = factor * ldb_
+
+                ' 不是搭接長度，是延伸長度
+                ' 換算成比例
+                ' 搭接長度 / 梁長
+                arrLapLength(row_, col_) = ran.RoundUp(ran.Min(ld_, simpleLd) / length_ * varSpliceNum)
+
+                ' End If
+
+            Next col_
 
         Next j
 
@@ -631,18 +655,18 @@ Function CalMultiLapLength(ByVal arrLapLength)
 End Function
 
 
-Function CalSmartSplice(ByVal arrGirderMultiRebar, ByVal arrMultiLapLength)
+Function CalSmartSplice(ByVal arrMultiRebar, ByVal arrLapLength)
 '
 ' 斷筋點 + 延伸長度.
 '
-' @param {Array} [arrGirderMultiRebar] 依據演算法的配筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
-' @param {Array} [arrMultiLapLength] 精算法的搭接長度格數，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+' @param {Array} [arrMultiRebar] 依據演算法的配筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+' @param {Array} [arrLapLength] 精算法的搭接長度格數，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 ' @return {Array} [arrSplice] 回傳加上延伸長度的斷筋點，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 '
 
     Dim arrSplice() As Integer
 
-    arrSplice = arrGirderMultiRebar
+    arrSplice = arrMultiRebar
 
     ubSmartSplice = UBound(arrSplice)
 
@@ -652,14 +676,14 @@ Function CalSmartSplice(ByVal arrGirderMultiRebar, ByVal arrMultiLapLength)
         For j = 1 To varSpliceNum
 
             ' 要延伸幾格
-            lapLength = arrMultiLapLength(i, j)
+            lapLength = arrLapLength(i, j)
 
             For k = 1 To lapLength
 
                 If j + k <= varSpliceNum Then
 
                     prevBar = arrSplice(i, j + k)
-                    lapBar = arrGirderMultiRebar(i, j)
+                    lapBar = arrMultiRebar(i, j)
 
                     arrSplice(i, j + k) = ran.Max(prevBar, lapBar)
 
@@ -673,14 +697,14 @@ Function CalSmartSplice(ByVal arrGirderMultiRebar, ByVal arrMultiLapLength)
         For j = varSpliceNum To 1 Step -1
 
             ' 輸出要延伸幾格
-            lapLength = arrMultiLapLength(i, j)
+            lapLength = arrLapLength(i, j)
 
             For k = 1 To lapLength
 
                 If j - k >= 1 Then
 
                     prevBar = arrSplice(i, j - k)
-                    lapBar = arrGirderMultiRebar(i, j)
+                    lapBar = arrMultiRebar(i, j)
 
                     arrSplice(i, j - k) = ran.Max(prevBar, lapBar)
 
@@ -964,14 +988,14 @@ Sub Main()
 
     arrSmartSplice = CalSmartSplice(arrMultiRebar, arrLapLength)
 
-    arrSmartSplice = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
+    arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
-    arrThreePoints = ThreePoints(arrBeam, arrSmartSplice)
+    arrThreePoints = ThreePoints(arrBeam, arrSmartSpliceModify)
     ' arrSmartSplice = OptimizeMultiRebar(arrRebarTotalNum)
 
-    varOptimizeResult = CalOptimizeResult(arrSmartSplice, arrNormalSplice)
+    varOptimizeResult = CalOptimizeResult(arrSmartSpliceModify, arrNormalSplice)
 
-    Call PrintResult(arrSmartSplice, 3)
+    Call PrintResult(arrSmartSpliceModify, 3)
     Call PrintResult(arrNormalSplice, varSpliceNum + 5)
     Call PrintResult(arrThreePoints, 2 * (varSpliceNum + 5))
     wsResult.Cells(2, 2) = varOptimizeResult

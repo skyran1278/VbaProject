@@ -77,29 +77,30 @@ Sub Test()
     ' 不包含標題
     arrBeam = ran.GetRangeToArray(wsBeam, 3, 1, 5, 16)
 
-    arrRebarTotalNum = CalRebarTotalNum(arrBeam)
+    arrRebar1stNum = GetRebar1stNum(arrBeam)
+
+    arrRebarTotalNum = GetRebarTotalNum(arrBeam)
+
+    arrRebarTotalArea = GetRebarTotalArea(arrBeam)
 
     arrNormalSplice = CalNormalSplice(arrRebarTotalNum)
 
-    arrRebarTotalArea = CalRebarTotalArea(arrBeam)
+    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea)
 
-    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrBeam, arrRebarTotalArea)
+    arrLapLength = CalLapLength(arrBeam, arrRebar1stNum, arrMultiRebar)
 
-    arrLapLengthRatio = CalLapLengthRatio(arrBeam)
-    arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
-
-    arrSmartSplice = CalSplice(arrGirderMultiRebar, arrMultiLapLength)
+    arrSmartSplice = CalSmartSplice(arrMultiRebar, arrLapLength)
 
     arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
     arrThreePoints = ThreePoints(arrBeam, arrSmartSpliceModify)
 
-    rowStartNext = PrintResult(arrRebarTotalNum, 3, 29)
+    rowStartNext = PrintResult(arrRebar1stNum, 3, 29)
+    rowStartNext = PrintResult(arrRebarTotalNum, rowStartNext, 29)
     rowStartNext = PrintResult(arrRebarTotalArea, rowStartNext, 29)
     rowStartNext = PrintResult(arrNormalSplice, rowStartNext, 29)
-    rowStartNext = PrintResult(arrGirderMultiRebar, rowStartNext, 29)
-    rowStartNext = PrintResult(arrLapLengthRatio, rowStartNext, 29)
-    rowStartNext = PrintResult(arrMultiLapLength, rowStartNext, 29)
+    rowStartNext = PrintResult(arrMultiRebar, rowStartNext, 29)
+    rowStartNext = PrintResult(arrLapLength, rowStartNext, 29)
     rowStartNext = PrintResult(arrSmartSplice, rowStartNext, 29)
     rowStartNext = PrintResult(arrSmartSpliceModify, rowStartNext, 29)
     rowStartNext = PrintResult(arrThreePoints, rowStartNext, 29)
@@ -108,19 +109,3 @@ Sub Test()
     Call ran.ExecutionTime(False)
 
 End Sub
-
-Function func()
-'
-' descrip.
-'
-' @since 1.0.0
-' @param {type} [name] descrip.
-' @return {type} [name] descrip.
-' @see dependencies
-'
-
-    For i = 1 To 5.5
-        Debug.Print i
-    Next i
-
-End Function
