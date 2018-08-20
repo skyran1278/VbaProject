@@ -571,8 +571,7 @@ Function CalLapLength(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrMultiRebar)
                 ld_ = factor * ldb_
 
                 ' 不是搭接長度，是延伸長度
-                ' 換算成比例
-                ' 搭接長度 / 梁長
+                ' 搭接長度 / 梁長 * 格數
                 arrLapLength(row_, col_) = ran.RoundUp(ran.Min(ld_, simpleLd) / length_ * varSpliceNum)
 
                 ' End If
@@ -588,71 +587,71 @@ Function CalLapLength(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrMultiRebar)
 End Function
 
 
-Function CalMultiLapLength(ByVal arrLapLength)
-'
-' ratio => 格數
-' 左中右 => multi
-' 1 2 排取大值
-'
-' @param {Array} [arrLapLength] 精算法的搭接長度比例，列數與 arrBeam 對齊，行數分左中右.
-' @return {Array} [arrMultiLapLength] 回傳精算法的搭接長度格數，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+' Function CalMultiLapLength(ByVal arrLapLength)
+' '
+' ' ratio => 格數
+' ' 左中右 => multi
+' ' 1 2 排取大值
+' '
+' ' @param {Array} [arrLapLength] 精算法的搭接長度比例，列數與 arrBeam 對齊，行數分左中右.
+' ' @return {Array} [arrMultiLapLength] 回傳精算法的搭接長度格數，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 
-    Dim arrMultiLapLength() As Integer
+'     Dim arrMultiLapLength() As Integer
 
-    ubLapLength = UBound(arrLapLength)
+'     ubLapLength = UBound(arrLapLength)
 
-    ReDim arrMultiLapLength(1 To ubLapLength, 1 To varSpliceNum)
+'     ReDim arrMultiLapLength(1 To ubLapLength, 1 To varSpliceNum)
 
-    ubMultiLapLength = UBound(arrMultiLapLength)
+'     ubMultiLapLength = UBound(arrMultiLapLength)
 
-    varLeft = 1
-    varMid = 2
-    varRight = 3
+'     varLeft = 1
+'     varMid = 2
+'     varRight = 3
 
-    varOneThreeSpliceNum = ran.RoundUp(varSpliceNum / 3)
-    varTwoThreeSpliceNum = ran.RoundUp(2 * varSpliceNum / 3)
+'     varOneThreeSpliceNum = ran.RoundUp(varSpliceNum / 3)
+'     varTwoThreeSpliceNum = ran.RoundUp(2 * varSpliceNum / 3)
 
-    For i = 1 To ubMultiLapLength
+'     For i = 1 To ubMultiLapLength
 
-        For j = varLeft To varRight
+'         For j = varLeft To varRight
 
-            ' 轉換成格數
-            arrLapLength(i, j) = ran.RoundUp(arrLapLength(i, j) * varSpliceNum)
+'             ' 轉換成格數
+'             arrLapLength(i, j) = ran.RoundUp(arrLapLength(i, j) * varSpliceNum)
 
-        Next j
+'         Next j
 
-    Next i
+'     Next i
 
-    For i = 1 To ubMultiLapLength Step 2
+'     For i = 1 To ubMultiLapLength Step 2
 
-        ' 這裡有一個 bug 就是要先抽離變數，否則進去 Max 型態會改變造成錯誤.
-        ' 左端
-        For j = 1 To varOneThreeSpliceNum
-            row1 = arrLapLength(i, varLeft)
-            row2 = arrLapLength(i + 1, varLeft)
-            arrMultiLapLength(i, j) = ran.RoundUp(ran.Max(row1, row2))
-        Next j
+'         ' 這裡有一個 bug 就是要先抽離變數，否則進去 Max 型態會改變造成錯誤.
+'         ' 左端
+'         For j = 1 To varOneThreeSpliceNum
+'             row1 = arrLapLength(i, varLeft)
+'             row2 = arrLapLength(i + 1, varLeft)
+'             arrMultiLapLength(i, j) = ran.RoundUp(ran.Max(row1, row2))
+'         Next j
 
-        ' 中央
-        For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum
-            row1 = arrLapLength(i, varMid)
-            row2 = arrLapLength(i + 1, varMid)
-            arrMultiLapLength(i, j) = ran.RoundUp(ran.Max(row1, row2))
-        Next j
+'         ' 中央
+'         For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum
+'             row1 = arrLapLength(i, varMid)
+'             row2 = arrLapLength(i + 1, varMid)
+'             arrMultiLapLength(i, j) = ran.RoundUp(ran.Max(row1, row2))
+'         Next j
 
-        ' 右端
-        For j = varTwoThreeSpliceNum + 1 To varSpliceNum
-            row1 = arrLapLength(i, varRight)
-            row2 = arrLapLength(i + 1, varRight)
-            arrMultiLapLength(i, j) = ran.RoundUp(ran.Max(row1, row2))
-        Next j
+'         ' 右端
+'         For j = varTwoThreeSpliceNum + 1 To varSpliceNum
+'             row1 = arrLapLength(i, varRight)
+'             row2 = arrLapLength(i + 1, varRight)
+'             arrMultiLapLength(i, j) = ran.RoundUp(ran.Max(row1, row2))
+'         Next j
 
-    Next i
+'     Next i
 
-    CalMultiLapLength = arrMultiLapLength
+'     CalMultiLapLength = arrMultiLapLength
 
 
-End Function
+' End Function
 
 
 Function CalSmartSplice(ByVal arrMultiRebar, ByVal arrLapLength)
@@ -678,7 +677,8 @@ Function CalSmartSplice(ByVal arrMultiRebar, ByVal arrLapLength)
             ' 要延伸幾格
             lapLength = arrLapLength(i, j)
 
-            For k = 1 To lapLength
+            ' 包含自己原本的長度，因為需求是從端點開始的
+            For k = 1 To lapLength - 1
 
                 If j + k <= varSpliceNum Then
 
@@ -699,7 +699,8 @@ Function CalSmartSplice(ByVal arrMultiRebar, ByVal arrLapLength)
             ' 輸出要延伸幾格
             lapLength = arrLapLength(i, j)
 
-            For k = 1 To lapLength
+            ' 包含自己原本的長度，因為需求是從端點開始的
+            For k = 1 To lapLength - 1
 
                 If j - k >= 1 Then
 
