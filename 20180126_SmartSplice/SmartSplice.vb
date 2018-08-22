@@ -342,7 +342,7 @@ Function CalGravityDemand(ByVal arrBeam)
 
         arrGravity(i, 1) = as_top
         ' 1/12
-        arrGravity(i, 2) = as_top * 2
+        arrGravity(i, 2) = - as_top * 2
         arrGravity(i, 3) = as_top
         arrGravity(i + 2, 2) = as_bot
 
@@ -1003,21 +1003,21 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
     End With
 
     ' 格式化條件
-    ' For i = rowStart To rowEnd Step 2
-    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-    '         .FormatConditions.AddColorScale ColorScaleType:=3
-    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
-    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+    For i = rowStart To rowEnd Step 2
+        With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+            .FormatConditions.AddColorScale ColorScaleType:=3
+            .FormatConditions(.FormatConditions.Count).SetFirstPriority
+            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
 
-    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-    '         .FormatConditions(1).ColorScaleCriteria(2).value = 50
-    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+            .FormatConditions(1).ColorScaleCriteria(2).value = 50
+            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
 
-    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
-    '     End With
-    ' Next i
+            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+        End With
+    Next i
 
     colStartNext = colEnd + 3
     PrintResult = colStartNext
