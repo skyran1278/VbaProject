@@ -4,6 +4,8 @@ Public ran As UTILS_CLASS
 Public APP
 Public wsBeam As Worksheet
 Public wsResult As Worksheet
+Public wsErr As Worksheet
+Public varErrNum As Integer
 Public objRebarSizeToDb As Object
 Public objRebarSizeToArea As Object
 Public objStoryToFy As Object
@@ -21,11 +23,16 @@ Public objStoryToCover As Object
 Function SetGlobalVar()
 '
 ' set global variable.
+' Scan Info 是否為空
 '
 
     ' global var
     Set wsBeam = Worksheets("大梁配筋")
     Set wsResult = Worksheets("最佳化斷筋點")
+    Set wsErr = Worksheets("ERROR")
+
+    ' 從第二列開始
+    varErrNum = 2
 
     arrRebarSize = ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10)
 
@@ -35,7 +42,24 @@ Function SetGlobalVar()
     ' #3 => 0.71cm^2
     Set objRebarSizeToArea = ran.CreateDictionary(arrRebarSize, 1, 10)
 
-    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 2, 4, 4, 12)
+    ' 第一列也抓進來，方便秀出錯誤訊息。
+    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 1, 4, 4, 12)
+
+    lbRowInfo = LBound(arrInfo, 1)
+    ubRowInfo = UBound(arrInfo, 1)
+    lbColInfo = LBound(arrInfo, 2)
+    ubColInfo = UBound(arrInfo, 2)
+
+    ' 掃描是否有沒輸入的數值
+    For i = lbRowInfo To ubRowInfo
+        For j = lbColInfo To ubColInfo
+
+            If arrInfo(i, j) = "" Then
+                PrintErr "General Information " & arrInfo(i, 1) & " " & arrInfo(1, j) & " 是否空白？"
+            End If
+
+        Next j
+    Next i
 
     Set objStoryToFy = ran.CreateDictionary(arrInfo, 1, 2)
     Set objStoryToFyt = ran.CreateDictionary(arrInfo, 1, 3)
@@ -49,45 +73,28 @@ Function SetGlobalVar()
 End Function
 
 
+Function PrintErr(ByVal msg)
+'
+' 列印出錯誤.
+'
+' @param {String} [msg] 錯誤訊息.
+'
+
+    With wsErr
+        .Cells(varErrNum, 2) = varErrNum - 1
+        .Cells(varErrNum, 2) = msg
+        varErrNum = varErrNum + 1
+    End With
+
+End Function
+
+
 Function ClearPrevOutputData()
 '
 ' 清空前次輸出的資料.
 '
 
     wsResult.Cells.Clear
-
-End Function
-
-
-Function GetRebarTotalNum(ByVal arrBeam)
-'
-' 計算上下排總支數
-'
-' @param {Array} [arrBeam] RCAD 輸出資料.
-' @return {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
-'
-
-    Dim arrRebarTotalNum() As Integer
-    ReDim arrRebarTotalNum(1 To UBound(arrBeam), 1 To 3)
-
-    rowStart = 1
-    rowEnd = UBound(arrBeam)
-    colStart = 6
-    colEnd = 8
-
-    ' 一二排相加
-    For i = rowStart To rowEnd Step 2
-        For j = colStart To colEnd
-
-            colRebarTotalNum = j - 5
-
-            ' 計算上下排總支數
-            arrRebarTotalNum(i, colRebarTotalNum) = Int(Split(arrBeam(i, j), "-")(0)) + Int(Split(arrBeam(i + 1, j), "-")(0))
-
-        Next
-    Next
-
-    GetRebarTotalNum = arrRebarTotalNum
 
 End Function
 
@@ -126,8 +133,43 @@ Function GetRebar1stNum(ByVal arrBeam)
 End Function
 
 
+Function GetRebarTotalNum(ByVal arrBeam)
+'
+' 計算上下排總支數
+'
+' @param {Array} [arrBeam] RCAD 輸出資料.
+' @return {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
+'
+
+    Dim arrRebarTotalNum() As Integer
+    ReDim arrRebarTotalNum(1 To UBound(arrBeam), 1 To 3)
+
+    rowStart = 1
+    rowEnd = UBound(arrBeam)
+    colStart = 6
+    colEnd = 8
+
+    ' 一二排相加
+    For i = rowStart To rowEnd Step 2
+        For j = colStart To colEnd
+
+            colRebarTotalNum = j - 5
+
+            ' 計算上下排總支數
+            arrRebarTotalNum(i, colRebarTotalNum) = Int(Split(arrBeam(i, j), "-")(0)) + Int(Split(arrBeam(i + 1, j), "-")(0))
+
+        Next
+    Next
+
+    GetRebarTotalNum = arrRebarTotalNum
+
+End Function
+
+
 Function GetRebarTotalArea(ByVal arrBeam)
 '
+' Scan 左中右號數相等
+' Scan 上下排號數相等
 ' 計算上下排總鋼筋量
 '
 ' @param {Array} [arrBeam] RCAD 輸出資料.
@@ -247,12 +289,13 @@ End Function
 Function CalGravityDemand(ByVal arrBeam)
 '
 ' 計算重力所需要的鋼筋量
+' Scan 箍筋號數左中右相等
 '
 ' @param {Array} [arrBeam] RCAD 輸出資料.
 ' @return {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
 '
 
-    Dim arrGravity() As Integer
+    Dim arrGravity() As Double
     ReDim arrGravity(1 To UBound(arrBeam), 1 To 3)
 
     rowStart = 1
@@ -267,6 +310,20 @@ Function CalGravityDemand(ByVal arrBeam)
         h = arrBeam(i, 4)
         span = arrBeam(i, 13)
 
+        stirrupLeft = "#" & Split(Split(arrBeam(i, 10), "@")(0), "#")(1)
+        stirrupMid = "#" & Split(Split(arrBeam(i, 11), "@")(0), "#")(1)
+        stirrupRight = "#" & Split(Split(arrBeam(i, 12), "@")(0), "#")(1)
+
+        If stirrupLeft <> stirrupMid Or stirrupLeft <> stirrupRight Then
+            PrintErr "第" & i & " 列箍筋左中右號數不相等"
+        End If
+
+        stirrupSize = stirrupLeft
+        fytDb = objRebarSizeToDb.Item(stirrupSize)
+
+        barSize = Split(arrBeam(i, 6), "-")(1)
+        fyDb = objRebarSizeToDb.Item(barSize)
+
         fy_ = objStoryToFy.Item(storey)
         fyt_ = objStoryToFyt.Item(storey)
         fc_ = objStoryToFc.Item(storey)
@@ -280,13 +337,18 @@ Function CalGravityDemand(ByVal arrBeam)
         mn_bot = 1 / 8 * (1.2 * ((SDL + 2.4 * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
 
         ' 隨便寫寫的
-        as_top = mn_top / (fy_ * 0.9 * (h - cover - 1.5875 - 1.5 * 3.226))
-        as_bot = mn_bot / (fy_ * 0.9 * (h - cover - 1.5875 - 1.5 * 3.226))
+        as_top = mn_top / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDb))
+        as_bot = mn_bot / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDb))
 
-
-
+        arrGravity(i, 1) = as_top
+        ' 1/12
+        arrGravity(i, 2) = as_top * 2
+        arrGravity(i, 3) = as_top
+        arrGravity(i + 2, 2) = as_bot
 
     Next
+
+    CalGravityDemand = arrGravity
 
 End Function
 
@@ -303,7 +365,7 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
 ' @return {Array} [arrGirderMultiRebar] 依據演算法的配筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 '
 
-    Dim arrGirderMultiRebar() As Integer
+    Dim arrGirderMultiRebar() As Double
 
     ubRebarTotalNum = UBound(arrRebarTotalArea)
 
@@ -377,43 +439,6 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
 
     OptimizeMultiRebar = arrGirderMultiRebar
 
-
-End Function
-
-
-Function PrintResult(ByVal arrResult, ByVal colStart)
-'
-' 列印出最佳化結果
-' 隱含著從 0 開始
-'
-' @param {Array} [arrResult] 需要 print 出的陣列.
-' @param {Array} [colStart] 從哪一列開始.
-'
-
-    With wsResult
-        rowStart = 3
-        rowEnd = rowStart + UBound(arrResult, 1) - 1
-        colEnd = colStart + UBound(arrResult, 2) - 1
-
-        .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
-    End With
-
-    ' 格式化條件
-    For i = rowStart To rowEnd Step 2
-        With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-            .FormatConditions.AddColorScale ColorScaleType:=3
-            .FormatConditions(.FormatConditions.Count).SetFirstPriority
-            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
-
-            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-            .FormatConditions(1).ColorScaleCriteria(2).value = 50
-            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
-
-            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
-        End With
-    Next i
 
 End Function
 
@@ -596,7 +621,7 @@ End Function
 ' ' @param {Array} [arrLapLength] 精算法的搭接長度比例，列數與 arrBeam 對齊，行數分左中右.
 ' ' @return {Array} [arrMultiLapLength] 回傳精算法的搭接長度格數，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 
-'     Dim arrMultiLapLength() As Integer
+'     Dim arrMultiLapLength() As Double
 
 '     ubLapLength = UBound(arrLapLength)
 
@@ -663,7 +688,7 @@ Function CalSmartSplice(ByVal arrMultiRebar, ByVal arrLapLength)
 ' @return {Array} [arrSplice] 回傳加上延伸長度的斷筋點，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 '
 
-    Dim arrSplice() As Integer
+    Dim arrSplice() As Double
 
     arrSplice = arrMultiRebar
 
@@ -731,7 +756,7 @@ Function CalNormalSplice(ByVal arrRebarTotalNum)
 ' @return {Array} [arrNormalSplice] 依據 arrRebarTotalNum，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 '
 
-    Dim arrNormalSplice() As Integer
+    Dim arrNormalSplice() As Double
 
     ubRebarNumber = UBound(arrRebarTotalNum)
 
@@ -959,6 +984,47 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
 End Function
 
 
+Function PrintResult(ByVal arrResult, ByVal colStart)
+'
+' 列印出最佳化結果
+' 隱含著從 0 開始
+'
+' @param {Array} [arrResult] 需要 print 出的陣列.
+' @param {Array} [colStart] 從哪一列開始.
+'
+
+    rowStart = 3
+
+    rowEnd = rowStart + UBound(arrResult, 1) - 1
+    colEnd = colStart + UBound(arrResult, 2) - 1
+
+    With wsResult
+        .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
+    End With
+
+    ' 格式化條件
+    ' For i = rowStart To rowEnd Step 2
+    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+    '         .FormatConditions.AddColorScale ColorScaleType:=3
+    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
+    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+
+    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+    '         .FormatConditions(1).ColorScaleCriteria(2).value = 50
+    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+
+    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+    '     End With
+    ' Next i
+
+    colStartNext = colEnd + 3
+    PrintResult = colStartNext
+
+End Function
+
+
 Sub Main()
 
     Set ran = New UTILS_CLASS
@@ -982,6 +1048,8 @@ Sub Main()
 
     arrNormalSplice = CalNormalSplice(arrRebarTotalNum)
 
+    arrGravity = CalGravityDemand(arrBeam)
+
     arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea)
 
     arrLapLength = CalLapLength(arrBeam, arrRebar1stNum, arrMultiRebar)
@@ -996,9 +1064,10 @@ Sub Main()
 
     varOptimizeResult = CalOptimizeResult(arrSmartSpliceModify, arrNormalSplice)
 
-    Call PrintResult(arrSmartSpliceModify, 3)
-    Call PrintResult(arrNormalSplice, varSpliceNum + 5)
-    Call PrintResult(arrThreePoints, 2 * (varSpliceNum + 5))
+    colNext = PrintResult(arrSmartSpliceModify, 3)
+    colNext = PrintResult(arrNormalSplice, colNext)
+    colNext = PrintResult(arrThreePoints, colNext)
+
     wsResult.Cells(2, 2) = varOptimizeResult
 
     Call ran.PerformanceVBA(False)
