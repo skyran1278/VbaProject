@@ -307,8 +307,8 @@ Function CalGravityDemand(ByVal arrBeam)
         bot_ = i + 2
 
         storey = arrBeam(i, 1)
-        h = arrBeam(i, 4)
-        span = arrBeam(i, 13)
+        h = arrBeam(i, 4) ' cm
+        span = arrBeam(i, 13) ' cm
 
         stirrupLeft = "#" & Split(Split(arrBeam(i, 10), "@")(0), "#")(1)
         stirrupMid = "#" & Split(Split(arrBeam(i, 11), "@")(0), "#")(1)
@@ -319,23 +319,24 @@ Function CalGravityDemand(ByVal arrBeam)
         End If
 
         stirrupSize = stirrupLeft
-        fytDb = objRebarSizeToDb.Item(stirrupSize)
+        fytDb = objRebarSizeToDb.Item(stirrupSize) ' cm
 
         barSize = Split(arrBeam(i, 6), "-")(1)
-        fyDb = objRebarSizeToDb.Item(barSize)
+        fyDb = objRebarSizeToDb.Item(barSize) ' cm
 
-        fy_ = objStoryToFy.Item(storey)
-        fyt_ = objStoryToFyt.Item(storey)
-        fc_ = objStoryToFc.Item(storey)
-        SDL = objStoryToSDL.Item(storey)
-        LL = objStoryToLL.Item(storey)
-        band = objStoryToBand.Item(storey)
-        slab = objStoryToSlab.Item(storey)
-        cover = objStoryToCover.Item(storey)
+        fy_ = objStoryToFy.Item(storey) ' kgf/cm^2
+        fyt_ = objStoryToFyt.Item(storey) ' kgf/cm^2
+        fc_ = objStoryToFc.Item(storey) ' kgf/cm^2
+        SDL = objStoryToSDL.Item(storey) / 10 ' kgf/cm^2
+        LL = objStoryToLL.Item(storey) / 10 ' kgf/cm^2
+        band = objStoryToBand.Item(storey) * 100 ' cm
+        slab = objStoryToSlab.Item(storey) * 100 ' cm
+        cover = objStoryToCover.Item(storey) ' cm
 
         ' 單位有錯
-        mn_top = 1 / 24 * (0.9 * ((SDL + 2.4 * slab) * band)) * (span ^ 2) * 100000
-        mn_bot = 1 / 8 * (1.2 * ((SDL + 2.4 * slab) * band) + 1.6 * (LL * band)) * (span ^ 2) * 100000
+        ' 鋼筋混凝土單位重 2.4 tf/m^3
+        mn_top = 1 / 24 * (0.9 * ((SDL + (2.4 * (10 ^ (-3))) * slab) * band)) * (span ^ 2)
+        mn_bot = 1 / 8 * (1.2 * ((SDL + (2.4 * (10 ^ (-3))) * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
 
         ' 隨便寫寫的
         as_top = mn_top / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDb))
@@ -360,6 +361,7 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
 ' 下層筋由重力與耐震共同控制.
 ' FIXME: 隱含了鋼筋必須相同的限制，思考要不要轉換成鋼筋量
 ' FIXME: 演算法具有問題
+' TODO: 可能要做很多個判斷式了
 '
 ' @param {Array} [arrRebarTotalArea] 總鋼筋量，列數與 arrBeam 對齊，行數分左中右.
 ' @param {Array} [arrBeam] RCAD 輸出資料.
