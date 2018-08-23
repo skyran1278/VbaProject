@@ -333,8 +333,9 @@ Function CalGravityDemand(ByVal arrBeam)
         slab = objStoryToSlab.Item(storey)
         cover = objStoryToCover.Item(storey)
 
-        mn_top = 1 / 24 * (0.9 * ((SDL + 2.4 * slab) * band)) * (span ^ 2)
-        mn_bot = 1 / 8 * (1.2 * ((SDL + 2.4 * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
+        ' 單位有錯
+        mn_top = 1 / 24 * (0.9 * ((SDL + 2.4 * slab) * band)) * (span ^ 2) * 100000
+        mn_bot = 1 / 8 * (1.2 * ((SDL + 2.4 * slab) * band) + 1.6 * (LL * band)) * (span ^ 2) * 100000
 
         ' 隨便寫寫的
         as_top = mn_top / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDb))
@@ -1003,21 +1004,21 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
     End With
 
     ' 格式化條件
-    For i = rowStart To rowEnd Step 2
-        With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-            .FormatConditions.AddColorScale ColorScaleType:=3
-            .FormatConditions(.FormatConditions.Count).SetFirstPriority
-            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+    ' For i = rowStart To rowEnd Step 2
+    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+    '         .FormatConditions.AddColorScale ColorScaleType:=3
+    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
+    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
 
-            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-            .FormatConditions(1).ColorScaleCriteria(2).value = 50
-            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+    '         .FormatConditions(1).ColorScaleCriteria(2).value = 50
+    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
 
-            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
-        End With
-    Next i
+    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+    '     End With
+    ' Next i
 
     colStartNext = colEnd + 3
     PrintResult = colStartNext
