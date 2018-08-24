@@ -68,7 +68,7 @@ Function PrintResult(ByVal arrResult, ByVal rowStart)
 ' @return {Number} [rowStartNext] 回傳下一次從第幾列 print.
 '
 
-    colStart = 29
+    colStart = 28
 
     rowEnd = rowStart + UBound(arrResult, 1) - LBound(arrResult, 1)
     colEnd = colStart + UBound(arrResult, 2) - LBound(arrResult, 2)
@@ -109,7 +109,7 @@ Sub Test()
 
     arrGravity = CalGravityDemand(arrBeam)
 
-    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea)
+    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea, arrGravity)
 
     arrLapLength = CalLapLength(arrBeam, arrRebar1stNum, arrMultiRebar)
 

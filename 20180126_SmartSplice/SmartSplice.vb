@@ -321,8 +321,10 @@ Function CalGravityDemand(ByVal arrBeam)
         stirrupSize = stirrupLeft
         fytDb = objRebarSizeToDb.Item(stirrupSize) ' cm
 
-        barSize = Split(arrBeam(i, 6), "-")(1)
-        fyDb = objRebarSizeToDb.Item(barSize) ' cm
+        barSizeTop = Split(arrBeam(i, 6), "-")(1)
+        barSizeBot = Split(arrBeam(i + 3, 6), "-")(1)
+        fyDbTop = objRebarSizeToDb.Item(barSizeTop) ' cm
+        fyDbBot = objRebarSizeToDb.Item(barSizeBot) ' cm
 
         fy_ = objStoryToFy.Item(storey) ' kgf/cm^2
         fyt_ = objStoryToFyt.Item(storey) ' kgf/cm^2
@@ -335,17 +337,20 @@ Function CalGravityDemand(ByVal arrBeam)
 
         ' 單位有錯
         ' 鋼筋混凝土單位重 2.4 tf/m^3
-        mn_top = 1 / 24 * (0.9 * ((SDL + (2.4 * (10 ^ (-3))) * slab) * band)) * (span ^ 2)
-        mn_bot = 1 / 8 * (1.2 * ((SDL + (2.4 * (10 ^ (-3))) * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
+        mn_top = 1 / 24 * (0.9 * ((SDL + (2.4 * 0.001) * slab) * band)) * (span ^ 2)
+        mn_bot = 1 / 8 * (1.2 * ((SDL + (2.4 * 0.001) * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
 
         ' 隨便寫寫的
-        as_top = mn_top / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDb))
-        as_bot = mn_bot / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDb))
+        as_top = mn_top / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDbTop))
+        as_bot = mn_bot / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDbBot))
 
         arrGravity(i, 1) = as_top
-        ' 1/12
-        arrGravity(i, 2) = - as_top * 2
+
+        ' 上層中央
+        arrGravity(i, 2) = as_top * 2
+
         arrGravity(i, 3) = as_top
+
         arrGravity(i + 2, 2) = as_bot
 
     Next
@@ -355,7 +360,7 @@ Function CalGravityDemand(ByVal arrBeam)
 End Function
 
 
-Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
+Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGravity)
 '
 ' 上層筋由耐震控制.
 ' 下層筋由重力與耐震共同控制.
@@ -389,26 +394,61 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea)
     ' 上層筋由耐震控制.
     For i = 1 To ubGirderMultiRebar Step 4
 
-        ' arrGirderMultiRebar(i, 0) = "上層"
+        If arrRebarTotalArea(i, varLeft) > arrRebarTotalArea(i, varMid) And arrRebarTotalArea(i, varRight) > arrRebarTotalArea(i, varMid) Then
 
-        rebar1stSize = Split(arrBeam(i, 6), "-")(1)
-        area_ = objRebarSizeToArea.Item(rebar1stSize)
+            rebar1stSize = Split(arrBeam(i, 6), "-")(1)
+            area_ = objRebarSizeToArea.Item(rebar1stSize)
 
-        ' 左端到中央
-        ratio = 1
-        For j = 1 To varHalfOfSpliceNum
-            ' 耐震和 2 支取大值
-            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varLeft) / area_, 2))
-            ratio = ratio - slope_
-        Next j
+            ' 地震力需求
+            ' 總鋼筋量 - 重力
+            EQLeft = arrRebarTotalArea(i, varLeft) - arrGravity(i, varLeft)
 
-        ' 右端到中央
-        ratio = 1
-        For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
-            ' 耐震和 2 支取大值
-            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, 2))
-            ratio = ratio - slope_
-        Next j
+            ratio = 1
+
+            ' 左端到中央
+            For j = 1 To varHalfOfSpliceNum
+
+                ' 重力需求
+                gravityLeft = - (1 - ratio ^ 2) * (arrGravity(i, varLeft) + arrGravity(i, varMid)) + arrGravity(i, varLeft)
+
+                ' 當重力 > 0 才加
+                ' 和 2 支取大值
+                If gravityLeft > 0 Then
+                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQLeft + gravityLeft) / area_, 2))
+                Else
+                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQLeft) / area_, 2))
+                End If
+
+                ratio = ratio - slope_
+
+            Next j
+
+            ' 地震力需求
+            ' 總鋼筋量 - 重力
+            EQRight = arrRebarTotalArea(i, varRight) - arrGravity(i, varRight)
+
+            ratio = 1
+
+            ' 右端到中央
+            For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
+
+                ' 重力需求
+                gravityRight = - (1 - ratio ^ 2) * (arrGravity(i, varRight) + arrGravity(i, varMid)) + arrGravity(i, varRight)
+
+                ' 當重力 > 0 才加
+                ' 和 2 支取大值
+                If gravityRight > 0 Then
+                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQRight + gravityRight) / area_, 2))
+                Else
+                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQRight) / area_, 2))
+                End If
+
+                ratio = ratio - slope_
+
+            Next j
+
+        End If
+
 
     Next i
 
@@ -1053,7 +1093,7 @@ Sub Main()
 
     arrGravity = CalGravityDemand(arrBeam)
 
-    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea)
+    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea, arrGravity)
 
     arrLapLength = CalLapLength(arrBeam, arrRebar1stNum, arrMultiRebar)
     ' arrLapLength = CalMultiLapLength(arrLapLength)
