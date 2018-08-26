@@ -6,6 +6,10 @@ Function SetTestGlobalVar()
     ' global var
     Set wsBeam = Worksheets("大梁配筋 TEST")
     Set wsResult = Worksheets("最佳化斷筋點 TEST")
+    Set wsErr = Worksheets("ERROR")
+
+    ' 從第二列開始
+    varErrNum = 2
 
     arrRebarSize = ran.GetRangeToArray(Worksheets("Rebar Size"), 1, 1, 1, 10)
 
@@ -15,7 +19,24 @@ Function SetTestGlobalVar()
     ' #3 => 0.71cm^2
     Set objRebarSizeToArea = ran.CreateDictionary(arrRebarSize, 1, 10)
 
-    arrInfo = ran.GetRangeToArray(Worksheets("General Information TEST"), 2, 4, 4, 12)
+    ' 第一列也抓進來，方便秀出錯誤訊息。
+    arrInfo = ran.GetRangeToArray(Worksheets("General Information"), 1, 4, 4, 12)
+
+    lbRowInfo = LBound(arrInfo, 1)
+    ubRowInfo = UBound(arrInfo, 1)
+    lbColInfo = LBound(arrInfo, 2)
+    ubColInfo = UBound(arrInfo, 2)
+
+    ' 掃描是否有沒輸入的數值
+    For i = lbRowInfo To ubRowInfo
+        For j = lbColInfo To ubColInfo
+
+            If arrInfo(i, j) = "" Then
+                PrintErr "General Information " & arrInfo(i, 1) & " " & arrInfo(1, j) & " 是否空白？"
+            End If
+
+        Next j
+    Next i
 
     Set objStoryToFy = ran.CreateDictionary(arrInfo, 1, 2)
     Set objStoryToFyt = ran.CreateDictionary(arrInfo, 1, 3)
@@ -39,19 +60,20 @@ Function ClearPrevOutputData()
 
 End Function
 
-Function PrintResult(ByVal arrResult, ByVal rowStart, ByVal colStart)
+Function PrintResult(ByVal arrResult, ByVal rowStart)
 '
 ' 列印出最佳化結果
 '
 ' @param {Array} [arrResult] 需要 print 出的陣列.
-' @param {Array} [colStart] 從哪一列開始.
 ' @return {Number} [rowStartNext] 回傳下一次從第幾列 print.
 '
 
-    With wsResult
-        rowEnd = rowStart + UBound(arrResult, 1) - LBound(arrResult, 1)
-        colEnd = colStart + UBound(arrResult, 2) - LBound(arrResult, 2)
+    colStart = 28
 
+    rowEnd = rowStart + UBound(arrResult, 1) - LBound(arrResult, 1)
+    colEnd = colStart + UBound(arrResult, 2) - LBound(arrResult, 2)
+
+    With wsResult
         .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
     End With
 
@@ -77,50 +99,38 @@ Sub Test()
     ' 不包含標題
     arrBeam = ran.GetRangeToArray(wsBeam, 3, 1, 5, 16)
 
-    arrRebarTotalNum = CalRebarTotalNum(arrBeam)
+    arrRebar1stNum = GetRebar1stNum(arrBeam)
+
+    arrRebarTotalNum = GetRebarTotalNum(arrBeam)
+
+    arrRebarTotalArea = GetRebarTotalArea(arrBeam)
 
     arrNormalSplice = CalNormalSplice(arrRebarTotalNum)
 
-    arrRebarTotalArea = CalRebarTotalArea(arrBeam)
+    arrGravity = CalGravityDemand(arrBeam)
 
-    arrGirderMultiRebar = OptimizeGirderMultiRebar(arrBeam, arrRebarTotalArea)
+    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea, arrGravity)
 
-    arrLapLengthRatio = CalLapLengthRatio(arrBeam)
-    arrMultiLapLength = CalMultiLapLength(arrLapLengthRatio)
+    arrLapLength = CalLapLength(arrBeam, arrRebar1stNum, arrMultiRebar)
 
-    arrSmartSplice = CalSplice(arrGirderMultiRebar, arrMultiLapLength)
+    arrSmartSplice = CalSmartSplice(arrMultiRebar, arrLapLength)
 
     arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
     arrThreePoints = ThreePoints(arrBeam, arrSmartSpliceModify)
 
-    rowStartNext = PrintResult(arrRebarTotalNum, 3, 29)
-    rowStartNext = PrintResult(arrRebarTotalArea, rowStartNext, 29)
-    rowStartNext = PrintResult(arrNormalSplice, rowStartNext, 28)
-    rowStartNext = PrintResult(arrGirderMultiRebar, rowStartNext, 28)
-    rowStartNext = PrintResult(arrLapLengthRatio, rowStartNext, 29)
-    rowStartNext = PrintResult(arrMultiLapLength, rowStartNext, 28)
-    rowStartNext = PrintResult(arrSmartSplice, rowStartNext, 28)
-    rowStartNext = PrintResult(arrSmartSpliceModify, rowStartNext, 28)
-    rowStartNext = PrintResult(arrThreePoints, rowStartNext, 28)
+    rowStartNext = PrintResult(arrRebar1stNum, 3)
+    rowStartNext = PrintResult(arrRebarTotalNum, rowStartNext)
+    rowStartNext = PrintResult(arrRebarTotalArea, rowStartNext)
+    rowStartNext = PrintResult(arrNormalSplice, rowStartNext)
+    rowStartNext = PrintResult(arrGravity, rowStartNext)
+    rowStartNext = PrintResult(arrMultiRebar, rowStartNext)
+    rowStartNext = PrintResult(arrLapLength, rowStartNext)
+    rowStartNext = PrintResult(arrSmartSplice, rowStartNext)
+    rowStartNext = PrintResult(arrSmartSpliceModify, rowStartNext)
+    rowStartNext = PrintResult(arrThreePoints, rowStartNext)
 
     Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
 
 End Sub
-
-Function func()
-'
-' descrip.
-'
-' @since 1.0.0
-' @param {type} [name] descrip.
-' @return {type} [name] descrip.
-' @see dependencies
-'
-
-    For i = 1 To 5.5
-        Debug.Print i
-    Next i
-
-End Function
