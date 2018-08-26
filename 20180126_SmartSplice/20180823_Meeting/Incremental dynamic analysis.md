@@ -31,10 +31,26 @@
 
     - DM-based rule
     - IM-based rule
+        - FEMA 20% tangent slope approach
+    - composite
 
 5. MULTI-RECORD IDAS AND THEIR SUMMARY
+
+    - Multi-Record IDA
+    - IDA Curve Set
+        - parametric methods
+        - non-parametric methods
+        - 這個好玄，沒有看懂。
+
 6. THE IDA IN A PBEE FRAMEWORK
+
+    - 感覺是一個機率統計的框架
+
 7. SCALING LEGITIMACY AND IM SELECTION
+
+    - 探討放大的合法性
+    - 不要依據 PGA 放大
+
 8. THE IDA VERSUS THE R-FACTOR
 9. THE IDA VERSUS THE NON-LINEAR SPO
 10. IDA ALGORITHMS
