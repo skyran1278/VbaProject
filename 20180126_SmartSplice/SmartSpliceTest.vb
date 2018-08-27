@@ -109,7 +109,7 @@ Sub Test()
 
     arrGravity = CalGravityDemand(arrBeam)
 
-    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea, arrGravity)
+    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea, arrGravity, arrNormalSplice)
 
     arrLapLength = CalLapLength(arrBeam, arrRebar1stNum, arrMultiRebar)
 
