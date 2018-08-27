@@ -1,4 +1,6 @@
+% 驗證另一種演算法的正確性
 clc; clear; close all;
+
 
 maxDL = 20;
 maxEQ = 67;

@@ -360,7 +360,7 @@ Function CalGravityDemand(ByVal arrBeam)
 End Function
 
 
-Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGravity)
+Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGravity, ByVal arrNormalSplice)
 '
 ' 上層筋由耐震控制.
 ' 下層筋由重力與耐震共同控制.
@@ -447,36 +447,91 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
 
             Next j
 
-        End If
+        Else
 
+            For j = 1 To varSpliceNum
+                arrGirderMultiRebar(i, j) = arrNormalSplice(i, j)
+            Next j
+
+        End If
 
     Next i
 
     ' 下層筋由重力與耐震共同控制.
     For i = 3 To ubGirderMultiRebar Step 4
 
-        ' arrGirderMultiRebar(i, 0) = "下層"
+        ' 地震力需求
+        ' 總鋼筋量
+        EQLeft = arrRebarTotalArea(i, varLeft)
+        EQRight = arrRebarTotalArea(i, varRight)
 
+        If EQLeft > arrRebarTotalArea(i, varMid) And EQRight > arrRebarTotalArea(i, varMid) Then
+
+            ' 下層筋的鋼筋面積
         rebar1stSize = Split(arrBeam(i + 1, 6), "-")(1)
         area_ = objRebarSizeToArea.Item(rebar1stSize)
 
-        ' 左端到中央
+            If arrRebarTotalArea(i, varMid) > arrGravity(i, varMid) Then
+
+                ' 左端到中央遞減
+                ratio = 1
+                For j = 1 To varHalfOfSpliceNum
+
+                    ' 重力需求
+                    gravityLeft = (1 - ratio ^ 2) * arrGravity(i, varMid)
+
+                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQLeft + gravityLeft) / area_, 2))
+                    ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (EQLeft / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2))
+                    ratio = ratio - slope_
+                Next j
+
+                ' 右端到中央遞減
+                ratio = 1
+                For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
+
+                    ' 重力需求
+                    gravityRight = (1 - ratio ^ 2) * arrGravity(i, varMid)
+
+                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQRight + gravityRight) / area_, 2))
+                    ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (EQRight / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2))
+                    ratio = ratio - slope_
+                Next j
+
+            Else
+
+                ' 左端到中央遞減
         ratio = 1
         For j = 1 To varHalfOfSpliceNum
+
             ' 耐震、重力、2 支取大值
-            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varLeft) / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
-            ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (arrRebarTotalArea(i, varLeft) / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2))
+                    ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQLeft / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
+                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQLeft - arrRebarTotalArea(i, varMid)) + arrRebarTotalArea(i, varMid)) / area_, 2))
+
             ratio = ratio - slope_
+
         Next j
 
-        ' 中央到右端
+                ' 右端到中央遞減
         ratio = 1
         For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
+
             ' 耐震、重力、2 支取大值
-            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * arrRebarTotalArea(i, varRight) / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
-            ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (arrRebarTotalArea(i, varRight) / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2))
+                    ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQRight / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
+                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQRight - arrRebarTotalArea(i, varMid)) + arrRebarTotalArea(i, varMid)) / area_, 2))
+
             ratio = ratio - slope_
+
+                Next j
+
+            End If
+
+        Else
+
+            For j = 1 To varSpliceNum
+                arrGirderMultiRebar(i, j) = arrNormalSplice(i, j)
         Next j
+
+        End If
 
     Next i
 
@@ -1046,21 +1101,21 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
     End With
 
     ' 格式化條件
-    ' For i = rowStart To rowEnd Step 2
-    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-    '         .FormatConditions.AddColorScale ColorScaleType:=3
-    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
-    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+    For i = rowStart To rowEnd Step 2
+        With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+            .FormatConditions.AddColorScale ColorScaleType:=3
+            .FormatConditions(.FormatConditions.Count).SetFirstPriority
+            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
 
-    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-    '         .FormatConditions(1).ColorScaleCriteria(2).value = 50
-    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+            .FormatConditions(1).ColorScaleCriteria(2).value = 50
+            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
 
-    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
-    '     End With
-    ' Next i
+            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+        End With
+    Next i
 
     colStartNext = colEnd + 3
     PrintResult = colStartNext
@@ -1093,7 +1148,7 @@ Sub Main()
 
     arrGravity = CalGravityDemand(arrBeam)
 
-    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea, arrGravity)
+    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea, arrGravity, arrNormalSplice)
 
     arrLapLength = CalLapLength(arrBeam, arrRebar1stNum, arrMultiRebar)
     ' arrLapLength = CalMultiLapLength(arrLapLength)

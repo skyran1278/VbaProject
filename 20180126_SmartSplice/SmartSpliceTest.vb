@@ -55,7 +55,7 @@ Function ClearPrevOutputData()
 ' 清空前次輸出的資料.
 '
     With wsResult
-        .Range(.Cells(3, 28), .Cells(.Cells(Rows.Count, 29).End(xlUp).Row, 49)).ClearContents
+        .Range(.Cells(3, 28), .Cells(.Cells(Rows.Count, 29).End(xlUp).Row, 48)).ClearContents
     End With
 
 End Function
