@@ -329,18 +329,19 @@ Function CalGravityDemand(ByVal arrBeam)
         fy_ = objStoryToFy.Item(storey) ' kgf/cm^2
         fyt_ = objStoryToFyt.Item(storey) ' kgf/cm^2
         fc_ = objStoryToFc.Item(storey) ' kgf/cm^2
-        SDL = objStoryToSDL.Item(storey) / 10 ' kgf/cm^2
-        LL = objStoryToLL.Item(storey) / 10 ' kgf/cm^2
+        SDL = objStoryToSDL.Item(storey) * 1000 / 10000 ' kgf/cm^2
+        LL = objStoryToLL.Item(storey) * 1000 / 10000 ' kgf/cm^2
         band = objStoryToBand.Item(storey) * 100 ' cm
         slab = objStoryToSlab.Item(storey) * 100 ' cm
         cover = objStoryToCover.Item(storey) ' cm
 
-        ' 單位有錯
-        ' 鋼筋混凝土單位重 2.4 tf/m^3
+        ' 鋼筋混凝土單位重 2.4 tf/m^3 = 2.4 * 1000 kgf / 1000000 cm^3
+        ' kgf * cm
         mn_top = 1 / 24 * (0.9 * ((SDL + (2.4 * 0.001) * slab) * band)) * (span ^ 2)
         mn_bot = 1 / 8 * (1.2 * ((SDL + (2.4 * 0.001) * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
 
-        ' 隨便寫寫的
+        ' 轉換成鋼筋量
+        ' cm^2
         as_top = mn_top / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDbTop))
         as_bot = mn_bot / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDbBot))
 
@@ -449,6 +450,7 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
 
         Else
 
+            ' Hack: 直接還原成原本的配筋，不做更動，雖然接下來會經過延伸長度，但還會減少下來。
             For j = 1 To varSpliceNum
                 arrGirderMultiRebar(i, j) = arrNormalSplice(i, j)
             Next j
@@ -468,8 +470,8 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
         If EQLeft > arrRebarTotalArea(i, varMid) And EQRight > arrRebarTotalArea(i, varMid) Then
 
             ' 下層筋的鋼筋面積
-        rebar1stSize = Split(arrBeam(i + 1, 6), "-")(1)
-        area_ = objRebarSizeToArea.Item(rebar1stSize)
+            rebar1stSize = Split(arrBeam(i + 1, 6), "-")(1)
+            area_ = objRebarSizeToArea.Item(rebar1stSize)
 
             If arrRebarTotalArea(i, varMid) > arrGravity(i, varMid) Then
 
@@ -500,36 +502,37 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
             Else
 
                 ' 左端到中央遞減
-        ratio = 1
-        For j = 1 To varHalfOfSpliceNum
+                ratio = 1
+                For j = 1 To varHalfOfSpliceNum
 
-            ' 耐震、重力、2 支取大值
-                    ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQLeft / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
-                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQLeft - arrRebarTotalArea(i, varMid)) + arrRebarTotalArea(i, varMid)) / area_, 2))
+                    ' 耐震、重力、2 支取大值
+                            ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQLeft / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
+                            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQLeft - arrRebarTotalArea(i, varMid)) + arrRebarTotalArea(i, varMid)) / area_, 2))
 
-            ratio = ratio - slope_
-
-        Next j
-
-                ' 右端到中央遞減
-        ratio = 1
-        For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
-
-            ' 耐震、重力、2 支取大值
-                    ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQRight / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
-                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQRight - arrRebarTotalArea(i, varMid)) + arrRebarTotalArea(i, varMid)) / area_, 2))
-
-            ratio = ratio - slope_
+                    ratio = ratio - slope_
 
                 Next j
+
+                        ' 右端到中央遞減
+                ratio = 1
+                For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
+
+                    ' 耐震、重力、2 支取大值
+                            ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQRight / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
+                            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQRight - arrRebarTotalArea(i, varMid)) + arrRebarTotalArea(i, varMid)) / area_, 2))
+
+                    ratio = ratio - slope_
+
+                        Next j
 
             End If
 
         Else
 
+            ' Hack: 直接還原成原本的配筋，不做更動，雖然接下來會經過延伸長度，但還會減少下來。
             For j = 1 To varSpliceNum
                 arrGirderMultiRebar(i, j) = arrNormalSplice(i, j)
-        Next j
+            Next j
 
         End If
 
@@ -1030,50 +1033,62 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
     ReDim arrCombo(1 To combo, 1 To 6)
     ReDim arrComboUsage(1 To combo)
 
-    For row_ = 1 To ubSmartSplice Step 2
+    For row_ = 1 To ubSmartSplice Step 4
 
-        i = 1
+        span = arrBeam(row_, 13)
 
-        For colLeft = ubLeft To lbMid
+        ' 每四個迴圈中，迴圈其中兩排，來方便取得梁長
+        For rowRebar = row_ To row_ + 2 Step 2
 
-            For colRight = ubMid To lbRight
+            i = 1
 
-                midMaxRebar = 0
+            ' 左邊先決定
+            For colLeft = ubLeft To lbMid
 
-                For colMid = colLeft + 1 To colRight - 1
-                    midMaxRebar = ran.Max(midMaxRebar, arrSmartSplice(row_, colMid) * 1)
-                Next colMid
+                ' 右邊再決定
+                For colRight = ubMid To lbRight
 
-                arrCombo(i, 1) = arrSmartSplice(row_, 1)
-                arrCombo(i, 4) = colLeft / varSpliceNum
+                    midMaxRebar = 0
 
-                arrCombo(i, 2) = midMaxRebar
-                arrCombo(i, 5) = (colRight - colLeft - 1) / varSpliceNum
+                    ' 中間取最大值
+                    For colMid = colLeft + 1 To colRight - 1
 
-                arrCombo(i, 3) = arrSmartSplice(row_, varSpliceNum)
-                arrCombo(i, 6) = (varSpliceNum - colRight + 1) / varSpliceNum
+                        midMaxRebar = ran.Max(midMaxRebar, arrSmartSplice(rowRebar, colMid) * 1)
 
-                leftUsage = arrCombo(i, 1) * arrCombo(i, 4)
+                    Next colMid
 
-                midUsage = arrCombo(i, 2) * arrCombo(i, 5)
+                    arrCombo(i, 1) = arrSmartSplice(rowRebar, 1)
+                    arrCombo(i, 4) = colLeft / varSpliceNum * span
 
-                rightUsage = arrCombo(i, 3) * arrCombo(i, 6)
+                    arrCombo(i, 2) = midMaxRebar
+                    arrCombo(i, 5) = (colRight - colLeft - 1) / varSpliceNum * span
 
-                arrComboUsage(i) = leftUsage + midUsage + rightUsage
+                    arrCombo(i, 3) = arrSmartSplice(rowRebar, varSpliceNum)
+                    arrCombo(i, 6) = (varSpliceNum - colRight + 1) / varSpliceNum * span
 
-                i = i + 1
+                    leftUsage = arrCombo(i, 1) * arrCombo(i, 4)
 
-            Next colRight
+                    midUsage = arrCombo(i, 2) * arrCombo(i, 5)
 
-        Next colLeft
+                    rightUsage = arrCombo(i, 3) * arrCombo(i, 6)
 
-        arrComboUsageMin = APP.Min(arrComboUsage)
+                    arrComboUsage(i) = leftUsage + midUsage + rightUsage
 
-        comboUsageMinIndex = APP.Match(arrComboUsageMin, arrComboUsage, 0)
+                    i = i + 1
 
-        For i = 1 To 6
-            arrThreePoints(row_, i) = arrCombo(comboUsageMinIndex, i)
-        Next i
+                Next colRight
+
+            Next colLeft
+
+            arrComboUsageMin = APP.Min(arrComboUsage)
+
+            comboUsageMinIndex = APP.Match(arrComboUsageMin, arrComboUsage, 0)
+
+            For i = 1 To 6
+                arrThreePoints(rowRebar, i) = arrCombo(comboUsageMinIndex, i)
+            Next i
+
+        Next rowRebar
 
     Next row_
 
@@ -1082,7 +1097,58 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
 End Function
 
 
-Function PrintResult(ByVal arrResult, ByVal colStart)
+Function ConvertThreePoints(ByVal arrThreePoints)
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+    ubThreePoints = UBound(arrThreePoints)
+
+    Dim arrMultiThreePoints() As Double
+    ReDim arrMultiThreePoints(1 To ubThreePoints, 1 To varSpliceNum)
+
+    For i = 1 To ubThreePoints Step 2
+
+        span = arrThreePoints(i, 4) + arrThreePoints(i, 5) + arrThreePoints(i, 6)
+
+        leftLength = arrThreePoints(i, 4) / span * varSpliceNum
+        midLength = arrThreePoints(i, 5) / span * varSpliceNum
+        rightLength = arrThreePoints(i, 6) / span * varSpliceNum
+
+        For j = 1 To varSpliceNum
+
+            If j <= leftLength Then
+
+                ' 左
+                arrMultiThreePoints(i, j) = arrThreePoints(i, 1)
+
+            ElseIf j > leftLength + midLength Then
+
+                ' 右
+                arrMultiThreePoints(i, j) = arrThreePoints(i, 3)
+
+            Else
+
+                ' 中
+                arrMultiThreePoints(i, j) = arrThreePoints(i, 2)
+
+            End If
+
+        Next j
+
+    Next i
+
+    ConvertThreePoints = arrMultiThreePoints
+
+
+End Function
+
+
+Function PrintResult(ByVal arrResult, ByVal colStart, ByVal strTitle)
 '
 ' 列印出最佳化結果
 ' 隱含著從 0 開始
@@ -1097,28 +1163,63 @@ Function PrintResult(ByVal arrResult, ByVal colStart)
     colEnd = colStart + UBound(arrResult, 2) - 1
 
     With wsResult
+        .Cells(2, colStart) = strTitle
         .Range(.Cells(rowStart, colStart), .Cells(rowEnd, colEnd)) = arrResult
     End With
 
     ' 格式化條件
-    For i = rowStart To rowEnd Step 2
-        With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
-            .FormatConditions.AddColorScale ColorScaleType:=3
-            .FormatConditions(.FormatConditions.Count).SetFirstPriority
-            .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
-            .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
+    ' For i = rowStart To rowEnd Step 2
+    '     With wsResult.Range(wsResult.Cells(i, colStart), wsResult.Cells(i, colEnd))
+    '         .FormatConditions.AddColorScale ColorScaleType:=3
+    '         .FormatConditions(.FormatConditions.Count).SetFirstPriority
+    '         .FormatConditions(1).ColorScaleCriteria(1).Type = xlConditionValueLowestValue
+    '         .FormatConditions(1).ColorScaleCriteria(1).FormatColor.Color = 8109667
 
-            .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
-            .FormatConditions(1).ColorScaleCriteria(2).value = 50
-            .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
+    '         .FormatConditions(1).ColorScaleCriteria(2).Type = xlConditionValuePercentile
+    '         .FormatConditions(1).ColorScaleCriteria(2).value = 50
+    '         .FormatConditions(1).ColorScaleCriteria(2).FormatColor.Color = 8711167
 
-            .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
-            .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
-        End With
+    '         .FormatConditions(1).ColorScaleCriteria(3).Type = xlConditionValueHighestValue
+    '         .FormatConditions(1).ColorScaleCriteria(3).FormatColor.Color = 7039480
+    '     End With
+    ' Next i
+
+    colStartNext = colEnd + 2
+    PrintResult = colStartNext
+
+End Function
+
+
+Private Function PrintRebarTable(ByVal arrThreePoints)
+'
+' descrip.
+'
+' @since 1.0.0
+' @param {type} [name] descrip.
+' @return {type} [name] descrip.
+' @see dependencies
+'
+
+    arrBeamIncludeTitle = ran.GetRangeToArray(wsBeam, 1, 1, 5, 15)
+
+    ubBeamIncludeTitle = UBound(arrBeamIncludeTitle)
+
+    Dim arrRebarTable
+    ReDim arrRebarTable(1 To ubBeamIncludeTitle, 1 To 18)
+
+    For i = 1 To ubBeamIncludeTitle
+
+        For j = 1 To 5
+            arrRebarTable(i, j) = arrBeamIncludeTitle(i, j)
+        Next j
+
+        For j = 9 To 15
+            arrRebarTable(i, j + 3) = arrBeamIncludeTitle(i, j)
+        Next j
+
     Next i
 
-    colStartNext = colEnd + 3
-    PrintResult = colStartNext
+
 
 End Function
 
@@ -1158,13 +1259,22 @@ Sub Main()
     arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
 
     arrThreePoints = ThreePoints(arrBeam, arrSmartSpliceModify)
+
+    arrMultiThreePoints = ConvertThreePoints(arrThreePoints)
     ' arrSmartSplice = OptimizeMultiRebar(arrRebarTotalNum)
 
     varOptimizeResult = CalOptimizeResult(arrSmartSpliceModify, arrNormalSplice)
 
-    colNext = PrintResult(arrSmartSpliceModify, 3)
-    colNext = PrintResult(arrNormalSplice, colNext)
-    colNext = PrintResult(arrThreePoints, colNext)
+    colNext = PrintResult(arrRebar1stNum, 3, "第一排支數")
+    colNext = PrintResult(arrRebarTotalNum, colNext, "總支數")
+    colNext = PrintResult(arrRebarTotalArea, colNext, "鋼筋量")
+    colNext = PrintResult(arrNormalSplice, colNext, "初始斷筋")
+    colNext = PrintResult(arrGravity, colNext, "重力曲線")
+    colNext = PrintResult(arrMultiRebar, colNext, "多點斷筋")
+    colNext = PrintResult(arrLapLength, colNext, "延伸長度格數")
+    colNext = PrintResult(arrSmartSplice, colNext, "多點斷筋 + 延伸長度")
+    colNext = PrintResult(arrSmartSpliceModify, colNext, "多點斷筋 + 延伸長度 修正")
+    ' colNext = PrintResult(arrThreePoints, colNext)
 
     wsResult.Cells(2, 2) = varOptimizeResult
 

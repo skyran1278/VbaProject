@@ -55,7 +55,7 @@ Function ClearPrevOutputData()
 ' 清空前次輸出的資料.
 '
     With wsResult
-        .Range(.Cells(3, 28), .Cells(.Cells(Rows.Count, 29).End(xlUp).Row, 48)).ClearContents
+        .Range(.Cells(3, 6), .Cells(.Cells(Rows.Count, 6).End(xlUp).Row, 26)).ClearContents
     End With
 
 End Function
@@ -68,7 +68,7 @@ Function PrintResult(ByVal arrResult, ByVal rowStart)
 ' @return {Number} [rowStartNext] 回傳下一次從第幾列 print.
 '
 
-    colStart = 28
+    colStart = 6
 
     rowEnd = rowStart + UBound(arrResult, 1) - LBound(arrResult, 1)
     colEnd = colStart + UBound(arrResult, 2) - LBound(arrResult, 2)
@@ -119,6 +119,8 @@ Sub Test()
 
     arrThreePoints = ThreePoints(arrBeam, arrSmartSpliceModify)
 
+    arrMultiThreePoints = ConvertThreePoints(arrThreePoints)
+
     rowStartNext = PrintResult(arrRebar1stNum, 3)
     rowStartNext = PrintResult(arrRebarTotalNum, rowStartNext)
     rowStartNext = PrintResult(arrRebarTotalArea, rowStartNext)
@@ -129,6 +131,9 @@ Sub Test()
     rowStartNext = PrintResult(arrSmartSplice, rowStartNext)
     rowStartNext = PrintResult(arrSmartSpliceModify, rowStartNext)
     rowStartNext = PrintResult(arrThreePoints, rowStartNext)
+    rowStartNext = PrintResult(arrMultiThreePoints, rowStartNext)
+
+    wsResult.Activate
 
     Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
