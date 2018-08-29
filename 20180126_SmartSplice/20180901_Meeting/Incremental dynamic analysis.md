@@ -1,4 +1,4 @@
-# Incremental dynamic analysis
+# Incremental dynamic analysis 2720
 
 ## SUMMARY
 
@@ -8,6 +8,8 @@
 
     - 隨著電腦越來越快，分析的方法就越加複雜。
     - 線性靜力、動力 => 非線性靜力 => 非線性動力
+    - SINGLE STATIC ANALYSIS
+    - INCREMENTAL SPO
     - SINGLE TIME-HISTORY ANALYSIS
     - INCREMENTAL ONE
     - the range of response or ‘demands’ versus the range of potential levels of a ground motion record
@@ -27,15 +29,19 @@
 3. LOOKING AT AN IDA CURVE: SOME GENERAL PROPERTIES
 
     - yield = 0.2g
-    - 等位移
-    - c d: IDA 可能會有強度越大損害卻變小的狀況
+    - a b: SOFTENS
+    - c d: 等位移
+    - c d: SOFTENING HARDENING, IDA 可能會有強度越大損害卻變小的狀況
     - a b: infinity
-    - 結構可能會復活
+    - FUSE
+    - EARLIER YIELDING IN THE STRONGER GROUND MOTION LEADS TO A LOWER ABSOLUTE PEAK RESPONSE
+    - EXTREME CASE, STRUCTURAL RESURRECTION 結構可能會復活
 
 4. CAPACITY AND LIMIT-STATES ON SINGLE IDA CURVES
 
     - DM-based rule
     - IM-based rule
+        - difficulty in prescribing a CIM value
         - FEMA 20% tangent slope approach
     - composite
 
