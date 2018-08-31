@@ -5,7 +5,7 @@ varLeft = 50.9;
 varMid = 25.5;
 varRight = 45.8;
 
-varGravity = 20.5;
+varGravity = 30.5;
 
 beamLength = 10;
 

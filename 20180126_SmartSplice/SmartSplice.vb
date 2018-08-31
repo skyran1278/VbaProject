@@ -1019,10 +1019,10 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
 
     ubSmartSplice = UBound(arrSmartSplice)
 
-    ubLeft = ran.RoundUp(0.15 * varSpliceNum)
-    lbMid = Fix(0.4 * varSpliceNum)
-    ubMid = ran.RoundUp(0.6 * varSpliceNum)
-    lbRight = Fix(0.85 * varSpliceNum)
+    ubLeft = Fix(0.15 * varSpliceNum)
+    lbMid = ran.RoundUp(0.4 * varSpliceNum)
+    ubMid = Fix(0.6 * varSpliceNum)
+    lbRight = ran.RoundUp(0.85 * varSpliceNum)
 
     combo = (lbMid - ubLeft + 1) * (lbRight - ubMid + 1)
 
@@ -1048,7 +1048,16 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
                 ' 右邊再決定
                 For colRight = ubMid To lbRight
 
+                    leftMaxRebar = 0
                     midMaxRebar = 0
+                    rightMaxRebar = 0
+
+                    ' 左邊取最大值
+                    For colLeftIndex = 1 To colLeft
+
+                        leftMaxRebar = ran.Max(leftMaxRebar, arrSmartSplice(rowRebar, colLeftIndex) * 1)
+
+                    Next colLeftIndex
 
                     ' 中間取最大值
                     For colMid = colLeft + 1 To colRight - 1
@@ -1057,13 +1066,20 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
 
                     Next colMid
 
-                    arrCombo(i, 1) = arrSmartSplice(rowRebar, 1)
+                    ' 中間取最大值
+                    For colRightIndex = colRight To varSpliceNum
+
+                        rightMaxRebar = ran.Max(rightMaxRebar, arrSmartSplice(rowRebar, colRightIndex) * 1)
+
+                    Next colRightIndex
+
+                    arrCombo(i, 1) = leftMaxRebar
                     arrCombo(i, 4) = colLeft / varSpliceNum * span
 
                     arrCombo(i, 2) = midMaxRebar
                     arrCombo(i, 5) = (colRight - colLeft - 1) / varSpliceNum * span
 
-                    arrCombo(i, 3) = arrSmartSplice(rowRebar, varSpliceNum)
+                    arrCombo(i, 3) = rightMaxRebar
                     arrCombo(i, 6) = (varSpliceNum - colRight + 1) / varSpliceNum * span
 
                     leftUsage = arrCombo(i, 1) * arrCombo(i, 4)
