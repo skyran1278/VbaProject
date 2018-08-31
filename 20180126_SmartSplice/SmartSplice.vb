@@ -338,7 +338,7 @@ Function CalGravityDemand(ByVal arrBeam)
         ' 鋼筋混凝土單位重 2.4 tf/m^3 = 2.4 * 1000 kgf / 1000000 cm^3
         ' kgf * cm
         mn_top = 1 / 24 * (0.9 * ((SDL + (2.4 * 0.001) * slab) * band)) * (span ^ 2)
-        mn_bot = 1 / 8 * (1.2 * ((SDL + (2.4 * 0.001) * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
+        mn_bot = 1 / 24 * (1.2 * ((SDL + (2.4 * 0.001) * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
 
         ' 轉換成鋼筋量
         ' cm^2
@@ -352,6 +352,7 @@ Function CalGravityDemand(ByVal arrBeam)
 
         arrGravity(i, 3) = as_top
 
+        arrGravity(i + 2, 1) = mn_bot / 100000
         arrGravity(i + 2, 2) = as_bot
 
     Next
