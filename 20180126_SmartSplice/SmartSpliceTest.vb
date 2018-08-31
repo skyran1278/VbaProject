@@ -55,7 +55,7 @@ Function ClearPrevOutputData()
 ' 清空前次輸出的資料.
 '
     With wsResult
-        .Range(.Cells(3, 6), .Cells(.Cells(Rows.Count, 6).End(xlUp).Row, 26)).ClearContents
+        .Range(.Cells(3, 6), .Cells(.Cells(Rows.Count, 6).End(xlUp).Row, varSpliceNum + 5)).ClearContents
     End With
 
 End Function
@@ -130,8 +130,8 @@ Sub Test()
     rowStartNext = PrintResult(arrLapLength, rowStartNext)
     rowStartNext = PrintResult(arrSmartSplice, rowStartNext)
     rowStartNext = PrintResult(arrSmartSpliceModify, rowStartNext)
-    rowStartNext = PrintResult(arrThreePoints, rowStartNext)
     rowStartNext = PrintResult(arrMultiThreePoints, rowStartNext)
+    rowStartNext = PrintResult(arrThreePoints, rowStartNext)
 
     wsResult.Activate
 

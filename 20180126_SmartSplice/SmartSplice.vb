@@ -1,4 +1,4 @@
-Public Const varSpliceNum = 21
+Public Const varSpliceNum = 60
 
 Public ran As UTILS_CLASS
 Public APP
@@ -1274,6 +1274,7 @@ Sub Main()
     colNext = PrintResult(arrLapLength, colNext, "延伸長度格數")
     colNext = PrintResult(arrSmartSplice, colNext, "多點斷筋 + 延伸長度")
     colNext = PrintResult(arrSmartSpliceModify, colNext, "多點斷筋 + 延伸長度 修正")
+    colNext = PrintResult(arrMultiThreePoints, colNext, "三點斷筋")
     ' colNext = PrintResult(arrThreePoints, colNext)
 
     wsResult.Cells(2, 2) = varOptimizeResult
