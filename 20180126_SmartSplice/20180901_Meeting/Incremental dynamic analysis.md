@@ -50,8 +50,12 @@
     - Multi-Record IDA
     - IDA Curve Set
         - parametric methods
+            - median，只 fit 一條線，失去靈活性但是簡單
         - non-parametric methods
-        - 這個好玄，沒有看懂。
+            - scatterplot smoothers
+            - 無限大無法平均 => 中位數
+        - Capacity
+            - Capacity and Demand Correlation
 
 6. THE IDA IN A PBEE FRAMEWORK
 
