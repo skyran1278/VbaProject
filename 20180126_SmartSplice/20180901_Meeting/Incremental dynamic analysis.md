@@ -70,6 +70,15 @@
         - 如何挑選合適的成為一個議題
 
 8. THE IDA VERSUS THE R-FACTOR
+
+    - It can be said that the difference between the R-factor and IDA perspectives is one of design versus assessment.
+
 9. THE IDA VERSUS THE NON-LINEAR SPO
+
+    - 彈性區域很吻合
+    - 非負 => 等位移
+    - 負 => 軟化
+    - 隨後接上非負 => 新的等位移
+
 10. IDA ALGORITHMS
 11. CONCLUSIONS
