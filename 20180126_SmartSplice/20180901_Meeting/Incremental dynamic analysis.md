@@ -31,10 +31,10 @@
     - yield = 0.2g
     - a b: SOFTENS
     - c d: 等位移
-    - c d: SOFTENING HARDENING, IDA 可能會有強度越大損害卻變小的狀況
     - a b: infinity
-    - FUSE
+    - c d: SOFTENING HARDENING, IDA 可能會有強度越大損害卻變小的狀況
     - EARLIER YIELDING IN THE STRONGER GROUND MOTION LEADS TO A LOWER ABSOLUTE PEAK RESPONSE
+    - FUSE
     - EXTREME CASE, STRUCTURAL RESURRECTION 結構可能會復活
 
 4. CAPACITY AND LIMIT-STATES ON SINGLE IDA CURVES
@@ -42,19 +42,19 @@
     - DM-based rule
     - IM-based rule
         - difficulty in prescribing a CIM value
-        - FEMA 20% tangent slope approach
+        - FEMA 20% TANGENT SLOPE APPROACH
     - composite
 
 5. MULTI-RECORD IDAS AND THEIR SUMMARY
 
     - Multi-Record IDA
     - IDA Curve Set
-        - parametric methods
+        - PARAMETRIC METHODS
             - median，只 fit 一條線，失去靈活性但是簡單
-        - non-parametric methods
+        - NON-PARAMETRIC METHODS
             - scatterplot smoothers
             - 無限大無法平均 => 中位數
-        - Capacity
+        - CAPACITY
             - Capacity and Demand Correlation
 
 6. THE IDA IN A PBEE FRAMEWORK
@@ -64,7 +64,10 @@
 7. SCALING LEGITIMACY AND IM SELECTION
 
     - 探討放大的合法性
-    - 不要依據 PGA 放大
+        - 真的可以代表未縮放的地震嗎
+        - 兩個回歸線非常相近
+    - 看 DM IM 都會影響
+        - 如何挑選合適的成為一個議題
 
 8. THE IDA VERSUS THE R-FACTOR
 9. THE IDA VERSUS THE NON-LINEAR SPO
