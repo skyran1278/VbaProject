@@ -54,6 +54,7 @@
         - NON-PARAMETRIC METHODS
             - scatterplot smoothers
             - 無限大無法平均 => 中位數
+            - MEAN MEDIAN
         - CAPACITY
             - Capacity and Demand Correlation
 
@@ -66,6 +67,9 @@
     - 探討放大的合法性
         - 真的可以代表未縮放的地震嗎
         - 兩個回歸線非常相近
+        - ROOF DUCTILITY RESPONSE OF A T1= 1 S
+        - MDOF STEEL FRAME SUBJECTED TO 20 RECORDS
+        - SCALED TO 5 LEVELS OF SA(T1;5%).
     - 看 DM IM 都會影響
         - 如何挑選合適的成為一個議題
 
@@ -75,10 +79,14 @@
 
 9. THE IDA VERSUS THE NON-LINEAR SPO
 
-    - 彈性區域很吻合
-    - 非負 => 等位移
-    - 負 => 軟化
+    - 彈性區域很吻合 ELASTIC
+    - 非負 => 等位移 NON-NEGATIVE => EQUAL DISPLACEMENT
+    - 負 => 軟化 NEGATIVE => SOFTENING
     - 隨後接上非負 => 新的等位移
 
 10. IDA ALGORITHMS
+
+    - HUNTING PHASE
+    - FILL PHASE
+
 11. CONCLUSIONS
