@@ -338,7 +338,7 @@ Function CalGravityDemand(ByVal arrBeam)
         ' 鋼筋混凝土單位重 2.4 tf/m^3 = 2.4 * 1000 kgf / 1000000 cm^3
         ' kgf * cm
         mn_top = 1 / 24 * (0.9 * ((SDL + (2.4 * 0.001) * slab) * band)) * (span ^ 2)
-        mn_bot = 1 / 24 * (1.2 * ((SDL + (2.4 * 0.001) * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
+        mn_bot = 1 / 12 * (1.2 * ((SDL + (2.4 * 0.001) * slab) * band) + 1.6 * (LL * band)) * (span ^ 2)
 
         ' 轉換成鋼筋量
         ' cm^2
@@ -352,7 +352,7 @@ Function CalGravityDemand(ByVal arrBeam)
 
         arrGravity(i, 3) = as_top
 
-        arrGravity(i + 2, 1) = mn_bot / 100000
+        ' arrGravity(i + 3, 2) = mn_bot / 100000
         arrGravity(i + 2, 2) = as_bot
 
     Next
@@ -388,10 +388,14 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
     varRight = 3
 
     ' 一半的地方
-    varHalfOfSpliceNum = (varSpliceNum / 2)
+    varHalfSpliceNum = varSpliceNum / 2
+    varOneThreeSpliceNum = varSpliceNum / 3
+    varTwoThreeSpliceNum = varSpliceNum * 2 / 3
+    varOneFourSpliceNum = varSpliceNum / 4
+    varThreeFourSpliceNum = varSpliceNum * 3 / 4
 
     ' 遞減的斜率
-    slope_ = 1 / varHalfOfSpliceNum
+    slope_ = 1 / varHalfSpliceNum
 
     ' 上層筋由耐震控制.
     For i = 1 To ubGirderMultiRebar Step 4
@@ -408,10 +412,10 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
             ratio = 1
 
             ' 左端到中央
-            For j = 1 To varHalfOfSpliceNum
+            For j = 1 To varHalfSpliceNum
 
                 ' 重力需求
-                gravityLeft = - (1 - ratio ^ 2) * (arrGravity(i, varLeft) + arrGravity(i, varMid)) + arrGravity(i, varLeft)
+                gravityLeft = -(1 - ratio ^ 2) * (arrGravity(i, varLeft) + arrGravity(i, varMid)) + arrGravity(i, varLeft)
 
                 ' 當重力 > 0 才加
                 ' 和 2 支取大值
@@ -432,10 +436,10 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
             ratio = 1
 
             ' 右端到中央
-            For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
+            For j = varSpliceNum To Fix(varHalfSpliceNum) + 1 Step -1
 
                 ' 重力需求
-                gravityRight = - (1 - ratio ^ 2) * (arrGravity(i, varRight) + arrGravity(i, varMid)) + arrGravity(i, varRight)
+                gravityRight = -(1 - ratio ^ 2) * (arrGravity(i, varRight) + arrGravity(i, varMid)) + arrGravity(i, varRight)
 
                 ' 當重力 > 0 才加
                 ' 和 2 支取大值
@@ -467,75 +471,113 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
         ' 總鋼筋量
         EQLeft = arrRebarTotalArea(i, varLeft)
         EQRight = arrRebarTotalArea(i, varRight)
+        rebarAreaMid = arrRebarTotalArea(i, varMid)
 
-        If EQLeft > arrRebarTotalArea(i, varMid) And EQRight > arrRebarTotalArea(i, varMid) Then
+        ' If EQLeft > rebarAreaMid And EQRight > rebarAreaMid Then
 
-            ' 下層筋的鋼筋面積
-            rebar1stSize = Split(arrBeam(i + 1, 6), "-")(1)
-            area_ = objRebarSizeToArea.Item(rebar1stSize)
+        ' 下層筋的鋼筋面積
+        rebar1stSize = Split(arrBeam(i + 1, 6), "-")(1)
+        area_ = objRebarSizeToArea.Item(rebar1stSize)
 
-            If arrRebarTotalArea(i, varMid) > arrGravity(i, varMid) Then
+        If rebarAreaMid > arrGravity(i, varMid) Then
 
-                ' 左端到中央遞減
-                ratio = 1
-                For j = 1 To varHalfOfSpliceNum
+            ' 左端到中央遞減
+            ratio = 1
+            For j = 1 To varHalfSpliceNum
 
-                    ' 重力需求
-                    gravityLeft = (1 - ratio ^ 2) * arrGravity(i, varMid)
+                ' 重力需求
+                gravityLeft = (1 - ratio ^ 2) * arrGravity(i, varMid)
 
-                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQLeft + gravityLeft) / area_, 2))
-                    ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (EQLeft / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2))
-                    ratio = ratio - slope_
+                arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQLeft + gravityLeft) / area_, 2))
+                ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (EQLeft / area_ - rebarAreaMid / area_) + rebarAreaMid / area_, 2))
+                ratio = ratio - slope_
+            Next j
+
+            ' 右端到中央遞減
+            ratio = 1
+            For j = varSpliceNum To Fix(varHalfSpliceNum) + 1 Step -1
+
+                ' 重力需求
+                gravityRight = (1 - ratio ^ 2) * arrGravity(i, varMid)
+
+                arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQRight + gravityRight) / area_, 2))
+                ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (EQRight / area_ - rebarAreaMid / area_) + rebarAreaMid / area_, 2))
+                ratio = ratio - slope_
+            Next j
+
+        Else
+
+            If EQLeft > rebarAreaMid Or EQRight > rebarAreaMid Then
+
+                For j = 1 To varOneFourSpliceNum
+                    arrGirderMultiRebar(i, j) = EQLeft / area_
                 Next j
 
-                ' 右端到中央遞減
-                ratio = 1
-                For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
+                For j = Fix(varOneFourSpliceNum) + 1 To varThreeFourSpliceNum
+                    arrGirderMultiRebar(i, j) = rebarAreaMid / area_
+                Next j
 
-                    ' 重力需求
-                    gravityRight = (1 - ratio ^ 2) * arrGravity(i, varMid)
+                For j = Fix(varThreeFourSpliceNum) + 1 To varSpliceNum
+                    arrGirderMultiRebar(i, j) = EQRight / area_
+                Next j
 
-                    arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQRight + gravityRight) / area_, 2))
-                    ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * (EQRight / area_ - arrRebarTotalArea(i, varMid) / area_) + arrRebarTotalArea(i, varMid) / area_, 2))
-                    ratio = ratio - slope_
+            ElseIf rebarAreaMid > EQLeft Or rebarAreaMid > EQRight Then
+
+                For j = 1 To varOneThreeSpliceNum
+                    arrGirderMultiRebar(i, j) = EQLeft / area_
+                Next j
+
+                For j = Fix(varOneThreeSpliceNum) + 1 To varTwoThreeSpliceNum
+                    arrGirderMultiRebar(i, j) = rebarAreaMid / area_
+                Next j
+
+                For j = Fix(varTwoThreeSpliceNum) + 1 To varSpliceNum
+                    arrGirderMultiRebar(i, j) = EQRight / area_
                 Next j
 
             Else
 
-                ' 左端到中央遞減
-                ratio = 1
-                For j = 1 To varHalfOfSpliceNum
-
-                    ' 耐震、重力、2 支取大值
-                            ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQLeft / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
-                            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQLeft - arrRebarTotalArea(i, varMid)) + arrRebarTotalArea(i, varMid)) / area_, 2))
-
-                    ratio = ratio - slope_
-
+                ' Hack: 直接還原成原本的配筋，不做更動，雖然接下來會經過延伸長度，但還會減少下來。
+                For j = 1 To varSpliceNum
+                    arrGirderMultiRebar(i, j) = arrNormalSplice(i, j)
                 Next j
-
-                        ' 右端到中央遞減
-                ratio = 1
-                For j = varSpliceNum To Fix(varHalfOfSpliceNum) + 1 Step -1
-
-                    ' 耐震、重力、2 支取大值
-                            ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQRight / area_, (1 - ratio ^ 2) * arrRebarTotalArea(i, varMid) / area_, 2))
-                            arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQRight - arrRebarTotalArea(i, varMid)) + arrRebarTotalArea(i, varMid)) / area_, 2))
-
-                    ratio = ratio - slope_
-
-                        Next j
 
             End If
 
-        Else
+            ' ' 左端到中央遞減
+            ' ratio = 1
+            ' For j = 1 To varHalfSpliceNum
 
-            ' Hack: 直接還原成原本的配筋，不做更動，雖然接下來會經過延伸長度，但還會減少下來。
-            For j = 1 To varSpliceNum
-                arrGirderMultiRebar(i, j) = arrNormalSplice(i, j)
-            Next j
+            '     ' 耐震、重力、2 支取大值
+            '     ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQLeft / area_, (1 - ratio ^ 2) * rebarAreaMid / area_, 2))
+            '     arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQLeft - rebarAreaMid) + rebarAreaMid) / area_, 2))
+
+            '     ratio = ratio - slope_
+
+            ' Next j
+
+            ' ' 右端到中央遞減
+            ' ratio = 1
+            ' For j = varSpliceNum To Fix(varHalfSpliceNum) + 1 Step -1
+
+            '     ' 耐震、重力、2 支取大值
+            '     ' arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max(ratio * EQRight / area_, (1 - ratio ^ 2) * rebarAreaMid / area_, 2))
+            '     arrGirderMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * (EQRight - rebarAreaMid) + rebarAreaMid) / area_, 2))
+
+            '     ratio = ratio - slope_
+
+            ' Next j
 
         End If
+
+        ' Else
+
+        '     ' Hack: 直接還原成原本的配筋，不做更動，雖然接下來會經過延伸長度，但還會減少下來。
+        '     For j = 1 To varSpliceNum
+        '         arrGirderMultiRebar(i, j) = arrNormalSplice(i, j)
+        '     Next j
+
+        ' End If
 
     Next i
 
@@ -1210,6 +1252,7 @@ End Function
 Private Function PrintRebarTable(ByVal arrThreePoints)
 '
 ' descrip.
+' 考慮將來四點斷筋的伸縮空間
 '
 ' @since 1.0.0
 ' @param {type} [name] descrip.
