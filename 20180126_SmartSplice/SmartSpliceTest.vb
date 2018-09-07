@@ -121,6 +121,12 @@ Sub Test()
 
     arrMultiThreePoints = ConvertThreePoints(arrThreePoints)
 
+    arrRebarTable = RebarTable(arrBeam, arrRebar1stNum, arrThreePoints)
+
+    With Worksheets("最佳化斷筋點")
+        .Range(.Cells(3, 1), .Cells(UBound(arrRebarTable, 1) + 2, UBound(arrRebarTable, 2))) = arrRebarTable
+    End With
+
     rowStartNext = PrintResult(arrRebar1stNum, 3)
     rowStartNext = PrintResult(arrRebarTotalNum, rowStartNext)
     rowStartNext = PrintResult(arrRebarTotalArea, rowStartNext)
