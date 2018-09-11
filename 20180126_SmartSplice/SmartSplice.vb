@@ -93,7 +93,8 @@ Function ClearPrevOutputData()
 ' 清空前次輸出的資料.
 '
 
-    wsResult.Cells.Clear
+    ' wsResult.Cells.Clear ' 0.3
+    wsResult.Cells.ClearContents ' 0.05
 
 End Function
 
@@ -1258,33 +1259,31 @@ Function ConvertThreePoints(ByVal arrThreePoints)
 End Function
 
 
-Function CalOptimizeResult(ByVal arrOptimized, ByVal arrInitial) As Double
+Function CalOptimizeResult(ByVal arrRebarTable) As Double
 '
 ' 回傳最佳化結果.
-' arrOptimized / arrInitial
 '
-' @param {Array} [arrOptimized] 最佳化過後的配筋.
-' @param {Array} [arrInitial] 原始配筋.
-' @return {Array} [varOptimized / varInitial] 回傳最佳化結果.
+' @param {Array} [arrRebarTable] 配筋表格，列數與 arrBeam 對齊，行數不等於 arrBeam.
+' @return {Array} [varOptimized / varCount] 回傳最佳化結果.
 '
 
-    ubOptimized = UBound(arrOptimized)
+    colMsg = 19
+
+    ubRebarTable = UBound(arrRebarTable)
 
     varOptimized = 0
-    varInitial = 0
+    varCount = 0
 
-    For i = 1 To ubOptimized Step 2
+    For i = 1 To ubRebarTable Step 4
 
-        For j = 1 To varSpliceNum
-
-            varInitial = varInitial + arrInitial(i, j)
-            varOptimized = varOptimized + arrOptimized(i, j)
-
-        Next j
+        If arrRebarTable(i, colMsg) < 1 Then
+            varOptimized = varOptimized + arrRebarTable(i, colMsg)
+            varCount = varCount + 1
+        End If
 
     Next i
 
-    CalOptimizeResult = varOptimized / varInitial
+    CalOptimizeResult = varOptimized / varCount
 
 End Function
 
@@ -1472,17 +1471,50 @@ Function ScanOptimizeResult(ByVal arrRebarTable, ByVal arrMultiThreePoints, ByVa
 ' @return {Array} [arrRebarTable] 加上 MSG 的配筋表格，列數與 arrBeam 對齊，行數不等於 arrBeam.
 '
 
+    colRebar = 6
+    colMsg = 19
+
     ubRebarTable = UBound(arrRebarTable)
 
     For i = 1 To ubRebarTable Step 4
 
+        varTopOptimized = 0
+        varTopOrigin = 0
+
+        varBotOptimized = 0
+        varBotOrigin = 0
+
         For j = 1 To varSpliceNum
 
-            If arrMultiThreePoints = arrNormalSplice Then
+            varTopOptimized = varTopOptimized + arrMultiThreePoints(i, j)
 
-            End If
+            varTopOrigin = varTopOrigin + arrNormalSplice(i, j)
+
+            varBotOptimized = varBotOptimized + arrMultiThreePoints(i + 2, j)
+
+            varBotOrigin = varBotOrigin + arrNormalSplice(i + 2, j)
+
         Next j
+
+        If varTopOptimized = varTopOrigin And varBotOptimized = varBotOrigin Then
+
+            arrRebarTable(i, colMsg) = "無優化"
+
+        Else
+
+            rebarTopSize = Split(arrRebarTable(i, colRebar), "-")(1)
+            rebarTopArea = objRebarSizeToArea.Item(rebarTopSize)
+
+            rebarBotSize = Split(arrRebarTable(i + 3, colRebar), "-")(1)
+            rebarBotArea = objRebarSizeToArea.Item(rebarBotSize)
+
+            arrRebarTable(i, colMsg) = (varTopOptimized * rebarTopArea + varBotOptimized * rebarBotArea) / (varTopOrigin * rebarTopArea + varBotOrigin * rebarBotArea)
+
+        End If
+
     Next i
+
+    ScanOptimizeResult = arrRebarTable
 
 End Function
 
@@ -1538,42 +1570,45 @@ Sub Main()
     Call ran.ExecutionTime(True)
     Call ran.PerformanceVBA(True)
 
-    Call SetGlobalVar
+    Call SetGlobalVar ' 0.007
 
-    Call ClearPrevOutputData
+    Call ClearPrevOutputData ' 0.3 => 0.05
 
     ' 不包含標題
     arrBeam = ran.GetRangeToArray(wsBeam, 3, 1, 5, 16)
 
-    arrRebar1stNum = GetRebar1stNum(arrBeam)
+    arrRebar1stNum = GetRebar1stNum(arrBeam) ' 0.004
 
-    arrRebarTotalNum = GetRebarTotalNum(arrBeam)
+    arrRebarTotalNum = GetRebarTotalNum(arrBeam) ' 0.008
 
-    arrRebarTotalArea = GetRebarTotalArea(arrBeam)
+    arrRebarTotalArea = GetRebarTotalArea(arrBeam) ' 0.017
 
-    arrNormalSplice = CalNormalSplice(arrRebarTotalNum)
+    arrNormalSplice = CalNormalSplice(arrRebarTotalNum) ' 0.008
 
-    arrGravity = CalGravityDemand(arrBeam)
+    arrGravity = CalGravityDemand(arrBeam) ' 0.017
 
-    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea, arrGravity, arrNormalSplice)
+    arrMultiRebar = OptimizeMultiRebar(arrBeam, arrRebarTotalArea, arrGravity, arrNormalSplice) ' 0.09
 
-    arrLapLength = CalLapLength(arrBeam, arrRebar1stNum, arrMultiRebar)
+    arrLapLength = CalLapLength(arrBeam, arrRebar1stNum, arrMultiRebar) ' 0.6
     ' arrLapLength = CalMultiLapLength(arrLapLength)
 
-    arrSmartSplice = CalSmartSplice(arrMultiRebar, arrLapLength)
+    arrSmartSplice = CalSmartSplice(arrMultiRebar, arrLapLength) ' 0.6
 
-    arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice)
+    arrSmartSpliceModify = CalOptimizeNoMoreThanNormal(arrSmartSplice, arrNormalSplice) ' 0.004
 
-    arrThreePoints = ThreePoints(arrBeam, arrSmartSpliceModify)
+    arrThreePoints = ThreePoints(arrBeam, arrSmartSpliceModify) ' 9.4
 
-    arrMultiThreePoints = ConvertThreePoints(arrThreePoints)
+    arrMultiThreePoints = ConvertThreePoints(arrThreePoints) ' 0.008
     ' arrSmartSplice = OptimizeMultiRebar(arrRebarTotalNum)
 
-    varOptimizeResult = CalOptimizeResult(arrMultiThreePoints, arrNormalSplice)
+    arrRebarTable = RebarTable(arrBeam, arrRebar1stNum, arrThreePoints) ' 0.02
 
-    arrRebarTable = RebarTable(arrBeam, arrRebar1stNum, arrThreePoints)
+    arrRebarTableAddMsg = ScanOptimizeResult(arrRebarTable, arrMultiThreePoints, arrNormalSplice) ' 0.0008
 
-    PrintRebarTable arrRebarTable
+    varOptimizeResult = CalOptimizeResult(arrRebarTableAddMsg) ' 0.008
+
+    ' 輸出資料 0.7
+    PrintRebarTable arrRebarTableAddMsg
 
     colNext = PrintResult(arrRebar1stNum, 20, "第一排支數")
     colNext = PrintResult(arrRebarTotalNum, colNext, "總支數")
@@ -1588,6 +1623,12 @@ Sub Main()
     ' colNext = PrintResult(arrThreePoints, colNext)
 
     wsResult.Cells(2, 2) = varOptimizeResult
+
+    If wsErr.Cells(2, 1) <> "" Then
+        wsErr.Activate
+    Else
+        wsResult.Activate
+    End If
 
     Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
