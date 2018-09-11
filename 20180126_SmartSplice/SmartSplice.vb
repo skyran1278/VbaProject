@@ -18,7 +18,6 @@ Public objStoryToSlab As Object
 Public objStoryToCover As Object
 
 ' 大梁考慮耐震
-' 小梁考慮負彎矩
 
 Function SetGlobalVar()
 '
@@ -101,11 +100,11 @@ End Function
 
 Function GetRebar1stNum(ByVal arrBeam)
 '
-' 計算上下排總支數
+' 計算上下排第一排支數
 ' 放在 i, i+ 2，而不是第一排的位置
 '
 ' @param {Array} [arrBeam] RCAD 輸出資料.
-' @return {Array} [arrRebar1stNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
+' @return {Array} [arrRebar1stNum] 第一排支數，列數與 arrBeam 對齊，行數分左中右.
 '
 
     Dim arrRebar1stNum() As Integer
@@ -122,7 +121,7 @@ Function GetRebar1stNum(ByVal arrBeam)
 
             colRebarTotalNum = j - 5
 
-            ' 計算上下排總支數
+            ' 計算上下排第一排支數
             arrRebar1stNum(i, colRebarTotalNum) = Int(Split(arrBeam(i, j), "-")(0))
             arrRebar1stNum(i + 2, colRebarTotalNum) = Int(Split(arrBeam(i + 3, j), "-")(0))
 
@@ -169,8 +168,8 @@ End Function
 
 Function GetRebarTotalArea(ByVal arrBeam)
 '
-' Scan 左中右號數相等
-' Scan 上下排號數相等
+' Scan 主筋號數左中右號數相等
+' Scan 主筋號數上下排號數相等
 ' 計算上下排總鋼筋量
 '
 ' @param {Array} [arrBeam] RCAD 輸出資料.
@@ -194,7 +193,7 @@ Function GetRebarTotalArea(ByVal arrBeam)
         rebarRight = Split(arrBeam(i, 8), "-")(1)
 
         If rebarLeft <> rebarMid Or rebarLeft <> rebarRight Then
-            MsgBox "第" & i & " 列鋼筋左中右號數不相等", vbOKOnly, "Error"
+            PrintErr "第" & i & " 列鋼筋左中右號數不相等"
         End If
 
     Next i
@@ -208,7 +207,7 @@ Function GetRebarTotalArea(ByVal arrBeam)
         rebarRight = Split(arrBeam(i, 8), "-")(1)
 
         If rebarLeft <> rebarMid Or rebarLeft <> rebarRight Then
-            MsgBox "第" & i & " 列鋼筋左中右號數不相等", vbOKOnly, "Error"
+            PrintErr "第" & i & " 列鋼筋左中右號數不相等"
         End If
 
     Next i
@@ -233,11 +232,10 @@ Function GetRebarTotalArea(ByVal arrBeam)
             rebarBot1stNum = Int(rebarBot1st(0))
 
             rebarTop1stSize = rebarTop1st(1)
-            rebarBot1stSize = rebarBot1st(1)
-
             ' 由於可能會沒有第二排的鋼筋號數，所以在 IF 裡面才取
             ' rebarTop2ndSize = rebarTop2nd(1)
             ' rebarBot2ndSize = rebarBot2nd(1)
+            rebarBot1stSize = rebarBot1st(1)
 
             ' 判斷第二排是否有鋼筋
             If rebarTop2ndNum = 0 Then
@@ -254,7 +252,7 @@ Function GetRebarTotalArea(ByVal arrBeam)
             ' 有鋼筋，但號數不同，則 ERROR
             Else
 
-                MsgBox "第" & top_ & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
+                PrintErr "第" & top_ & " 列鋼筋第一排與第二排號數不相等"
 
             End If
 
@@ -273,11 +271,9 @@ Function GetRebarTotalArea(ByVal arrBeam)
             ' 有鋼筋，但號數不同，則 ERROR
             Else
 
-                MsgBox "第" & bot_ & " 列鋼筋第一排與第二排號數不相等", vbOKOnly, "Error"
+                PrintErr "第" & bot_ & " 列鋼筋第一排與第二排號數不相等"
 
             End If
-
-
 
         Next
     Next
@@ -293,7 +289,7 @@ Function CalGravityDemand(ByVal arrBeam)
 ' Scan 箍筋號數左中右相等
 '
 ' @param {Array} [arrBeam] RCAD 輸出資料.
-' @return {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
+' @return {Array} [arrGravity] 重力鋼筋量，列數與 arrBeam 對齊，行數分左中右.
 '
 
     Dim arrGravity() As Double
@@ -363,26 +359,126 @@ Function CalGravityDemand(ByVal arrBeam)
 End Function
 
 
+Function CalNormalSplice(ByVal arrRebarTotalNum)
+'
+' 原始配筋
+' 分成 1/3 1/3 1/3
+'
+' @param {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
+' @return {Array} [arrNormalSplice] 依據 arrRebarTotalNum，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+'
+
+    Dim arrNormalSplice() As Double
+
+    ubRebarNumber = UBound(arrRebarTotalNum)
+
+    ReDim arrNormalSplice(1 To ubRebarNumber, 1 To varSpliceNum)
+
+    ubGirderRebar = UBound(arrNormalSplice)
+
+    varLeft = 1
+    varMid = 2
+    varRight = 3
+
+    varOneThreeSpliceNum = varSpliceNum / 3
+    varTwoThreeSpliceNum = 2 * varSpliceNum / 3
+
+    varOneFiveSpliceNum = varSpliceNum / 5
+    varFourFiveSpliceNum = 4 * varSpliceNum / 5
+
+    ' 上層
+    For i = 1 To ubGirderRebar Step 4
+
+        ' 左端
+        For j = 1 To varOneThreeSpliceNum
+            arrNormalSplice(i, j) = arrRebarTotalNum(i, varLeft)
+        Next j
+
+        ' 中央
+        ' 中央通常會比較少，取保守由兩端佔滿 1/3 2/3 處
+        For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum
+            arrNormalSplice(i, j) = arrRebarTotalNum(i, varMid)
+        Next j
+
+        ' 右端
+        For j = varTwoThreeSpliceNum + 1 To varSpliceNum
+            arrNormalSplice(i, j) = arrRebarTotalNum(i, varRight)
+        Next j
+
+    Next i
+
+    ' 下層
+    For i = 3 To ubGirderRebar Step 4
+
+        ' 中央
+        ' 先填滿全部都是中央
+        For j = 1 To varSpliceNum
+            arrNormalSplice(i, j) = arrRebarTotalNum(i, varMid)
+        Next j
+
+        ' 左端
+        If arrRebarTotalNum(i, varLeft) < arrRebarTotalNum(i, varMid) Then
+
+            ' 左端比較少
+            For j = 1 To varOneFiveSpliceNum
+                arrNormalSplice(i, j) = arrRebarTotalNum(i, varLeft)
+            Next j
+
+        Else
+
+            ' 左端比較多
+            For j = 1 To varOneThreeSpliceNum
+                arrNormalSplice(i, j) = arrRebarTotalNum(i, varLeft)
+            Next j
+
+        End If
+
+        ' 右端
+        If arrRebarTotalNum(i, varRight) < arrRebarTotalNum(i, varMid) Then
+
+            ' 右端比較少
+            For j = varSpliceNum To varFourFiveSpliceNum + 1 Step -1
+                arrNormalSplice(i, j) = arrRebarTotalNum(i, varRight)
+            Next j
+
+        Else
+
+            ' 右端比較多
+            For j = varSpliceNum To varTwoThreeSpliceNum + 1 Step -1
+                arrNormalSplice(i, j) = arrRebarTotalNum(i, varRight)
+            Next j
+
+        End If
+
+    Next i
+
+    CalNormalSplice = arrNormalSplice
+
+End Function
+
+
 Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGravity, ByVal arrNormalSplice)
 '
-' 上層筋由耐震控制.
-' 下層筋由重力與耐震共同控制.
-' FIXME: 隱含了鋼筋必須相同的限制，思考要不要轉換成鋼筋量
-' FIXME: 演算法具有問題
-' TODO: 可能要做很多個判斷式了
+' 上層筋兩端由耐震控制.
+' 下層筋兩端由耐震控制，中央由重力與耐震共同控制.
 '
-' @param {Array} [arrRebarTotalArea] 總鋼筋量，列數與 arrBeam 對齊，行數分左中右.
 ' @param {Array} [arrBeam] RCAD 輸出資料.
+' @param {Array} [arrRebarTotalArea] 總鋼筋量，列數與 arrBeam 對齊，行數分左中右.
+' @param {Array} [arrGravity] 重力鋼筋量，列數與 arrBeam 對齊，行數分左中右.
+' @param {Array} [arrNormalSplice] 依據 arrRebarTotalNum，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 ' @return {Array} [arrMultiRebar] 依據演算法的配筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 '
 
     Dim arrMultiRebar() As Double
 
-    ubRebarTotalNum = UBound(arrRebarTotalArea)
+    ' 給定多點斷筋最大值，使之不超過既有配筋
+    arrMultiRebar = arrNormalSplice
 
-    ReDim arrMultiRebar(1 To ubRebarTotalNum, 1 To varSpliceNum)
+    ' ubRebarTotalNum = UBound(arrRebarTotalArea)
 
-    ubGirderMultiRebar = UBound(arrMultiRebar)
+    ' ReDim arrMultiRebar(1 To ubRebarTotalNum, 1 To varSpliceNum)
+
+    ubMultiRebar = UBound(arrMultiRebar)
 
     varLeft = 1
     varMid = 2
@@ -399,7 +495,7 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
     slope_ = 1 / varHalfSpliceNum
 
     ' 上層筋由耐震控制.
-    For i = 1 To ubGirderMultiRebar Step 4
+    For i = 1 To ubMultiRebar Step 4
 
         If arrRebarTotalArea(i, varLeft) > arrRebarTotalArea(i, varMid) And arrRebarTotalArea(i, varRight) > arrRebarTotalArea(i, varMid) Then
 
@@ -409,10 +505,10 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
             ' 地震力需求
             ' 總鋼筋量 - 重力
             EQLeft = arrRebarTotalArea(i, varLeft) - arrGravity(i, varLeft)
+            EQRight = arrRebarTotalArea(i, varRight) - arrGravity(i, varRight)
 
+            ' 左端到中央遞減
             ratio = 1
-
-            ' 左端到中央
             For j = 1 To varHalfSpliceNum
 
                 ' 重力需求
@@ -420,23 +516,19 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
 
                 ' 當重力 > 0 才加
                 ' 和 2 支取大值
+                ' 再比較是否比原本的小
                 If gravityLeft > 0 Then
-                    arrMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQLeft + gravityLeft) / area_, 2))
+                    arrMultiRebar(i, j) = ran.Min(ran.RoundUp(ran.Max((ratio * EQLeft + gravityLeft) / area_, 2)), arrMultiRebar(i, j))
                 Else
-                    arrMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQLeft) / area_, 2))
+                    arrMultiRebar(i, j) = ran.Min(ran.RoundUp(ran.Max((ratio * EQLeft) / area_, 2)), arrMultiRebar(i, j))
                 End If
 
                 ratio = ratio - slope_
 
             Next j
 
-            ' 地震力需求
-            ' 總鋼筋量 - 重力
-            EQRight = arrRebarTotalArea(i, varRight) - arrGravity(i, varRight)
-
+            ' 右端到中央遞減
             ratio = 1
-
-            ' 右端到中央
             For j = varSpliceNum To varHalfSpliceNum + 1 Step -1
 
                 ' 重力需求
@@ -444,21 +536,15 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
 
                 ' 當重力 > 0 才加
                 ' 和 2 支取大值
+                ' 再比較是否比原本的小
                 If gravityRight > 0 Then
-                    arrMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQRight + gravityRight) / area_, 2))
+                    arrMultiRebar(i, j) = ran.Min(ran.RoundUp(ran.Max((ratio * EQRight + gravityRight) / area_, 2)), arrMultiRebar(i, j))
                 Else
-                    arrMultiRebar(i, j) = ran.RoundUp(ran.Max((ratio * EQRight) / area_, 2))
+                    arrMultiRebar(i, j) = ran.Min(ran.RoundUp(ran.Max((ratio * EQRight) / area_, 2)), arrMultiRebar(i, j))
                 End If
 
                 ratio = ratio - slope_
 
-            Next j
-
-        Else
-
-            ' Hack: 直接還原成原本的配筋，不做更動，雖然接下來會經過延伸長度，但還會減少下來。
-            For j = 1 To varSpliceNum
-                arrMultiRebar(i, j) = arrNormalSplice(i, j)
             Next j
 
         End If
@@ -466,7 +552,7 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
     Next i
 
     ' 下層筋由重力與耐震共同控制.
-    For i = 3 To ubGirderMultiRebar Step 4
+    For i = 3 To ubMultiRebar Step 4
 
         ' 地震力需求
         ' 總鋼筋量
@@ -474,41 +560,9 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
         EQRight = arrRebarTotalArea(i, varRight)
         rebarAreaMid = arrRebarTotalArea(i, varMid)
 
-        ' If EQLeft > rebarAreaMid And EQRight > rebarAreaMid Then
-
         ' 下層筋的鋼筋面積
         rebar1stSize = Split(arrBeam(i + 1, 6), "-")(1)
         area_ = objRebarSizeToArea.Item(rebar1stSize)
-
-        ' ' 先填滿中央
-        ' For j = 1 To varSpliceNum
-        '     arrMultiRebar(i, j) = rebarAreaMid / area_
-        ' Next j
-
-        ' If EQLeft > rebarAreaMid Then
-        '     For j = 1 To varOneFourSpliceNum
-        '         arrMultiRebar(i, j) = EQLeft / area_
-        '     Next j
-        ' Else
-        '     For j = 1 To varOneThreeSpliceNum
-        '         arrMultiRebar(i, j) = EQLeft / area_
-        '     Next j
-        ' End If
-
-        ' If EQRight > rebarAreaMid Then
-        '     For j = Fix(varThreeFourSpliceNum) + 1 To varSpliceNum
-        '         arrMultiRebar(i, j) = EQRight / area_
-        '     Next j
-        ' Else
-        '     For j = Fix(varTwoThreeSpliceNum) + 1 To varSpliceNum
-        '         arrMultiRebar(i, j) = EQRight / area_
-        '     Next j
-        ' End If
-
-        ' Hack: 直接還原成原本的配筋，不做更動，雖然接下來會經過延伸長度，但還會減少下來。
-        For j = 1 To varSpliceNum
-            arrMultiRebar(i, j) = arrNormalSplice(i, j)
-        Next j
 
         If rebarAreaMid > arrGravity(i, varMid) Then
 
@@ -536,32 +590,77 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
                 ratio = ratio - slope_
             Next j
 
+        ' 如果不符合的話，退守
         Else
 
-            ' 先填滿中央
+            ' 比較左端和中央看要填到哪
+            If EQLeft > rebarAreaMid Then
+                varLeftNum = varOneFourSpliceNum
+            Else
+                varLeftNum = varOneThreeSpliceNum
+            End If
+
+            ' 比較左端和中央看要填到哪
+            If EQRight > rebarAreaMid Then
+                varRightNum = varThreeFourSpliceNum + 1
+            Else
+                varRightNum = varTwoThreeSpliceNum + 1
+            End If
+
+            ' 先填滿所有的鋼筋為中央的鋼筋
             For j = 1 To varSpliceNum
                 arrMultiRebar(i, j) = rebarAreaMid / area_
             Next j
 
-            If EQLeft > rebarAreaMid Then
-                For j = 1 To varOneFourSpliceNum
-                    arrMultiRebar(i, j) = EQLeft / area_
-                Next j
-            Else
-                For j = 1 To varOneThreeSpliceNum
-                    arrMultiRebar(i, j) = EQLeft / area_
-                Next j
-            End If
+            ' 填滿左端
+            For j = 1 To varLeftNum
+                arrMultiRebar(i, j) = EQLeft / area_
+            Next j
 
-            If EQRight > rebarAreaMid Then
-                For j = varSpliceNum To varThreeFourSpliceNum + 1 Step -1
-                    arrMultiRebar(i, j) = EQRight / area_
-                Next j
-            Else
-                For j = varSpliceNum To varTwoThreeSpliceNum + 1 Step -1
-                    arrMultiRebar(i, j) = EQRight / area_
-                Next j
-            End If
+            ' 填滿右端
+            For j = varSpliceNum To varRightNum Step -1
+                arrMultiRebar(i, j) = EQRight / area_
+            Next j
+
+        End If
+
+    Next i
+
+    OptimizeMultiRebar = arrMultiRebar
+
+        ' If EQLeft > rebarAreaMid And EQRight > rebarAreaMid Then
+
+        ' ' 先填滿中央
+        ' For j = 1 To varSpliceNum
+        '     arrMultiRebar(i, j) = rebarAreaMid / area_
+        ' Next j
+
+        ' If EQLeft > rebarAreaMid Then
+        '     For j = 1 To varOneFourSpliceNum
+        '         arrMultiRebar(i, j) = EQLeft / area_
+        '     Next j
+        ' Else
+        '     For j = 1 To varOneThreeSpliceNum
+        '         arrMultiRebar(i, j) = EQLeft / area_
+        '     Next j
+        ' End If
+
+        ' If EQRight > rebarAreaMid Then
+        '     For j = Fix(varThreeFourSpliceNum) + 1 To varSpliceNum
+        '         arrMultiRebar(i, j) = EQRight / area_
+        '     Next j
+        ' Else
+        '     For j = Fix(varTwoThreeSpliceNum) + 1 To varSpliceNum
+        '         arrMultiRebar(i, j) = EQRight / area_
+        '     Next j
+        ' End If
+
+        ' Hack: 直接還原成原本的配筋，不做更動，雖然接下來會經過延伸長度，但還會減少下來。
+        ' For j = 1 To varSpliceNum
+        '     arrMultiRebar(i, j) = arrNormalSplice(i, j)
+        ' Next j
+
+
 
             ' If EQLeft > rebarAreaMid Or EQRight > rebarAreaMid Then
 
@@ -624,33 +723,22 @@ Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGra
 
             ' Next j
 
-        End If
-
-        ' Else
-
-        '     ' Hack: 直接還原成原本的配筋，不做更動，雖然接下來會經過延伸長度，但還會減少下來。
-        '     For j = 1 To varSpliceNum
-        '         arrMultiRebar(i, j) = arrNormalSplice(i, j)
-        '     Next j
-
-        ' End If
-
-    Next i
-
-    OptimizeMultiRebar = arrMultiRebar
-
-
 End Function
 
 
 Function CalLapLength(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrMultiRebar)
 '
 ' TODO: 可以做優化，如果算過了就不用再算一次.
-' 搭接長度還是延伸長度，是延伸長度。
-' 計算不同主筋的搭接長度.
+' 不是搭接長度，是延伸長度。
+' 計算不同主筋的延伸長度.
+' This function calculates the develope length of flexural rebar used in Girder/Beam.
+' It is used for nominal concrete in case of phiE=1.0 & phiT=1.0.
+' Reference: 土木 401-100
 '
 ' @param {Array} [arrBeam] RCAD 輸出資料.
-' @return {Array} [arrLapLength] 回傳精算法的搭接長度比例，列數與 arrBeam 對齊，行數分左中右.
+' @param {Array} [arrRebar1stNum] 第一排支數，列數與 arrBeam 對齊，行數分左中右.
+' @param {Array} [arrMultiRebar] 依據演算法的配筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+' @return {Array} [arrLapLength] 回傳精算法的延伸長度比例，列數與 arrBeam 對齊，行數分左中右.
 '
 
     Dim arrLapLength() As Double
@@ -684,8 +772,15 @@ Function CalLapLength(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrMultiRebar)
         cover = objStoryToCover.Item(storey)
 
         ' 抽取一個出來看看是否有該 storey
-        If IsEmpty(fy_) Then
+        If IsEmpty(fc_) Then
+
             MsgBox "請確認 " & storey & " 是否存在於 General Information", vbOKOnly, "Error"
+
+        ' 5.2.2
+        ElseIf sqr(fc_) > 26.5 Then
+
+            fc_ = 700
+
         End If
 
         ' loop 上下排
@@ -694,43 +789,58 @@ Function CalLapLength(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrMultiRebar)
         For j = 1 To 2
 
             If j = 1 Then
+
                 ' 上排
                 row_ = i
                 rowBeam = i
+
             Else
+
                 ' 下排
                 row_ = i + 2
                 rowBeam = i + 3
+
             End If
 
-            maxRebarCapacity = APP.Max(arrRebar1stNum(row_, 1), arrRebar1stNum(row_, 2), arrRebar1stNum(row_, 3))
+            var1stNumLeft = arrRebar1stNum(row_, 1)
+            var1stNumMid = arrRebar1stNum(row_, 2)
+            var1stNumRight = arrRebar1stNum(row_, 3)
+
+            maxRebarCapacity = ran.Max(var1stNumLeft, var1stNumMid,var1stNumRight)
 
             For col_ = 1 To varSpliceNum
 
+                ' 箍筋所在的束制條件
                 If col_ <= varSpliceNum / 4 Then
+
                     ' 左
                     colStirrup = 10
+
                 ElseIf col_ >= 3 * varSpliceNum / 4 Then
+
                     ' 右
                     colStirrup = 12
+
                 Else
+
                     ' 中
                     colStirrup = 11
+
                 End If
 
                 ' 箍筋
                 ' 避免有雙箍的狀況
                 tmp = Split(arrBeam(i, colStirrup), "@")
                 stirrupSpace = Int(tmp(1))
+
                 tmp = Split(tmp(0), "#")
                 stirrupSize = "#" & tmp(1)
 
-                fytDb = objRebarSizeToDb.Item(stirrupSize)
-
-
-
                 tmp = Split(arrBeam(rowBeam, 6), "-")
-                ' fyNum = Int(tmp(0))
+                barSize = tmp(1)
+
+                fyDb = objRebarSizeToDb.Item(barSize)
+                fytDb = objRebarSizeToDb.Item(stirrupSize)
 
                 totalNum = arrMultiRebar(row_, col_)
 
@@ -738,18 +848,8 @@ Function CalLapLength(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrMultiRebar)
                 If Round(totalNum, 0) - Round(maxRebarCapacity, 0) = 1 Then
                     fyNum = (totalNum) - 2
                 Else
-                    fyNum = APP.Min((totalNum), maxRebarCapacity)
+                    fyNum = ran.Min(totalNum, maxRebarCapacity)
                 End If
-
-                ' 看主筋支數有幾根
-                ' 0 的話代表沒有配筋，所以搭接長度也為 0
-                ' If fyNum = 0 Then
-                '     arrLapLength(i + j, colLapLength) = 0
-
-                ' Else
-                ' 之所以這裡才取 tmp(1)，是因為如果 fyNum = 0，會沒有 tmp(1)
-                barSize = tmp(1)
-                fyDb = objRebarSizeToDb.Item(barSize)
 
                 ' 鋼筋位置修正因數
                 If j = 1 Then
@@ -798,10 +898,10 @@ Function CalLapLength(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrMultiRebar)
                 ld_ = factor * ldb_
 
                 ' 不是搭接長度，是延伸長度
-                ' 搭接長度 / 梁長 * 格數
-                arrLapLength(row_, col_) = ran.RoundUp(ran.Min(ld_, simpleLd) / length_ * varSpliceNum)
-
-                ' End If
+                ' 延伸長度 / 梁長 * 格數
+                ' 5.3.1
+                ' ld 不得小於 30 cm
+                arrLapLength(row_, col_) = ran.RoundUp(ran.Max(ran.Min(ld_, simpleLd), 30) / length_ * varSpliceNum)
 
             Next col_
 
@@ -949,135 +1049,6 @@ Function CalSmartSplice(ByVal arrMultiRebar, ByVal arrLapLength)
 End Function
 
 
-Function CalNormalSplice(ByVal arrRebarTotalNum)
-'
-' 原始配筋
-' 分成 1/3 1/3 1/3
-'
-' @param {Array} [arrRebarTotalNum] 總支數，列數與 arrBeam 對齊，行數分左中右.
-' @return {Array} [arrNormalSplice] 依據 arrRebarTotalNum，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
-'
-
-    Dim arrNormalSplice() As Double
-
-    ubRebarNumber = UBound(arrRebarTotalNum)
-
-    ReDim arrNormalSplice(1 To ubRebarNumber, 1 To varSpliceNum)
-
-    ubGirderRebar = UBound(arrNormalSplice)
-
-    varLeft = 1
-    varMid = 2
-    varRight = 3
-
-    varOneThreeSpliceNum = varSpliceNum / 3
-    varTwoThreeSpliceNum = 2 * varSpliceNum / 3
-
-    varOneFiveSpliceNum = varSpliceNum / 5
-    varFourFiveSpliceNum = 4 * varSpliceNum / 5
-
-    ' 上層
-    For i = 1 To ubGirderRebar Step 4
-
-        ' 左端
-        For j = 1 To varOneThreeSpliceNum
-            arrNormalSplice(i, j) = arrRebarTotalNum(i, varLeft)
-        Next j
-
-        ' 中央
-        ' 中央通常會比較少，取保守由兩端佔滿 1/3 2/3 處
-        For j = varOneThreeSpliceNum + 1 To varTwoThreeSpliceNum
-            arrNormalSplice(i, j) = arrRebarTotalNum(i, varMid)
-        Next j
-
-        ' 右端
-        For j = varTwoThreeSpliceNum + 1 To varSpliceNum
-            arrNormalSplice(i, j) = arrRebarTotalNum(i, varRight)
-        Next j
-
-    Next i
-
-    ' 下層
-    For i = 3 To ubGirderRebar Step 4
-
-        ' 中央
-        ' 先填滿全部都是中央
-        For j = 1 To varSpliceNum
-            arrNormalSplice(i, j) = arrRebarTotalNum(i, varMid)
-        Next j
-
-        ' 左端
-        If arrRebarTotalNum(i, varLeft) < arrRebarTotalNum(i, varMid) Then
-
-            ' 左端比較少
-            For j = 1 To varOneFiveSpliceNum
-                arrNormalSplice(i, j) = arrRebarTotalNum(i, varLeft)
-            Next j
-
-        Else
-
-            ' 左端比較多
-            For j = 1 To varOneThreeSpliceNum
-                arrNormalSplice(i, j) = arrRebarTotalNum(i, varLeft)
-            Next j
-
-        End If
-
-        ' 右端
-        If arrRebarTotalNum(i, varRight) < arrRebarTotalNum(i, varMid) Then
-
-            ' 右端比較少
-            For j = varSpliceNum To varFourFiveSpliceNum + 1 Step -1
-                arrNormalSplice(i, j) = arrRebarTotalNum(i, varRight)
-            Next j
-
-        Else
-
-            ' 右端比較多
-            For j = varSpliceNum To varTwoThreeSpliceNum + 1 Step -1
-                arrNormalSplice(i, j) = arrRebarTotalNum(i, varRight)
-            Next j
-
-        End If
-
-    Next i
-
-    CalNormalSplice = arrNormalSplice
-
-
-End Function
-
-Function CalOptimizeResult(ByVal arrOptimized, ByVal arrInitial) As Double
-'
-' 回傳最佳化結果.
-' arrOptimized / arrInitial
-'
-' @param {Array} [arrOptimized] 最佳化過後的配筋.
-' @param {Array} [arrInitial] 原始配筋.
-' @return {Array} [varOptimized / varInitial] 回傳最佳化結果.
-'
-
-    ubOptimized = UBound(arrOptimized)
-
-    varOptimized = 0
-    varInitial = 0
-
-    For i = 1 To ubOptimized Step 2
-
-        For j = 1 To varSpliceNum
-
-            varInitial = varInitial + arrInitial(i, j)
-            varOptimized = varOptimized + arrOptimized(i, j)
-
-        Next j
-
-    Next i
-
-    CalOptimizeResult = varOptimized / varInitial
-
-End Function
-
-
 Function CalOptimizeNoMoreThanNormal(ByVal arrSmartSplice, ByVal arrNormalSplice)
 '
 ' 最佳化的結果不應該超過初始的.
@@ -1088,9 +1059,9 @@ Function CalOptimizeNoMoreThanNormal(ByVal arrSmartSplice, ByVal arrNormalSplice
 ' @return {Array} [arrSmartSplice] 回傳不大於初始的最佳化配筋.
 '
 
-    ubGirderMultiRebar = UBound(arrSmartSplice)
+    ubMultiRebar = UBound(arrSmartSplice)
 
-    For i = 1 To ubGirderMultiRebar Step 2
+    For i = 1 To ubMultiRebar Step 2
 
         For j = 1 To varSpliceNum
 
@@ -1113,9 +1084,9 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
 '
 ' 從無限多點限縮到三個點.
 '
-' @since 1.0.0
-' @param {Array} [arrSmartSplice] 最佳化配筋.
-' @return {type} [name] descrip.
+' @param {Array} [arrBeam] RCAD 輸出資料.
+' @param {Array} [arrSmartSplice] 依據演算法的配筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+' @return {Array} [arrThreePoints] 三點斷筋，列數與 arrBeam 對齊，行數 6.
 '
 
     ubSmartSplice = UBound(arrSmartSplice)
@@ -1153,26 +1124,50 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
                     midMaxRebar = 0
                     rightMaxRebar = 0
 
-                    ' 左邊取最大值
-                    For colLeftIndex = 1 To colLeft
+                    For colIndex = 1 To varSpliceNum
 
-                        leftMaxRebar = ran.Max(leftMaxRebar, arrSmartSplice(rowRebar, colLeftIndex) * 1)
+                        If colIndex <= colLeft Then
 
-                    Next colLeftIndex
+                            ' 之所以乘以 1，是因為 Max 在處理陣列時，會出現問題，所以乘以 1 把他轉換成 double
+                            ' 左邊取最大值
+                            leftMaxRebar = ran.Max(leftMaxRebar, arrSmartSplice(rowRebar, colIndex) * 1)
 
-                    ' 中間取最大值
-                    For colMid = colLeft + 1 To colRight - 1
+                        ElseIf colIndex >= colRight Then
 
-                        midMaxRebar = ran.Max(midMaxRebar, arrSmartSplice(rowRebar, colMid) * 1)
+                            ' 之所以乘以 1，是因為 Max 在處理陣列時，會出現問題，所以乘以 1 把他轉換成 double
+                            ' 右邊取最大值
+                            rightMaxRebar = ran.Max(rightMaxRebar, arrSmartSplice(rowRebar, colIndex) * 1)
 
-                    Next colMid
+                        Else
 
-                    ' 中間取最大值
-                    For colRightIndex = colRight To varSpliceNum
+                            ' 之所以乘以 1，是因為 Max 在處理陣列時，會出現問題，所以乘以 1 把他轉換成 double
+                            ' 中間取最大值
+                            midMaxRebar = ran.Max(midMaxRebar, arrSmartSplice(rowRebar, colIndex) * 1)
 
-                        rightMaxRebar = ran.Max(rightMaxRebar, arrSmartSplice(rowRebar, colRightIndex) * 1)
+                        End If
 
-                    Next colRightIndex
+                    Next colIndex
+
+                    ' ' 左邊取最大值
+                    ' For colLeftIndex = 1 To colLeft
+
+                    '     leftMaxRebar = ran.Max(leftMaxRebar, arrSmartSplice(rowRebar, colLeftIndex) * 1)
+
+                    ' Next colLeftIndex
+
+                    ' ' 中間取最大值
+                    ' For colMid = colLeft + 1 To colRight - 1
+
+                    '     midMaxRebar = ran.Max(midMaxRebar, arrSmartSplice(rowRebar, colMid) * 1)
+
+                    ' Next colMid
+
+                    ' ' 右邊取最大值
+                    ' For colRightIndex = colRight To varSpliceNum
+
+                    '     rightMaxRebar = ran.Max(rightMaxRebar, arrSmartSplice(rowRebar, colRightIndex) * 1)
+
+                    ' Next colRightIndex
 
                     arrCombo(i, 1) = leftMaxRebar
                     arrCombo(i, 4) = colLeft / varSpliceNum * span
@@ -1216,12 +1211,10 @@ End Function
 
 Function ConvertThreePoints(ByVal arrThreePoints)
 '
-' descrip.
+' 把三點斷筋轉換成格數.
 '
-' @since 1.0.0
-' @param {type} [name] descrip.
-' @return {type} [name] descrip.
-' @see dependencies
+' @param {Array} [arrThreePoints] 三點斷筋，列數與 arrBeam 對齊，行數 6.
+' @return {Array} [arrMultiThreePoints] 三點斷筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
 '
     ubThreePoints = UBound(arrThreePoints)
 
@@ -1265,6 +1258,37 @@ Function ConvertThreePoints(ByVal arrThreePoints)
 End Function
 
 
+Function CalOptimizeResult(ByVal arrOptimized, ByVal arrInitial) As Double
+'
+' 回傳最佳化結果.
+' arrOptimized / arrInitial
+'
+' @param {Array} [arrOptimized] 最佳化過後的配筋.
+' @param {Array} [arrInitial] 原始配筋.
+' @return {Array} [varOptimized / varInitial] 回傳最佳化結果.
+'
+
+    ubOptimized = UBound(arrOptimized)
+
+    varOptimized = 0
+    varInitial = 0
+
+    For i = 1 To ubOptimized Step 2
+
+        For j = 1 To varSpliceNum
+
+            varInitial = varInitial + arrInitial(i, j)
+            varOptimized = varOptimized + arrOptimized(i, j)
+
+        Next j
+
+    Next i
+
+    CalOptimizeResult = varOptimized / varInitial
+
+End Function
+
+
 Function PrintResult(ByVal arrResult, ByVal colStart, ByVal strTitle)
 '
 ' 列印出最佳化結果
@@ -1272,6 +1296,7 @@ Function PrintResult(ByVal arrResult, ByVal colStart, ByVal strTitle)
 '
 ' @param {Array} [arrResult] 需要 print 出的陣列.
 ' @param {Array} [colStart] 從哪一列開始.
+' @param {String} [strTitle] 資料 title.
 '
 
     rowStart = 3
@@ -1309,13 +1334,13 @@ End Function
 
 Function RebarTable(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrThreePoints)
 '
-' descrip.
+' 輸出配筋表格.
 ' 考慮將來四點斷筋的伸縮空間
 '
-' @since 1.0.0
-' @param {type} [name] descrip.
-' @return {type} [name] descrip.
-' @see dependencies
+' @param {Array} [arrBeam] RCAD 輸出資料.
+' @param {Array} [arrRebar1stNum] 第一排支數，列數與 arrBeam 對齊，行數分左中右.
+' @param {Array} [arrThreePoints] 三點斷筋，列數與 arrBeam 對齊，行數 6.
+' @return {Array} [arrRebarTable] 配筋表格，列數與 arrBeam 對齊，行數不等於 arrBeam.
 '
 
     ' arrBeamIncludeTitle = ran.GetRangeToArray(wsBeam, 1, 1, 5, 15)
@@ -1437,14 +1462,36 @@ Function RebarTable(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrThreePoints)
 End Function
 
 
+Function ScanOptimizeResult(ByVal arrRebarTable, ByVal arrMultiThreePoints, ByVal arrNormalSplice)
+'
+' Scan 每支梁的優化結果.
+'
+' @param {Array} [arrRebarTable] 配筋表格，列數與 arrBeam 對齊，行數不等於 arrBeam.
+' @param {Array} [arrMultiThreePoints] 三點斷筋，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+' @param {Array} [arrNormalSplice] 依據 arrRebarTotalNum，列數與 arrBeam 對齊，行數由 varSpliceNum 控制.
+' @return {Array} [arrRebarTable] 加上 MSG 的配筋表格，列數與 arrBeam 對齊，行數不等於 arrBeam.
+'
+
+    ubRebarTable = UBound(arrRebarTable)
+
+    For i = 1 To ubRebarTable Step 4
+
+        For j = 1 To varSpliceNum
+
+            If arrMultiThreePoints = arrNormalSplice Then
+
+            End If
+        Next j
+    Next i
+
+End Function
+
+
 Private Function PrintRebarTable(ByVal arrRebarTable)
 '
-' descrip.
+' 輸出配筋結果給使用者.
 '
-' @since 1.0.0
-' @param {type} [name] descrip.
-' @return {type} [name] descrip.
-' @see dependencies
+' @param {Array} [arrRebarTable] 配筋表格，列數與 arrBeam 對齊，行數不等於 arrBeam.
 '
 
     ubRowRebarTable = UBound(arrRebarTable, 1)
@@ -1522,7 +1569,7 @@ Sub Main()
     arrMultiThreePoints = ConvertThreePoints(arrThreePoints)
     ' arrSmartSplice = OptimizeMultiRebar(arrRebarTotalNum)
 
-    varOptimizeResult = CalOptimizeResult(arrSmartSpliceModify, arrNormalSplice)
+    varOptimizeResult = CalOptimizeResult(arrMultiThreePoints, arrNormalSplice)
 
     arrRebarTable = RebarTable(arrBeam, arrRebar1stNum, arrThreePoints)
 

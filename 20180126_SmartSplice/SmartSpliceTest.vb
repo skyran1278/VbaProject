@@ -123,8 +123,9 @@ Sub Test()
 
     arrRebarTable = RebarTable(arrBeam, arrRebar1stNum, arrThreePoints)
 
-    With Worksheets("最佳化斷筋點")
-        .Range(.Cells(3, 1), .Cells(UBound(arrRebarTable, 1) + 2, UBound(arrRebarTable, 2))) = arrRebarTable
+    ' 輸出到原有的配筋表格
+    With wsBeam
+        .Range(.Cells(3, 16), .Cells(UBound(arrRebarTable, 1) + 2, UBound(arrRebarTable, 2) + 15)) = arrRebarTable
     End With
 
     rowStartNext = PrintResult(arrRebar1stNum, 3)

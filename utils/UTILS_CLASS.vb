@@ -1,4 +1,4 @@
-' @license UTILS_CLASS v3.0.0
+' @license UTILS_CLASS v3.0.1
 ' UTILS_CLASS.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -103,6 +103,8 @@ End Function
 
 ' 使用這個要小心，會怪怪的
 ' 估計是遇到了 VBA 底層的問題
+' 好像沒有其他辦法了
+' 0.5 + 0.5 可能為 0.999999999，這是規範的問題，比較難處理
 Function RoundUp(ByVal Value As Double)
 '
 ' 取代內建的 RoundUp
