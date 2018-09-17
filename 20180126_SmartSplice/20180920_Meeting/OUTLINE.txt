@@ -1,0 +1,52 @@
+PRECONDITION
+UNDERLYING ASSUMPTION
+    GIRDER
+        CONSIDER
+            LATERAL FORCE(EARTHQUAKE OR WIND)
+            DEAD LOAD
+            LIVE LOAD
+
+        IGNORE
+            EARTHQUAKE VERTICAL FORCE
+            LATERAL EARTH PRESSURE, GROUND WATER PRESSURE, OR PRESSURE OF BULK MATERIALS
+
+    BOUNDARY CONDITION
+        目前只適用於
+            FIX-FIX
+        將來可以做的
+            FIX-PIN
+            FIX-FREE
+            PIN-PIN
+
+    UNIFORM LOAD
+
+
+ALGORITHM
+    (1) U=1.4D
+    (2) U=1.2D + 1.6L
+    (3) U=1.2D + (1.0L or 0.5L)
+    (4) U=1.2D + 1.6W + (1.0L or 0.5L)
+    (5) U=1.2D + 1.0E + (1.0L or 0.5L)
+    (6) U=0.9D + 1.6W
+    (7) U=0.9D + 1.0E
+
+    有這麼多種載重組合
+    為了方便做逆向工程，我們取最保守的計算，上層筋是越少越保守。(將來可以做研究，看哪個最常控制)
+
+    top rebar
+        先抓出左右兩端的鋼筋量
+        取最保守的載重組合 0.9D + 1.0E
+        由 SDL LL 版厚 帶寬 算出重力需求曲線
+
+    bottom rebar
+
+
+
+目前還有重力的高低差
+處理不同的 load pattern
+處理不平均的狀況 factor?
+腰筋
+沒有處理 1/7 (pin) 的狀況
+
+
+記得看潘的貼文

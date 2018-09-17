@@ -460,6 +460,7 @@ End Function
 
 Function OptimizeMultiRebar(ByVal arrBeam, ByVal arrRebarTotalArea, ByVal arrGravity, ByVal arrNormalSplice)
 '
+' FIXME: 需要解決一個問題：如果兩端比較多怎麼辦。
 ' 上層筋兩端由耐震控制.
 ' 下層筋兩端由耐震控制，中央由重力與耐震共同控制.
 '
