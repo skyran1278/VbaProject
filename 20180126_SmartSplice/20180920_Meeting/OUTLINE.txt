@@ -34,9 +34,12 @@ ALGORITHM
     為了方便做逆向工程，我們取最保守的計算，上層筋是越少越保守。(將來可以做研究，看哪個最常控制)
 
     top rebar
+        INITIAL REBAR
         先抓出左右兩端的鋼筋量
         取最保守的載重組合 0.9D + 1.0E
-        由 SDL LL 版厚 帶寬 算出重力需求曲線
+        由 (SDL + SLAB) LL BAND 算出重力需求曲線
+        0.9 * Mn = 0.9 * As * Fy * 0.9d >= Mu
+        REDUCE TO THREE POINTS
 
     bottom rebar
 
