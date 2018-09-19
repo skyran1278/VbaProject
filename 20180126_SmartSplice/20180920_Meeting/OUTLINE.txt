@@ -40,6 +40,8 @@ ALGORITHM
         由 (SDL + SLAB) LL BAND 算出重力需求曲線
         0.9 * Mn = 0.9 * As * Fy * 0.9d >= Mu
         REDUCE TO THREE POINTS
+        FINITE PERMUTATION
+        0.15~0.4 to avoid extreme situation
 
     bottom rebar
 
