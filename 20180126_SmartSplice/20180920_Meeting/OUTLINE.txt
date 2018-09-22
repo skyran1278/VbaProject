@@ -3,6 +3,7 @@ UNDERLYING ASSUMPTION
     GIRDER
         CONSIDER
             LATERAL FORCE(EARTHQUAKE OR WIND) 主系統
+            GRAVITY LOAD(DEAD LIVE)
             DEAD LOAD
             LIVE LOAD
 
@@ -42,6 +43,10 @@ ALGORITHM
         REDUCE TO THREE POINTS
         FINITE PERMUTATION
         0.15~0.4 to avoid extreme situation
+        IMPROVE BIG DATA to find most control combo
+        SPAN STORY
+        施工的成本評估
+        CONSTRUCTION COST ASSESSMENT
 
     bottom rebar
 

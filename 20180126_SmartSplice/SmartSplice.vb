@@ -340,8 +340,9 @@ Function CalGravityDemand(ByVal arrBeam)
 
         ' 轉換成鋼筋量
         ' cm^2
-        as_top = mn_top / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDbTop))
-        as_bot = mn_bot / (fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDbBot))
+        ' 0.9 * Mn = 0.9 * As * Fy * 0.9d >= Mu
+        as_top = mn_top / (0.9 * fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDbTop))
+        as_bot = mn_bot / (0.9 * fy_ * 0.9 * (h - cover - fytDb - 1.5 * fyDbBot))
 
         arrGravity(i, 1) = as_top
 
@@ -1194,9 +1195,18 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
 
             Next colLeft
 
-            arrComboUsageMin = APP.Min(arrComboUsage)
+            ' APP 最多只能處理 60000，所以會出問題
+            ' arrComboUsageMin = APP.Min(arrComboUsage)
+            arrComboUsageMin = arrComboUsage(1)
+            For Each comboUsage In arrComboUsage
+                If comboUsage < arrComboUsageMin Then arrComboUsageMin = comboUsage
+            Next
 
-            comboUsageMinIndex = APP.Match(arrComboUsageMin, arrComboUsage, 0)
+            ' APP 最多只能處理 60000，所以會出問題
+            ' comboUsageMinIndex = APP.Match(arrComboUsageMin, arrComboUsage, 0)
+            For comboUsage = 1 To combo Step 1
+                If arrComboUsage(comboUsage) = arrComboUsageMin Then comboUsageMinIndex = comboUsage
+            Next comboUsage
 
             For i = 1 To 6
                 arrThreePoints(rowRebar, i) = arrCombo(comboUsageMinIndex, i)
@@ -1391,7 +1401,7 @@ Function RebarTable(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrThreePoints)
     For i = 1 To ubBeam Step 4
 
         rebarSize = Split(arrBeam(i, 6), "-")(1)
-        maxRebarCapacity = APP.Max(arrRebar1stNum(i, 1), arrRebar1stNum(i, 2), arrRebar1stNum(i, 3))
+        maxRebarCapacity = ran.Max(arrRebar1stNum(i, 1) * 1, arrRebar1stNum(i, 2) * 1, arrRebar1stNum(i, 3) * 1)
 
         For j = 6 To 8
 
@@ -1428,7 +1438,7 @@ Function RebarTable(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrThreePoints)
         ' End If
 
         rebarSize = Split(arrBeam(i + 1, 6), "-")(1)
-        maxRebarCapacity = APP.Max(arrRebar1stNum(i, 1), arrRebar1stNum(i, 2), arrRebar1stNum(i, 3))
+        maxRebarCapacity = ran.Max(arrRebar1stNum(i, 1) * 1, arrRebar1stNum(i, 2) * 1, arrRebar1stNum(i, 3) * 1)
 
         For j = 6 To 8
 
