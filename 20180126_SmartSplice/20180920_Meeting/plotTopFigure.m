@@ -40,7 +40,7 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR');
-axis([0 1160 -20 40]);
+axis([0 beamLength -20 40]);
 
 % 2
 figure;
@@ -51,7 +51,7 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR');
-axis([0 1160 -20 40]);
+axis([0 beamLength -20 40]);
 
 % 3
 figure;
@@ -63,7 +63,7 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR');
-axis([0 1160 -20 40]);
+axis([0 beamLength -20 40]);
 
 % 4
 figure;
@@ -76,7 +76,7 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR');
-axis([0 1160 -20 40]);
+axis([0 beamLength -20 40]);
 
 % 5
 figure;
@@ -88,7 +88,7 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR NUMBER');
-axis([0 1160 -4 8]);
+axis([0 beamLength -4 8]);
 
 % 6
 figure;
@@ -101,7 +101,7 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR NUMBER');
-axis([0 1160 -4 8]);
+axis([0 beamLength -4 8]);
 
 % 7
 figure;
@@ -117,5 +117,5 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR NUMBER');
-axis([0 1160 -4 8]);
+axis([0 beamLength -4 8]);
 

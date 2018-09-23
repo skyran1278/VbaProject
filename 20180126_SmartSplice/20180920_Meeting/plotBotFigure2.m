@@ -21,9 +21,9 @@ initialRebar = -[20 * ones(1, interval / 3), 15 * ones(1, interval / 3), 20 * on
 
 gravityLoad = 4 * 48 * (x / beamLength - 0.5) .^ 2 - 32;
 
-lateralForce = max([20 - 2 * 20 * x / beamLength; -20 + 2 * 20 * x / beamLength]);
+lateralForce = min([20 - 2 * 20 * x / beamLength; -20 + 2 * 20 * x / beamLength]);
 
-linearAdd = gravityLoad .* (gravityLoad > 0) + lateralForce;
+linearAdd = gravityLoad .* (gravityLoad < 0) + lateralForce;
 
 multiRebar = -[4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	3	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4	4
 ];
@@ -45,7 +45,7 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR');
-axis([0 1160 -40 20]);
+axis([0 beamLength -40 20]);
 
 % 2
 figure;
@@ -56,7 +56,7 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR');
-axis([0 1160 -40 20]);
+axis([0 beamLength -40 20]);
 
 % 3
 figure;
@@ -68,7 +68,7 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR');
-axis([0 1160 -40 20]);
+axis([0 beamLength -40 20]);
 
 % 4
 figure;
@@ -81,46 +81,52 @@ plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR');
-axis([0 1160 -40 20]);
+axis([0 beamLength -40 20]);
 
 % 5
 figure;
 hold on;
+plot([beamLength beamLength] * 0.25, [-20 20], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
+plot([beamLength beamLength] * 0.75, [-20 20], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
+plot([beamLength beamLength] / 3, [-20 20], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
+plot([beamLength beamLength] / 3 * 2, [-20 20], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
 plot(x, initialRebar / 5, 'Color', green, 'LineWidth', 2);
-plot(x, linearAdd / 5, 'Color', gray, 'LineWidth', 2);
-plot(x, max(ceil(linearAdd / 5), 2), 'Color', blue, 'LineWidth', 2);
+% plot(x, linearAdd / 5, 'Color', gray, 'LineWidth', 2);
+% plot(x, multiRebar, 'Color', blue, 'LineWidth', 2);
+% plot(x, min(floor(linearAdd / 5), 2), 'Color', blue, 'LineWidth', 2);
 plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR NUMBER');
-axis([0 1160 -8 4]);
+axis([0 beamLength -8 4]);
 
 % 6
 figure;
 hold on;
+plot([beamLength beamLength] * 0.25, [-20 20], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
+plot([beamLength beamLength] * 0.75, [-20 20], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
 plot(x, initialRebar / 5, 'Color', green, 'LineWidth', 2);
-plot(x, linearAdd / 5, 'Color', gray, 'LineWidth', 2);
-plot(x, max(ceil(linearAdd / 5), 2), 'Color', blue, 'LineWidth', 2);
+% plot(x, linearAdd / 5, 'Color', gray, 'LineWidth', 2);
+plot(x, multiRebar, 'Color', blue, 'LineWidth', 2);
+% plot(x, min(floor(linearAdd / 5), 2), 'Color', blue, 'LineWidth', 2);
+plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
+title('');
+xlabel('L');
+ylabel('REBAR NUMBER');
+axis([0 beamLength -8 4]);
+
+% 7
+figure;
+hold on;
+plot([beamLength beamLength] * 0.25, [-20 20], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
+plot([beamLength beamLength] * 0.75, [-20 20], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
+plot(x, initialRebar / 5, 'Color', green, 'LineWidth', 2);
+% plot(x, linearAdd / 5, 'Color', gray, 'LineWidth', 2);
+plot(x, multiRebar, 'Color', blue, 'LineWidth', 2);
+% plot(x, min(floor(linearAdd / 5), 2), 'Color', blue, 'LineWidth', 2);
 plot(x, multiRebarLd, 'Color', red, 'LineWidth', 2);
 plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
 ylabel('REBAR NUMBER');
-axis([0 1160 -8 4]);
-
-% 7
-figure;
-hold on;
-plot([beamLength beamLength] * 0.15, [-10 10], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
-plot([beamLength beamLength] * 0.4, [-10 10], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
-plot([beamLength beamLength] * 0.85, [-10 10], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
-plot([beamLength beamLength] * 0.6, [-10 10], 'Color', gray, 'LineWidth', 2, 'LineStyle', '--');
-plot(x, initialRebar / 5, 'Color', green, 'LineWidth', 2);
-plot(x, multiRebarLd, 'Color', gray, 'LineWidth', 2);
-plot(x, threeRebar, 'Color', blue, 'LineWidth', 2);
-plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
-title('');
-xlabel('L');
-ylabel('REBAR NUMBER');
-axis([0 1160 -8 4]);
-
+axis([0 beamLength -8 4]);

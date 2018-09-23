@@ -351,7 +351,7 @@ Function CalGravityDemand(ByVal arrBeam)
 
         arrGravity(i, 3) = as_top
 
-        ' arrGravity(i + 3, 2) = mn_bot / 100000
+        arrGravity(i + 3, 2) = mn_bot / 100000
         arrGravity(i + 2, 2) = as_bot
 
     Next
