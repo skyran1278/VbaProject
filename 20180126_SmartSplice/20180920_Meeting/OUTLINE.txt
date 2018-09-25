@@ -55,6 +55,10 @@ ALGORITHM
         UNREASONABLE
         MORE THAN INITIAL REBAR
         TODO: 加一頁將來可以改進的
+        different boundary CONDITION
+        nonuniform load factor
+        Shear rebar
+
 
 
 
