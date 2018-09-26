@@ -76,7 +76,7 @@ hold on;
 plot(x, initialRebar, 'Color', green, 'LineWidth', 2);
 plot(x, gravityLoad, 'Color', gray, 'LineWidth', 2);
 plot(x, lateralForce, 'Color', gray, 'LineWidth', 2);
-plot(x, linearAdd, 'Color', blue, 'LineWidth', 2);
+plot(x, linearAdd, 'Color', orange, 'LineWidth', 2);
 plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');

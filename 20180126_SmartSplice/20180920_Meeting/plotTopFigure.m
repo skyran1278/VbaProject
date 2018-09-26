@@ -4,6 +4,7 @@ green = [26 188 156] / 256;
 blue = [52 152 219] / 256;
 red = [233 88 73] / 256;
 orange = [230 126 34] / 256;
+purple = [155 89 182] / 256;
 gray = [0.5 0.5 0.5];
 background = [247 247 247] / 256;
 
@@ -71,7 +72,7 @@ hold on;
 plot(x, initialRebar, 'Color', green, 'LineWidth', 2);
 plot(x, gravityLoad, 'Color', gray, 'LineWidth', 2);
 plot(x, lateralForce, 'Color', gray, 'LineWidth', 2);
-plot(x, linearAdd, 'Color', blue, 'LineWidth', 2);
+plot(x, linearAdd, 'Color', orange, 'LineWidth', 2);
 plot(x, zeroLine, 'Color', gray, 'LineWidth', 2);
 title('');
 xlabel('L');
