@@ -10,8 +10,8 @@
 ' 隨工作簿不同而需更改的參數:
 ' VERSION_URL: 該工作簿 version.txt
 ' DOWNLOAD_URL: 該工作簿 下載檔案位置
-Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20180126_SmartSplice/SmartSplice.xlsm"
-Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20180126_SmartSplice/Version.txt"
+Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20180126_SmartCut/SmartCut.xlsm"
+Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20180126_SmartCut/Version.txt"
 
 Sub VerifyPassword()
 '
