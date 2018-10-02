@@ -10,6 +10,7 @@ def _load_file(file_name, usecols=None):
     file_path = dataset_dir + "/" + file_name
     beam_forces = np.genfromtxt(
         file_path, dtype=None, names=True, delimiter='\t', encoding='utf8', usecols=usecols)
+    # beam_forces_tuple2array = np.array(beam_forces)
 
     return beam_forces
 
@@ -41,6 +42,7 @@ def load_moment():
 
 
 def main():
+    init_moment()
     b_force, b_length = load_moment()
     print(b_force[1]['Story'])
     print(b_length['Length'][0])
