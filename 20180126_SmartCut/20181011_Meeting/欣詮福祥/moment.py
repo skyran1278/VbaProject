@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from dataset_moment import load_moment
-from dataset import load_beam_design
+from dataset_design import load_beam_design
 
 
 green = np.array([26, 188, 156]) / 256
