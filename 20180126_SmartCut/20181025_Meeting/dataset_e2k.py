@@ -22,7 +22,7 @@ def init_e2k():
     rebars = {}
 
     stories = {}
-    point_coordinates = {}
+    point_coordinates = []
     lines = {}
 
     materials = {}
@@ -79,9 +79,11 @@ def init_e2k():
             sections[(section_name, 'COVERBOTTOM')] = float(words[7])
 
         if checking == '$ POINT COORDINATES' and words[0] == 'POINT':
-            point_name = words[1].strip('"')
-            point_coordinates[(point_name, 'X')] = float(words[2])
-            point_coordinates[(point_name, 'Y')] = float(words[3])
+            point_coordinates.append(
+                (words[1].strip('"'), float(words[2]), float(words[3])))
+            # point_name = words[1].strip('"')
+            # point_coordinates[(point_name, 'X')] = float(words[2])
+            # point_coordinates[(point_name, 'Y')] = float(words[3])
 
         if checking == '$ LINE CONNECTIVITIES' and words[0] == 'LINE':
             line_name = words[1].strip('"')
@@ -95,6 +97,9 @@ def init_e2k():
             line_name = words[1].strip('"')
             story = words[2].strip('"')
             lines[(line_name, story, 'SECTION')] = words[4].strip('"')
+
+    point_coordinates = np.array(
+        point_coordinates, [('name', '<U16'), ('X', '<f8'), ('Y', '<f8')])
 
     return rebars, stories, point_coordinates, lines, materials, sections
 

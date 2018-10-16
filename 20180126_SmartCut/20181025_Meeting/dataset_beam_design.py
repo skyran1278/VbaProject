@@ -1,5 +1,6 @@
 import os
 import pickle
+import pandas as pd
 import numpy as np
 
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
@@ -8,9 +9,12 @@ save_file = dataset_dir + "/beam_design.pkl"
 
 def _load_file(file_name):
     file_path = dataset_dir + "/" + file_name
-    dataset = np.genfromtxt(
-        file_path, dtype=None, names=True, delimiter='\t', encoding='utf8')
+    dataset = pd.read_table(file_path, sep='\t')
+    # dataset = np.genfromtxt(
+    #     file_path, dtype=None, names=True, delimiter='\t', encoding='utf8')
 
+    # dataset = pd.DataFrame(dataset)
+    # print(dataset.head())
     return dataset
 
 
@@ -37,7 +41,8 @@ def load_beam_design():
 def main():
     init_pkl()
     dataset = load_beam_design()
-    print(dataset[['Story', 'BayID']][682])
+    print(dataset.head())
+    print(dataset[['Story', 'VRebar']])
 
 
 if __name__ == '__main__':
