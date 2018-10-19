@@ -56,16 +56,14 @@ for name, group in beam_design_table.groupby(['Story', 'BayID']):
 
     group_left_spacing = np.amax(
         group['spacing'][group['StnLoc'] <= group_left]) * 100
-    print(type(group['StnLoc'] >= group_left))
-    print(group['StnLoc'] <= group_right)
     group_mid_spacing = np.amax(
-        group['spacing'][group['StnLoc'] >= group_left & group['StnLoc'] <= group_right]) * 100
+        group['spacing'][(group['StnLoc'] >= group_left) & (group['StnLoc'] <= group_right)]) * 100
     group_right_spacing = np.amax(
         group['spacing'][group['StnLoc'] >= group_right]) * 100
 
-    beam_3points_table.iloc[i, '箍筋, 左'] = group_size + group_left_spacing
-    beam_3points_table.iloc[i, '箍筋, 中'] = group_size + group_mid_spacing
-    beam_3points_table.iloc[i, '箍筋, 右'] = group_size + group_right_spacing
+    beam_3points_table['箍筋, 左'].loc[i] = group_size + str(group_left_spacing)
+    beam_3points_table['箍筋, 中'].loc[i] = group_size + str(group_mid_spacing)
+    beam_3points_table['箍筋, 右'].loc[i] = group_size + str(group_right_spacing)
 
     # print([group['StnLoc'] <= group_left])
     # print(np.amax(group['spacing'][group['StnLoc'] <= group_left]))
