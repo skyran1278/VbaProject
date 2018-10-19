@@ -12,6 +12,9 @@ rebar = ['#4', '2#4', '2#5', '2#6']
 max_spacing = 0.25
 min_spacing = 0.10
 
+beam_3points_table = pd.DataFrame(columns=['樓層', '編號', 'RC 梁寬', 'RC 梁深', '主筋', '主筋, 左', '主筋, 中', '主筋, 右',
+                                           '長度, 左', '長度, 中', '長度, 右', '腰筋', '箍筋, 左', '箍筋, 中', '箍筋, 右', '梁長', '支承寬', 'NOTE', 'MESSAGE'])
+
 rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
 
 beam_design_table = load_beam_design()
@@ -43,14 +46,32 @@ beam_design_table = beam_design_table.assign(
 
 # 支承寬要怎麼走
 for name, group in beam_design_table.groupby(['Story', 'BayID']):
+    i = 1
     group_max = np.amax(group['StnLoc'])
     group_min = np.amin(group['StnLoc'])
 
     group_left = (group_max - group_min) / 4 + group_min
     group_right = 3 * (group_max - group_min) / 4 + group_min
+    group_size = group['dbt'].iloc[0] + '@'
 
-    print([group['StnLoc'] <= group_left])
-    print(group['spacing'][group['StnLoc'] <= group_left])
+    group_left_spacing = np.amax(
+        group['spacing'][group['StnLoc'] <= group_left]) * 100
+    print(type(group['StnLoc'] >= group_left))
+    print(group['StnLoc'] <= group_right)
+    group_mid_spacing = np.amax(
+        group['spacing'][group['StnLoc'] >= group_left & group['StnLoc'] <= group_right]) * 100
+    group_right_spacing = np.amax(
+        group['spacing'][group['StnLoc'] >= group_right]) * 100
+
+    beam_3points_table.iloc[i, '箍筋, 左'] = group_size + group_left_spacing
+    beam_3points_table.iloc[i, '箍筋, 中'] = group_size + group_mid_spacing
+    beam_3points_table.iloc[i, '箍筋, 右'] = group_size + group_right_spacing
+
+    # print([group['StnLoc'] <= group_left])
+    # print(np.amax(group['spacing'][group['StnLoc'] <= group_left]))
+    i += 1
+
+print(beam_3points_table.head())
 # while group['spacing']:
 #     pass
 
