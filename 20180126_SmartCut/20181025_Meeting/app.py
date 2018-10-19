@@ -43,9 +43,14 @@ beam_design_table = beam_design_table.assign(
 
 # 支承寬要怎麼走
 for name, group in beam_design_table.groupby(['Story', 'BayID']):
-    np.amax(group['StnLoc'])
+    group_max = np.amax(group['StnLoc'])
+    group_min = np.amin(group['StnLoc'])
 
-    group['StnLoc'] <= np.amax(group['StnLoc']) - np.amin(group['StnLoc'])
+    group_left = (group_max - group_min) / 4 + group_min
+    group_right = 3 * (group_max - group_min) / 4 + group_min
+
+    print([group['StnLoc'] <= group_left])
+    print(group['spacing'][group['StnLoc'] <= group_left])
 # while group['spacing']:
 #     pass
 
