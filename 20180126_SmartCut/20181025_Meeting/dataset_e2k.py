@@ -6,7 +6,7 @@ import numpy as np
 
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
 read_file = dataset_dir + '/2018-0214.e2k'
-save_file = dataset_dir + '/beam.pkl'
+save_file = dataset_dir + '/beam_e2k.pkl'
 
 
 def _load_e2k():
@@ -104,14 +104,30 @@ def init_e2k():
     return rebars, stories, point_coordinates, lines, materials, sections
 
 
+def init_pkl():
+    dataset = init_e2k()
+
+    print("Creating pickle file ...")
+    with open(save_file, 'wb') as f:
+        pickle.dump(dataset, f, True)
+    print("Done!")
+
+
 def load_e2k():
-    e2k = init_e2k()
-    return e2k
+    if not os.path.exists(save_file):
+        init_pkl()
+
+    with open(save_file, 'rb') as f:
+        rebars, stories, point_coordinates, lines, materials, sections = pickle.load(f)
+
+    return rebars, stories, point_coordinates, lines, materials, sections
 
 
 def main():
-    init_e2k()
-    load_e2k()
+    init_pkl()
+    rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
+    print(rebars)
+    # print(dataset['rebars'])
 
 
 if __name__ == '__main__':
