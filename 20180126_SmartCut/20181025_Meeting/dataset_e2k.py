@@ -1,6 +1,7 @@
 import os
 import pickle
 import re
+import pandas as pd
 import numpy as np
 
 
@@ -22,7 +23,8 @@ def init_e2k():
     rebars = {}
 
     stories = {}
-    point_coordinates = []
+    point_coordinates = {}
+    # point_coordinates = []
     lines = {}
 
     materials = {}
@@ -79,9 +81,10 @@ def init_e2k():
             sections[(section_name, 'COVERBOTTOM')] = float(words[7])
 
         if checking == '$ POINT COORDINATES' and words[0] == 'POINT':
-            point_coordinates.append(
-                (words[1].strip('"'), float(words[2]), float(words[3])))
-            # point_name = words[1].strip('"')
+            # point_coordinates.append(
+            #     (words[1].strip('"'), float(words[2]), float(words[3])))
+            point_name = words[1].strip('"')
+            point_coordinates[point_name] = [float(words[2]), float(words[3])]
             # point_coordinates[(point_name, 'X')] = float(words[2])
             # point_coordinates[(point_name, 'Y')] = float(words[3])
 
@@ -91,15 +94,17 @@ def init_e2k():
             lines[(line_name, line_type, 'START')] = words[3].strip('"')
             lines[(line_name, line_type, 'END')] = words[4].strip('"')
 
-        if checking == '$ LINE ASSIGNS' and words[0] == 'LINEASSIGN' and words[3] == 'SECTION':
-            # ANG 沒處理
-            # CARDINALPT 沒處理
-            line_name = words[1].strip('"')
-            story = words[2].strip('"')
-            lines[(line_name, story, 'SECTION')] = words[4].strip('"')
+        # if checking == '$ LINE ASSIGNS' and words[0] == 'LINEASSIGN' and words[3] == 'SECTION':
+        #     # ANG 沒處理
+        #     # CARDINALPT 沒處理
+        #     line_name = words[1].strip('"')
+        #     story = words[2].strip('"')
+        #     lines[(line_name, story, 'SECTION')] = words[4].strip('"')
 
-    point_coordinates = np.array(
-        point_coordinates, [('name', '<U16'), ('X', '<f8'), ('Y', '<f8')])
+    # point_coordinates = np.array(point_coordinates)
+    # point_coordinates = np.array(
+    #     point_coordinates, [('name', '<U16'), ('X', '<f8'), ('Y', '<f8')])
+    point_coordinates = pd.DataFrame.from_dict(point_coordinates, orient='index', columns=['X', 'Y'])
 
     return rebars, stories, point_coordinates, lines, materials, sections
 

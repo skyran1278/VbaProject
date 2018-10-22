@@ -9,8 +9,7 @@ import matplotlib.pyplot as plt
 
 from dataset_beam_design import load_beam_design
 from dataset_e2k import load_e2k
-from const import STIRRUP_REBAR as REBAR
-from const import STIRRUP_SPACING as SPACING
+from const import STIRRUP_REBAR as REBAR, STIRRUP_SPACING as SPACING
 from output_table import init_beam_3points_table
 
 
@@ -43,10 +42,11 @@ def upgrade_size(beam_design_table, rebars):
 
             i += 1
 
-        beam_design_table.loc[group.index.tolist()] = group
+        beam_design_table.loc[group.index.tolist(), ['dbt', 'spacing']] = group[['dbt', 'spacing']]
 
     # tEnd = time.time()
     # print(tEnd - tStart)
+    return beam_design_table
 
 
 def merge_segments(beam_design_table, beam_3points_table):
@@ -66,18 +66,25 @@ def merge_segments(beam_design_table, beam_3points_table):
         group_size = group['dbt'].iloc[0] + '@'
 
         # x < 1/4 => max >= spacing => spacing max
-        group_left_max = np.amax(SPACING[np.amax(group['spacing'][group['StnLoc'] <= group_left]) >= SPACING]) * 100
+        group_left_max = np.amax(SPACING[np.amax(
+            group['spacing'][group['StnLoc'] <= group_left]) >= SPACING]) * 100
         group_mid_max = np.amax(
             SPACING[np.amax(group['spacing'][(group['StnLoc'] >= group_left) & (group['StnLoc'] <= group_right)]) >= SPACING]) * 100
-        group_right_max = np.amax(SPACING[np.amax(group['spacing'][group['StnLoc'] >= group_right]) >= SPACING]) * 100
+        group_right_max = np.amax(SPACING[np.amax(
+            group['spacing'][group['StnLoc'] >= group_right]) >= SPACING]) * 100
 
-        beam_3points_table.loc[i, ('箍筋', '左')] = (group_size + str(int(group_left_max)))
-        beam_3points_table.loc[i, ('箍筋', '中')] = (group_size + str(int(group_mid_max)))
-        beam_3points_table.loc[i, ('箍筋', '右')] = (group_size + str(int(group_right_max)))
+        beam_3points_table.loc[i, ('箍筋', '左')] = (
+            group_size + str(int(group_left_max)))
+        beam_3points_table.loc[i, ('箍筋', '中')] = (
+            group_size + str(int(group_mid_max)))
+        beam_3points_table.loc[i, ('箍筋', '右')] = (
+            group_size + str(int(group_right_max)))
 
         i = i + 4
+
     # tEnd = time.time()
     # print(tEnd - tStart)
+    return beam_3points_table
 
 
 def calc_sturrups(beam_3points_table):
@@ -85,8 +92,8 @@ def calc_sturrups(beam_3points_table):
     beam_design_table = load_beam_design()
 
     beam_design_table = first_calc_dbt_spacing(beam_design_table, rebars)
-    upgrade_size(beam_design_table, rebars)
-    merge_segments(beam_design_table, beam_3points_table)
+    beam_design_table = upgrade_size(beam_design_table, rebars)
+    beam_3points_table = merge_segments(beam_design_table, beam_3points_table)
 
     return beam_3points_table
 

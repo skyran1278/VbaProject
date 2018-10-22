@@ -9,11 +9,10 @@ def create_pkl(save_file, dataset):
         pickle.dump(dataset, f, True)
     print("Done!")
 
+    return dataset
 
-def load_pkl(save_file, dataset=pd.Series([])):
-    if not dataset.empty:
-        create_pkl(save_file, dataset)
 
+def load_pkl(save_file):
     with open(save_file, 'rb') as f:
         dataset = pickle.load(f)
 
