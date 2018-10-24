@@ -7,11 +7,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from dataset_beam_design import load_beam_design
-from dataset_e2k import load_e2k
+from dataset.dataset_beam_design import load_beam_design
+from dataset.dataset_e2k import load_e2k
 from output_table import init_beam_3points_table
 from stirrups import calc_sturrups
-from pkl import load_pkl, create_pkl
+from utils.pkl import load_pkl, create_pkl
 
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
 save_file = dataset_dir + '/3pionts.xlsx'

@@ -7,9 +7,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from dataset_beam_design import load_beam_design
-from dataset_e2k import load_e2k
-from const import STIRRUP_REBAR as REBAR, STIRRUP_SPACING as SPACING
+from dataset.dataset_beam_design import load_beam_design
+from dataset.dataset_e2k import load_e2k
+from dataset.const import STIRRUP_REBAR as REBAR, STIRRUP_SPACING as SPACING
 from output_table import init_beam_3points_table
 
 
