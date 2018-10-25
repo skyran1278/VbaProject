@@ -306,7 +306,7 @@ Function CalGravityDemand(ByVal arrBeam)
 
         storey = arrBeam(i, 1)
         h = arrBeam(i, 4) ' cm
-        span = arrBeam(i, 13) ' cm
+        span = arrBeam(i, 13) - arrBeam(i, 14) ' 扣支承寬 cm
 
         stirrupLeft = "#" & Split(Split(arrBeam(i, 10), "@")(0), "#")(1)
         stirrupMid = "#" & Split(Split(arrBeam(i, 11), "@")(0), "#")(1)
@@ -767,7 +767,7 @@ Function CalLapLength(ByVal arrBeam, ByVal arrRebar1stNum, ByVal arrMultiRebar)
 
         storey = arrBeam(i, 1)
         width_ = arrBeam(i, 3)
-        length_ = arrBeam(i, 13)
+        length_ = arrBeam(i, 13) - arrBeam(i, 14) ' 扣支承寬
 
         fy_ = objStoryToFy.Item(storey)
         fyt_ = objStoryToFyt.Item(storey)
