@@ -168,7 +168,7 @@ def plot_develop_length():
         # y_combo = beam_design['As' + loc + 'Combo'][682: 682 + 27]
         if loc == 'Bot':
             y = -y
-        plt.plot(x, y, linewidth=2.0, color=blue)
+        plt.plot(x, y, linewidth=2.0, color=red)
         # for i in range(len(y_combo)):
         #     plt.text(x[i], y[i], y_combo[i][3:])
 
