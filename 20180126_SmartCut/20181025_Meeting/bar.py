@@ -16,6 +16,7 @@ rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
 # beam_3points_table = init_beam_3points_table()
 # beam_3points_table, beam_design_table_with_stirrups = calc_sturrups(beam_3points_table)
 (beam_3points_table, beam_design_table) = load_pkl(stirrups_save_file)
+
 dataset_const = {
     'TOP': TOP_BAR,
     'BOT': BOT_BAR
