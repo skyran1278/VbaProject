@@ -95,12 +95,12 @@ def calc_sturrups(beam_3points_table):
     beam_design_table = upgrade_size(beam_design_table, rebars)
     beam_3points_table = merge_segments(beam_design_table, beam_3points_table)
 
-    return beam_3points_table
+    return beam_3points_table, beam_design_table
 
 
 def main():
     beam_3points_table = init_beam_3points_table()
-    beam_3points_table = calc_sturrups(beam_3points_table)
+    beam_3points_table, beam_design_table = calc_sturrups(beam_3points_table)
     print(beam_3points_table.loc[0, ('箍筋', '左')])
     print('Done!')
 
