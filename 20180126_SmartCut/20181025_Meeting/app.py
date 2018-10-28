@@ -19,8 +19,10 @@ stirrups_save_file = dataset_dir + '/stirrups.pkl'
 
 
 beam_3points_table = init_beam_3points_table()
-beam_3points_table, beam_design_table_with_stirrups = calc_sturrups(beam_3points_table)
-beam_3points_table = create_pkl(stirrups_save_file, beam_3points_table)
+beam_3points_table, beam_design_table_with_stirrups = calc_sturrups(
+    beam_3points_table)
+(beam_3points_table, beam_design_table_with_stirrups) = create_pkl(
+    stirrups_save_file, (beam_3points_table, beam_design_table_with_stirrups))
 # beam_3points_table = load_pkl(stirrups_save_file)
 
 beam_3points_table.to_excel(save_file)

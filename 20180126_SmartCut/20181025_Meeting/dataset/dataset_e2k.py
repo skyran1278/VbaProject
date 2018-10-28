@@ -11,6 +11,7 @@ save_file = dataset_dir + '/beam_e2k.pkl'
 
 
 def _load_e2k():
+    # with open(read_file, encoding='utf-8') as f:
     with open(read_file) as f:
         content = f.readlines()
         content = [x.strip() for x in content]
@@ -104,7 +105,8 @@ def init_e2k():
     # point_coordinates = np.array(point_coordinates)
     # point_coordinates = np.array(
     #     point_coordinates, [('name', '<U16'), ('X', '<f8'), ('Y', '<f8')])
-    point_coordinates = pd.DataFrame.from_dict(point_coordinates, orient='index', columns=['X', 'Y'])
+    point_coordinates = pd.DataFrame.from_dict(
+        point_coordinates, orient='index', columns=['X', 'Y'])
 
     return rebars, stories, point_coordinates, lines, materials, sections
 
@@ -123,7 +125,8 @@ def load_e2k():
         init_pkl()
 
     with open(save_file, 'rb') as f:
-        rebars, stories, point_coordinates, lines, materials, sections = pickle.load(f)
+        rebars, stories, point_coordinates, lines, materials, sections = pickle.load(
+            f)
 
     return rebars, stories, point_coordinates, lines, materials, sections
 
