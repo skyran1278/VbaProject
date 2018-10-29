@@ -29,4 +29,6 @@ for BAR in ('TOP', 'BOT'):
         bar_size=dataset_const[BAR][i], bar_num=lambda x: rebars[dataset_const[BAR][i], 'AREA'] / x['As' + Bar])
     print(beam_design_table.head())
     for (Story, BayID), group in beam_design_table.groupby(['Story', 'BayID'], sort=False):
-        pass
+        SecID = group['SecID'].iat[0]
+        width = sections[(SecID, 'B')]
+        width = sections[(SecID, 'B')]

@@ -4,10 +4,11 @@ import re
 import pandas as pd
 import numpy as np
 
+from .const import E2K
 
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
-read_file = dataset_dir + '/2018-0214.e2k'
-save_file = dataset_dir + '/beam_e2k.pkl'
+read_file = dataset_dir + '/' + E2K + '.e2k'
+save_file = dataset_dir + '/' + E2K + '.pkl'
 
 
 def _load_e2k():
@@ -79,7 +80,7 @@ def init_e2k():
         if checking == '$ CONCRETE SECTIONS' and words[0] == 'CONCRETESECTION' and words[3] == '"BEAM"':
             section_name = words[1].strip('"')
             sections[(section_name, 'COVERTOP')] = float(words[5])
-            sections[(section_name, 'COVERBOTTOM')] = float(words[7])
+            sections[(section_name, 'COVERBOT')] = float(words[7])
 
         if checking == '$ POINT COORDINATES' and words[0] == 'POINT':
             # point_coordinates.append(
