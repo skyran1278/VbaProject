@@ -18,8 +18,8 @@ SPACING = np.array(SPACING) / 100
 
 
 def first_calc_dbt_spacing(beam_design_table, rebars):
-    # first calc dbt to spacing
-    return beam_design_table.assign(dbt=REBAR[0], spacing=lambda x: rebars[REBAR[0], 'AREA'] * 2 / x.VRebar)
+    # first calc VSize to spacing
+    return beam_design_table.assign(VSize=REBAR[0], Spacing=lambda x: rebars[REBAR[0], 'AREA'] * 2 / x.VRebar)
 
 
 def upgrade_size(beam_design_table, rebars):
@@ -29,7 +29,7 @@ def upgrade_size(beam_design_table, rebars):
         i = 1
 
         # if spacing < min => upgrade size and recalculate spcaing
-        while np.any(group['spacing'] < SPACING[0]):
+        while np.any(group['Spacing'] < SPACING[0]):
             rebar_num, rebar_size = REBAR[i].split(sep='#')
             rebar_size = '#' + rebar_size
 
@@ -38,11 +38,11 @@ def upgrade_size(beam_design_table, rebars):
             else:
                 spacing = rebars[rebar_size, 'AREA'] * 2 / group['VRebar']
 
-            group = group.assign(dbt=REBAR[i], spacing=spacing)
+            group = group.assign(VSize=REBAR[i], Spacing=spacing)
 
             i += 1
 
-        beam_design_table.loc[group.index.tolist(), ['dbt', 'spacing']] = group[['dbt', 'spacing']]
+        beam_design_table.loc[group.index.tolist(), ['VSize', 'Spacing']] = group[['VSize', 'Spacing']]
 
     # tEnd = time.time()
     # print(tEnd - tStart)
@@ -63,15 +63,15 @@ def merge_segments(beam_design_table, beam_3points_table):
         # x > 3/4
         group_right = 3 * (group_max - group_min) / 4 + group_min
 
-        group_size = group['dbt'].iloc[0] + '@'
+        group_size = group['VSize'].iloc[0] + '@'
 
-        # x < 1/4 => max >= spacing => spacing max
+        # x < 1/4 => max >= Spacing => Spacing max
         group_left_max = np.amax(SPACING[np.amax(
-            group['spacing'][group['StnLoc'] <= group_left]) >= SPACING]) * 100
+            group['Spacing'][group['StnLoc'] <= group_left]) >= SPACING]) * 100
         group_mid_max = np.amax(
-            SPACING[np.amax(group['spacing'][(group['StnLoc'] >= group_left) & (group['StnLoc'] <= group_right)]) >= SPACING]) * 100
+            SPACING[np.amax(group['Spacing'][(group['StnLoc'] >= group_left) & (group['StnLoc'] <= group_right)]) >= SPACING]) * 100
         group_right_max = np.amax(SPACING[np.amax(
-            group['spacing'][group['StnLoc'] >= group_right]) >= SPACING]) * 100
+            group['Spacing'][group['StnLoc'] >= group_right]) >= SPACING]) * 100
 
         beam_3points_table.loc[i, ('箍筋', '左')] = (
             group_size + str(int(group_left_max)))
