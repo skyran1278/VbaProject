@@ -42,7 +42,8 @@ def upgrade_size(beam_design_table, rebars):
 
             i += 1
 
-        beam_design_table.loc[group.index.tolist(), ['VSize', 'Spacing']] = group[['VSize', 'Spacing']]
+        beam_design_table.loc[group.index.tolist(), ['VSize', 'Spacing']] = group[[
+            'VSize', 'Spacing']]
 
     # tEnd = time.time()
     # print(tEnd - tStart)
@@ -53,25 +54,44 @@ def merge_segments(beam_design_table, beam_3points_table):
     # merge to 3 segments
     # tStart = time.time()
     print('Start merge to 3 segments...')
+
+    def get_no_du_size(df):
+        _, rebar_size = df['VSize'].split(sep='#')
+        rebar_size = '#' + rebar_size
+        return rebar_size
+
+    beam_design_table = beam_design_table.assign(
+        VNoDuSize=get_no_du_size, SetSpacing=0)
+
     i = 0
     for _, group in beam_design_table.groupby(['Story', 'BayID'], sort=False):
         group_max = np.amax(group['StnLoc'])
         group_min = np.amin(group['StnLoc'])
 
         # x < 1/4
-        group_left = (group_max - group_min) / 4 + group_min
+        left = (group_max - group_min) / 4 + group_min
         # x > 3/4
-        group_right = 3 * (group_max - group_min) / 4 + group_min
+        right = 3 * (group_max - group_min) / 4 + group_min
 
         group_size = group['VSize'].iloc[0] + '@'
 
+        group_left = group['Spacing'][group['StnLoc'] <= left]
+        group_mid = group['Spacing'][(
+            group['StnLoc'] >= left) & (group['StnLoc'] <= right)]
+        group_right = group['Spacing'][group['StnLoc'] >= right]
+
         # x < 1/4 => max >= Spacing => Spacing max
-        group_left_max = np.amax(SPACING[np.amax(
-            group['Spacing'][group['StnLoc'] <= group_left]) >= SPACING]) * 100
-        group_mid_max = np.amax(
-            SPACING[np.amax(group['Spacing'][(group['StnLoc'] >= group_left) & (group['StnLoc'] <= group_right)]) >= SPACING]) * 100
-        group_right_max = np.amax(SPACING[np.amax(
-            group['Spacing'][group['StnLoc'] >= group_right]) >= SPACING]) * 100
+        group_left_max = np.amax(SPACING[np.amax(group_left) >= SPACING]) * 100
+        group_mid_max = np.amax(SPACING[np.amax(group_mid) >= SPACING]) * 100
+        group_right_max = np.amax(
+            SPACING[np.amax(group_right) >= SPACING]) * 100
+
+        beam_design_table.loc[group_left.index.tolist(),
+                              'SetSpacing'] = group_left_max
+        beam_design_table.loc[group_mid.index.tolist(),
+                              'SetSpacing'] = group_mid_max
+        beam_design_table.loc[group_right.index.tolist(),
+                              'SetSpacing'] = group_right_max
 
         beam_3points_table.loc[i, ('箍筋', '左')] = (
             group_size + str(int(group_left_max)))
@@ -84,7 +104,7 @@ def merge_segments(beam_design_table, beam_3points_table):
 
     # tEnd = time.time()
     # print(tEnd - tStart)
-    return beam_3points_table
+    return beam_3points_table, beam_design_table
 
 
 def calc_sturrups(beam_3points_table):
@@ -93,7 +113,8 @@ def calc_sturrups(beam_3points_table):
 
     beam_design_table = first_calc_dbt_spacing(beam_design_table, rebars)
     beam_design_table = upgrade_size(beam_design_table, rebars)
-    beam_3points_table = merge_segments(beam_design_table, beam_3points_table)
+    beam_3points_table, beam_design_table = merge_segments(
+        beam_design_table, beam_3points_table)
 
     return beam_3points_table, beam_design_table
 
