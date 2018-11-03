@@ -56,9 +56,7 @@ def merge_segments(beam_design_table, beam_3points_table):
     print('Start merge to 3 segments...')
 
     def get_no_du_size(df):
-        _, rebar_size = df['VSize'].split(sep='#')
-        rebar_size = '#' + rebar_size
-        return rebar_size
+        return df['VSize'].apply(lambda x: '#' + x.split(sep='#')[1])
 
     beam_design_table = beam_design_table.assign(
         VNoDuSize=get_no_du_size, SetSpacing=0)
