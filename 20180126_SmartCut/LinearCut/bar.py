@@ -11,7 +11,7 @@ from dataset.dataset_e2k import load_e2k
 from dataset.const import TOP_BAR, BOT_BAR, DB_SPACING
 from stirrups import calc_sturrups
 from output_table import init_beam_3points_table
-from utils.pkl import load_pkl, create_pkl
+from utils.pkl import load_pkl
 
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
 save_file = dataset_dir + '/3pionts.xlsx'
@@ -209,16 +209,94 @@ def cut_conservative(beam_with_v_m, beam_3p):
 
 
 def calc_ld(beam_with_v_m):
-    pass
+    # It is used for nominal concrete in case of phi_e=1.0 & phi_t=1.0.
+    # Reference:土木401-93
+    PI = 3.1415926
+
+    def _ld(df, LOC):
+        Loc = LOC.capitalize()
+
+        bar_size, _, _, bar_1st, _ = bar_name(Loc)
+
+        # 延伸長度比較熟悉 cm 操作
+        # m => cm
+        B = df['SecID'].apply(lambda x: sections[x, 'B']) * 100
+        material = df['SecID'].apply(lambda x: sections[x, 'MATERIAL'])
+        fc = material.apply(lambda x: materials[x, 'FC']) / 10
+        fy = material.apply(lambda x: materials[x, 'FY']) / 10
+        fyh = fy
+        cover = 0.04 * 100
+        db = df[bar_size].apply(lambda x: rebars[x, 'DIA']) * 100
+        num = df[bar_1st]
+        dh = df['VNoDuSize'].apply(lambda x: rebars[x, 'DIA']) * 100
+        spacing = df['SetSpacing'] * 100
+
+        # 5.2.2
+        fc[np.sqrt(fc) > 26.5] = 700
+
+        # R5.3.4.1.1
+        cc = dh + cover
+
+        # R5.3.4.1.1
+        cs = (B - db * num - dh * 2 - cover * 2) / (num - 1) / 2
+
+        # Vertical splitting failure / Horizontal splitting failure
+        cb = np.where(cc <= cs, cc, cs) + db / 2
+
+        # R5.3.4.1.2
+        ktr = np.where(cc <= cs, 1, 2 / num) * (PI * dh ** 2 / 4) * fyh / 105 / spacing
+
+        # if cs > cc:
+        #     # Vertical splitting failure
+        #     cb = db / 2 + cc
+        #     # R5.3.4.1.2
+        #     ktr = (PI * dh ** 2 / 4) * fyh / 105 / spacing
+        # else:
+        #     # Horizontal splitting failure
+        #     cb = db / 2 + cs
+        #     # R5.3.4.1.2
+        #     ktr = 2 * (PI * dh ** 2 / 4) * fyh / 105 / spacing / num
+
+        # 5.3.4.1
+        ld = 0.28 * fy / np.sqrt(fc) * db / np.minimum((cb + ktr) / db, 2.5)
+
+        # 5.3.4.1
+        simple_ld = 0.19 * fy / np.sqrt(fc) * db
+
+        # phi_s factor
+        ld[db < 2.2] = 0.8 * ld
+        simple_ld[db < 2.2] = 0.8 * simple_ld
+
+        # phi_t factor
+        if LOC == 'TOP':
+            ld = 1.3 * ld
+            simple_ld = 1.3 * simple_ld
+
+        ld[ld > simple_ld] = simple_ld
+
+        # 5.3.1
+        ld[ld < 30] = 30
+
+        return {
+            # cm => m
+            Loc + 'Ld': ld / 100
+        }
+
+    for LOC in BAR.keys():
+        beam_with_v_m = beam_with_v_m.assign(**_ld(beam_with_v_m, LOC))
+
+    return beam_with_v_m
 
 
 start = time.time()
 
-beam_with_v_m = calc_db_by_a_beam(beam_with_v)
+# beam_with_v_m = calc_db_by_a_beam(beam_with_v)
+beam_with_v_m = load_pkl(dataset_dir + '/beam_v_m.pkl')
 # print(time.time() - start)
 # start = time.time()
-beam_3p_with_bar = cut_conservative(beam_with_v_m, beam_3p)
+# beam_3p_with_bar = cut_conservative(beam_with_v_m, beam_3p)
+beam_with_v_m_ld = calc_ld(beam_with_v_m)
 
 print(time.time() - start)
-beam_3p_with_bar.to_excel(save_file)
-beam_with_v_m.to_excel(dataset_dir + '/beam_v_m.xlsx')
+# beam_3p_with_bar.to_excel(save_file)
+beam_with_v_m_ld.to_excel(dataset_dir + '/beam_v_m.xlsx')

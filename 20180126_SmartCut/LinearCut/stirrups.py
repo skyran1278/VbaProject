@@ -79,10 +79,10 @@ def merge_segments(beam_design_table, beam_3points_table):
         group_right = group['Spacing'][group['StnLoc'] >= right]
 
         # x < 1/4 => max >= Spacing => Spacing max
-        group_left_max = np.amax(SPACING[np.amax(group_left) >= SPACING]) * 100
-        group_mid_max = np.amax(SPACING[np.amax(group_mid) >= SPACING]) * 100
+        group_left_max = np.amax(SPACING[np.amin(group_left) >= SPACING])
+        group_mid_max = np.amax(SPACING[np.amin(group_mid) >= SPACING])
         group_right_max = np.amax(
-            SPACING[np.amax(group_right) >= SPACING]) * 100
+            SPACING[np.amin(group_right) >= SPACING])
 
         beam_design_table.loc[group_left.index.tolist(),
                               'SetSpacing'] = group_left_max
@@ -92,11 +92,11 @@ def merge_segments(beam_design_table, beam_3points_table):
                               'SetSpacing'] = group_right_max
 
         beam_3points_table.loc[i, ('箍筋', '左')] = (
-            group_size + str(int(group_left_max)))
+            group_size + str(int(group_left_max * 100)))
         beam_3points_table.loc[i, ('箍筋', '中')] = (
-            group_size + str(int(group_mid_max)))
+            group_size + str(int(group_mid_max * 100)))
         beam_3points_table.loc[i, ('箍筋', '右')] = (
-            group_size + str(int(group_right_max)))
+            group_size + str(int(group_right_max * 100)))
 
         i = i + 4
 
