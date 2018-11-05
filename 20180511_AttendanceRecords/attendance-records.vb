@@ -87,7 +87,8 @@ Sub MAIN()
         ' 真實時數扣 1.5
         If attType = "上班" Then
 
-            arrOutput(i, colHour) = (nextTime - prevTime) * 24
+            ' 四捨五入
+            arrOutput(i, colHour) = Round((nextTime - prevTime) * 24, 3)
 
             If arrOutput(i, colHour) - 1.5 > 8 Then
                 arrOutput(i, colRealHour) = 8
@@ -111,7 +112,8 @@ Sub MAIN()
 
         ' 加班時數
         If attType = "加班" Then
-            arrOutput(i, colOverTime) = (nextTime - prevTime) * 24
+            ' 四捨五入
+            arrOutput(i, colOverTime) = Round((nextTime - prevTime) * 24, 3)
         End If
 
     Next i
