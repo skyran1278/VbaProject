@@ -29,7 +29,7 @@ rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
 # (beam_3p, beam_v) = load_pkl(stirrups_save_file)
 
 
-def bar_name(Loc):
+def _bar_name(Loc):
     bar_size = 'Bar' + Loc + 'Size'
     bar_num = 'Bar' + Loc + 'Num'
     bar_cap = 'Bar' + Loc + 'Cap'
@@ -39,15 +39,17 @@ def bar_name(Loc):
     return (bar_size, bar_num, bar_cap, bar_1st, bar_2nd)
 
 
-def calc_bar_size_num(Loc, i):
+def _calc_bar_size_num(Loc, i):
     # Loc = Loc.capitalize()
 
-    bar_size, bar_num, bar_cap, bar_1st, bar_2nd = bar_name(Loc)
+    bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(Loc)
 
     def calc_capacity(df):
         # dh = df['VSize'].apply()
         # 應該可以用 apply 來改良，晚點再來做
-        dh = np.array([rebars['#' + v_size.split('#')[1], 'DIA'] for v_size in df['VSize']])
+        # 這裡應該拿最後配的來算，但是因為號數整支梁都會相同，所以沒差
+        dh = np.array([rebars['#' + v_size.split('#')[1], 'DIA']
+                       for v_size in df['VSize']])
         db = rebars[BAR[Loc][i], 'DIA']
         width = np.array([sections[(sec_ID, 'B')] for sec_ID in df['SecID']])
         # cover = np.array([sections[(sec_ID, 'COVER' + Loc)] for sec_ID in df['SecID']])
@@ -55,13 +57,16 @@ def calc_bar_size_num(Loc, i):
         return np.ceil((width - 2 * 0.04 - 2 * dh - db) / (DB_SPACING * db + db))
 
     def calc_1st(df):
-        bar_1st = np.where(df[bar_num] > df[bar_cap], df[bar_cap], np.maximum(df[bar_num], 2))
-        bar_1st[df[bar_num] - df[bar_cap] == 1] = df[bar_cap][df[bar_num] - df[bar_cap] == 1] - 1
+        bar_1st = np.where(df[bar_num] > df[bar_cap],
+                           df[bar_cap], np.maximum(df[bar_num], 2))
+        bar_1st[df[bar_num] - df[bar_cap] ==
+                1] = df[bar_cap][df[bar_num] - df[bar_cap] == 1] - 1
 
         return bar_1st
 
     def calc_2nd(df):
-        bar_2nd = np.where(df[bar_num] > df[bar_cap], df[bar_num] - df[bar_cap], 0)
+        bar_2nd = np.where(df[bar_num] > df[bar_cap],
+                           df[bar_num] - df[bar_cap], 0)
         bar_2nd[df[bar_num] - df[bar_cap] == 1] = 2
 
         return bar_2nd
@@ -103,13 +108,13 @@ def calc_db_by_a_beam(beam_v):
     for Loc in BAR.keys():
         # Loc = Loc.capitalize()
 
-        bar_size, bar_num, bar_cap, bar_1st, bar_2nd = bar_name(Loc)
+        bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(Loc)
 
         # loc = Loc.lower()
         # Loc = Loc.upper()
         i = 0
 
-        beam_v_m = beam_v_m.assign(**calc_bar_size_num(Loc, i))
+        beam_v_m = beam_v_m.assign(**_calc_bar_size_num(Loc, i))
 
         # beam_v_m.to_excel(save_file)
 
@@ -128,7 +133,7 @@ def calc_db_by_a_beam(beam_v):
 
             while np.any(group[bar_num] > 2 * group[bar_cap]):
                 i += 1
-                group = group.assign(**calc_bar_size_num(Loc, i))
+                group = group.assign(**_calc_bar_size_num(Loc, i))
                 # db = rebars[BAR[Loc][i], 'DIA']
                 # capacity = calc_capacity(width, cover, dh, db, DB_SPACING)
                 # print(capacity)

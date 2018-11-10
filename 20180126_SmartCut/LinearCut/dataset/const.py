@@ -1,3 +1,5 @@
+import numpy as np
+
 E2K = '2018-0214'
 BEAM_DESIGN = 'Simple Concrete Design 2 Beam Summary Data ACI 318-05 IBC 2003'
 
@@ -10,4 +12,7 @@ BAR = {
 }
 DB_SPACING = 1.5
 
-NO_ITERATION = [(0, 0.15), (0.4, 0.6), (0.85, 1)]
+ITERATION_GAP = {
+    'Left': np.array([0.15, 0.4]),
+    'Right': np.array([0.6, 0.85])
+}

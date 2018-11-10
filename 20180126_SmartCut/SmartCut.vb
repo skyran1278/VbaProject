@@ -1110,6 +1110,7 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
 
     For row_ = 1 To ubSmartSplice Step 4
 
+        ' FIXME: 這裡需要修正
         span = arrBeam(row_, 13)
 
         ' 每四個迴圈中，迴圈其中兩排，來方便取得梁長
