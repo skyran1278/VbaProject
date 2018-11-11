@@ -197,32 +197,32 @@ def cut_optimization(beam_ld_added, beam_3p):
             group_right_diff = np.diff(group_right)
 
             for i in range(len(group_left_diff)):
-                # if group_left_diff[i] != 0:
-                split_left = group_left.index[i + 1]
-                for j in range(len(group_right_diff)):
-                    # if group_right_diff[j] != 0:
-                    # split_3p_array = np.split(
-                    #     group[bar_num_ld], [group_left.index[i + 1], group_right.index[j + 1]])
-                    split_right = group_right.index[j + 1]
-                    split_3p_array = [
-                        group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
-                    num, length = calc_num_length(group, split_3p_array)
-                    # num_left = np.amax(a_left)
-                    # num_mid = np.amax(a_mid)
-                    # num_right = np.amax(a_right)
+                if group_left_diff[i] != 0:
+                    split_left = group_left.index[i + 1]
+                    for j in range(len(group_right_diff)):
+                        if group_right_diff[j] != 0:
+                            # split_3p_array = np.split(
+                            #     group[bar_num_ld], [group_left.index[i + 1], group_right.index[j + 1]])
+                            split_right = group_right.index[j + 1]
+                            split_3p_array = [
+                                group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
+                            num, length = calc_num_length(group, split_3p_array)
+                            # num_left = np.amax(a_left)
+                            # num_mid = np.amax(a_mid)
+                            # num_right = np.amax(a_right)
 
-                    # length_left = group.at[a_left.index[-1], 'StnLoc'] - group.at[a_left.index[0], 'StnLoc']
-                    # length_mid = group.at[a_mid.index[-1], 'StnLoc'] - group.at[a_mid.index[0], 'StnLoc']
-                    # length_right = group.at[a_right.index[-1], 'StnLoc'] - group.at[a_right.index[0], 'StnLoc']
+                            # length_left = group.at[a_left.index[-1], 'StnLoc'] - group.at[a_left.index[0], 'StnLoc']
+                            # length_mid = group.at[a_mid.index[-1], 'StnLoc'] - group.at[a_mid.index[0], 'StnLoc']
+                            # length_right = group.at[a_right.index[-1], 'StnLoc'] - group.at[a_right.index[0], 'StnLoc']
 
-                    rebar_usage = np.sum(num * length)
-                    # rebar_usage = num_left * len(a_left) + num_mid * len(a_mid) + num_right * len(a_right)
-                    if rebar_usage < min_usage:
-                        min_usage = rebar_usage
-                        min_num = num
-                        min_length = length
-                        # min_num_mid = num_mid
-                        # min_num_right = num_right
+                            rebar_usage = np.sum(num * length)
+                            # rebar_usage = num_left * len(a_left) + num_mid * len(a_mid) + num_right * len(a_right)
+                            if rebar_usage < min_usage:
+                                min_usage = rebar_usage
+                                min_num = num
+                                min_length = length
+                                # min_num_mid = num_mid
+                                # min_num_right = num_right
             if min_usage == float('Inf'):
                 min_num = np.full(3, group.at[group.index[0], bar_num_ld])
                 min_length = np.full(3, '')
