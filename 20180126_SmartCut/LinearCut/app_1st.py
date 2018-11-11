@@ -40,7 +40,7 @@ beam_v_m_ld = calc_ld(beam_v_m)
 
 # 加上延伸長度
 beam_ld_added = add_ld(beam_v_m_ld)
-beam_v_m = load_pkl(dataset_dir + '/beam_ld_added.pkl', beam_ld_added)
+beam_ld_added = load_pkl(dataset_dir + '/beam_ld_added.pkl', beam_ld_added)
 
 # 傳統斷筋
 # beam_3p_bar = cut_conservative(beam_v_m, beam_3p)

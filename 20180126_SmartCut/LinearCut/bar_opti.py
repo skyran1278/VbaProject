@@ -6,6 +6,7 @@ import numpy as np
 from dataset.dataset_e2k import load_e2k
 from dataset.const import BAR, ITERATION_GAP
 from utils.pkl import load_pkl
+from utils.Clock import Clock
 
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -113,16 +114,19 @@ def add_ld(beam_v_m_ld):
         beam_v_m_ld = beam_v_m_ld.assign(**init_ld(beam_v_m_ld))
 
         for name, group in beam_v_m_ld.groupby(['Story', 'BayID'], sort=False):
+            group = group.copy()
             for i in range(len(group)):
                 stn_loc = group.at[group.index[i], 'StnLoc']
                 stn_ld = group.at[group.index[i], ld]
                 stn_inter = (group['StnLoc'] >= stn_loc -
                              stn_ld) & (group['StnLoc'] <= stn_loc + stn_ld)
-                group.loc[group[stn_inter].index, bar_num_ld] = np.maximum(
-                    group.at[group.index[i], bar_num], group.loc[group[stn_inter].index, bar_num_ld])
+                group.loc[stn_inter, bar_num_ld] = np.maximum(
+                    group.at[group.index[i], bar_num], group.loc[stn_inter, bar_num_ld])
+                # group.loc[group[stn_inter].index, bar_num_ld] = np.maximum(
+                #     group.at[group.index[i], bar_num], group.loc[group[stn_inter].index, bar_num_ld])
 
             beam_v_m_ld.loc[group.index, bar_num_ld] = group[bar_num_ld]
-            print(name)
+            # print(name)
 
     return beam_v_m_ld
 
@@ -193,33 +197,32 @@ def cut_optimization(beam_ld_added, beam_3p):
             group_right_diff = np.diff(group_right)
 
             for i in range(len(group_left_diff)):
-                if group_left_diff[i] != 0:
-                    split_left = group_left.index[i + 1]
-                    for j in range(len(group_right_diff)):
-                        if group_right_diff[j] != 0:
-                            # split_3p_array = np.split(
-                            #     group[bar_num_ld], [group_left.index[i + 1], group_right.index[j + 1]])
-                            split_right = group_left.index[i + 1]
-                            split_3p_array = [
-                                group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
-                            num, length = calc_num_length(
-                                group, split_3p_array)
-                            # num_left = np.amax(a_left)
-                            # num_mid = np.amax(a_mid)
-                            # num_right = np.amax(a_right)
+                # if group_left_diff[i] != 0:
+                split_left = group_left.index[i + 1]
+                for j in range(len(group_right_diff)):
+                    # if group_right_diff[j] != 0:
+                    # split_3p_array = np.split(
+                    #     group[bar_num_ld], [group_left.index[i + 1], group_right.index[j + 1]])
+                    split_right = group_right.index[j + 1]
+                    split_3p_array = [
+                        group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
+                    num, length = calc_num_length(group, split_3p_array)
+                    # num_left = np.amax(a_left)
+                    # num_mid = np.amax(a_mid)
+                    # num_right = np.amax(a_right)
 
-                            # length_left = group.at[a_left.index[-1], 'StnLoc'] - group.at[a_left.index[0], 'StnLoc']
-                            # length_mid = group.at[a_mid.index[-1], 'StnLoc'] - group.at[a_mid.index[0], 'StnLoc']
-                            # length_right = group.at[a_right.index[-1], 'StnLoc'] - group.at[a_right.index[0], 'StnLoc']
+                    # length_left = group.at[a_left.index[-1], 'StnLoc'] - group.at[a_left.index[0], 'StnLoc']
+                    # length_mid = group.at[a_mid.index[-1], 'StnLoc'] - group.at[a_mid.index[0], 'StnLoc']
+                    # length_right = group.at[a_right.index[-1], 'StnLoc'] - group.at[a_right.index[0], 'StnLoc']
 
-                            rebar_usage = np.sum(num * length)
-                            # rebar_usage = num_left * len(a_left) + num_mid * len(a_mid) + num_right * len(a_right)
-                            if rebar_usage < min_usage:
-                                min_usage = rebar_usage
-                                min_num = num
-                                min_length = length
-                                # min_num_mid = num_mid
-                                # min_num_right = num_right
+                    rebar_usage = np.sum(num * length)
+                    # rebar_usage = num_left * len(a_left) + num_mid * len(a_mid) + num_right * len(a_right)
+                    if rebar_usage < min_usage:
+                        min_usage = rebar_usage
+                        min_num = num
+                        min_length = length
+                        # min_num_mid = num_mid
+                        # min_num_right = num_right
             if min_usage == float('Inf'):
                 min_num = np.full(3, group.at[group.index[0], bar_num_ld])
                 min_length = np.full(3, '')
@@ -241,7 +244,7 @@ def cut_optimization(beam_ld_added, beam_3p):
                 loc_length = group_length[bar_loc]
                 beam_3p.loc[k, ('主筋', bar_loc)] = concat_size(
                     loc_1st, group_size)
-                beam_3p.loc[k, ('長度', bar_loc)] = loc_length
+                beam_3p.loc[k, ('長度', bar_loc)] = loc_length * 100
                 beam_3p.loc[k + to_2nd, ('主筋', bar_loc)
                             ] = concat_size(loc_2nd, group_size)
 
@@ -272,15 +275,24 @@ def cut_optimization(beam_ld_added, beam_3p):
 
 
 def main():
+    clock = Clock()
     beam_3p, _ = load_pkl(dataset_dir + '/stirrups.pkl')
     beam_v_m = load_pkl(dataset_dir + '/beam_v_m.pkl')
 
-    # beam_v_m_ld = calc_ld(beam_v_m)
-    # beam_ld_added = add_ld(beam_v_m_ld)
+    # start = time.time()
+    clock.time()
+    beam_v_m_ld = calc_ld(beam_v_m)
+    clock.time()
+    # print(time.time() - start)
+    clock.time()
+    beam_ld_added = add_ld(beam_v_m_ld)
+    clock.time()
     # beam_ld_added.to_excel(dataset_dir + '/beam_ld_added.xlsx')
     # beam_ld_added = load_pkl(dataset_dir + '/beam_ld_added.pkl', beam_ld_added)
-    beam_ld_added = load_pkl(dataset_dir + '/beam_ld_added.pkl')
+    # beam_ld_added = load_pkl(dataset_dir + '/beam_ld_added.pkl')
+    clock.time()
     beam_3p = cut_optimization(beam_ld_added, beam_3p)
+    clock.time()
     beam_3p.to_excel(dataset_dir + '/beam_3p_opti.xlsx')
 
 
