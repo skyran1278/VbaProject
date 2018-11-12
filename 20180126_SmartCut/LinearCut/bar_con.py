@@ -11,6 +11,8 @@ dataset_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 def cut_conservative(beam_v_m, beam_3p):
+    beam_3p = beam_3p.copy()
+
     output_loc = {
         'Top': {
             'START_LOC': 0,
@@ -90,9 +92,9 @@ def main():
     (beam_3p, _) = load_pkl(dataset_dir + '/stirrups.pkl')
     beam_v_m = load_pkl(dataset_dir + '/beam_v_m.pkl')
 
-    beam_3p_bar = cut_conservative(beam_v_m, beam_3p)
+    beam_3p_con = cut_conservative(beam_v_m, beam_3p)
 
-    beam_3p_bar.to_excel(dataset_dir + '/3pionts.xlsx')
+    beam_3p_con.to_excel(dataset_dir + '/beam_3p_con.xlsx')
 
     print(time.time() - start)
 

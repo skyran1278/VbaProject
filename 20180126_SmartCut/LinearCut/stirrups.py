@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from dataset.dataset_beam_design import load_beam_design
 from dataset.dataset_e2k import load_e2k
 from dataset.const import STIRRUP_REBAR as REBAR, STIRRUP_SPACING as SPACING
-from output_table import init_beam_3points_table
+from output_table import init_beam_3p
 
 
 # list to numpy
@@ -118,7 +118,7 @@ def calc_sturrups(beam_3points_table):
 
 
 def main():
-    beam_3points_table = init_beam_3points_table()
+    beam_3points_table = init_beam_3p()
     beam_3points_table, beam_design_table = calc_sturrups(beam_3points_table)
     print(beam_3points_table.loc[0, ('箍筋', '左')])
     print('Done!')

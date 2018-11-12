@@ -6,15 +6,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from dataset.const import BAR, DB_SPACING
+
 from dataset.dataset_beam_design import load_beam_design
 from dataset.dataset_e2k import load_e2k
-from dataset.const import BAR, DB_SPACING
+
 from stirrups import calc_sturrups
-from output_table import init_beam_3points_table
-from utils.pkl import load_pkl, create_pkl
+from utils.pkl import load_pkl
 
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
-save_file = dataset_dir + '/3pionts.xlsx'
+# save_file = dataset_dir + '/3pionts.xlsx'
 stirrups_save_file = dataset_dir + '/stirrups.pkl'
 
 rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
@@ -148,7 +149,7 @@ def calc_db_by_a_beam(beam_v):
 def main():
     (_, beam_v) = load_pkl(stirrups_save_file)
     beam_v_m = calc_db_by_a_beam(beam_v)
-    beam_v_m = create_pkl(dataset_dir + '/beam_v_m.pkl', beam_v_m)
+    beam_v_m = load_pkl(dataset_dir + '/beam_v_m.pkl', beam_v_m)
 
 
 if __name__ == '__main__':
