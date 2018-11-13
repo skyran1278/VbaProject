@@ -1,14 +1,25 @@
 import os
+import sys
 import pickle
 import re
+
 import pandas as pd
 import numpy as np
 
-from .const import E2K
+# PACKAGE_PARENT = '..'
+# SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
+# sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-dataset_dir = os.path.dirname(os.path.abspath(__file__))
-read_file = dataset_dir + '/' + E2K + '.e2k'
-save_file = dataset_dir + '/' + E2K + '.pkl'
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+
+# sys.path.append(os.pardir)
+# sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
+from dataset.const import E2K
+
+# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+read_file = SCRIPT_DIR + '/' + E2K + '.e2k'
+save_file = SCRIPT_DIR + '/' + E2K + '.pkl'
 
 
 def _load_e2k():

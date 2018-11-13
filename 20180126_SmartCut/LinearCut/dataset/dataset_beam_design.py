@@ -1,14 +1,17 @@
 import os
+import sys
 import pickle
 import pandas as pd
 import numpy as np
 
-from .const import BEAM_DESIGN
+file_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(file_dir, os.path.pardir))
 
-dataset_dir = os.path.dirname(os.path.abspath(__file__))
+from dataset.const import BEAM_DESIGN
 
-read_file = dataset_dir + '/' + BEAM_DESIGN + '.txt'
-save_file = dataset_dir + '/' + BEAM_DESIGN + '.pkl'
+
+read_file = file_dir + '/' + BEAM_DESIGN + '.txt'
+save_file = file_dir + '/' + BEAM_DESIGN + '.pkl'
 
 
 def _load_file():
