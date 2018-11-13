@@ -1111,7 +1111,7 @@ Function ThreePoints(ByVal arrBeam, ByVal arrSmartSplice)
     For row_ = 1 To ubSmartSplice Step 4
 
         ' FIXME: 這裡需要修正
-        span = arrBeam(row_, 13)
+        span = arrBeam(row_, 13) - arrBeam(row_, 14)
 
         ' 每四個迴圈中，迴圈其中兩排，來方便取得梁長
         For rowRebar = row_ To row_ + 2 Step 2
