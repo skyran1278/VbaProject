@@ -217,7 +217,9 @@ def cut_optimization(beam_ld_added, beam_3p):
             for i in np.flatnonzero(group_left_diff):
                 # for i in range(len(group_left_diff)):
                 # if group_left_diff[i] != 0:
-                split_left = group_left.index[i + 1]
+                # FIXME: 這裡都會少挑
+                # split_left = group_left.index[i + 1]
+                split_left = group_left.index[i]
 
                 for j in np.flatnonzero(group_right_diff):
 
@@ -225,7 +227,7 @@ def cut_optimization(beam_ld_added, beam_3p):
                     # if group_right_diff[j] != 0:
                     # split_3p_array = np.split(
                     #     group[bar_num_ld], [group_left.index[i + 1], group_right.index[j + 1]])
-                    split_right = group_right.index[j + 1]
+                    split_right = group_right.index[j]
                     split_3p_array = [
                         group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
                     num, length = calc_num_length(group, split_3p_array)
@@ -256,9 +258,11 @@ def cut_optimization(beam_ld_added, beam_3p):
             }
 
             group_length = {
-                '左': min_length[0] if min_num[0] != min_num[1] else '',
+                '左': min_length[0],
+                # '左': min_length[0] if min_num[0] != min_num[1] else '',
                 '中': min_length[1],
-                '右': min_length[2] if min_num[2] != min_num[1] else ''
+                '右': min_length[2]
+                # '右': min_length[2] if min_num[2] != min_num[1] else ''
             }
 
             for bar_loc in group_num.keys():
@@ -315,7 +319,7 @@ def main():
     clock.time()
     beam_3p = cut_optimization(beam_ld_added, beam_3p)
     clock.time()
-    beam_3p.to_excel(dataset_dir + '/beam_3p_opti.xlsx')
+    # beam_3p.to_excel(dataset_dir + '/beam_3p_opti.xlsx')
 
 
 if __name__ == '__main__':
