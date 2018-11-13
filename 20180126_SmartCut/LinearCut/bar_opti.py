@@ -155,6 +155,16 @@ def cut_optimization(beam_ld_added, beam_3p):
         else:
             return max(num, 2), 0
 
+    # def make_first_last_diff(*args):
+    #     result = []
+
+    #     for arg in args:
+    #         arg[0] = 1
+    #         arg[-1] = 1
+    #         result.append(arg)
+
+    #     return tuple(result)
+
     output_loc = {
         'Top': {
             'START_LOC': 0,
@@ -196,8 +206,13 @@ def cut_optimization(beam_ld_added, beam_3p):
             group_left_diff = np.diff(group_left)
             group_right_diff = np.diff(group_right)
 
-            if not np.any(group_left_diff):
-                pass
+            # (group_left_diff, group_right_diff) = make_first_last_diff(
+            #     group_left_diff, group_right_diff)
+
+            group_left_diff[0] = 1
+            group_left_diff[-1] = 1
+            group_right_diff[0] = 1
+            group_right_diff[-1] = 1
 
             for i in np.flatnonzero(group_left_diff):
                 # for i in range(len(group_left_diff)):
@@ -230,9 +245,9 @@ def cut_optimization(beam_ld_added, beam_3p):
                         min_length = length
                         # min_num_mid = num_mid
                         # min_num_right = num_right
-            if min_usage == float('Inf'):
-                min_num = np.full(3, group.at[group.index[0], bar_num_ld])
-                min_length = np.full(3, '')
+            # if min_usage == float('Inf'):
+            #     min_num = np.full(3, group.at[group.index[0], bar_num_ld])
+            #     min_length = np.full(3, '')
 
             group_num = {
                 '左': get_1st_2nd(min_num[0], group_cap),
@@ -241,9 +256,9 @@ def cut_optimization(beam_ld_added, beam_3p):
             }
 
             group_length = {
-                '左': min_length[0],
+                '左': min_length[0] if min_num[0] != min_num[1] else '',
                 '中': min_length[1],
-                '右': min_length[2]
+                '右': min_length[2] if min_num[2] != min_num[1] else ''
             }
 
             for bar_loc in group_num.keys():
