@@ -1,10 +1,14 @@
 import os
+import sys
 import math
 import time
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 from dataset.const import BAR, DB_SPACING
 
@@ -14,9 +18,8 @@ from dataset.dataset_e2k import load_e2k
 from stirrups import calc_sturrups
 from utils.pkl import load_pkl
 
-dataset_dir = os.path.dirname(os.path.abspath(__file__))
-# save_file = dataset_dir + '/3pionts.xlsx'
-stirrups_save_file = dataset_dir + '/stirrups.pkl'
+# save_file = SCRIPT_DIR + '/3pionts.xlsx'
+stirrups_save_file = SCRIPT_DIR + '/stirrups.pkl'
 
 rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
 # beam_v = load_beam_design()
@@ -149,7 +152,7 @@ def calc_db_by_a_beam(beam_v):
 def main():
     (_, beam_v) = load_pkl(stirrups_save_file)
     beam_v_m = calc_db_by_a_beam(beam_v)
-    beam_v_m = load_pkl(dataset_dir + '/beam_v_m.pkl', beam_v_m)
+    beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl', beam_v_m)
 
 
 if __name__ == '__main__':
@@ -162,7 +165,7 @@ if __name__ == '__main__':
 # beam_3p_bar = cut_conservative(beam_v_m, beam_3p)
 # beam_v_m_ld = calc_ld(beam_v_m)
 
-# beam_v_m_ld = load_pkl(dataset_dir + '/beam_v_m_ld.pkl')
+# beam_v_m_ld = load_pkl(SCRIPT_DIR + '/beam_v_m_ld.pkl')
 
 # start = time.time()
 
@@ -182,4 +185,4 @@ if __name__ == '__main__':
 # print(time.time() - start)
 
 # beam_3p_bar.to_excel(save_file)
-# beam_v_m_add_ld.to_excel(dataset_dir + '/beam_v_m.xlsx')
+# beam_v_m_add_ld.to_excel(SCRIPT_DIR + '/beam_v_m.xlsx')

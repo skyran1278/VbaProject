@@ -115,11 +115,11 @@ def compare_linear_cut():
     conservative_cut(red)
 
     # Linear Cut
-    plot_bar_length(np.array([9, 4, 9]) * AB_7, [320, 521.4, 216.1],
-                    np.array([5, 4, 4]) * AB_7, [160, 720.7, 176.8], green)
+    # plot_bar_length(np.array([9, 4, 9]) * AB_7, [320, 521.4, 216.1],
+    #                 np.array([5, 4, 4]) * AB_7, [160, 720.7, 176.8], green)
     # # Linear Cut
-    # plot_bar_length(np.array([9, 4, 9]) * AB_7, [250, 532.5, 275],
-    #                 np.array([5, 4, 4]) * AB_7, [170, 484, 403.5], green)
+    plot_bar_length(np.array([9, 4, 9]) * AB_7, [250, 532.5, 275],
+                    np.array([5, 4, 4]) * AB_7, [170, 484, 403.5], green)
 
 
 etabs_to_addedld_sol()

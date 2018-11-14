@@ -1,16 +1,19 @@
 import os
+import sys
 import pickle
 
 import pandas as pd
 import numpy as np
 
-dataset_dir = os.path.dirname(os.path.abspath(__file__))
-read_file = dataset_dir + '/first_run.xlsx'
-save_file = dataset_dir + '/beam_name.pkl'
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+
+read_file = SCRIPT_DIR + '/first_run.xlsx'
+save_file = SCRIPT_DIR + '/beam_name.pkl'
 
 
 def _load_name():
-    return pd.read_excel(dataset_dir + '/first_run.xlsx', sheet_name='梁名編號', index_col=[0, 1], usecols=[1, 2, 3, 4])
+    return pd.read_excel(SCRIPT_DIR + '/first_run.xlsx', sheet_name='梁名編號', index_col=[0, 1], usecols=[1, 2, 3, 4])
 
 
 def init_pkl():

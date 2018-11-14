@@ -47,4 +47,5 @@
   "files.autoGuessEncoding": true,
   "python.jediEnabled": false,
   "python.pythonPath": "C:\\Users\\ElementsStaff\\Anaconda3\\python.exe",
+  "python.linting.pylintEnabled": true,
 }
