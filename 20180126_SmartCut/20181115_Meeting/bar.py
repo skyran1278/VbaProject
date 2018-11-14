@@ -15,6 +15,8 @@ orange = np.array([230, 126, 34]) / 256
 gray = np.array([0.5, 0.5, 0.5])
 background = np.array([247, 247, 247]) / 256
 
+linewidth = 2.0
+
 DATASET = pd.read_excel(SCRIPT_DIR + '/first_run_v3.xlsx',
                         sheet_name='beam_ld_added')
 
@@ -35,21 +37,21 @@ def plot_bar(top_rebar, bot_rebar, color):
     x = np.empty((X_NUM // 3, 1))
 
     plt.plot(np.linspace(START, END, X_NUM), np.concatenate((np.full_like(
-        x, top_rebar[0]), np.full_like(x, top_rebar[1]), np.full_like(x, top_rebar[2]))), color=color)
+        x, top_rebar[0]), np.full_like(x, top_rebar[1]), np.full_like(x, top_rebar[2]))), color=color, linewidth=linewidth)
     plt.plot(np.linspace(START, END, X_NUM), np.concatenate((np.full_like(
-        x, -bot_rebar[0]), np.full_like(x, -bot_rebar[1]), np.full_like(x, -bot_rebar[2]))), color=color)
+        x, -bot_rebar[0]), np.full_like(x, -bot_rebar[1]), np.full_like(x, -bot_rebar[2]))), color=color, linewidth=linewidth)
 
 
 def plot_bar_length(top_rebar, top_length, bot_rebar, bot_length, color):
     plt.plot([START, START + top_length[0], START + top_length[0], START + top_length[0] +
-              top_length[1], END - top_length[2], END], np.repeat(top_rebar, 2), color=color)
+              top_length[1], END - top_length[2], END], np.repeat(top_rebar, 2), color=color, linewidth=linewidth)
     plt.plot([START, START + bot_length[0], START + bot_length[0], START + bot_length[0] +
-              bot_length[1], END - bot_length[2], END], -np.repeat(bot_rebar, 2), color=color)
+              bot_length[1], END - bot_length[2], END], -np.repeat(bot_rebar, 2), color=color, linewidth=linewidth)
 
 
 def zero_line():
     # 基準線
-    plt.plot([START, END], [0, 0], color=gray)
+    plt.plot([START, END], [0, 0], color=gray, linewidth=linewidth)
 
 
 def conservative_cut(color):
@@ -61,9 +63,9 @@ def conservative_cut(color):
 def real_sol(color):
     # Real Solution
     plt.plot(DATASET['StnLoc'] * 100,
-             DATASET['BarTopNumLd'] * AB_7, color=color)
+             DATASET['BarTopNumLd'] * AB_7, color=color, linewidth=linewidth)
     plt.plot(DATASET['StnLoc'] * 100, -
-             DATASET['BarBotNumLd'] * AB_7, color=color)
+             DATASET['BarBotNumLd'] * AB_7, color=color, linewidth=linewidth)
 
 
 def no_etabs(color):
@@ -77,8 +79,10 @@ def etabs_to_addedld_sol():
     zero_line()
 
     # ETABS Demand
-    plt.plot(DATASET['StnLoc'] * 100, DATASET['AsTop'] * 10000, color=blue)
-    plt.plot(DATASET['StnLoc'] * 100, -DATASET['AsBot'] * 10000, color=blue)
+    plt.plot(DATASET['StnLoc'] * 100, DATASET['AsTop']
+             * 10000, color=blue, linewidth=linewidth)
+    plt.plot(DATASET['StnLoc'] * 100, -DATASET['AsBot']
+             * 10000, color=blue, linewidth=linewidth)
 
     real_sol(green)
 
@@ -90,7 +94,8 @@ def compare_RCAD():
     real_sol(blue)
 
     # RCAD
-    plot_bar(np.array([7, 3, 7]) * AB_8, np.array([4, 3, 4]) * AB_8, red)
+    plot_bar(np.array([7, 3, 7]) * AB_8, np.array([4, 3, 4])
+             * AB_8, color=red)
 
     conservative_cut(green)
 
@@ -119,7 +124,7 @@ def compare_linear_cut():
     #                 np.array([5, 4, 4]) * AB_7, [160, 720.7, 176.8], green)
     # # Linear Cut
     plot_bar_length(np.array([9, 4, 9]) * AB_7, [250, 532.5, 275],
-                    np.array([5, 4, 4]) * AB_7, [170, 484, 403.5], green)
+                    np.array([5, 4, 4]) * AB_7, [170, 484, 403.5], color=green)
 
 
 etabs_to_addedld_sol()
