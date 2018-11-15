@@ -155,6 +155,31 @@ def cut_optimization(beam_ld_added, beam_3p):
         else:
             return max(num, 2), 0
 
+    def make_1st_last_diff(group_diff):
+        if group_diff[0] == 0:
+            group_diff[0] = 1
+
+        if group_diff[-1] == 0:
+            group_diff[-1] = -1
+
+        return group_diff
+
+    def get_min_cut(group_loc, group_loc_diff, i):
+        # loc = group_loc_diff[i]
+        # right = group_loc_diff[i + 1]
+        # left = group.loc[group_loc.index[i], bar_num_ld]
+        # right = group.loc[group_loc.index[i + 1], bar_num_ld]
+        if group_loc_diff[i] > 0:
+            return group_loc.index[i]
+        else:
+            return group_loc.index[i + 1]
+        # if left == right:
+        #     print(f'ERROR in get_min_cut {i}')
+        # if left < right:
+        #     return group_loc.index[i]
+        # else:
+        #     return group_loc.index[i + 1]
+
     # def make_first_last_diff(*args):
     #     result = []
 
@@ -209,17 +234,24 @@ def cut_optimization(beam_ld_added, beam_3p):
             # (group_left_diff, group_right_diff) = make_first_last_diff(
             #     group_left_diff, group_right_diff)
 
-            group_left_diff[0] = 1
-            group_left_diff[-1] = 1
-            group_right_diff[0] = 1
-            group_right_diff[-1] = 1
+            # group_left_diff = np.concatenate(([1], group_left_diff, [-1]))
+            # group_right_diff = np.concatenate(([1], group_right_diff, [-1]))
+
+            group_left_diff = make_1st_last_diff(group_left_diff)
+            group_right_diff = make_1st_last_diff(group_right_diff)
+
+            # group_left_diff[0] = 1
+            # group_left_diff[-1] = -1
+            # group_right_diff[0] = 1
+            # group_right_diff[-1] = -1
 
             for i in np.flatnonzero(group_left_diff):
                 # for i in range(len(group_left_diff)):
                 # if group_left_diff[i] != 0:
                 # FIXME: 這裡都會少挑
                 # split_left = group_left.index[i + 1]
-                split_left = group_left.index[i]
+                split_left = get_min_cut(group_left, group_left_diff, i)
+                # split_left = group_left.index[i]
 
                 for j in np.flatnonzero(group_right_diff):
 
@@ -227,7 +259,8 @@ def cut_optimization(beam_ld_added, beam_3p):
                     # if group_right_diff[j] != 0:
                     # split_3p_array = np.split(
                     #     group[bar_num_ld], [group_left.index[i + 1], group_right.index[j + 1]])
-                    split_right = group_right.index[j]
+                    split_right = get_min_cut(group_right, group_right_diff, j)
+                    # split_right = group_right.index[j]
                     split_3p_array = [
                         group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
                     num, length = calc_num_length(group, split_3p_array)
@@ -319,6 +352,23 @@ def main():
     clock.time()
     beam_3p = cut_optimization(beam_ld_added, beam_3p)
     clock.time()
+
+    # clock.time()
+    # a = np.array([1, 2, 3, 4, 5])
+    # for i in range(10000):
+    #     np.r_[0, a, 4]
+    # clock.time()
+    # clock.time()
+    # a = np.array([1, 2, 3, 4, 5])
+    # for i in range(10000):
+    #     np.insert(a, 0, 0)
+    #     np.append(a, 4)
+    # clock.time()
+    # clock.time()
+    # a = np.array([1, 2, 3, 4, 5])
+    # for i in range(10000):
+    #     np.concatenate(([0], a, [4]))
+    # clock.time()
     # beam_3p.to_excel(dataset_dir + '/beam_3p_opti.xlsx')
 
 

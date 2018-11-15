@@ -56,8 +56,8 @@ beam_3p = cut_optimization(beam_ld_added, beam_3p)
 clock.time()
 
 # 輸出成表格
-beam_ld_added.to_excel(writer, 'beam_ld_added')
+beam_name.to_excel(writer, '梁名編號')
 beam_3p.to_excel(writer, '三點斷筋')
 beam_3p_bar.to_excel(writer, '傳統斷筋')
-beam_name.to_excel(writer, '梁名編號')
+beam_ld_added.to_excel(writer, 'beam_ld_added')
 writer.save()
