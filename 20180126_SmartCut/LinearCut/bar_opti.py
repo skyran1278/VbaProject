@@ -214,7 +214,7 @@ def cut_optimization(beam_ld_added, beam_3p):
         bar_size = 'Bar' + Loc + 'Size'
         bar_num_ld = 'Bar' + Loc + 'NumLd'
 
-        for _, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
+        for name, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
             min_usage = float('Inf')
 
             group_cap = group.at[group.index[0], bar_cap]
@@ -311,7 +311,8 @@ def cut_optimization(beam_ld_added, beam_3p):
                 beam_3p.at[k + to_2nd, ('主筋', bar_loc)
                            ] = concat_size(loc_2nd, group_size)
 
-            beam_3p.at[k, ('NOTE', '')] = min_usage * rebars[(group_size, 'AREA')] * 1000000
+            beam_3p.at[k, ('NOTE', '')] = min_usage * (
+                rebars[(group_size, 'AREA')]) * 1000000
 
             k += 4
             # # x < 1/4 => max >= Spacing => Spacing max
@@ -343,15 +344,16 @@ def main():
     clock = Clock()
     beam_3p, _ = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
     beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
+    beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
 
     # start = time.time()
-    clock.time()
-    beam_v_m_ld = calc_ld(beam_v_m)
-    clock.time()
-    # print(time.time() - start)
-    clock.time()
-    beam_ld_added = add_ld(beam_v_m_ld)
-    clock.time()
+    # clock.time()
+    # beam_v_m_ld = calc_ld(beam_v_m)
+    # clock.time()
+    # # print(time.time() - start)
+    # clock.time()
+    # beam_ld_added = add_ld(beam_v_m_ld)
+    # clock.time()
     # beam_ld_added.to_excel(SCRIPT_DIR + '/beam_ld_added.xlsx')
     # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl', beam_ld_added)
     # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
