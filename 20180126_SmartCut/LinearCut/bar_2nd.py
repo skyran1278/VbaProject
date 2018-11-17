@@ -48,7 +48,7 @@ def _calc_bar_size_num(Loc, i):
 
     def calc_1st(df):
         bar_1st = np.where(df[bar_num] > df[bar_cap],
-                           df[bar_cap], np.maximum(df[bar_num], 2))
+                           df[bar_cap], df[bar_num])
         bar_1st[df[bar_num] - df[bar_cap] ==
                 1] = df[bar_cap][df[bar_num] - df[bar_cap] == 1] - 1
 
@@ -64,7 +64,7 @@ def _calc_bar_size_num(Loc, i):
     return {
         bar_size: BAR[Loc][i],
         bar_cap: calc_capacity,
-        bar_num: lambda x: np.ceil(x['As' + Loc] / rebars[BAR[Loc][i], 'AREA']),
+        bar_num: lambda x: np.maximum(np.ceil(x['As' + Loc] / rebars[BAR[Loc][i], 'AREA']), 2),
         bar_1st: calc_1st,
         bar_2nd: calc_2nd
     }
@@ -100,7 +100,8 @@ def _add_beam_name(beam_v):
     for (story, bayID), group in beam_v.groupby(['Story', 'BayID'], sort=False):
         beamID, frameID = beam_name.loc[(story, bayID), :]
         group = group.assign(BeamID=beamID, FrameID=frameID)
-        beam_v.loc[group.index, ['BeamID', 'FrameID']] = group[['BeamID', 'FrameID']]
+        beam_v.loc[group.index, ['BeamID', 'FrameID']
+                   ] = group[['BeamID', 'FrameID']]
 
     return beam_v
 

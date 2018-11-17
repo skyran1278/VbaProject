@@ -62,7 +62,7 @@ def _calc_bar_size_num(Loc, i):
 
     def calc_1st(df):
         bar_1st = np.where(df[bar_num] > df[bar_cap],
-                           df[bar_cap], np.maximum(df[bar_num], 2))
+                           df[bar_cap], df[bar_num])
         bar_1st[df[bar_num] - df[bar_cap] ==
                 1] = df[bar_cap][df[bar_num] - df[bar_cap] == 1] - 1
 
@@ -90,7 +90,7 @@ def _calc_bar_size_num(Loc, i):
     return {
         bar_size: BAR[Loc][i],
         bar_cap: calc_capacity,
-        bar_num: lambda x: np.ceil(x['As' + Loc] / rebars[BAR[Loc][i], 'AREA']),
+        bar_num: lambda x: np.maximum(np.ceil(x['As' + Loc] / rebars[BAR[Loc][i], 'AREA']), 2),
         bar_1st: calc_1st,
         bar_2nd: calc_2nd
     }
