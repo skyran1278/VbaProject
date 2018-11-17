@@ -1,4 +1,5 @@
 import os
+import sys
 
 import pandas as pd
 import numpy as np
@@ -8,7 +9,8 @@ from dataset.const import BAR, ITERATION_GAP
 from utils.pkl import load_pkl
 from utils.Clock import Clock
 
-dataset_dir = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 
 def calc_ld(beam_v_m):
@@ -132,6 +134,8 @@ def add_ld(beam_v_m_ld):
 
 
 def cut_optimization(beam_ld_added, beam_3p):
+    rebars, _, _, _, materials, sections = load_e2k()
+
     def calc_num_length(group, split_array):
         num = np.empty_like(split_array)
         length = np.empty_like(split_array)
@@ -301,11 +305,13 @@ def cut_optimization(beam_ld_added, beam_3p):
             for bar_loc in group_num.keys():
                 loc_1st, loc_2nd = group_num[bar_loc]
                 loc_length = group_length[bar_loc]
-                beam_3p.loc[k, ('主筋', bar_loc)] = concat_size(
+                beam_3p.at[k, ('主筋', bar_loc)] = concat_size(
                     loc_1st, group_size)
-                beam_3p.loc[k, ('長度', bar_loc)] = loc_length * 100
-                beam_3p.loc[k + to_2nd, ('主筋', bar_loc)
-                            ] = concat_size(loc_2nd, group_size)
+                beam_3p.at[k, ('長度', bar_loc)] = loc_length * 100
+                beam_3p.at[k + to_2nd, ('主筋', bar_loc)
+                           ] = concat_size(loc_2nd, group_size)
+
+            beam_3p.at[k, ('NOTE', '')] = min_usage * rebars[(group_size, 'AREA')] * 1000000
 
             k += 4
             # # x < 1/4 => max >= Spacing => Spacing max
@@ -335,8 +341,8 @@ def cut_optimization(beam_ld_added, beam_3p):
 
 def main():
     clock = Clock()
-    beam_3p, _ = load_pkl(dataset_dir + '/stirrups.pkl')
-    beam_v_m = load_pkl(dataset_dir + '/beam_v_m.pkl')
+    beam_3p, _ = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
+    beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
 
     # start = time.time()
     clock.time()
@@ -346,9 +352,9 @@ def main():
     clock.time()
     beam_ld_added = add_ld(beam_v_m_ld)
     clock.time()
-    # beam_ld_added.to_excel(dataset_dir + '/beam_ld_added.xlsx')
-    # beam_ld_added = load_pkl(dataset_dir + '/beam_ld_added.pkl', beam_ld_added)
-    # beam_ld_added = load_pkl(dataset_dir + '/beam_ld_added.pkl')
+    # beam_ld_added.to_excel(SCRIPT_DIR + '/beam_ld_added.xlsx')
+    # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl', beam_ld_added)
+    # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
     clock.time()
     beam_3p = cut_optimization(beam_ld_added, beam_3p)
     clock.time()
@@ -369,7 +375,7 @@ def main():
     # for i in range(10000):
     #     np.concatenate(([0], a, [4]))
     # clock.time()
-    # beam_3p.to_excel(dataset_dir + '/beam_3p_opti.xlsx')
+    beam_3p.to_excel(SCRIPT_DIR + '/beam_3p_opti.xlsx')
 
 
 if __name__ == '__main__':
