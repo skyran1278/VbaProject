@@ -5,12 +5,56 @@ import time
 import pandas as pd
 import numpy as np
 
-from dataset.dataset_e2k import load_e2k
-from utils.pkl import load_pkl
-from dataset.const import BAR
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+
+from utils.pkl import load_pkl
+from utils.Clock import Clock
+
+from dataset.const import BAR
+from dataset.dataset_e2k import load_e2k
+from bar_opti import calc_ld
+
+
+def add_simple_ld(beam_v_m_ld):
+    def init_ld(df):
+        return {
+            bar_num_ld: df[bar_num],
+            # bar_1st_ld: df[bar_1st],
+            # bar_2nd_ld: df[bar_2nd]
+        }
+
+    for Loc in BAR.keys():
+
+        # Loc = Loc.capitalize()
+
+        bar_num = 'Bar' + Loc + 'Num'
+        ld = Loc + 'SimpleLd'
+        bar_num_ld = bar_num + 'SimpleLd'
+
+        if not ld in beam_v_m_ld.columns:
+            beam_v_m_ld = calc_ld(beam_v_m_ld)
+        # bar_1st_ld = bar_1st + 'Ld'
+        # bar_2nd_ld = bar_2nd + 'Ld'
+
+        beam_v_m_ld = beam_v_m_ld.assign(**init_ld(beam_v_m_ld))
+
+        for name, group in beam_v_m_ld.groupby(['Story', 'BayID'], sort=False):
+            group = group.copy()
+            for i in range(len(group)):
+                stn_loc = group.at[group.index[i], 'StnLoc']
+                stn_ld = group.at[group.index[i], ld]
+                stn_inter = (group['StnLoc'] >= stn_loc -
+                             stn_ld) & (group['StnLoc'] <= stn_loc + stn_ld)
+                group.loc[stn_inter, bar_num_ld] = np.maximum(
+                    group.at[group.index[i], bar_num], group.loc[stn_inter, bar_num_ld])
+                # group.loc[group[stn_inter].index, bar_num_ld] = np.maximum(
+                #     group.at[group.index[i], bar_num], group.loc[group[stn_inter].index, bar_num_ld])
+
+            beam_v_m_ld.loc[group.index, bar_num_ld] = group[bar_num_ld]
+            # print(name)
+
+    return beam_v_m_ld
 
 
 def cut_conservative(beam_v_m, beam_3p):

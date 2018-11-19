@@ -4,13 +4,14 @@ import sys
 import pandas as pd
 import numpy as np
 
-from dataset.dataset_e2k import load_e2k
-from dataset.const import BAR, ITERATION_GAP
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+
 from utils.pkl import load_pkl
 from utils.Clock import Clock
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+from dataset.const import BAR, ITERATION_GAP
+from dataset.dataset_e2k import load_e2k
 
 
 def calc_ld(beam_v_m):
@@ -88,7 +89,8 @@ def calc_ld(beam_v_m):
 
         return {
             # cm => m
-            Loc + 'Ld': ld / 100
+            Loc + 'Ld': ld / 100,
+            Loc + 'SimpleLd': simple_ld / 100
         }
 
     for Loc in BAR.keys():
@@ -104,6 +106,7 @@ def add_ld(beam_v_m_ld):
             # bar_1st_ld: df[bar_1st],
             # bar_2nd_ld: df[bar_2nd]
         }
+
     for Loc in BAR.keys():
         # Loc = Loc.capitalize()
 
@@ -252,7 +255,6 @@ def cut_optimization(beam_ld_added, beam_3p):
             for i in np.flatnonzero(group_left_diff):
                 # for i in range(len(group_left_diff)):
                 # if group_left_diff[i] != 0:
-                # FIXME: 這裡都會少挑
                 # split_left = group_left.index[i + 1]
                 split_left = get_min_cut(group_left, group_left_diff, i)
                 # split_left = group_left.index[i]

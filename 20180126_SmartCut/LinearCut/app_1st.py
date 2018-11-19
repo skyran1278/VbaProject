@@ -4,17 +4,17 @@ import sys
 import pandas as pd
 import numpy as np
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+
 from utils.pkl import load_pkl
 from utils.Clock import Clock
 
 from output_table import init_beam_3p, init_beam_name
 from stirrups import calc_sturrups
-from bar_1st import calc_db_by_a_beam
+from bar_size_num import calc_db_by_a_beam
 from bar_con import cut_conservative
 from bar_opti import calc_ld, add_ld, cut_optimization
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 # save_file = SCRIPT_DIR + '/3pionts.xlsx'
 

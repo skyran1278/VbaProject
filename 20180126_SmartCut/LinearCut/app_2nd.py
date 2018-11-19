@@ -12,7 +12,7 @@ from utils.pkl import load_pkl
 
 from output_table import init_beam_3p, init_beam_name
 from stirrups import calc_sturrups
-from bar_2nd import calc_db_by_frame
+from bar_size_num import calc_db_by_frame
 from bar_con import cut_conservative
 from bar_opti import calc_ld, add_ld, cut_optimization
 
