@@ -18,10 +18,13 @@ Sub MAIN()
     Dim time0 As Double
     Dim prevTime As Date
     Dim nextTime As Date
+    Dim weekdayOverTime As Date
 
     ' Global Var
     Set ran = New UTILS_CLASS
     Set ws = Worksheets("修改後DATA")
+    ' 平日算加班時間
+    weekdayOverTime = TimeValue("18:30")
 
     time0 = Timer
     Call ran.PerformanceVBA(True)
@@ -112,8 +115,20 @@ Sub MAIN()
 
         ' 加班時數
         If attType = "加班" Then
+            dayTime = arrInput(i, colDayTime)
+
+            ' 如果是週一到週五放假就無法處理了，需要人工判斷
+            If Weekday(dayTime, 2) < 5 And prevTime < weekdayOverTime And nextTime > weekdayOverTime Then
+                overTime = (nextTime - weekdayOverTime) * 24
+
+            Else
+                overTime = (nextTime - prevTime) * 24
+
+            End If
+
             ' 四捨五入
-            arrOutput(i, colOverTime) = Round((nextTime - prevTime) * 24, 3)
+            arrOutput(i, colOverTime) = Round(overTime, 3)
+
         End If
 
     Next i
