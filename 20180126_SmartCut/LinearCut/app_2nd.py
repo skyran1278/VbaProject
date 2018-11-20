@@ -13,7 +13,7 @@ from utils.pkl import load_pkl
 from output_table import init_beam_3p, init_beam_name
 from stirrups import calc_sturrups
 from bar_size_num import calc_db_by_frame
-from bar_con import cut_conservative
+from bar_con import cut_conservative, add_simple_ld
 from bar_opti import calc_ld, add_ld, cut_optimization
 
 
@@ -40,8 +40,12 @@ beam_v_m_ld = calc_ld(beam_v_m)
 beam_ld_added = add_ld(beam_v_m_ld)
 beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl', beam_ld_added)
 
+# (beam_3p, beam_v) = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
+# beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
+
 # 傳統斷筋
-beam_3p_con = cut_conservative(beam_v_m, beam_3p)
+beam_ld_added = add_simple_ld(beam_ld_added)
+beam_3p_con = cut_conservative(beam_ld_added, beam_3p)
 
 # 三點斷筋
 beam_3p = cut_optimization(beam_ld_added, beam_3p)
@@ -52,4 +56,5 @@ beam_3p.to_excel(writer, '三點斷筋')
 beam_3p_con.to_excel(writer, '傳統斷筋')
 # beam_name.to_excel(writer, '梁名編號')
 writer.save()
+
 clock.time()

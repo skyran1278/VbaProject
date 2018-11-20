@@ -100,6 +100,8 @@ def calc_ld(beam_v_m):
 
 
 def add_ld(beam_v_m_ld):
+    beam_ld_added = beam_v_m_ld.copy()
+
     def init_ld(df):
         return {
             bar_num_ld: df[bar_num],
@@ -116,9 +118,9 @@ def add_ld(beam_v_m_ld):
         # bar_1st_ld = bar_1st + 'Ld'
         # bar_2nd_ld = bar_2nd + 'Ld'
 
-        beam_v_m_ld = beam_v_m_ld.assign(**init_ld(beam_v_m_ld))
+        beam_ld_added = beam_ld_added.assign(**init_ld(beam_ld_added))
 
-        for name, group in beam_v_m_ld.groupby(['Story', 'BayID'], sort=False):
+        for name, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
             group = group.copy()
             for i in range(len(group)):
                 stn_loc = group.at[group.index[i], 'StnLoc']
@@ -130,10 +132,10 @@ def add_ld(beam_v_m_ld):
                 # group.loc[group[stn_inter].index, bar_num_ld] = np.maximum(
                 #     group.at[group.index[i], bar_num], group.loc[group[stn_inter].index, bar_num_ld])
 
-            beam_v_m_ld.loc[group.index, bar_num_ld] = group[bar_num_ld]
+            beam_ld_added.loc[group.index, bar_num_ld] = group[bar_num_ld]
             # print(name)
 
-    return beam_v_m_ld
+    return beam_ld_added
 
 
 def cut_optimization(beam_ld_added, beam_3p):

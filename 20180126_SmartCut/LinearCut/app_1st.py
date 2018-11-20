@@ -13,7 +13,7 @@ from utils.Clock import Clock
 from output_table import init_beam_3p, init_beam_name
 from stirrups import calc_sturrups
 from bar_size_num import calc_db_by_a_beam
-from bar_con import cut_conservative
+from bar_con import cut_conservative, add_simple_ld
 from bar_opti import calc_ld, add_ld, cut_optimization
 
 # save_file = SCRIPT_DIR + '/3pionts.xlsx'
@@ -48,7 +48,8 @@ beam_ld_added = add_ld(beam_v_m_ld)
 beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl', beam_ld_added)
 
 # 傳統斷筋
-beam_3p_bar = cut_conservative(beam_v_m, beam_3p)
+beam_ld_added = add_simple_ld(beam_ld_added)
+beam_3p_bar = cut_conservative(beam_ld_added, beam_3p)
 
 # 三點斷筋
 beam_3p = cut_optimization(beam_ld_added, beam_3p)

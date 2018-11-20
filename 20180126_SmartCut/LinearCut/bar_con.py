@@ -31,17 +31,17 @@ def add_simple_ld(beam_v_m_ld):
         bar_num = 'Bar' + Loc + 'Num'
         ld = Loc + 'SimpleLd'
         bar_num_ld = bar_num + 'SimpleLd'
+        # bar_1st_ld = bar_1st + 'Ld'
+        # bar_2nd_ld = bar_2nd + 'Ld'
 
         if not ld in beam_v_m_ld.columns:
             beam_v_m_ld = calc_ld(beam_v_m_ld)
-        # bar_1st_ld = bar_1st + 'Ld'
-        # bar_2nd_ld = bar_2nd + 'Ld'
 
         beam_v_m_ld = beam_v_m_ld.assign(**init_ld(beam_v_m_ld))
 
         for name, group in beam_v_m_ld.groupby(['Story', 'BayID'], sort=False):
             group = group.copy()
-            for i in range(len(group)):
+            for i in (0, -1):
                 stn_loc = group.at[group.index[i], 'StnLoc']
                 stn_ld = group.at[group.index[i], ld]
                 stn_inter = (group['StnLoc'] >= stn_loc -
@@ -72,31 +72,57 @@ def cut_conservative(beam_v_m, beam_3p):
         }
     }
 
+    def get_1st_2nd(num, group_cap):
+        if num - group_cap == 1:
+            return group_cap - 1, 2
+        elif num > group_cap:
+            return group_cap, num - group_cap
+        else:
+            return max(num, 2), 0
+
     def get_group_num(min_loc, max_loc):
         group_loc_min = (group_max - group_min) * min_loc + group_min
         group_loc_max = (group_max - group_min) * max_loc + group_min
 
-        max_index = group[bar_num][(group['StnLoc'] >= group_loc_min) & (group['StnLoc'] <= group_loc_max)].idxmax()
+        # max_index = group[bar_num_ld][(group['StnLoc'] >= group_loc_min) & (
+        #     group['StnLoc'] <= group_loc_max)].idxmax()
 
-        return (group.at[max_index, bar_1st] + group.at[max_index, bar_2nd]), group.at[max_index, bar_1st], group.at[max_index, bar_2nd]
+        num = np.amax(group[bar_num_ld][(group['StnLoc'] >= group_loc_min) & (
+            group['StnLoc'] <= group_loc_max)])
 
+        num_1st, num_2nd = get_1st_2nd(num, group_cap)
+
+        return num, num_1st, num_2nd
+        # return (group.at[max_index, bar_1st] + group.at[max_index, bar_2nd]), group.at[max_index, bar_1st], group.at[max_index, bar_2nd]
+
+    # TODO: 很多函式可以重構
     def concat_size(num):
         if num == 0:
             return 0
         return str(int(num)) + '-' + group_size
+
+    def get_num_usage(loc_num, mid_num, span):
+        # if loc_num is None:
+        #     return mid_num * span * 1/3
+        if loc_num < mid_num:
+            return loc_num * span * 1/5 + mid_num * span * 2/15
+        else:
+            return loc_num * span * 1/3
 
     for Loc in BAR.keys():
 
         i = output_loc[Loc]['START_LOC']
         to_2nd = output_loc[Loc]['TO_2nd']
 
+        bar_cap = 'Bar' + Loc + 'Cap'
         bar_size = 'Bar' + Loc + 'Size'
         bar_num = 'Bar' + Loc + 'Num'
-        bar_1st = 'Bar' + Loc + '1st'
-        bar_2nd = 'Bar' + Loc + '2nd'
+        bar_num_ld = bar_num + 'SimpleLd'
+        # bar_1st = 'Bar' + Loc + '1st'
+        # bar_2nd = 'Bar' + Loc + '2nd'
 
         for _, group in beam_v_m.groupby(['Story', 'BayID'], sort=False):
-            total_num = 0
+            num_usage = 0
 
             group_max = np.amax(group['StnLoc'])
             group_min = np.amin(group['StnLoc'])
@@ -109,6 +135,7 @@ def cut_conservative(beam_v_m, beam_3p):
             # group_right = (group_max - group_min) * 2 / 3 + group_min
 
             # cap_num = group[bar_cap].iloc[0]
+            group_cap = group.at[group.index[0], bar_cap]
             group_size = group.at[group.index[0], bar_size]
 
             group_num = {
@@ -117,12 +144,17 @@ def cut_conservative(beam_v_m, beam_3p):
                 '右': get_group_num(2/3, 1)
             }
 
+            span = group_max - group_min
+            mid_num = group_num['中'][0]
+
             for bar_loc in ('左', '中', '右'):
                 loc_num, loc_1st, loc_2nd = group_num[bar_loc]
                 beam_3p.at[i, ('主筋', bar_loc)] = concat_size(loc_1st)
                 beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = concat_size(loc_2nd)
 
-                total_num = total_num + loc_num
+                num_usage = num_usage + get_num_usage(loc_num, mid_num, span)
+
+                # total_num = total_num + loc_num
                 # if loc_num - cap_num == 1:
                 #     beam_3p.at[i, ('主筋', bar_loc)] = concat_size(cap_num - 1)
                 #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = concat_size(2)
@@ -133,8 +165,28 @@ def cut_conservative(beam_v_m, beam_3p):
                 #     beam_3p.at[i, ('主筋', bar_loc)] = concat_size(loc_num)
                 #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = 0
 
+            # 沒有處理 1/7，所以比較保守
+
+            # left_num = group_num['左'][0]
+
+            # right_num = group_num['右'][0]
+
+            # num_usage = num_usage + get_num_usage(left_num, mid_num, span)
+            # num_usage = num_usage + get_num_usage(right_num, mid_num, span)
+            # num_usage = num_usage + get_num_usage(mid_num=mid_num, span=span)
+
+            # if left_num < mid_num:
+            #     num_usage = num_usage + left_num * span * 1/5 + mid_num * span * 2/15
+            # else:
+            #     num_usage = num_usage + left_num * span * 1/3
+
+            # if right_num < mid_num:
+            #     num_usage = num_usage + right_num * span * 1/5 + mid_num * span * 2/15
+            # else:
+            #     num_usage = num_usage + right_num * span * 1/3
+
             # 計算鋼筋體積 cm3
-            beam_3p.at[i, ('NOTE', '')] = total_num * (group_max - group_min) / 3 * (
+            beam_3p.at[i, ('NOTE', '')] = num_usage * (
                 rebars[(group_size, 'AREA')]) * 1000000
 
             i += 4
@@ -147,8 +199,10 @@ def main():
 
     (beam_3p, _) = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
     beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
+    # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
 
-    beam_3p_con = cut_conservative(beam_v_m, beam_3p)
+    beam_ld_added = add_simple_ld(beam_v_m)
+    beam_3p_con = cut_conservative(beam_ld_added, beam_3p)
 
     beam_3p_con.to_excel(SCRIPT_DIR + '/beam_3p_con.xlsx')
 
