@@ -9,6 +9,7 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 from utils.pkl import load_pkl
 from utils.Clock import Clock
+from utils.functions import concat_num_size, num_to_1st_2nd
 
 from dataset.const import BAR, ITERATION_GAP
 from dataset.dataset_e2k import load_e2k
@@ -120,7 +121,7 @@ def add_ld(beam_v_m_ld):
 
         beam_ld_added = beam_ld_added.assign(**init_ld(beam_ld_added))
 
-        for name, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
+        for _, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
             group = group.copy()
             for i in range(len(group)):
                 stn_loc = group.at[group.index[i], 'StnLoc']
@@ -139,7 +140,7 @@ def add_ld(beam_v_m_ld):
 
 
 def cut_optimization(beam_ld_added, beam_3p):
-    rebars, _, _, _, materials, sections = load_e2k()
+    rebars = load_e2k()[0]
 
     def calc_num_length(group, split_array):
         num = np.empty_like(split_array)
@@ -151,18 +152,18 @@ def cut_optimization(beam_ld_added, beam_3p):
                 split_array[i].index[0], 'StnLoc']
         return num, length
 
-    def concat_size(num, group_size):
-        if num == 0:
-            return 0
-        return str(int(num)) + '-' + group_size
+    # def concat_num_size(num, group_size):
+    #     if num == 0:
+    #         return 0
+    #     return str(int(num)) + '-' + group_size
 
-    def get_1st_2nd(num, group_cap):
-        if num - group_cap == 1:
-            return group_cap - 1, 2
-        elif num > group_cap:
-            return group_cap, num - group_cap
-        else:
-            return max(num, 2), 0
+    # def num_to_1st_2nd(num, group_cap):
+    #     if num - group_cap == 1:
+    #         return group_cap - 1, 2
+    #     elif num > group_cap:
+    #         return group_cap, num - group_cap
+    #     else:
+    #         return max(num, 2), 0
 
     def make_1st_last_diff(group_diff):
         if group_diff[0] == 0:
@@ -219,7 +220,7 @@ def cut_optimization(beam_ld_added, beam_3p):
         bar_size = 'Bar' + Loc + 'Size'
         bar_num_ld = 'Bar' + Loc + 'NumLd'
 
-        for name, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
+        for _, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
             min_usage = float('Inf')
 
             group_cap = group.at[group.index[0], bar_cap]
@@ -293,9 +294,9 @@ def cut_optimization(beam_ld_added, beam_3p):
             #     min_length = np.full(3, '')
 
             group_num = {
-                '左': get_1st_2nd(min_num[0], group_cap),
-                '中': get_1st_2nd(min_num[1], group_cap),
-                '右': get_1st_2nd(min_num[2], group_cap)
+                '左': num_to_1st_2nd(min_num[0], group_cap),
+                '中': num_to_1st_2nd(min_num[1], group_cap),
+                '右': num_to_1st_2nd(min_num[2], group_cap)
             }
 
             group_length = {
@@ -309,11 +310,11 @@ def cut_optimization(beam_ld_added, beam_3p):
             for bar_loc in group_num.keys():
                 loc_1st, loc_2nd = group_num[bar_loc]
                 loc_length = group_length[bar_loc]
-                beam_3p.at[k, ('主筋', bar_loc)] = concat_size(
+                beam_3p.at[k, ('主筋', bar_loc)] = concat_num_size(
                     loc_1st, group_size)
                 beam_3p.at[k, ('長度', bar_loc)] = loc_length * 100
                 beam_3p.at[k + to_2nd, ('主筋', bar_loc)
-                           ] = concat_size(loc_2nd, group_size)
+                           ] = concat_num_size(loc_2nd, group_size)
 
             beam_3p.at[k, ('NOTE', '')] = min_usage * (
                 rebars[(group_size, 'AREA')]) * 1000000
@@ -347,7 +348,7 @@ def cut_optimization(beam_ld_added, beam_3p):
 def main():
     clock = Clock()
     beam_3p, _ = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
-    beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
+    # beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
     beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
 
     # start = time.time()

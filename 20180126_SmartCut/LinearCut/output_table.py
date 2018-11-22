@@ -15,7 +15,7 @@ beam_design_table = load_beam_design()
 
 def init_beam_3p():
     index = pd.MultiIndex.from_tuples([('樓層', ''), ('編號', ''), ('RC 梁寬', ''), ('RC 梁深', ''), ('主筋', ''), ('主筋', '左'), ('主筋', '中'), ('主筋', '右'), (
-        '長度', '左'), ('長度', '中'), ('長度', '右'), ('腰筋', ''), ('箍筋', '左'), ('箍筋', '中'), ('箍筋', '右'), ('梁長', ''), ('支承寬', '左'), ('支承寬', '右'), ('NOTE', ''), ('MESSAGE', '')])
+        '長度', '左'), ('長度', '中'), ('長度', '右'), ('腰筋', ''), ('箍筋', '左'), ('箍筋', '中'), ('箍筋', '右'), ('梁長', ''), ('支承寬', '左'), ('支承寬', '右'), ('NOTE', '')])
 
     beam_3p = pd.DataFrame(
         np.empty([len(beam_design_table.groupby(['Story', 'BayID'])) * 4, len(index)], dtype='<U16'), columns=index)
@@ -30,13 +30,16 @@ def init_beam_3p():
 
         point_start = lines[(bayID, 'BEAM', 'START')]
         point_end = lines[(bayID, 'BEAM', 'END')]
-        beam_length = math.sqrt(sum((point_coordinates.loc[point_end] - point_coordinates.loc[point_start]) ** 2))
+        beam_length = math.sqrt(
+            sum((point_coordinates.loc[point_end] - point_coordinates.loc[point_start]) ** 2))
 
         beam_3p.at[i, '梁長'] = round(beam_length, 2) * 100
         beam_3p.at[i, ('支承寬', '左')] = round(np.amin(group['StnLoc']), 3) * 100
-        beam_3p.at[i, ('支承寬', '右')] = round((beam_length - np.amax(group['StnLoc'])), 3) * 100
+        beam_3p.at[i, ('支承寬', '右')] = round(
+            (beam_length - np.amax(group['StnLoc'])), 3) * 100
 
-        beam_3p.loc[i: i + 3, ('主筋', '')] = ['上層 第一排', '上層 第二排', '下層 第二排', '下層 第一排']
+        beam_3p.loc[i: i + 3, ('主筋', '')] = ['上層 第一排',
+                                             '上層 第二排', '下層 第二排', '下層 第一排']
 
         i = i + 4
 
@@ -46,7 +49,7 @@ def init_beam_3p():
 def change_to_beamID(beam_3p):
     i = 0
 
-    for (story, beamID), group in beam_design_table.groupby(['Story', 'BeamID'], sort=False):
+    for (_, beamID), _ in beam_design_table.groupby(['Story', 'BeamID'], sort=False):
         beam_3p.at[i, '編號'] = beamID
 
         i = i + 4
@@ -71,7 +74,7 @@ def init_beam_name():
 
 def main():
     beam_3p = init_beam_3p()
-    beam_name = init_beam_name()
+    # beam_name = init_beam_name()
     print(beam_3p.head())
     beam_3p.to_excel(dataset_dir + '/3pionts.xlsx')
     print('Done!')

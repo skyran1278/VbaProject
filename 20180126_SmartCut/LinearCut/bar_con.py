@@ -10,6 +10,7 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 from utils.pkl import load_pkl
 from utils.Clock import Clock
+from utils.functions import concat_num_size, num_to_1st_2nd
 
 from dataset.const import BAR
 from dataset.dataset_e2k import load_e2k
@@ -39,7 +40,7 @@ def add_simple_ld(beam_v_m_ld):
 
         beam_v_m_ld = beam_v_m_ld.assign(**init_ld(beam_v_m_ld))
 
-        for name, group in beam_v_m_ld.groupby(['Story', 'BayID'], sort=False):
+        for _, group in beam_v_m_ld.groupby(['Story', 'BayID'], sort=False):
             group = group.copy()
             for i in (0, -1):
                 stn_loc = group.at[group.index[i], 'StnLoc']
@@ -58,7 +59,7 @@ def add_simple_ld(beam_v_m_ld):
 
 
 def cut_conservative(beam_v_m, beam_3p):
-    rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
+    rebars = load_e2k()[0]
     beam_3p = beam_3p.copy()
 
     output_loc = {
@@ -72,13 +73,13 @@ def cut_conservative(beam_v_m, beam_3p):
         }
     }
 
-    def get_1st_2nd(num, group_cap):
-        if num - group_cap == 1:
-            return group_cap - 1, 2
-        elif num > group_cap:
-            return group_cap, num - group_cap
-        else:
-            return max(num, 2), 0
+    # def num_to_1st_2nd(num, group_cap):
+    #     if num - group_cap == 1:
+    #         return group_cap - 1, 2
+    #     elif num > group_cap:
+    #         return group_cap, num - group_cap
+    #     else:
+    #         return max(num, 2), 0
 
     def get_group_num(min_loc, max_loc):
         group_loc_min = (group_max - group_min) * min_loc + group_min
@@ -90,16 +91,15 @@ def cut_conservative(beam_v_m, beam_3p):
         num = np.amax(group[bar_num_ld][(group['StnLoc'] >= group_loc_min) & (
             group['StnLoc'] <= group_loc_max)])
 
-        num_1st, num_2nd = get_1st_2nd(num, group_cap)
+        num_1st, num_2nd = num_to_1st_2nd(num, group_cap)
 
         return num, num_1st, num_2nd
         # return (group.at[max_index, bar_1st] + group.at[max_index, bar_2nd]), group.at[max_index, bar_1st], group.at[max_index, bar_2nd]
 
-    # TODO: 很多函式可以重構
-    def concat_size(num):
-        if num == 0:
-            return 0
-        return str(int(num)) + '-' + group_size
+    # def concat_num_size(num):
+    #     if num == 0:
+    #         return 0
+    #     return str(int(num)) + '-' + group_size
 
     def get_num_usage(loc_num, mid_num, span):
         # if loc_num is None:
@@ -149,20 +149,22 @@ def cut_conservative(beam_v_m, beam_3p):
 
             for bar_loc in ('左', '中', '右'):
                 loc_num, loc_1st, loc_2nd = group_num[bar_loc]
-                beam_3p.at[i, ('主筋', bar_loc)] = concat_size(loc_1st)
-                beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = concat_size(loc_2nd)
+                beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(
+                    loc_1st, group_size)
+                beam_3p.at[i + to_2nd, ('主筋', bar_loc)
+                           ] = concat_num_size(loc_2nd, group_size)
 
                 num_usage = num_usage + get_num_usage(loc_num, mid_num, span)
 
                 # total_num = total_num + loc_num
                 # if loc_num - cap_num == 1:
-                #     beam_3p.at[i, ('主筋', bar_loc)] = concat_size(cap_num - 1)
-                #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = concat_size(2)
+                #     beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(cap_num - 1)
+                #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = concat_num_size(2)
                 # elif loc_num > cap_num:
-                #     beam_3p.at[i, ('主筋', bar_loc)] = concat_size(cap_num)
-                #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = concat_size(loc_num - cap_num)
+                #     beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(cap_num)
+                #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = concat_num_size(loc_num - cap_num)
                 # else:
-                #     beam_3p.at[i, ('主筋', bar_loc)] = concat_size(loc_num)
+                #     beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(loc_num)
                 #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = 0
 
             # 沒有處理 1/7，所以比較保守

@@ -119,7 +119,7 @@ def calc_sturrups(beam_3points_table):
 
 def main():
     beam_3points_table = init_beam_3p()
-    beam_3points_table, beam_design_table = calc_sturrups(beam_3points_table)
+    beam_3points_table, _ = calc_sturrups(beam_3points_table)
     print(beam_3points_table.loc[0, ('箍筋', '左')])
     print('Done!')
 
