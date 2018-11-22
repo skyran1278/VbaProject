@@ -1,3 +1,10 @@
+from bar_opti import calc_ld, add_ld, cut_optimization
+from bar_con import cut_conservative, add_simple_ld
+from bar_size_num import calc_db_by_a_beam, calc_db_by_frame
+from stirrups import calc_sturrups
+from output_table import init_beam_3p, init_beam_name
+from utils.Clock import Clock
+from utils.pkl import load_pkl
 import os
 import sys
 
@@ -7,16 +14,6 @@ import numpy as np
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
-from utils.pkl import load_pkl
-from utils.Clock import Clock
-
-from output_table import init_beam_3p, init_beam_name
-from stirrups import calc_sturrups
-from bar_size_num import calc_db_by_a_beam
-from bar_con import cut_conservative, add_simple_ld
-from bar_opti import calc_ld, add_ld, cut_optimization
-
-# save_file = SCRIPT_DIR + '/3pionts.xlsx'
 
 clock = Clock()
 clock.time()
@@ -36,8 +33,12 @@ beam_name = init_beam_name()
 beam_3p, beam_v = calc_sturrups(beam_3p)
 (beam_3p, beam_v) = load_pkl(SCRIPT_DIR + '/stirrups.pkl', (beam_3p, beam_v))
 
-# 以一根梁為單位 計算主筋
+# 以一根梁為單位 計算主筋 first run
 beam_v_m = calc_db_by_a_beam(beam_v)
+
+# 以一台梁為單位 計算主筋 second run
+# beam_v_m = calc_db_by_frame(beam_v)
+
 beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl', beam_v_m)
 
 # 計算延伸長度
@@ -45,10 +46,11 @@ beam_v_m_ld = calc_ld(beam_v_m)
 
 # 加上延伸長度
 beam_ld_added = add_ld(beam_v_m_ld)
+# 傳統 端點加上簡算法的延伸長度
+beam_ld_added = add_simple_ld(beam_ld_added)
 beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl', beam_ld_added)
 
 # 傳統斷筋
-beam_ld_added = add_simple_ld(beam_ld_added)
 beam_3p_bar = cut_conservative(beam_ld_added, beam_3p)
 
 # 三點斷筋
