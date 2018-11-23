@@ -18,7 +18,7 @@ class Clock():
         else:
             # print("--- %.3f seconds ---" % (time.time() - self.start_time))
             print(
-                f'--- {time.time() - self.start_time} seconds ---')
+                f'--- {time.time() - self.start_time} seconds ---\n')
 
             self.count += 1
             self.start_time = None
