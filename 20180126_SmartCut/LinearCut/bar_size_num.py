@@ -109,7 +109,7 @@ def _calc_bar_size_num(Loc, i):
 #     return rebars[v_sizeout_double, 'DIA']
 
 
-def calc_db_by_a_beam(beam_v):
+def calc_db_by_beam(beam_v):
     beam_v_m = beam_v.copy()
 
     for Loc in BAR.keys():
@@ -191,7 +191,7 @@ def _add_beam_name(beam_v):
 if __name__ == "__main__":
     clock = Clock()
     (_, beam_v) = load_pkl(stirrups_save_file)
-    beam_v_m = calc_db_by_a_beam(beam_v)
+    beam_v_m = calc_db_by_beam(beam_v)
     # beam_v_m = calc_db_by_frame(beam_v)
     beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl', beam_v_m)
 
