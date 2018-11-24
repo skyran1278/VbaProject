@@ -144,5 +144,5 @@ def second_run():
 
 if __name__ == "__main__":
     # first_run()
-    # second_run()
-    first_run_test()
+    second_run()
+    # first_run_test()

@@ -88,7 +88,7 @@ def cut_conservative(beam_v_m, beam_3p):
         # max_index = group[bar_num_ld][(group['StnLoc'] >= group_loc_min) & (
         #     group['StnLoc'] <= group_loc_max)].idxmax()
 
-        num = np.amax(group[bar_num_ld][(group['StnLoc'] >= group_loc_min) & (
+        num = np.amax(group[bar_num][(group['StnLoc'] >= group_loc_min) & (
             group['StnLoc'] <= group_loc_max)])
 
         num_1st, num_2nd = num_to_1st_2nd(num, group_cap)
@@ -101,13 +101,48 @@ def cut_conservative(beam_v_m, beam_3p):
     #         return 0
     #     return str(int(num)) + '-' + group_size
 
-    def get_num_usage(loc_num, mid_num, span):
-        # if loc_num is None:
-        #     return mid_num * span * 1/3
-        if loc_num < mid_num:
-            return loc_num * span * 1/5 + mid_num * span * 2/15
+    # def get_num_usage(loc_num, mid_num, span):
+    #     # if loc_num is None:
+    #     #     return mid_num * span * 1/3
+    #     if loc_num < mid_num:
+    #         return loc_num * span * 1/5 + mid_num * span * 2/15
+    #     else:
+    #         loc_ld = group.at[group.index[0], bar_num_ld]
+    #         if loc_ld > span * 1/3:
+    #             return loc_num * loc_ld
+    #         else:
+    #             return loc_num * span * 1/3
+
+    def get_group_length(group_num, group, ld):
+        span = np.amax(group['StnLoc']) - np.amin(group['StnLoc'])
+
+        left_num = group_num['左'][0]
+        mid_num = group_num['中'][0]
+        right_num = group_num['右'][0]
+
+        left_ld = group.at[group.index[0], ld]
+        right_ld = group.at[group.index[-1], ld]
+
+        left_length = _get_loc_length(left_num, left_ld, mid_num, span)
+        right_length = _get_loc_length(right_num, right_ld, mid_num, span)
+
+        mid_length = span - left_length - right_length
+
+        return {
+            '左': left_length,
+            '中': mid_length,
+            '右': right_length
+        }
+
+    def _get_loc_length(loc_num, loc_ld, mid_num, span):
+        if loc_num > mid_num:
+            if loc_ld > span * 1/3:
+                # beam_3p.at[i, ('長度', bar_loc)] = loc_length * 100
+                return loc_ld
+            else:
+                return span * 1/3
         else:
-            return loc_num * span * 1/3
+            return span * 1/5
 
     for Loc in BAR.keys():
 
@@ -117,7 +152,8 @@ def cut_conservative(beam_v_m, beam_3p):
         bar_cap = 'Bar' + Loc + 'Cap'
         bar_size = 'Bar' + Loc + 'Size'
         bar_num = 'Bar' + Loc + 'Num'
-        bar_num_ld = bar_num + 'SimpleLd'
+        ld = Loc + 'SimpleLd'
+        # bar_num_ld = bar_num + 'SimpleLd'
         # bar_1st = 'Bar' + Loc + '1st'
         # bar_2nd = 'Bar' + Loc + '2nd'
 
@@ -144,17 +180,21 @@ def cut_conservative(beam_v_m, beam_3p):
                 '右': get_group_num(2/3, 1)
             }
 
-            span = group_max - group_min
-            mid_num = group_num['中'][0]
+            group_length = get_group_length(group_num, group, ld)
 
             for bar_loc in ('左', '中', '右'):
+                # for bar_loc in ('左', '右'):
                 loc_num, loc_1st, loc_2nd = group_num[bar_loc]
+                loc_length = group_length[bar_loc]
+
                 beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(
                     loc_1st, group_size)
                 beam_3p.at[i + to_2nd, ('主筋', bar_loc)
                            ] = concat_num_size(loc_2nd, group_size)
 
-                num_usage = num_usage + get_num_usage(loc_num, mid_num, span)
+                beam_3p.at[i, ('長度', bar_loc)] = loc_length * 100
+
+                num_usage = num_usage + loc_num * loc_length
 
                 # total_num = total_num + loc_num
                 # if loc_num - cap_num == 1:

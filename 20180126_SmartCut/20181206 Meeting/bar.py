@@ -17,7 +17,7 @@ background = np.array([247, 247, 247]) / 256
 
 linewidth = 2.0
 
-DATASET = pd.read_excel(SCRIPT_DIR + '/first_run.xlsx',
+DATASET = pd.read_excel(SCRIPT_DIR + '/first_run_v1.xlsx',
                         sheet_name='beam_ld_added')
 
 X_NUM = 1200
