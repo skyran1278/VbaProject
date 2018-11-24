@@ -123,6 +123,7 @@ def cut_conservative(beam_v_m, beam_3p):
         left_ld = group.at[group.index[0], ld]
         right_ld = group.at[group.index[-1], ld]
 
+        # 如果有需要，這裡或許可以加上無條件進位的函數
         left_length = _get_loc_length(left_num, left_ld, mid_num, span)
         right_length = _get_loc_length(right_num, right_ld, mid_num, span)
 
