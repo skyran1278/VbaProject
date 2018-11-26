@@ -183,10 +183,34 @@ def cut_conservative(beam_v_m, beam_3p):
 
             group_length = get_group_length(group_num, group, ld)
 
+            # if group_length['中'] <= 0:
+            #     span = np.amax(group['StnLoc']) - np.amin(group['StnLoc'])
+
+            #     bar_max = max(group_num, key=group_num.get)
+            #     loc_num, loc_1st, loc_2nd = group_num[bar_max]
+            #     loc_length = span / 3
+
+            #     for bar_loc in ('左', '中', '右'):
+            #         beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(
+            #             loc_1st, group_size)
+            #         beam_3p.at[i + to_2nd, ('主筋', bar_loc)
+            #                    ] = concat_num_size(loc_2nd, group_size)
+
+            #         beam_3p.at[i, ('長度', bar_loc)] = loc_length * 100
+
+            #         num_usage = num_usage + loc_num * loc_length
+
+            # else:
             for bar_loc in ('左', '中', '右'):
                 # for bar_loc in ('左', '右'):
                 loc_num, loc_1st, loc_2nd = group_num[bar_loc]
                 loc_length = group_length[bar_loc]
+                if group_length['中'] <= 0:
+                    span = np.amax(group['StnLoc']) - np.amin(group['StnLoc'])
+
+                    bar_max = max(group_num, key=group_num.get)
+                    loc_num, loc_1st, loc_2nd = group_num[bar_max]
+                    loc_length = span / 3
 
                 beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(
                     loc_1st, group_size)
@@ -196,6 +220,8 @@ def cut_conservative(beam_v_m, beam_3p):
                 beam_3p.at[i, ('長度', bar_loc)] = loc_length * 100
 
                 num_usage = num_usage + loc_num * loc_length
+
+                # for bar_loc in ('左', '中', '右'):
 
                 # total_num = total_num + loc_num
                 # if loc_num - cap_num == 1:
@@ -241,8 +267,8 @@ def main():
     start = time.time()
 
     (beam_3p, _) = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
-    beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
-    # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
+    # beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
+    beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
 
     beam_ld_added = add_simple_ld(beam_v_m)
     beam_3p_con = cut_conservative(beam_ld_added, beam_3p)
