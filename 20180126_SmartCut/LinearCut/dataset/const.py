@@ -1,14 +1,14 @@
 import numpy as np
 
-E2K = '2018-0214'
-BEAM_DESIGN = '10F B131'
+E2K = 'H2017-03D 欣詮建設中和福祥段14FB3'
+BEAM_DESIGN = 'Concrete Design 2 Beam Summary Data ACI 318-05 IBC 2003'
 
 STIRRUP_REBAR = ['#4', '2#4', '2#5', '2#6']
 STIRRUP_SPACING = [10, 12, 15, 18, 20, 25, 30]
 
 BAR = {
-    'Top': ['#10', '#11'],
-    'Bot': ['#8', '#10', '#11']
+    'Top': ['#7', '#8', '#10', '#11'],
+    'Bot': ['#7', '#8', '#10', '#11']
 }
 DB_SPACING = 1.5
 

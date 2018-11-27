@@ -25,7 +25,7 @@ clock = Clock()
 
 
 def first_run():
-    clock.time()
+    clock.time('梁名編號')
 
     writer = pd.ExcelWriter(SCRIPT_DIR + '/dataset/first_run.xlsx')
     beam_name = init_beam_name()

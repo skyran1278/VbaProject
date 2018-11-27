@@ -1,5 +1,12 @@
 import time
 
+from colorama import init
+from colorama import Fore
+from colorama import Back
+from colorama import Style
+
+init()
+
 
 class Clock():
     def __init__(self):
@@ -9,9 +16,9 @@ class Clock():
 
     def _format_title(self, title):
         if title is None:
-            return f'Lap {self.count}'
+            return f'{Fore.BLACK}{Back.WHITE}Lap {self.count}{Style.RESET_ALL}'
 
-        return title
+        return f'\n{Fore.BLACK}{Back.WHITE}{title}{Style.RESET_ALL}'
 
     def time(self, title=None):
         if title is not None:
@@ -19,12 +26,12 @@ class Clock():
 
         if self.start_time is None:
             self.start_time = time.time()
-            print(f'--- {self._format_title(self.title)} ---')
+            print(f'{self._format_title(self.title)}')
 
         else:
-            # print("--- %.3f seconds ---" % (time.time() - self.start_time))
+            # print("%.3f seconds" % (time.time() - self.start_time))
             print(
-                f'--- {self._format_title(self.title)}: {time.time() - self.start_time} seconds ---\n')
+                f'{Fore.BLUE}{round(time.time() - self.start_time, 4)}{Style.RESET_ALL} seconds')
 
             self.count += 1
             self.start_time = None
