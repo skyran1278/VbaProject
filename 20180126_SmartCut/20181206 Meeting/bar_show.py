@@ -236,9 +236,24 @@ def compare_linear_cut():
     linearcut(green)
 
 
+def verticalline():
+    plt.axvline((END - START) / 4 + START, linestyle='--', color=gray)
+    plt.axvline((END - START) / 3 + START, linestyle='--', color=gray)
+    plt.axvline((END - START) / 3 * 2 + START, linestyle='--', color=gray)
+    plt.axvline((END - START) / 4 * 3 + START, linestyle='--', color=gray)
+
+
+def horizontalline():
+    plt.axhline(2 * TOP_SIZE, linestyle='--', color=gray)
+    plt.axhline(-2 * BOT_SIZE, linestyle='--', color=gray)
+
+
 def conservative_flow():
     plt.figure()
     zero_line()
+
+    verticalline()
+    horizontalline()
 
     etabs_demand(blue)
 
@@ -250,6 +265,8 @@ def linearcut_flow():
     plt.figure()
     zero_line()
 
+    horizontalline()
+
     etabs_demand(blue)
 
     real_sol(red)
@@ -260,8 +277,11 @@ def compare_real_to_conservative():
     plt.figure()
     zero_line()
 
-    real_sol(red)
-    conservative_cut(green)
+    horizontalline()
+
+    real_sol(blue)
+    conservative_cut(red)
+    linearcut(green)
 
 
 conservative_flow()
