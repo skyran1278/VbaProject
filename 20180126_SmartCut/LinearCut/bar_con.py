@@ -14,7 +14,7 @@ from utils.functions import concat_num_size, num_to_1st_2nd
 
 from dataset.const import BAR
 from dataset.dataset_e2k import load_e2k
-from bar_opti import calc_ld
+from bar_ld import calc_ld
 
 
 def add_simple_ld(beam_v_m_ld):
@@ -267,7 +267,7 @@ def main():
     start = time.time()
 
     (beam_3p, _) = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
-    # beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
+    beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
     beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
 
     beam_ld_added = add_simple_ld(beam_v_m)

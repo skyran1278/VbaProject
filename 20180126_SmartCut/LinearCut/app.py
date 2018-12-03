@@ -12,8 +12,9 @@ from utils.Clock import Clock
 from output_table import init_beam_3, init_beam_name, init_beam_5
 from stirrups import calc_sturrups
 from bar_size_num import calc_db_by_beam, calc_db_by_frame
+from bar_ld import calc_ld, add_ld
 from bar_con import cut_conservative, add_simple_ld
-from bar_opti import calc_ld, add_ld, cut_optimization
+from bar_opti import cut_optimization
 
 
 # 不管是物件導向設計還是函數式編程 只要能解決問題的就是好方法
@@ -35,7 +36,7 @@ def first_run():
     clock.time()
 
 
-def first_run_test(multi):
+def first_run_test(multi=None):
     writer = pd.ExcelWriter(SCRIPT_DIR + '/dataset/first_run.xlsx')
 
     # 初始化輸出表格
@@ -50,6 +51,7 @@ def first_run_test(multi):
     clock.time('計算箍筋')
     beam_3, beam_v = calc_sturrups(beam_3)
     (beam_3, beam_v) = load_pkl(SCRIPT_DIR + '/stirrups.pkl', (beam_3, beam_v))
+    # (beam_3, beam_v) = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
     clock.time()
 
     # 以一根梁為單位 計算主筋
@@ -69,6 +71,7 @@ def first_run_test(multi):
     # 傳統 端點加上簡算法的延伸長度
     beam_ld_added = add_simple_ld(beam_ld_added)
     beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl', beam_ld_added)
+    # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
     clock.time()
 
     # 傳統斷筋
