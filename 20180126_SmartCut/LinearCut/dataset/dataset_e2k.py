@@ -18,8 +18,8 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 from dataset.const import E2K
 
 # SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-read_file = SCRIPT_DIR + '/' + E2K + '.e2k'
-save_file = SCRIPT_DIR + '/' + E2K + '.pkl'
+read_file = f'{SCRIPT_DIR}/{E2K}.e2k'
+save_file = f'{read_file}.pkl'
 
 
 def _load_e2k():

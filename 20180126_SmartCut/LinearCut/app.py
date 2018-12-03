@@ -9,7 +9,7 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 from utils.pkl import load_pkl
 from utils.Clock import Clock
-from output_table import init_beam_3p, init_beam_name
+from output_table import init_beam_3, init_beam_name, init_beam_5
 from stirrups import calc_sturrups
 from bar_size_num import calc_db_by_beam, calc_db_by_frame
 from bar_con import cut_conservative, add_simple_ld
@@ -35,19 +35,21 @@ def first_run():
     clock.time()
 
 
-def first_run_test():
+def first_run_test(multi):
     writer = pd.ExcelWriter(SCRIPT_DIR + '/dataset/first_run.xlsx')
 
     # 初始化輸出表格
     clock.time('初始化輸出表格')
-    beam_3p = init_beam_3p()
+    beam_3 = init_beam_3()
+    if multi == 5:
+        beam_5 = init_beam_5()
     beam_name = init_beam_name()
     clock.time()
-
+# df2[['date', 'hour']] = df1[['date', 'hour']]
     # 計算箍筋
     clock.time('計算箍筋')
-    beam_3p, beam_v = calc_sturrups(beam_3p)
-    (beam_3p, beam_v) = load_pkl(SCRIPT_DIR + '/stirrups.pkl', (beam_3p, beam_v))
+    beam_3, beam_v = calc_sturrups(beam_3)
+    (beam_3, beam_v) = load_pkl(SCRIPT_DIR + '/stirrups.pkl', (beam_3, beam_v))
     clock.time()
 
     # 以一根梁為單位 計算主筋
@@ -71,18 +73,18 @@ def first_run_test():
 
     # 傳統斷筋
     clock.time('傳統斷筋')
-    beam_3p_bar = cut_conservative(beam_ld_added, beam_3p)
+    beam_3p_bar = cut_conservative(beam_ld_added, beam_3)
     clock.time()
 
     # 三點斷筋
     clock.time('三點斷筋')
-    beam_3p = cut_optimization(beam_ld_added, beam_3p)
+    beam_3 = cut_optimization(beam_ld_added, beam_3)
     clock.time()
 
     # 輸出成表格
     clock.time('輸出成表格')
     beam_name.to_excel(writer, '梁名編號')
-    beam_3p.to_excel(writer, '三點斷筋')
+    beam_3.to_excel(writer, '三點斷筋')
     beam_3p_bar.to_excel(writer, '傳統斷筋')
     beam_ld_added.to_excel(writer, 'beam_ld_added')
     writer.save()
@@ -95,7 +97,7 @@ def second_run():
 
     # 初始化輸出表格
     clock.time('初始化輸出表格')
-    beam_3p = init_beam_3p()
+    beam_3p = init_beam_3()
     clock.time()
 
     # 計算箍筋
@@ -144,5 +146,5 @@ def second_run():
 
 if __name__ == "__main__":
     # first_run()
-    second_run()
-    # first_run_test()
+    # second_run()
+    first_run_test()

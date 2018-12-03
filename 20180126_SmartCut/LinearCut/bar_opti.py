@@ -345,6 +345,125 @@ def cut_optimization(beam_ld_added, beam_3p):
     return beam_3p
 
 
+def calc_num_length(group, split_array):
+    num = np.empty_like(split_array)
+    length = np.empty_like(split_array)
+
+    for i in range(len(split_array)):
+        num[i] = np.amax(split_array[i])
+        length[i] = group.at[split_array[i].index[-1], 'StnLoc'] - group.at[
+            split_array[i].index[0], 'StnLoc']
+    return num, length
+
+def make_1st_last_diff(group_diff):
+    if group_diff[0] == 0:
+        group_diff[0] = 1
+
+    if group_diff[-1] == 0:
+        group_diff[-1] = -1
+
+    return group_diff
+
+def get_min_cut(group_loc, group_loc_diff, i):
+    if group_loc_diff[i] > 0:
+        return group_loc.index[i]
+    else:
+        return group_loc.index[i + 1]
+
+
+def cut_5(beam_ld_added, beam_5):
+    rebars = load_e2k()[0]
+
+    output_loc = {
+        'Top': {
+            'START_LOC': 0,
+            'TO_2nd': 1
+        },
+        'Bot': {
+            'START_LOC': 3,
+            'TO_2nd': -1
+        }
+    }
+
+    for Loc in BAR.keys():
+
+        k = output_loc[Loc]['START_LOC']
+        to_2nd = output_loc[Loc]['TO_2nd']
+
+        bar_cap = 'Bar' + Loc + 'Cap'
+        bar_size = 'Bar' + Loc + 'Size'
+        bar_num_ld = 'Bar' + Loc + 'NumLd'
+
+        for _, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
+            min_usage = float('Inf')
+
+            group_cap = group.at[group.index[0], bar_cap]
+            group_size = group.at[group.index[0], bar_size]
+
+            group_max = np.amax(group['StnLoc'])
+            group_min = np.amin(group['StnLoc'])
+
+            left = (group_max - group_min) * ITERATION_GAP['Left'] + group_min
+            right = (group_max - group_min) * (
+                ITERATION_GAP['Right']) + group_min
+
+            group_left = group[bar_num_ld][(
+                group['StnLoc'] >= left[0]) & (group['StnLoc'] <= left[1])]
+            group_right = group[bar_num_ld][(
+                group['StnLoc'] >= right[0]) & (group['StnLoc'] <= right[1])]
+
+            group_left_diff = np.diff(group_left)
+            group_right_diff = np.diff(group_right)
+
+            group_left_diff = make_1st_last_diff(group_left_diff)
+            group_right_diff = make_1st_last_diff(group_right_diff)
+
+            for i in np.flatnonzero(group_left_diff):
+                split_left = get_min_cut(group_left, group_left_diff, i)
+
+                for j in np.flatnonzero(group_right_diff):
+                    split_right = get_min_cut(group_right, group_right_diff, j)
+                    split_3p_array = [
+                        group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
+                    num, length = calc_num_length(group, split_3p_array)
+
+                    rebar_usage = np.sum(num * length)
+                    if rebar_usage < min_usage:
+                        min_usage = rebar_usage
+                        min_num = num
+                        min_length = length
+
+            group_num = {
+                '左': num_to_1st_2nd(min_num[0], group_cap),
+                '中': num_to_1st_2nd(min_num[1], group_cap),
+                '右': num_to_1st_2nd(min_num[2], group_cap)
+            }
+
+            group_length = {
+                '左': min_length[0],
+                # '左': min_length[0] if min_num[0] != min_num[1] else '',
+                '中': min_length[1],
+                '右': min_length[2]
+                # '右': min_length[2] if min_num[2] != min_num[1] else ''
+            }
+
+            for bar_loc in group_num.keys():
+                loc_1st, loc_2nd = group_num[bar_loc]
+                loc_length = group_length[bar_loc]
+                beam_5.at[k, ('主筋', bar_loc)] = concat_num_size(
+                    loc_1st, group_size)
+                beam_5.at[k, ('長度', bar_loc)] = loc_length * 100
+                beam_5.at[k + to_2nd, ('主筋', bar_loc)
+                           ] = concat_num_size(loc_2nd, group_size)
+
+            beam_5.at[k, ('NOTE', '')] = min_usage * (
+                rebars[(group_size, 'AREA')]) * 1000000
+
+            k += 4
+
+    return beam_5
+
+
 def main():
     clock = Clock()
     beam_3p, _ = load_pkl(SCRIPT_DIR + '/stirrups.pkl')

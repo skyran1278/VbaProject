@@ -13,7 +13,7 @@ from dataset.dataset_beam_design import load_beam_design
 from dataset.dataset_e2k import load_e2k
 from dataset.const import STIRRUP_REBAR as REBAR, STIRRUP_SPACING as SPACING
 
-from output_table import init_beam_3p
+from output_table import init_beam_3
 
 # list to numpy
 SPACING = np.array(SPACING) / 100
@@ -142,8 +142,10 @@ def merge_segments(beam_design_table, beam_3points_table):
                 loc_size, loc_spacing = drop_size(loc_spacing)
 
             loc_spacing_max = np.amax(SPACING[np.amin(loc_spacing) >= SPACING])
-            beam_design_table.loc[loc_spacing.index, 'SetSpacing'] = loc_spacing_max
-            beam_3points_table.loc[i, ('箍筋', loc)] = f'{loc_size}@{int(loc_spacing_max * 100)}'
+            beam_design_table.loc[loc_spacing.index,
+                                  'SetSpacing'] = loc_spacing_max
+            beam_3points_table.loc[i, ('箍筋', loc)
+                                   ] = f'{loc_size}@{int(loc_spacing_max * 100)}'
 
         # group_left_size = group_size
         # group_mid_size = group_size
@@ -196,7 +198,7 @@ def calc_sturrups(beam_3points_table):
 def main():
     clock = Clock()
 
-    beam_3points_table = init_beam_3p()
+    beam_3points_table = init_beam_3()
     clock.time()
     beam_3points_table, _ = calc_sturrups(beam_3points_table)
     clock.time()
