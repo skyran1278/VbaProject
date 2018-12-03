@@ -1,7 +1,7 @@
 import numpy as np
 
-E2K = 'H2017-03D 欣詮建設中和福祥段14FB3'
-BEAM_DESIGN = 'Concrete Design 2 Beam Summary Data ACI 318-05 IBC 2003'
+E2K = '2018-1023_KaoHsiung -MRF_420'
+BEAM_DESIGN = '2018-1023_KaoHsiung -MRF_420'
 
 STIRRUP_REBAR = ['#4', '2#4', '2#5', '2#6']
 STIRRUP_SPACING = [10, 12, 15, 18, 20, 25, 30]
@@ -13,6 +13,6 @@ BAR = {
 DB_SPACING = 1.5
 
 ITERATION_GAP = {
-    'Left': np.array([0.15, 0.4]),
-    'Right': np.array([0.6, 0.85])
+    'Left': np.array([0.1, 0.45]),
+    'Right': np.array([0.55, 0.9])
 }
