@@ -14,7 +14,7 @@ from stirrups import calc_sturrups
 from bar_size_num import calc_db_by_beam, calc_db_by_frame
 from bar_ld import calc_ld, add_ld
 from bar_con import cut_conservative, add_simple_ld
-from bar_opti import cut_optimization
+from bar_cut import cut_optimization
 
 
 # 不管是物件導向設計還是函數式編程 只要能解決問題的就是好方法
