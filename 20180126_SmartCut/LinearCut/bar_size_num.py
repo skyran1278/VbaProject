@@ -55,13 +55,15 @@ def _calc_bar_size_num(Loc, i):
         # dh = df['VSize'].apply()
         # 應該可以用 apply 來改良，晚點再來做
         # 這裡應該拿最後配的來算，但是因為號數整支梁都會相同，所以沒差
+        # 後來查了一下 發現好像差不多
         dh = np.array([rebars['#' + v_size.split('#')[1], 'DIA']
                        for v_size in df['VSize']])
         db = rebars[BAR[Loc][i], 'DIA']
         width = np.array([sections[(sec_ID, 'B')] for sec_ID in df['SecID']])
         # cover = np.array([sections[(sec_ID, 'COVER' + Loc)] for sec_ID in df['SecID']])
 
-        return np.ceil((width - 2 * 0.04 - 2 * dh - db) / (DB_SPACING * db + db))
+        return np.floor((width - 2 * 0.04 - 2 * dh - db) / (DB_SPACING * db + db)) + 1
+        # return np.ceil((width - 2 * 0.04 - 2 * dh - db) / (DB_SPACING * db + db))
 
     def calc_1st(df):
         bar_1st = np.where(df[bar_num] > df[bar_cap],
