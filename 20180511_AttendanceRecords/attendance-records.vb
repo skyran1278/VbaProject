@@ -42,12 +42,12 @@ Sub MAIN()
         nextAttType = arrInput(i + 1, colAttType)
 
         If prevAttType = "上班" Then
-            If nextAttType <> "下班" Then
+            If nextAttType <> "下班" And nextAttType <> "公出" Then
                 MsgBox "第 " & i & " 列為上班卡。" & vbNewLine & "第 " & i + 1 & " 列應該要打下班卡。", 0, "ERROR"
                 Exit Sub
             End If
         ElseIf prevAttType = "加班" Then
-            If nextAttType <> "加班結束" Then
+            If nextAttType <> "加班結束" And nextAttType <> "公出" Then
                 MsgBox "第 " & i & " 列為加班卡。" & vbNewLine & "第 " & i + 1 & " 列應該要打加班結束卡。", 0, "ERROR"
                 Exit Sub
             End If

@@ -1,4 +1,4 @@
-' @license Version v2.3.5
+' @license Version v2.4.0
 ' Version.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -149,12 +149,31 @@ Private Sub Workbook_Open()
     ' Dim ws_version As Worksheet
     ' Set ws_version = ThisWorkbook.Worksheets("Release Notes")
 
+    On Error GoTo ErrorHandler
+
     Call VerifyPassword
     Call CheckVersion
+
+    Exit Sub
+
+ErrorHandler:
+    MsgBox (Err.Description)
+
+    inputPwd = Trim(Application.InputBox("Please Input Strong Passward.", "No Internet Connect", Type:=2))
+
+    strongPwd = "28862952"
+
+    If inputPwd <> strongPwd Then
+
+        MsgBox "Wrong Password"
+        ThisWorkbook.Close SaveChanges:=False
+
+    End If
 
     ' ws_version.Cells.Font.Name = "微軟正黑體"
     ' ws_version.Cells.Font.Name = "Calibri"
 
 End Sub
+
 
 
