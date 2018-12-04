@@ -203,17 +203,25 @@ def cut_5(beam_ld_added, beam_5):
             group_max = np.amax(group['StnLoc'])
             group_min = np.amin(group['StnLoc'])
 
-            left = (group_max - group_min) * ITERATION_GAP['Left'] + group_min
-            right = (group_max - group_min) * (
-                ITERATION_GAP['Right']) + group_min
+            span = group_max - group_min
 
-            group_left = group[bar_num_ld][(
-                group['StnLoc'] >= left[0]) & (group['StnLoc'] <= left[1])]
-            group_right = group[bar_num_ld][(
-                group['StnLoc'] >= right[0]) & (group['StnLoc'] <= right[1])]
+            # 這裡需要注意
+            # left 和 right 的意義不太一樣
+            left = span * ITERATION_GAP['Left'][0] + group_min
+            right = span * (ITERATION_GAP['Right'][1]) + group_min
 
-            group_left_diff = np.diff(group_left)
-            group_right_diff = np.diff(group_right)
+            iteration = group[bar_num_ld][(
+                group['StnLoc'] >= left) & (group['StnLoc'] <= right)]
+
+            # group_left = group[bar_num_ld][(
+            #     group['StnLoc'] >= left[0]) & (group['StnLoc'] <= left[1])]
+            # group_right = group[bar_num_ld][(
+            #     group['StnLoc'] >= right[0]) & (group['StnLoc'] <= right[1])]
+
+            iteration_diff = np.diff(iteration)
+
+            # group_left_diff = np.diff(group_left)
+            # group_right_diff = np.diff(group_right)
 
             group_left_diff = _make_1st_last_diff(group_left_diff)
             group_right_diff = _make_1st_last_diff(group_right_diff)
@@ -474,7 +482,8 @@ def cut_optimization(beam_ld_added, beam_3p):
 
 def main():
     clock = Clock()
-    beam_3p, _ = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
+
+    beam_cut = load_pkl(SCRIPT_DIR + '/stirrups.pkl')[0]
     # beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
     beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
 
@@ -490,7 +499,8 @@ def main():
     # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl', beam_ld_added)
     # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
     clock.time()
-    beam_3p = cut_optimization(beam_ld_added, beam_3p)
+    # beam_3p = cut_optimization(beam_ld_added, beam_cut)
+    beam_cut = cut_5(beam_ld_added, beam_cut)
     clock.time()
 
     # clock.time()
@@ -509,7 +519,7 @@ def main():
     # for i in range(10000):
     #     np.concatenate(([0], a, [4]))
     # clock.time()
-    beam_3p.to_excel(SCRIPT_DIR + '/beam_3p_opti.xlsx')
+    beam_cut.to_excel(SCRIPT_DIR + '/beam_cut.xlsx')
 
 
 if __name__ == '__main__':

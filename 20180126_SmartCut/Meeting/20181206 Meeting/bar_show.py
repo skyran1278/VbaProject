@@ -11,7 +11,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 
-INPUT_FILE = 'first_run_v9_all_kaohsiung_func'
+INPUT_FILE = 'first_run_v9_all_kaohsiung'
 INDEX = random.randrange(0, 14144, 4)
 # INDEX = 12
 print(INDEX)
@@ -45,18 +45,18 @@ DATASET = DATASET.loc[(DATASET['Story'] == BEAM_3.at[INDEX, ('樓層', 'Unnamed:
     DATASET['BayID'] == BEAM_3.at[INDEX, ('編號', 'Unnamed: 1_level_1')])]
 
 REBARS = {
-    "#2": 3.2258E-05,
-    "#3": 7.133E-05,
-    "#4": 1.267E-04,
-    "#5": 1.986E-04,
-    "#6": 2.865E-04,
-    "#7": 3.871E-04,
-    "#8": 5.067E-04,
-    "#9": 6.469E-04,
-    "#10": 8.143E-04,
-    "#11": 1.007E-03,
-    "#14": 1.452E-03,
-    "#18": 2.579E-03,
+    "#2": 3.2258E-05 * 10000,
+    "#3": 7.133E-05 * 10000,
+    "#4": 1.267E-04 * 10000,
+    "#5": 1.986E-04 * 10000,
+    "#6": 2.865E-04 * 10000,
+    "#7": 3.871E-04 * 10000,
+    "#8": 5.067E-04 * 10000,
+    "#9": 6.469E-04 * 10000,
+    "#10": 8.143E-04 * 10000,
+    "#11": 1.007E-03 * 10000,
+    "#14": 1.452E-03 * 10000,
+    "#18": 2.579E-03 * 10000,
 }
 
 # AB_7 = 3.871
