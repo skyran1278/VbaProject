@@ -109,7 +109,8 @@ def add_ld(beam_v_m_ld):
             # bar_2nd_ld: df[bar_2nd]
         }
 
-    # FIXME: 好像可以不用分上下層
+    # 好像可以不用分上下層
+    # 分比較方便
     for Loc in BAR.keys():
         # Loc = Loc.capitalize()
 
