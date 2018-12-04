@@ -95,7 +95,8 @@ def _calc_bar_size_num(Loc, i):
     return {
         bar_size: BAR[Loc][i],
         bar_cap: calc_capacity,
-        bar_num: lambda x: np.maximum(np.ceil(x['As' + Loc] / rebars[BAR[Loc][i], 'AREA']), 2),
+        # 增加扣 0.05 的容量
+        bar_num: lambda x: np.maximum(np.ceil(x['As' + Loc] / rebars[BAR[Loc][i], 'AREA'] - 0.05), 2),
         bar_1st: calc_1st,
         bar_2nd: calc_2nd
     }
