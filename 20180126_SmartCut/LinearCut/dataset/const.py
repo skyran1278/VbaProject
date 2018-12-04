@@ -1,7 +1,7 @@
 import numpy as np
 
-E2K = '2018-1023_KaoHsiung -MRF_420 V3'
-BEAM_DESIGN = '2018-1023_KaoHsiung -MRF_420 V3'
+E2K = '2018-0214 H2017-03D 欣詮建設中和福祥段14FB3 V2'
+BEAM_DESIGN = '2018-0214 H2017-03D 欣詮建設中和福祥段14FB3 V2 test'
 
 STIRRUP_REBAR = ['#4', '2#4', '2#5', '2#6']
 STIRRUP_SPACING = [10, 12, 15, 18, 20, 22, 25, 30]

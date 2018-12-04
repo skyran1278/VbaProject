@@ -13,7 +13,7 @@ from dataset.dataset_beam_design import load_beam_design
 from dataset.dataset_e2k import load_e2k
 from dataset.const import STIRRUP_REBAR as REBAR, STIRRUP_SPACING as SPACING
 
-from output_table import init_beam_3
+from init_table import init_beam
 
 # list to numpy
 SPACING = np.array(SPACING) / 100
@@ -198,7 +198,7 @@ def calc_sturrups(beam_3points_table):
 def main():
     clock = Clock()
 
-    beam_3points_table = init_beam_3()
+    beam_3points_table = init_beam()
     clock.time()
     beam_3points_table, _ = calc_sturrups(beam_3points_table)
     clock.time()
