@@ -81,9 +81,9 @@ def full_run(multi, calc_db, path):
     beam_con = cut_conservative(beam_ld_added, beam_con)
     clock.time()
 
-    # 三點斷筋
+    # 多點斷筋
     clock.time('三點斷筋')
-    beam_cut = cut_optimization(beam_ld_added, beam_cut)
+    beam_cut = cut_optimization(multi, beam_ld_added, beam_cut)
     clock.time()
 
     # 輸出成表格
@@ -106,8 +106,8 @@ def second_run():
 
 if __name__ == "__main__":
     # first_run()
-    second_run()
-    # first_full_run()
+    # second_run()
+    first_full_run()
 
 #     writer = pd.ExcelWriter(SCRIPT_DIR + '/dataset/first_run.xlsx')
 
