@@ -11,12 +11,13 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 from dataset.const import BEAM_DESIGN
 
 
-read_file = f'{SCRIPT_DIR}/{BEAM_DESIGN}.txt'
+read_file = f'{SCRIPT_DIR}/{BEAM_DESIGN}.xlsx'
 save_file = f'{read_file}.pkl'
 
 
 def _load_file():
-    dataset = pd.read_table(read_file, sep='\t')
+    dataset = pd.read_excel(
+        read_file, sheet_name='Concrete_Design_2___Beam_Summar')
     # dataset = np.genfromtxt(
     #     file_path, dtype=None, names=True, delimiter='\t', encoding='utf8')
 
