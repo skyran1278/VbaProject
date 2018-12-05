@@ -11,9 +11,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 
-INPUT_FILE = 'first_run_v3_kaohsiung_rcad'
+INPUT_FILE = 'first_run_v9_all_kaohsiung'
 # INDEX = random.randrange(0, 14144, 4)
-INDEX = 12
+INDEX = 828
 print(INDEX)
 
 green = np.array([26, 188, 156]) / 256
