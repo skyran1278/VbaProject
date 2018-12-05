@@ -12,8 +12,8 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 
 INPUT_FILE = 'first_run_v9_all_kaohsiung'
-# INDEX = random.randrange(0, 14144, 4)
-INDEX = 828
+INDEX = random.randrange(0, 14144, 4)
+# INDEX = 12
 print(INDEX)
 
 green = np.array([26, 188, 156]) / 256
@@ -271,6 +271,8 @@ def verticalline():
     plt.axvline((END - START) / 3 + START, linestyle='--', color=gray)
     plt.axvline((END - START) / 3 * 2 + START, linestyle='--', color=gray)
     plt.axvline((END - START) / 4 * 3 + START, linestyle='--', color=gray)
+    plt.axvline((END - START) / 5 + START, linestyle='--', color=gray)
+    plt.axvline((END - START) / 5*4 + START, linestyle='--', color=gray)
 
 
 def horizontalline():
@@ -324,8 +326,10 @@ def smallbeam():
 
     plt.axvline((END - START) / 3 + START, linestyle='--', color=gray)
     plt.axvline((END - START) / 3 * 2 + START, linestyle='--', color=gray)
-    plt.axvline((END - START) / 5 + START, linestyle='--', color=gray)
-    plt.axvline((END - START) / 5*4 + START, linestyle='--', color=gray)
+    # plt.axvline((END - START) / 5 + START, linestyle='--', color=gray)
+    # plt.axvline((END - START) / 5*4 + START, linestyle='--', color=gray)
+    # plt.axvline((END - START) / 7 + START, linestyle='--', color=gray)
+    # plt.axvline((END - START) / 7*6 + START, linestyle='--', color=gray)
 
     conservative_cut(green)
 
