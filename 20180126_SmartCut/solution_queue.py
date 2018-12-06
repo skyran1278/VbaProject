@@ -8,17 +8,26 @@ class Solution:
         used = []
         num_island = 0
         root = (0, 0)
+        if grid[root[0]][root[1]] == '1':
+            num_island += 1
         # root = grid[0][0]
 
         queue.append(root)
         used.append(root)
 
-        while (not queue):
+        while (queue):
             size = len(queue)
             for i in range(size):
-                cur_x, cur_y = queue[0]
-                for target_list in ((expression_list)):
-                    pass
+                cur_x, cur_y = queue[i]
+
+                for coordinate in ((cur_x + 1, cur_y), (cur_x, cur_y + 1)):
+                    if grid[cur_x][cur_y] != = grid[coordinate[0]][coordinate[1]]:
+                        pass
+                    if coordinate not in used:
+                        queue.append(coordinate)
+                        used.append(coordinate)
+
+                queue.pop(0)
 
 
 sol = Solution()
