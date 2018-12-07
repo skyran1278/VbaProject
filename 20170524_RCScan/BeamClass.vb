@@ -704,9 +704,9 @@ Function Norm4_9_3()
 
             stirrup = Split(ARR_REBAR(i, j), "@")
 
-            isAvSmallerThanCode = ARR_RATIO(i, j) < 0.0025 * ARR_REBAR(i, COL_BW) * stirrup(1)
+            code = ARR_RATIO(i, j) > 0.0025 * ARR_REBAR(i, COL_BW) * stirrup(1)
 
-            If isAvSmallerThanCode Then
+            If Not code Then
                 Call WarningMessage("【0101】請確認短梁箍筋，是否小於 0.0025 * bw * s", i)
             End If
 
@@ -733,16 +733,16 @@ Function Norm4_9_4()
 
         ' 分成四種狀況
         If tmp(0) = "-" Then
-            isAvhSmallerThanCode = True
+            code = False
         ElseIf tmp(0) = "1" Then
-            isAvhSmallerThanCode = ARR_RATIO(i, COL_SIDEBAR) < 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs)
+            code = ARR_RATIO(i, COL_SIDEBAR) > 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs)
         ElseIf tmp(0) = "2" Then
-            isAvhSmallerThanCode = ARR_RATIO(i, COL_SIDEBAR) < 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs) / 2
+            code = ARR_RATIO(i, COL_SIDEBAR) > 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs) / 2
         Else
-            isAvhSmallerThanCode = ARR_RATIO(i, COL_SIDEBAR) < 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs - 15 - 15) / (tmp(0) - 1)
+            code = ARR_RATIO(i, COL_SIDEBAR) > 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs - 15 - 15) / (tmp(0) - 1)
         End If
 
-        If isAvhSmallerThanCode Then
+        If Not code Then
             Call WarningMessage("【0102】請確認短梁側筋，是否小於 0.0015 * bw * s2", i)
         End If
 

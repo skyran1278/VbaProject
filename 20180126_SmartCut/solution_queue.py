@@ -21,7 +21,7 @@ class Solution:
                 cur_x, cur_y = queue[i]
 
                 for coordinate in ((cur_x + 1, cur_y), (cur_x, cur_y + 1)):
-                    if grid[cur_x][cur_y] != = grid[coordinate[0]][coordinate[1]]:
+                    if grid[cur_x][cur_y] != grid[coordinate[0]][coordinate[1]]:
                         pass
                     if coordinate not in used:
                         queue.append(coordinate)
