@@ -678,8 +678,8 @@ Function SafetyRebarRatioAndSpace()
 
                     Spacing = (ARR_REBAR(i, COL_BW) - OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_COVER) * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
 
-                    If Spacing > 25 Then
-                        Call WarningMessage("【0106】請確認鋼筋間距下限，是否符合鋼筋間距 25 cm 以下規定", i)
+                    If Not Spacing < 25 Then
+                        Call WarningMessage("【0106】請確認主筋間距上限，是否符合鋼筋間距 25 cm 以下規定", i)
                     End If
 
                 ElseIf rebar_(0) = "1" Then
@@ -764,17 +764,17 @@ Function EconomicNorm4_9_4()
         tmp = Split(ARR_REBAR(i, COL_SIDEBAR), "#")
 
         If tmp(0) = "-" Then
-            isAvhSmallerThanCode = True
+            code = True
         ElseIf tmp(0) = "1" Then
-            isAvhSmallerThanCode = ARR_RATIO(i, COL_SIDEBAR) > factor * 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs)
+            code = ARR_RATIO(i, COL_SIDEBAR) < factor * 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs)
         ElseIf tmp(0) = "2" Then
-            isAvhSmallerThanCode = ARR_RATIO(i, COL_SIDEBAR) > factor * 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs) / 2
+            code = ARR_RATIO(i, COL_SIDEBAR) < factor * 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs) / 2
         Else
-            isAvhSmallerThanCode = ARR_RATIO(i, COL_SIDEBAR) > factor * 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs - 15 - 15) / (tmp(0) - 1)
+            code = ARR_RATIO(i, COL_SIDEBAR) < factor * 0.0015 * ARR_REBAR(i, COL_BW) * (ARR_REBAR(i, COL_H) - bs - fs - 15 - 15) / (tmp(0) - 1)
         End If
 
-        If isAvhSmallerThanCode Then
-            Call WarningMessage("【0103】請確認短梁側筋，是否大於 1.5 * 0.0015 * COL_BW * S2", i)
+        If Not code Then
+            Call WarningMessage("【0103】請確認短梁側筋，是否大於 1.5 * 0.0015 * bw * S2", i)
         End If
 
     Next
