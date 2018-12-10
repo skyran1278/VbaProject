@@ -696,6 +696,7 @@ End Function
 Function Norm4_9_3()
 '
 ' 深梁：
+' 由於地梁都很深，所以大部分都是深梁
 ' 垂直剪力鋼筋面積 Av 不得小於 0.0025 * bw * s，s 不得大於 d / 5 或 30 cm。
 
     For i = LB_REBAR To UB_REBAR Step 4
@@ -792,11 +793,21 @@ Function SafetyLoad()
 
         maxRatio = APP.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
 
+        slab = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_SLAB)
+
+        SDL = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_SDL)
+
+        band = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_BAND)
+
+        LL = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_LL)
+
+        fy = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FY)
+
         ' 轉換 kgw-m => tf-m: * 100000
-        mn = 1 / 8 * (1.2 * (0.15 * 2.4 + OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_SDL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_BAND)) + 1.6 * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_LL) * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_BAND)) * ARR_REBAR(i, COL_SPAN) ^ 2 * 100000
+        mn = 1 / 8 * (1.2 * (slab * 2.4 + SDL) + 1.6 * LL) * band * ARR_REBAR(i, COL_SPAN) ^ 2 * 100000
         ' mn = 1 / 8 * (1.2 * (0.15 * 2.4 + APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_SDL, False)) + 1.6 * APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_LL, False)) * COL_BAND ^ 2 * 100000
 
-        capacity = maxRatio * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FY) * ARR_RATIO(i, COL_D)
+        capacity = maxRatio * fy * ARR_RATIO(i, COL_D)
         ' capacity = maxRatio * APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FY, False) * ARR_RATIO(i, COL_D)
 
         If 0.6 * mn > capacity Then
@@ -905,7 +916,7 @@ Function Norm15_4_2_1()
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        If ARR_RATIO(i, COL_STOREY) < NUM_FIRST_STOREY Then
+        If ARR_RATIO(i, COL_STOREY) > NUM_FIRST_STOREY Then
 
             code15_4_2_1 = APP.Min((OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FC_BEAM) + 100) / (4 * OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FY)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D), 0.025 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D))
             ' code15_4_2_1 = APP.Min((APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FC_BEAM, False) + 100) / (4 * APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FY, False)) * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D), 0.025 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D))
@@ -948,13 +959,13 @@ Function Norm15_4_2_2()
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        If ARR_RATIO(i, COL_STOREY) < NUM_FIRST_STOREY Then
+        If ARR_RATIO(i, COL_STOREY) > NUM_FIRST_STOREY Then
 
             maxRatio = APP.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
             minRatio = APP.Min(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
-            code15_4_2_2 = minRatio < maxRatio / 4
+            code15_4_2_2 = minRatio >= maxRatio / 4
 
-            If code15_4_2_2 Then
+            If Not code15_4_2_2 Then
                 Call WarningMessage("【0218】請確認耐震最小量鋼筋，是否符合規範 15.4.2.2 規定", i)
             End If
 
@@ -1061,6 +1072,7 @@ Function Norm13_5_1AndSafetyRebarNumber()
                 ' fyDb = APP.VLookup(rebar_(1), REBAR_SIZE, COL_DB, False)
                 fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
                 ' fytDb = APP.VLookup(SplitStirrup(stirrup(0)), REBAR_SIZE, COL_DB, False)
+                cover_ = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_COVER)
 
                 ' 第一種方法
                 ' Max = Fix((ARR_REBAR(i, COL_BW) - 4 * 2 - fytDb * 2 - fyDb) / (2 * fyDb)) + 1
@@ -1069,7 +1081,7 @@ Function Norm13_5_1AndSafetyRebarNumber()
                 ' spacing = (ARR_REBAR(i, COL_BW) - 4 * 2 - fytDb * 2 - fyDb) / (CInt(rebar_(0)) - 1) - fyDb
                 ' 可以不需要型別轉換
                 ' Spacing = (ARR_REBAR(i, COL_BW) - 4 * 2 - fytDb * 2 - CInt(rebar_(0)) * fyDb) / (CInt(rebar_(0)) - 1)
-                Spacing = (ARR_REBAR(i, COL_BW) - 4 * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
+                Spacing = (ARR_REBAR(i, COL_BW) - cover_ * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
 
                 ' Norm13_5_1
                 ' 淨距不少於1Db
