@@ -655,12 +655,12 @@ Function SafetyRebarRatioAndSpace()
 
             ' 請確認是否符合 上層筋下限 規定
             If ARR_RATIO(i, j) < code Then
-                Call WarningMessage("【0104】請確認上層筋下限，是否符合最少鋼筋比大於 0.3 % 規定", i)
+                Call WarningMessage("【0104】上層筋鋼筋比不得小於 0.3% (" & 0.003 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D) & "cm^2)", i)
             End If
 
             ' 請確認是否符合 下層筋下限 規定
             If ARR_RATIO(i + 2, j) < code Then
-                Call WarningMessage("【0105】請確認下層筋下限，是否符合最少鋼筋比大於 0.3 % 規定", i)
+                Call WarningMessage("【0105】下層筋鋼筋比不得小於 0.3% (" & 0.003 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D) & "cm^2)", i)
             End If
 
             For k = i To i + 3
@@ -679,12 +679,12 @@ Function SafetyRebarRatioAndSpace()
                     Spacing = (ARR_REBAR(i, COL_BW) - OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_COVER) * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
 
                     If Not Spacing < 25 Then
-                        Call WarningMessage("【0106】請確認主筋間距上限，是否符合鋼筋間距 25 cm 以下規定", i)
+                        Call WarningMessage("【0106】主筋淨間距不得大於 25 cm (主筋淨間距 = " & Spacing & " cm)", i)
                     End If
 
                 ElseIf rebar_(0) = "1" Then
 
-                    Call WarningMessage("【0107】請確認鋼筋間距，是否符合單排支數下限規定", i)
+                    Call WarningMessage("【0107】主筋單排支數不得小於 2 支", i)
 
                 End If
             Next
@@ -707,7 +707,7 @@ Function Norm4_9_3()
             code = ARR_RATIO(i, j) > 0.0025 * ARR_REBAR(i, COL_BW) * stirrup(1)
 
             If Not code Then
-                Call WarningMessage("【0101】請確認短梁箍筋，是否小於 0.0025 * bw * s", i)
+                Call WarningMessage("【0101】短梁箍筋面積不得小於 0.0025 * bw * s (" & 0.0025 * ARR_REBAR(i, COL_BW) * stirrup(1) & "cm^2)", i)
             End If
 
         Next
@@ -743,7 +743,7 @@ Function Norm4_9_4()
         End If
 
         If Not code Then
-            Call WarningMessage("【0102】請確認短梁側筋，是否小於 0.0015 * bw * s2", i)
+            Call WarningMessage("【0102】短梁側筋面積不得小於 0.0015 * bw * s2", i)
         End If
 
     Next
@@ -753,6 +753,7 @@ End Function
 Function EconomicNorm4_9_4()
 '
 ' 經濟性指標：
+' 深梁
 ' Avh need to less than 1.5 * 0.0015 * COL_BW * S2
 
     bs = 20
@@ -774,7 +775,7 @@ Function EconomicNorm4_9_4()
         End If
 
         If Not code Then
-            Call WarningMessage("【0103】請確認短梁側筋，是否大於 1.5 * 0.0015 * bw * S2", i)
+            Call WarningMessage("【0103】短梁側筋面積不得大於 1.5 * 0.0015 * bw * S2", i)
         End If
 
     Next
@@ -843,11 +844,11 @@ Function SafetyRebarRatioForGB()
             limit = 0.02 * ARR_REBAR(i, COL_BW) * ARR_RATIO(i, COL_D)
 
             If ARR_RATIO(i, j) > limit Then
-                Call WarningMessage("【0108】請確認上層筋上限，是否在 2% 以下", i)
+                Call WarningMessage("【0108】上層筋鋼筋比不得大於 2% (" & limit & "cm^2)", i)
             End If
 
             If ARR_RATIO(i + 2, j) > limit Then
-                Call WarningMessage("【0109】請確認下層筋上限，是否在 2% 以下", i)
+                Call WarningMessage("【0109】下層筋鋼筋比不得大於 2% (" & limit & "cm^2)", i)
             End If
 
         Next
@@ -969,17 +970,20 @@ Function EconomicTopRebarRelativeForGB()
 ' 如果鋼筋支數大於3支，端部上層鋼筋量需小於中央鋼筋量的 70%。
 ' 淨跨度大於 400 cm，才要檢討
 
+    ' 梁長
+    span = 400
+
     For i = LB_REBAR To UB_REBAR Step 4
 
         rebarLEFT = Split(ARR_REBAR(i, COL_REBAR_LEFT), "-")
         rebarRIGHT = Split(ARR_REBAR(i, COL_REBAR_RIGHT), "-")
 
-        If ARR_RATIO(i, COL_REBAR_MID) * 0.7 < ARR_RATIO(i, COL_REBAR_LEFT) And rebarLEFT(0) > 3 And ARR_RATIO(i, COL_SPAN) > 400 Then
-            Call WarningMessage("【0111】請確認左端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
+        If ARR_RATIO(i, COL_REBAR_MID) * 0.7 < ARR_RATIO(i, COL_REBAR_LEFT) And rebarLEFT(0) > 3 And ARR_REBAR(i, COL_SPAN) > span Then
+            Call WarningMessage("【0111】左端上層鋼筋量不得大於中央鋼筋量的 70% (" & ARR_RATIO(i, COL_REBAR_MID) * 0.7 & " cm^2)", i)
         End If
 
-        If ARR_RATIO(i, COL_REBAR_MID) * 0.7 < ARR_RATIO(i, COL_REBAR_RIGHT) And rebarRIGHT(0) > 3 And ARR_RATIO(i, COL_SPAN) > 400 Then
-            Call WarningMessage("【0112】請確認右端上層筋相對鋼筋量，是否符合端部上層鋼筋量需小於中央鋼筋量的 70% 規定", i)
+        If ARR_RATIO(i, COL_REBAR_MID) * 0.7 < ARR_RATIO(i, COL_REBAR_RIGHT) And rebarRIGHT(0) > 3 And ARR_REBAR(i, COL_SPAN) > span Then
+            Call WarningMessage("【0112】右端上層鋼筋量不得大於中央鋼筋量的 70% (" & ARR_RATIO(i, COL_REBAR_MID) * 0.7 & " cm^2)", i)
         End If
 
     Next
@@ -999,7 +1003,7 @@ Function EconomicTopRebarRelative()
 
         rebar_ = Split(ARR_REBAR(i, COL_REBAR_MID), "-")
 
-        If ARR_RATIO(i, COL_REBAR_MID) > minRatio * 0.7 And rebar_(0) > 3 And ARR_RATIO(i, COL_SPAN) > 400 Then
+        If ARR_RATIO(i, COL_REBAR_MID) > minRatio * 0.7 And rebar_(0) > 3 And ARR_REBAR(i, COL_SPAN) > 400 Then
             Call WarningMessage("【0221】請確認中央上層筋相對鋼筋量，是否符合中央上層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
         End If
 
@@ -1013,14 +1017,19 @@ Function EconomicBotRebarRelativeForGB()
 ' 如果鋼筋支數大於3支，中央下層鋼筋量需小於端部最小鋼筋量的 70%。
 ' 淨跨度大於 400 cm，才要檢討
 
+    ' 跨度
+    span = 400
+
     For i = LB_REBAR To UB_REBAR Step 4
 
-        minRatio = APP.Min(ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
+        bot = i + 2
 
-        rebar_ = Split(ARR_REBAR(i + 2, COL_REBAR_MID), "-")
+        minRatio = APP.Min(ARR_RATIO(bot, COL_REBAR_LEFT), ARR_RATIO(bot, COL_REBAR_RIGHT))
 
-        If ARR_RATIO(i + 2, COL_REBAR_MID) > minRatio * 0.7 And rebar_(0) > 3 And ARR_RATIO(i, COL_SPAN) > 400 Then
-            Call WarningMessage("【0110】請確認中央下層筋相對鋼筋量，是否符合中央下層鋼筋量需小於端部最小鋼筋量的 70% 規定", i)
+        rebar_ = Split(ARR_REBAR(bot, COL_REBAR_MID), "-")
+
+        If ARR_RATIO(bot, COL_REBAR_MID) > minRatio * 0.7 And rebar_(0) > 3 And ARR_REBAR(i, COL_SPAN) > span Then
+            Call WarningMessage("【0110】中央下層鋼筋量不得大於端部最小鋼筋量 70% (" & minRatio * 0.7 & " cm^2)", i)
         End If
 
     Next
@@ -1094,9 +1103,9 @@ Function SafetyStirrupSpace()
             stirrup = Split(ARR_REBAR(i, j), "@")
 
             If stirrup(1) < 10 Then
-                Call WarningMessage(GetTypeMessage("【0219】請確認箍筋間距下限，是否符合 10cm 以上規定", "請確認箍筋間距下限，是否符合 10cm 以上規定", "【0113】請確認箍筋間距下限，是否符合 10cm 以上規定"), i)
+                Call WarningMessage(GetTypeMessage("【0219】請確認箍筋間距下限，是否符合 10cm 以上規定", "請確認箍筋間距下限，是否符合 10cm 以上規定", "【0113】箍筋間距不得小於 10cm"), i)
             ElseIf stirrup(1) > 30 Then
-                Call WarningMessage(GetTypeMessage("【0220】請確認箍筋間距上限，是否符合 30cm 以下規定", "請確認箍筋間距上限，是否符合 30cm 以下規定", "【0114】請確認箍筋間距上限，是否符合 30cm 以下規定"), i)
+                Call WarningMessage(GetTypeMessage("【0220】請確認箍筋間距上限，是否符合 30cm 以下規定", "請確認箍筋間距上限，是否符合 30cm 以下規定", "【0114】箍筋間距不得大於 30cm"), i)
             End If
 
         Next
@@ -1133,6 +1142,8 @@ Function Norm4_6_7_9()
 '
 ' 剪力鋼筋之剪力計算強度：
 ' 規範內容：剪力計算強度 Vs 不可大於 2.12 * fc' * bw * d。
+' Vc = 0.53 * sqrt(f’c) * bw * d
+' Vs = Av * fyt * d / s
 ' 實作內容：剪力鋼筋量需在 4 * Vc * 120% 以下。規範為 vs <= 4 * vc，由於取整數容易超過，所以放寬標準 120%。
 
     For i = LB_REBAR To UB_REBAR Step 4
@@ -1175,11 +1186,11 @@ Function Norm3_8_1()
 ' (2) 集中載重作用區與支承面之距離小於 2 倍梁總深。
 ' 深梁應依非線性應變分佈設計，或依附篇 A 設計(見第 4.9.1、5.11.6 節)；橫向屈曲必須考慮。
 '
-' 實作內容： L/COL_H <= 4
+' 實作內容： L <= 4 * COL_H
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        If ARR_REBAR(i, COL_SPAN) <> "" And ARR_REBAR(i, COL_SUPPORT) <> "" And (ARR_REBAR(i, COL_SPAN) - ARR_REBAR(i, COL_SUPPORT)) <= 4 * ARR_REBAR(i, COL_H) Then
+        If (ARR_REBAR(i, COL_SPAN) - ARR_REBAR(i, COL_SUPPORT)) <= 4 * ARR_REBAR(i, COL_H) Then
             Call WarningMessage("【0208】請確認是否為深梁", i)
         End If
 
