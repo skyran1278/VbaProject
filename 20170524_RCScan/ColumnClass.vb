@@ -30,9 +30,10 @@ Private Const COL_BOUND_AREA = 8
 Private Const COL_NON_BOUND_AREA = 9
 Private Const COL_TIE_X = 10
 Private Const COL_TIE_Y = 11
+Private Const COL_NOTE = 12
 ' 輸出資料位置
-Private Const COL_MESSAGE = 12
-Private Const COL_REBAR_RATIO = 13
+Private Const COL_MESSAGE = 13
+Private Const COL_REBAR_RATIO = 14
 
 ' GENERAL_INFORMATION 資料命名
 Private Const COL_FY = 2
@@ -170,7 +171,7 @@ Private Function SortRawData(ByVal sheet)
 '
 
     ' 多抓兩行用來排序
-    arrRawData = ran.GetRangeToArray(Worksheets(sheet), 1, 1, 5, 15)
+    arrRawData = ran.GetRangeToArray(Worksheets(sheet), 1, 1, 5, COL_REBAR_RATIO + 2)
 
     rowLbRawData = LBound(arrRawData, 1)
     colLbRawData = LBound(arrRawData, 2)
@@ -178,11 +179,10 @@ Private Function SortRawData(ByVal sheet)
     colUbRawData = UBound(arrRawData, 2)
 
     LB_REBAR = 3
-
     UB_REBAR = rowUbRawData
 
-    colStoreyNum = 14
-    colNumberNoC = 15
+    colStoreyNum = colUbRawData - 1
+    colNumberNoC = colUbRawData
 
     For i = LB_REBAR To UB_REBAR
 
@@ -297,7 +297,8 @@ Function GetRatioData()
 
 
         ARR_RATIO(i, COL_REBAR) = CalRebarArea(ARR_REBAR(i, COL_REBAR))
-        ARR_REBAR(i, COL_REBAR_RATIO) = ARR_RATIO(i, COL_REBAR) / (ARR_REBAR(i, COL_WIDTH_X) * ARR_REBAR(i, COL_WIDTH_Y))
+        ARR_RATIO(i, COL_REBAR_RATIO) = ARR_RATIO(i, COL_REBAR) / (ARR_REBAR(i, COL_WIDTH_X) * ARR_REBAR(i, COL_WIDTH_Y))
+        ARR_REBAR(i, COL_REBAR_RATIO) = ARR_RATIO(i, COL_REBAR_RATIO)
 
         If ARR_RATIO(i, COL_REBAR) = 0 Then
             MsgBox "請確認第 " & i & " 列是否有問題.", vbOKOnly, "Error"
@@ -529,7 +530,7 @@ Function Norm15_5_4_100()
 
     For i = LB_REBAR To UB_REBAR
 
-        If ARR_RATIO(i, COL_STOREY) < NUM_FIRST_STOREY Then
+        If ARR_RATIO(i, COL_STOREY) > NUM_FIRST_STOREY Then
 
             If ARR_REBAR(i, COL_TIE_Y) < Int((ARR_REBAR(i, COL_REBAR_X) - 1) / 2) - 1 Then
                 Call WarningMessage("【0407】Y 向繫筋未符合隔根勾", i)
@@ -594,7 +595,7 @@ Function Norm15_5_4_1()
 
     For i = LB_REBAR To UB_REBAR
 
-        If ARR_RATIO(i, COL_STOREY) < NUM_FIRST_STOREY Then
+        If ARR_RATIO(i, COL_STOREY) > NUM_FIRST_STOREY Then
 
             fcColumn = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FC_COLUMN)
             ' fcColumn = Application.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FC_COLUMN, False)
@@ -638,7 +639,7 @@ Function Norm15_5_4_1()
 End Function
 
 
-Function EconomicTopStoreyRebar()
+Function EconomicTopStoryRebar()
 '
 ' 頂樓區鋼筋比不大於 1.2 %
 ' NUM_TOP_STOREY 為 RF 不含屋突
@@ -648,7 +649,7 @@ Function EconomicTopStoreyRebar()
     checkStoreyNumber = NUM_TOP_STOREY - Fix((NUM_TOP_STOREY - NUM_FIRST_STOREY + 1) / 4)
 
     For i = LB_REBAR To UB_REBAR
-        If ARR_RATIO(i, COL_STOREY) >= checkStoreyNumber And ARR_RATIO(i, COL_STOREY) <= NUM_TOP_STOREY And ARR_REBAR(i, COL_REBAR_RATIO) > 0.01 * 1.2 Then
+        If ARR_RATIO(i, COL_STOREY) >= checkStoreyNumber And ARR_RATIO(i, COL_STOREY) <= NUM_TOP_STOREY And ARR_RATIO(i, COL_REBAR_RATIO) > 0.01 * 1.2 Then
                 Call WarningMessage("【0405】請確認高樓區鋼筋比，是否超過 1.2 %", i)
         End If
     Next

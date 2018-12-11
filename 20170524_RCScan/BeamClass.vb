@@ -187,7 +187,7 @@ Private Function SortRawData(ByVal sheet)
 '
 
     ' 多抓兩行用來排序
-    arrRawData = ran.GetRangeToArray(Worksheets(sheet), 1, 1, 5, 18)
+    arrRawData = ran.GetRangeToArray(Worksheets(sheet), 1, 1, 5, COL_MESSAGE + 2)
 
     rowLbRawData = LBound(arrRawData, 1)
     colLbRawData = LBound(arrRawData, 2)
@@ -791,23 +791,36 @@ Function SafetyLoad()
 
     For i = LB_REBAR To UB_REBAR Step 4
 
-        maxRatio = APP.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT))
+        ' m2
+        maxRatio = APP.Max(ARR_RATIO(i, COL_REBAR_LEFT), ARR_RATIO(i, COL_REBAR_MID), ARR_RATIO(i, COL_REBAR_RIGHT), ARR_RATIO(i + 2, COL_REBAR_LEFT), ARR_RATIO(i + 2, COL_REBAR_MID), ARR_RATIO(i + 2, COL_REBAR_RIGHT)) / 10000
 
+        ' m
         slab = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_SLAB)
 
+        ' tf/m2
         SDL = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_SDL)
 
+        ' m
         band = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_BAND)
 
+        ' tf/m2
         LL = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_LL)
 
-        fy = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FY)
+        ' kgf/cm2
+        fy = OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_FY) / 1000 * 10000
 
-        ' 轉換 kgw-m => tf-m: * 100000
-        mn = 1 / 8 * (1.2 * (slab * 2.4 + SDL) + 1.6 * LL) * band * ARR_REBAR(i, COL_SPAN) ^ 2 * 100000
+        ' m
+        span = ARR_REBAR(i, COL_SPAN) / 100
+
+        ' m
+        d = ARR_RATIO(i, COL_D) / 100
+
+        ' 在上面就轉換成一致的單位
+        ' 轉換 kgw-m => tf-m: * 100000 我覺得有錯
+        mn = 1 / 8 * (1.2 * (slab * 2.4 + SDL) + 1.6 * LL) * band * span ^ 2
         ' mn = 1 / 8 * (1.2 * (0.15 * 2.4 + APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_SDL, False)) + 1.6 * APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_LL, False)) * COL_BAND ^ 2 * 100000
 
-        capacity = maxRatio * fy * ARR_RATIO(i, COL_D)
+        capacity = maxRatio * fy * d
         ' capacity = maxRatio * APP.VLookup(ARR_REBAR(i, COL_STOREY), GENERAL_INFORMATION, COL_FY, False) * ARR_RATIO(i, COL_D)
 
         If 0.6 * mn > capacity Then
