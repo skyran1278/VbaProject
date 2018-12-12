@@ -419,11 +419,11 @@ def cut_3(beam_ld_added, beam_3p):
             #     SPACING[np.amin(group_right) >= SPACING])
 
             # beam_design_table.loc[group_left.index.tolist(),
-            #                     'SetSpacing'] = group_left_max
+            #                     'RealSpacing'] = group_left_max
             # beam_design_table.loc[group_mid.index.tolist(),
-            #                     'SetSpacing'] = group_mid_max
+            #                     'RealSpacing'] = group_mid_max
             # beam_design_table.loc[group_right.index.tolist(),
-            #                     'SetSpacing'] = group_right_max
+            #                     'RealSpacing'] = group_right_max
 
             # beam_3points_table.loc[i, ('箍筋', '左')] = (
             #     group_size + str(int(group_left_max * 100)))
@@ -512,8 +512,8 @@ if __name__ == '__main__':
 #         cover = 0.04 * 100
 #         db = df[bar_size].apply(lambda x: rebars[x, 'DIA']) * 100
 #         num = df[bar_1st]
-#         dh = df['VNoDuSize'].apply(lambda x: rebars[x, 'DIA']) * 100
-#         spacing = df['SetSpacing'] * 100
+#         dh = df['RealVSize'].apply(lambda x: rebars[x, 'DIA']) * 100
+#         spacing = df['RealSpacing'] * 100
 
 #         # 5.2.2
 #         fc[np.sqrt(fc) > 26.5] = 700

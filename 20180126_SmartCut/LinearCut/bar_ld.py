@@ -17,12 +17,19 @@ from dataset.dataset_e2k import load_e2k
 def calc_ld(beam_v_m):
     # It is used for nominal concrete in case of phi_e=1.0 & phi_t=1.0.
     # Reference:土木401-93
-    PI = 3.1415926
+    # PI = 3.1415926
 
     rebars, _, _, _, materials, sections = load_e2k()
 
     def _ld(df, Loc):
         # Loc = Loc.capitalize()
+
+        def double_size_area(df):
+            rebar_num, rebar_size = df.split(sep='#')
+            rebar_size = '#' + rebar_size
+            rebar_area = rebars[rebar_size, 'AREA']
+
+            return np.where(rebar_num == '2', rebar_area * 2, rebar_area)
 
         bar_size = 'Bar' + Loc + 'Size'
         bar_1st = 'Bar' + Loc + '1st'
@@ -37,8 +44,10 @@ def calc_ld(beam_v_m):
         cover = 0.04 * 100
         db = df[bar_size].apply(lambda x: rebars[x, 'DIA']) * 100
         num = df[bar_1st]
-        dh = df['VNoDuSize'].apply(lambda x: rebars[x, 'DIA']) * 100
-        spacing = df['SetSpacing'] * 100
+        dh = df['RealVSize'].apply(
+            lambda x: rebars['#' + x.split(sep='#')[1], 'DIA']) * 100
+        avh = df['RealVSize'].apply(double_size_area) * 10000
+        spacing = df['RealSpacing'] * 100
 
         # 5.2.2
         fc[np.sqrt(fc) > 26.5] = 700
@@ -53,8 +62,7 @@ def calc_ld(beam_v_m):
         cb = np.where(cc <= cs, cc, cs) + db / 2
 
         # R5.3.4.1.2
-        ktr = np.where(cc <= cs, 1, 2 / num) * \
-            (PI * dh ** 2 / 4) * fyh / 105 / spacing
+        ktr = np.where(cc <= cs, 1, 2 / num) * avh * fyh / 105 / spacing
 
         # if cs > cc:
         #     # Vertical splitting failure

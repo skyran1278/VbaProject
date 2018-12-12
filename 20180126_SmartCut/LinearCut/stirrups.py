@@ -60,7 +60,7 @@ def upgrade_size(beam_design_table, rebars):
 #         return df['VSize'].apply(lambda x: '#' + x.split(sep='#')[1])
 
 #     beam_design_table = beam_design_table.assign(
-#         VNoDuSize=get_no_du_size, SetSpacing=0)
+#         RealVSize=get_no_du_size, RealSpacing=0)
 
 #     for _, group in beam_design_table.groupby(['Story', 'BayID'], sort=False):
 #         i = 1
@@ -92,8 +92,8 @@ def merge_segments(beam_design_table, beam_3points_table):
     # tStart = time.time()
     print('Start merge to 3 segments...')
 
-    def get_no_du_size(df):
-        return df['VSize'].apply(lambda x: '#' + x.split(sep='#')[1])
+    # def get_no_du_size(df):
+    #     return df['VSize'].apply(lambda x: '#' + x.split(sep='#')[1])
 
     def drop_size(spacing):
         if (np.amin(spacing) / 2) >= SPACING[0]:
@@ -104,7 +104,7 @@ def merge_segments(beam_design_table, beam_3points_table):
         return group['Spacing'][(group['StnLoc'] >= loc_min) & (group['StnLoc'] <= loc_max)]
 
     beam_design_table = beam_design_table.assign(
-        VNoDuSize=get_no_du_size, SetSpacing=0)
+        RealVSize='', RealSpacing=0)
 
     i = 0
     for _, group in beam_design_table.groupby(['Story', 'BayID'], sort=False):
@@ -143,7 +143,9 @@ def merge_segments(beam_design_table, beam_3points_table):
 
             loc_spacing_max = np.amax(SPACING[np.amin(loc_spacing) >= SPACING])
             beam_design_table.loc[loc_spacing.index,
-                                  'SetSpacing'] = loc_spacing_max
+                                  'RealSpacing'] = loc_spacing_max
+            beam_design_table.loc[loc_spacing.index,
+                                  'RealVSize'] = loc_size
             beam_3points_table.loc[i, ('箍筋', loc)
                                    ] = f'{loc_size}@{int(loc_spacing_max * 100)}'
 
@@ -162,15 +164,15 @@ def merge_segments(beam_design_table, beam_3points_table):
         # group_right_max = np.amax(
         #     SPACING[np.amin(group_right) >= SPACING])
 
-        # beam_design_table.loc[group_left.index, 'SetSpacing'] = group_left_max
-        # beam_design_table.loc[group_mid.index, 'SetSpacing'] = group_mid_max
-        # beam_design_table.loc[group_right.index, 'SetSpacing'] = group_right_max
+        # beam_design_table.loc[group_left.index, 'RealSpacing'] = group_left_max
+        # beam_design_table.loc[group_mid.index, 'RealSpacing'] = group_mid_max
+        # beam_design_table.loc[group_right.index, 'RealSpacing'] = group_right_max
         # beam_design_table.loc[group_left.index.tolist(),
-        #                       'SetSpacing'] = group_left_max
+        #                       'RealSpacing'] = group_left_max
         # beam_design_table.loc[group_mid.index.tolist(),
-        #                       'SetSpacing'] = group_mid_max
+        #                       'RealSpacing'] = group_mid_max
         # beam_design_table.loc[group_right.index.tolist(),
-        #                       'SetSpacing'] = group_right_max
+        #                       'RealSpacing'] = group_right_max
 
         # beam_3points_table.loc[i, ('箍筋', '左')] = f'{group_left_size}@{group_left_max * 100}'
         # beam_3points_table.loc[i, ('箍筋', '中')] = f'{group_mid_size}@{group_mid_max * 100}'
