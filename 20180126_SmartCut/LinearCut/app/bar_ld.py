@@ -10,8 +10,8 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 from utils.pkl import load_pkl
 from utils.Clock import Clock
 
-from dataset.const import BAR
-from dataset.dataset_e2k import load_e2k
+from database.const import BAR
+from database.dataset_e2k import load_e2k
 
 
 def calc_ld(beam_v_m):

@@ -11,8 +11,8 @@ from utils.pkl import load_pkl
 from utils.Clock import Clock
 from utils.functions import concat_num_size, num_to_1st_2nd
 
-from dataset.const import BAR, ITERATION_GAP
-from dataset.dataset_e2k import load_e2k
+from database.const import BAR, ITERATION_GAP
+from database.dataset_e2k import load_e2k
 
 
 def _calc_num_length(group, split_array):

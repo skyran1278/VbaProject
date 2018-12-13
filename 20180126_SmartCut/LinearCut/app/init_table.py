@@ -4,8 +4,8 @@ import math
 import pandas as pd
 import numpy as np
 
-from dataset.dataset_beam_design import load_beam_design
-from dataset.dataset_e2k import load_e2k
+from database.dataset_beam_design import load_beam_design
+from database.dataset_e2k import load_e2k
 
 dataset_dir = os.path.dirname(os.path.abspath(__file__))
 

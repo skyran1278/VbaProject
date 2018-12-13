@@ -9,9 +9,9 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 from utils.Clock import Clock
 
-from dataset.dataset_beam_design import load_beam_design
-from dataset.dataset_e2k import load_e2k
-from dataset.const import STIRRUP_REBAR as REBAR, STIRRUP_SPACING as SPACING
+from database.dataset_beam_design import load_beam_design
+from database.dataset_e2k import load_e2k
+from database.const import STIRRUP_REBAR as REBAR, STIRRUP_SPACING as SPACING
 
 from init_table import init_beam
 

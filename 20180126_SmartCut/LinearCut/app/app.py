@@ -97,11 +97,11 @@ def full_run(multi, calc_db, path):
 
 
 def first_full_run():
-    full_run(multi=5, calc_db=calc_db_by_beam, path='/dataset/first_run.xlsx')
+    full_run(multi=3, calc_db=calc_db_by_beam, path='/../out/first_run.xlsx')
 
 
 def second_run():
-    full_run(multi=3, calc_db=calc_db_by_frame, path='/second_run.xlsx')
+    full_run(multi=3, calc_db=calc_db_by_frame, path='/../out/second_run.xlsx')
 
 
 if __name__ == "__main__":

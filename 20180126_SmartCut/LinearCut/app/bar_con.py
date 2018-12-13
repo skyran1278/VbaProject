@@ -12,8 +12,8 @@ from utils.pkl import load_pkl
 from utils.Clock import Clock
 from utils.functions import concat_num_size, num_to_1st_2nd
 
-from dataset.const import BAR
-from dataset.dataset_e2k import load_e2k
+from database.const import BAR
+from database.dataset_e2k import load_e2k
 from bar_ld import calc_ld
 
 

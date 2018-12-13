@@ -15,7 +15,7 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 # sys.path.append(os.pardir)
 # sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
-from dataset.const import E2K
+from database.const import E2K
 
 # SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 read_file = f'{SCRIPT_DIR}/{E2K}.e2k'

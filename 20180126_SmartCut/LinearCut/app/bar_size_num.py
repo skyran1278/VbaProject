@@ -13,11 +13,11 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 from utils.pkl import load_pkl
 from utils.Clock import Clock
 
-from dataset.const import BAR, DB_SPACING
+from database.const import BAR, DB_SPACING
 
-from dataset.dataset_beam_design import load_beam_design
-from dataset.dataset_e2k import load_e2k
-from dataset.dataset_beam_name import load_beam_name
+from database.dataset_beam_design import load_beam_design
+from database.dataset_e2k import load_e2k
+from database.dataset_beam_name import load_beam_name
 
 from stirrups import calc_sturrups
 

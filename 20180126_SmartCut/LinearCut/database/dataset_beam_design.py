@@ -8,7 +8,7 @@ import numpy as np
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
-from dataset.const import BEAM_DESIGN
+from database.const import BEAM_DESIGN
 
 
 read_file = f'{SCRIPT_DIR}/{BEAM_DESIGN}.xlsx'
