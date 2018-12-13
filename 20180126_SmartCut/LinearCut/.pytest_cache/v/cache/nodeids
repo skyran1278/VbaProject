@@ -1,0 +1,5 @@
+[
+  "tests/test_init_table.py::Test_init_table::test_beam_con",
+  "tests/test_init_table.py::Test_init_table::test_beam_cut",
+  "tests/test_init_table.py::Test_init_table::test_init_beam_name"
+]

@@ -1,17 +1,17 @@
-import unittest
+import os
+import sys
+import pytest
 
-from stirrups import calc_sturrups
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+
+from app.stirrups import calc_sturrups
+from database.dataset_beam_design import load_beam_design
+from tests.const import BEAM_DESIGN
+
+read_file = f'{SCRIPT_DIR}/{BEAM_DESIGN}.xlsx'
+save_file = f'{SCRIPT_DIR}/../temp/{BEAM_DESIGN}.xlsx.pkl'
 
 
-class TestSum(unittest.TestCase):
-    def test_list_int(self):
-        """
-        Test that it can sum a list of integers
-        """
-        data = [1, 2, 3]
-        result = sum(data)
-        self.assertEqual(result, 6)
-
-
-if __name__ == '__main__':
-    unittest.main()
+def test_(parameter_list):
+    pass

@@ -11,8 +11,8 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 from database.const import E2K
 
-read_file = f'{SCRIPT_DIR}/{E2K}.e2k'
-save_file = f'{SCRIPT_DIR}/../temp/{E2K}.e2k.pkl'
+read_file = f'{SCRIPT_DIR}/{E2K}'
+save_file = f'{SCRIPT_DIR}/../temp/{E2K}.pkl'
 
 
 def _load_e2k(read_file):

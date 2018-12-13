@@ -10,8 +10,8 @@ sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 from database.const import BEAM_DESIGN
 
-read_file = f'{SCRIPT_DIR}/{BEAM_DESIGN}.xlsx'
-save_file = f'{SCRIPT_DIR}/../temp/{BEAM_DESIGN}.xlsx.pkl'
+read_file = f'{SCRIPT_DIR}/{BEAM_DESIGN}'
+save_file = f'{SCRIPT_DIR}/../temp/{BEAM_DESIGN}.pkl'
 
 
 def _load_file(read_file):

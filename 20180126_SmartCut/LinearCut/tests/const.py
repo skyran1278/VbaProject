@@ -1,7 +1,7 @@
 import numpy as np
 
-BEAM_DESIGN = '測試資料'
-E2K = '測試資料'
+BEAM_DESIGN = '測試資料.xlsx'
+E2K = '測試資料.e2k'
 
 STIRRUP_REBAR = ['#4', '2#4', '2#5', '2#6']
 STIRRUP_SPACING = [10, 12, 15, 18, 20, 22, 25, 30]
