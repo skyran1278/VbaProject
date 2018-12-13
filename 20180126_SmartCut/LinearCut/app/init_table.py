@@ -1,4 +1,5 @@
 import os
+import sys
 import math
 
 import pandas as pd
@@ -7,7 +8,8 @@ import numpy as np
 from database.dataset_beam_design import load_beam_design
 from database.dataset_e2k import load_e2k
 
-dataset_dir = os.path.dirname(os.path.abspath(__file__))
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
 beam_design_table = load_beam_design()
@@ -43,12 +45,6 @@ def _basic_information(beam_design_table, header):
     return beam
 
 
-# def init_beam_3():
-#     header = pd.MultiIndex.from_tuples([('樓層', ''), ('編號', ''), ('RC 梁寬', ''), ('RC 梁深', ''), ('主筋', ''), ('主筋', '左'), ('主筋', '中'), ('主筋', '右'), (
-#         '長度', '左'), ('長度', '中'), ('長度', '右'), ('腰筋', ''), ('箍筋', '左'), ('箍筋', '中'), ('箍筋', '右'), ('梁長', ''), ('支承寬', '左'), ('支承寬', '右'), ('NOTE', '')])
-
-#     return _basic_information(beam_design_table, header)
-
 def init_beam(multi=3):
     if multi == 3:
         header = pd.MultiIndex.from_tuples([('樓層', ''), ('編號', ''), ('RC 梁寬', ''), ('RC 梁深', ''), ('主筋', ''), ('主筋', '左'), ('主筋', '中'), ('主筋', '右'), (
@@ -58,13 +54,6 @@ def init_beam(multi=3):
             '長度', '左1'), ('長度', '左2'), ('長度', '中'), ('長度', '右2'), ('長度', '右1'), ('腰筋', ''), ('箍筋', '左'), ('箍筋', '中'), ('箍筋', '右'), ('梁長', ''), ('支承寬', '左'), ('支承寬', '右'), ('NOTE', '')])
 
     return _basic_information(beam_design_table, header)
-
-
-# def init_beam_5():
-#     header = pd.MultiIndex.from_tuples([('樓層', ''), ('編號', ''), ('RC 梁寬', ''), ('RC 梁深', ''), ('主筋', ''), ('主筋', '左1'), ('主筋', '左2'), ('主筋', '中'), ('主筋', '右2'), ('主筋', '右1'), (
-#         '長度', '左1'), ('長度', '左2'), ('長度', '中'), ('長度', '右2'), ('長度', '右1'), ('腰筋', ''), ('箍筋', '左'), ('箍筋', '中'), ('箍筋', '右'), ('梁長', ''), ('支承寬', '左'), ('支承寬', '右'), ('NOTE', '')])
-
-#     return _basic_information(beam_design_table, header)
 
 
 def change_to_beamID(beam_3p):
@@ -97,7 +86,7 @@ def main():
     beam_3p = init_beam()
     # beam_name = init_beam_name()
     print(beam_3p.head())
-    beam_3p.to_excel(dataset_dir + '/3pionts.xlsx')
+    beam_3p.to_excel(SCRIPT_DIR + '/3pionts.xlsx')
     print('Done!')
 
 

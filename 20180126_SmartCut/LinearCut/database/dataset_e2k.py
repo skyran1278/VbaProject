@@ -6,23 +6,16 @@ import re
 import pandas as pd
 import numpy as np
 
-# PACKAGE_PARENT = '..'
-# SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-# sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
-
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
-# sys.path.append(os.pardir)
-# sys.path.append(os.path.join(os.path.dirname(__file__), os.path.pardir))
 from database.const import E2K
 
-# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 read_file = f'{SCRIPT_DIR}/{E2K}.e2k'
-save_file = f'{read_file}.pkl'
+save_file = f'{SCRIPT_DIR}/../temp/{E2K}.e2k.pkl'
 
 
-def _load_e2k():
+def _load_e2k(read_file):
     # with open(read_file, encoding='utf-8') as f:
     with open(read_file) as f:
         content = f.readlines()
@@ -30,8 +23,8 @@ def _load_e2k():
     return content
 
 
-def init_e2k():
-    content = _load_e2k()
+def _init_e2k(read_file):
+    content = _load_e2k(read_file)
 
     rebars = {}
 
@@ -123,8 +116,8 @@ def init_e2k():
     return rebars, stories, point_coordinates, lines, materials, sections
 
 
-def init_pkl():
-    dataset = init_e2k()
+def _init_pkl(read_file, save_file):
+    dataset = _init_e2k(read_file)
 
     print("Creating pickle file ...")
     with open(save_file, 'wb') as f:
@@ -132,9 +125,9 @@ def init_pkl():
     print("Done!")
 
 
-def load_e2k():
+def load_e2k(read_file=read_file, save_file=save_file):
     if not os.path.exists(save_file):
-        init_pkl()
+        _init_pkl(read_file, save_file)
 
     with open(save_file, 'rb') as f:
         rebars, stories, point_coordinates, lines, materials, sections = pickle.load(
@@ -143,12 +136,8 @@ def load_e2k():
     return rebars, stories, point_coordinates, lines, materials, sections
 
 
-def main():
-    init_pkl()
-    rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
-    print(rebars)
-    # print(dataset['rebars'])
-
-
 if __name__ == '__main__':
-    main()
+    _init_pkl(read_file, save_file)
+    rebars, stories, point_coordinates, lines, materials, sections = load_e2k(
+        read_file, save_file)
+    print(stories)
