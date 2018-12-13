@@ -1,6 +1,6 @@
 import numpy as np
 
-BEAM_DESIGN = '2018-0214 H2017-03D 欣詮建設中和福祥段14FB3 V2'
+BEAM_DESIGN = '2018-0214 H2017-03D 欣詮建設中和福祥段14FB3 V2 test'
 E2K = '2018-0214 H2017-03D 欣詮建設中和福祥段14FB3 V2'
 
 STIRRUP_REBAR = ['#4', '2#4', '2#5', '2#6']
