@@ -69,7 +69,7 @@ def change_to_beamID(beam):
     return beam
 
 
-def init_beam_name(beam_design):
+def init_beam_name(beam_design=beam_design):
     (story, bayID) = zip(*[(story, bayID)
                            for (story, bayID), _ in beam_design.groupby(['Story', 'BayID'], sort=False)])
 

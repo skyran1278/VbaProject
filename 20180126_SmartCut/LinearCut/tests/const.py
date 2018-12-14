@@ -14,6 +14,6 @@ BAR = {
 DB_SPACING = 1.5
 
 ITERATION_GAP = {
-    'Left': np.array([0.1, 0.45]),
-    'Right': np.array([0.55, 0.9])
+    'Left': np.array([0.15, 0.4]),
+    'Right': np.array([0.6, 0.85])
 }
