@@ -13,7 +13,7 @@ from database.dataset_beam_design import load_beam_design
 from database.dataset_e2k import load_e2k
 from database.const import STIRRUP_REBAR as REBAR, STIRRUP_SPACING as SPACING
 
-from app.init_table import init_beam
+# from app.init_table import init_beam
 
 # list to numpy
 SPACING = np.array(SPACING) / 100
@@ -24,9 +24,9 @@ def first_calc_dbt_spacing(beam_design_table, rebars, REBAR=REBAR):
     return beam_design_table.assign(VSize=REBAR[0], Spacing=lambda x: rebars[REBAR[0], 'AREA'] * 2 / x.VRebar)
 
 
-def upgrade_size(beam_design_table, rebars, REBAR=REBAR, SPACING=SPACING):
+def upgrade_size(beam_design, rebars, REBAR=REBAR, SPACING=SPACING):
     print('Start upgrade stirrup size...')
-    for _, group in beam_design_table.groupby(['Story', 'BayID'], sort=False):
+    for _, group in beam_design.groupby(['Story', 'BayID'], sort=False):
         i = 1
 
         # if spacing < min => upgrade size and recalculate spcaing
@@ -43,10 +43,10 @@ def upgrade_size(beam_design_table, rebars, REBAR=REBAR, SPACING=SPACING):
 
             i += 1
 
-        beam_design_table.loc[group.index.tolist(), ['VSize', 'Spacing']] = group[[
+        beam_design.loc[group.index.tolist(), ['VSize', 'Spacing']] = group[[
             'VSize', 'Spacing']]
 
-    return beam_design_table
+    return beam_design
 
 
 def merge_segments(beam_3, beam_design):
