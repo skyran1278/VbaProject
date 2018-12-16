@@ -11,9 +11,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 
-INPUT_FILE = 'first_run_nolinear_v1'
+INPUT_FILE = 'first_run_nonlinear_v2'
 # INDEX = random.randrange(0, 14144, 4)
-INDEX = 0
+INDEX = 32
 print(INDEX)
 
 green = np.array([26, 188, 156]) / 256
@@ -310,6 +310,8 @@ def compare_real_to_conservative():
     zero_line()
 
     horizontalline()
+
+    plt.axvline((END - START) * 0.2 + START, linestyle='--', color=gray)
 
     real_sol(blue)
     top_con, bot_con = conservative_cut(red)
