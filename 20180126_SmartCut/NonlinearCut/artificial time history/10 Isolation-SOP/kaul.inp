@@ -1,0 +1,30 @@
+$
+$ 輸入檔(KAUL.INP)的內容依序為：                                                                    
+$ 1) Ti：反應譜的起始週期
+$ 2) Te：反應譜的終點週期
+$ 3) Step：於上述指定的週期期間分隔的段數
+$ 4) Ndamp：阻尼種類數
+$ 5) Tstep：輸入歷時之時間間隔
+$ 6) Npoint：輸入歷時之總點數
+$ 7) Tor：容許誤差
+$ 8) G   ：欲產生之加速度歷時要正規化到多少G
+$ 9) Index：欲使用之設計反應譜編號(同國內耐震設計規範(2002年)設計反應譜475, 2500)
+$                           0.4*SDS=0.352
+$ Ti    Te    Step   Ndamp Tstep Npoint Tor      G    Index  SDS   SD1
+  .05   5.00  100   1     0.005  18000   0.00005  0.4544 1      1.136  0.76  $SDS,EW,NS
+$
+$ 欲吻合之設計反應譜的阻尼比% (Ndamp 行)
+ .05
+$
+$ 輸入之地震的檔名
+$ 水平向  EPA=0.32g
+$ ILA013.txt
+$ ILA030.txt
+$ ILA048.txt
+  NANHAU921_Normal.txt
+$ ILA013NS.txt
+$ xxx.txt
+$ 086SN.txt
+$ AccZ.TXT
+
+          
