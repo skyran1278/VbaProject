@@ -5,7 +5,7 @@ clc
 %% EQ
 
 
-data=load('elcentro_EW.txt');
+data=load('chichi_TAP010 max ag.txt');
 
 t=data(:,1);
 dt=t(2)-t(1);
