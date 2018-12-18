@@ -11,7 +11,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 
-INPUT_FILE = 'first_run_nonlinear_v2'
+INPUT_FILE = 'first_run_nonlinear_v3 #8'
 # INDEX = random.randrange(0, 14144, 4)
 INDEX = 32
 print(INDEX)
