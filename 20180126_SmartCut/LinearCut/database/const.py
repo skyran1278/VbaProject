@@ -1,7 +1,7 @@
 import numpy as np
 
-BEAM_DESIGN = '20181215 nonlinear v3 hinge 50x70.xlsx'
-E2K = '20181215 nonlinear v3 hinge 50x70.e2k'
+BEAM_DESIGN = '20181215 nonlinear v3 hinge pushover 0.1m.xlsx'
+E2K = '20181215 nonlinear v3 hinge pushover 0.1m.e2k'
 
 STIRRUP_REBAR = ['#4', '2#4', '2#5', '2#6']
 STIRRUP_SPACING = [10, 12, 15, 18, 20, 22, 25, 30]

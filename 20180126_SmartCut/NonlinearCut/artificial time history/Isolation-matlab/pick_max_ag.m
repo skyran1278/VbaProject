@@ -10,8 +10,12 @@ PGA = dlmread(input, '', 11, 0);
 
 maxrow = argmax + 1;
 
+% gal scale to g
+PGA(:, [2 3 4]) = PGA(:, [2 3 4]) / 980.665;
+
 % write to file
-dlmwrite(output, PGA(:, [1 maxrow]));
+% .7f
+dlmwrite(output, PGA(:, [1 maxrow]), 'delimiter', ' ', 'precision', '%.7f');
 
 % normalize
 % PGA(:,2) = PGA(:,2) / max_PGA;
@@ -40,4 +44,4 @@ plot(PGA(:,1), PGA(:,3));
 plot(PGA(:,1), PGA(:,4));
 legend('U','N','E','location','SouthEast');
 xlabel('sec');
-ylabel('gal.');
+ylabel('g');
