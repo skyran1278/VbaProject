@@ -37,11 +37,10 @@ dlmwrite(output, PGA(:, [1 maxrow]), 'delimiter', ' ', 'precision', '%.7f');
 
 % plot all time history
 figure;
-hold on;
-grid on;
-plot(PGA(:,1), PGA(:,2));
-plot(PGA(:,1), PGA(:,3));
-plot(PGA(:,1), PGA(:,4));
-legend('U','N','E','location','SouthEast');
-xlabel('sec');
-ylabel('g');
+% hold on;
+plot(PGA(:,1), PGA(:,[2 3 4]));
+% plot(PGA(:,1), PGA(:,3));
+% plot(PGA(:,1), PGA(:,4));
+legend('U(+)','N(+)','E(+)');
+xlabel('Period (sec)');
+ylabel('Acceleration (g)');
