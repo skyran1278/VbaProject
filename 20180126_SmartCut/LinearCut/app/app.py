@@ -43,12 +43,9 @@ def first_run():
 def full_run(multi, calc_db, path):
     writer = pd.ExcelWriter(SCRIPT_DIR + path)
 
-    e2k = load_e2k()
-    beam_design = load_beam_design()
-
     # 初始化輸出表格
     clock.time('初始化輸出表格')
-    beam_name = init_beam_name(beam_design)
+    beam_name = init_beam_name()
     beam_con = init_beam()
     beam_cut = init_beam(multi)
     clock.time()
