@@ -1,8 +1,8 @@
 % write in too long ago, very hard to read 2018/12/17
 clc; clear; close all;
 
-input = 'chichi_TCU068.txt';
-output = 'chichi_TCU068 max ag.txt';
+input = 'chichi_TCU052.txt';
+output = 'chichi_TCU052 max ag.txt';
 
 PGA = dlmread(input, '', 11, 0);
 
