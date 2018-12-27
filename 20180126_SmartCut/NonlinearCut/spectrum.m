@@ -13,22 +13,48 @@ acceleration = zeros(1, tn_length);
 
 time_interval = period(2) - period(1);
 
-for index = 1 : tn_length
+% for index = 1 : tn_length
 
-    [~, ~, a_array] = newmark_beta(ag, time_interval, 0.05, tn(index), 'average');
+%     [~, ~, a_array] = newmark_beta(ag, time_interval, 0.05, tn(index), 'average');
 
-    acceleration(1, index) = max(abs(a_array));
+%     acceleration(1, index) = max(abs(a_array));
 
-end
+% end
 
-PGA = max(ag)
-PGA = acceleration(1)
-Sa = acceleration(tn == 0.295)
+% PGA = max(ag)
+% PGA = acceleration(1)
+% Sa = acceleration(tn == 0.295)
+% figure;
+% plot(tn, acceleration);
+% title(filename);
+% xlabel('T(sec)');
+% ylabel('Sa(g)');
+
 figure;
-plot(tn, acceleration);
+hold on;
 title(filename);
 xlabel('T(sec)');
 ylabel('Sa(g)');
+
+for intensity = 0.5 : 0.5 : 3
+
+    for index = 1 : tn_length
+
+        scaled_ag = intensity * ag;
+
+        [~, ~, a_array] = newmark_beta(scaled_ag, time_interval, 0.05, tn(index), 'average');
+
+        acceleration(1, index) = max(abs(a_array));
+
+    end
+
+    fprintf('Intensity: %.1f, PGA: %.3f, PGA: %.3f, Sa: %.3f, PGA Scaled: %.3f, Sa Scaled: %.3f\n', intensity, max(scaled_ag), acceleration(1), acceleration(tn == 0.295), max(scaled_ag) / intensity, acceleration(tn == 0.295) / intensity);
+
+    plot(tn, acceleration);
+
+end
+
+
 
 % fileID = fopen('ELC.txt', 'w');
 % fprintf(fileID, '%f \r\n', ag);
