@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-filename = 'chichi_TCU067 max ag';
+filename = 'elcentro_EW';
 
 period = filename_to_array(filename, 2, 1);
 ag = filename_to_array(filename, 2, 2);
@@ -21,7 +21,7 @@ for index = 1 : tn_length
 
 end
 
-fprintf('PGA: %.3f, PGA: %.3f, Sa: %.3f\n', max(ag), acceleration(1), acceleration(345));
+fprintf('PGA: %.3f, PGA: %.3f, Sa: %.3f\n', max(abs(ag)), acceleration(1), acceleration(345));
 
 figure;
 plot(tn, acceleration);
