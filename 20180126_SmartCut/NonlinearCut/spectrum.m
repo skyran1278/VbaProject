@@ -1,58 +1,57 @@
 clc; clear; close all;
 
-filename = 'chichi_TCU068 max ag';
+filename = 'chichi_TCU067 max ag';
 
 period = filename_to_array(filename, 2, 1);
 ag = filename_to_array(filename, 2, 2);
 
 % ag = ag / max(abs(ag)) * 0.4;
 
-tn = 0.001 : 0.001 : 3;
+tn = 0.001 : 0.001 : 1;
 tn_length = length(tn);
 acceleration = zeros(1, tn_length);
 
 time_interval = period(2) - period(1);
 
-% for index = 1 : tn_length
+for index = 1 : tn_length
 
-%     [~, ~, a_array] = newmark_beta(ag, time_interval, 0.05, tn(index), 'average');
+    [~, ~, a_array] = newmark_beta(ag, time_interval, 0.05, tn(index), 'average');
 
-%     acceleration(1, index) = max(abs(a_array));
+    acceleration(1, index) = max(abs(a_array));
 
-% end
+end
 
-% PGA = max(ag)
-% PGA = acceleration(1)
-% Sa = acceleration(tn == 0.295)
-% figure;
-% plot(tn, acceleration);
-% title(filename);
-% xlabel('T(sec)');
-% ylabel('Sa(g)');
+fprintf('PGA: %.3f, PGA: %.3f, Sa: %.3f\n', max(ag), acceleration(1), acceleration(345));
 
 figure;
-hold on;
+plot(tn, acceleration);
 title(filename);
 xlabel('T(sec)');
 ylabel('Sa(g)');
 
-for intensity = 0.5 : 0.5 : 3
+% figure;
+% hold on;
+% title(filename);
+% xlabel('T(sec)');
+% ylabel('Sa(g)');
 
-    for index = 1 : tn_length
+% for intensity = 0.5 : 0.5 : 3
 
-        scaled_ag = intensity * ag;
+%     for index = 1 : tn_length
 
-        [~, ~, a_array] = newmark_beta(scaled_ag, time_interval, 0.05, tn(index), 'average');
+%         scaled_ag = intensity * ag;
 
-        acceleration(1, index) = max(abs(a_array));
+%         [~, ~, a_array] = newmark_beta(scaled_ag, time_interval, 0.05, tn(index), 'average');
 
-    end
+%         acceleration(1, index) = max(abs(a_array));
 
-    fprintf('Intensity: %.1f, PGA: %.3f, PGA: %.3f, Sa: %.3f, PGA Scaled: %.3f, Sa Scaled: %.3f\n', intensity, max(scaled_ag), acceleration(1), acceleration(tn == 0.295), max(scaled_ag) / intensity, acceleration(tn == 0.295) / intensity);
+%     end
 
-    plot(tn, acceleration);
+%     fprintf('Intensity: %.1f, PGA: %.3f, PGA: %.3f, Sa: %.3f, PGA Scaled: %.3f, Sa Scaled: %.3f\n', intensity, max(scaled_ag), acceleration(1), acceleration(tn == 0.295), max(scaled_ag) / intensity, acceleration(tn == 0.295) / intensity);
 
-end
+%     plot(tn, acceleration);
+
+% end
 
 
 
