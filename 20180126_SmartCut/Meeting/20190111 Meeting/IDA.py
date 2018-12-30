@@ -12,4 +12,4 @@ filename = '20181229 story drift'
 
 read_file = f'{SCRIPT_DIR}/{filename}'
 
-dataset = pd.read_excel(read_file, sheet_name='Story Drifts')
+story_drifts = pd.read_excel(read_file, sheet_name='Story Drifts')
