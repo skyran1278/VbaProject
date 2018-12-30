@@ -4,12 +4,83 @@ import pickle
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
-filename = '20181229 story drift'
+storys = {
+    'RF': 4,
+    '3F': 3,
+    '2F': 2,
+}
 
-read_file = f'{SCRIPT_DIR}/{filename}'
+scaled_factors = [1, 2, 4, 5, 8, 10, 15, 16, 20]
 
-story_drifts = pd.read_excel(read_file, sheet_name='Story Drifts')
+earthquakes = {
+    'EL Centro': {
+        'pga': 0.214,
+        'sa': 0.415
+    },
+    'chichi_TAP010': {
+        'pga': 0.117,
+        'sa': 0.172
+    },
+}
+
+
+def dataset():
+    filename = '20181229 story drift.xlsx'
+
+    read_file = f'{SCRIPT_DIR}/{filename}'
+
+    df = pd.read_excel(
+        read_file, sheet_name='Story Drifts', header=1, usecols=3, skiprows=[2])
+
+    df = df.assign(StoryLevel=None)
+
+    df = story2level(df, storys)
+
+    df = df.assign(
+        StoryAndCase=lambda x: x['Story'] + ' ' + x['Load Case/Combo'])
+
+    df.loc[:, 'StoryAndCase'] = df['StoryAndCase'].str[:-4]
+
+    df = df.groupby('StoryAndCase', as_index=False, sort=False).agg('max')
+
+    df.loc[:, 'Load Case/Combo'] = df['Load Case/Combo'].str[:-4]
+
+    return df
+
+
+def story2level(df, storys):
+    for story in storys:
+        df.loc[df['Story'] == story, 'StoryLevel'] = storys[story]
+
+    return df
+
+
+story_drifts = dataset()
+print(story_drifts.head())
+
+
+def peak_interstorey_drift_ratio_versus_storey_level(df, earthquake, earthquakes, scaled_factors):
+    sa = earthquakes[earthquake]['sa']
+
+    plt.figure()
+    plt.title('Peak interstorey drift ratio versus storey level')
+    plt.xlabel(r'Peak interstorey drift ratio $\theta_i$')
+    plt.ylabel('Story level')
+    plt.xlim((0, 0.03))
+
+    for i in scaled_factors:
+        load_case = f'{earthquake}-{i}'
+        level_drift = df.loc[df['Load Case/Combo'] == load_case]
+        plt.plot(level_drift['Drift'], level_drift['StoryLevel'])
+
+    plt.legend(['%.3fg' % (i * sa) for i in scaled_factors], loc=0)
+
+
+peak_interstorey_drift_ratio_versus_storey_level(
+    story_drifts, 'chichi_TAP010', earthquakes, [1, 2, 4, 5])
+plt.show()
