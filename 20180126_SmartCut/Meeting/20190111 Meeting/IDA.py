@@ -60,10 +60,6 @@ def story2level(df, storys):
     return df
 
 
-story_drifts = dataset()
-print(story_drifts.head())
-
-
 def peak_interstorey_drift_ratio_versus_storey_level(df, earthquake, earthquakes, scaled_factors):
     sa = earthquakes[earthquake]['sa']
 
@@ -108,8 +104,18 @@ def single_IDA_curve_versus_static_pushover(df, earthquake, earthquakes, scaled_
     # plt.legend(['%.3fg' % (i * sa) for i in scaled_factors], loc=0)
 
 
-single_IDA_curve_versus_static_pushover(
-    story_drifts, 'chichi_TAP010', earthquakes, scaled_factors)
-peak_interstorey_drift_ratio_versus_storey_level(
-    story_drifts, 'chichi_TAP010', earthquakes, [1, 2, 4, 5])
+def four_records(df, earthquakes, scaled_factors):
+    pass
+
+
+def figure1():
+    single_IDA_curve_versus_static_pushover(
+        story_drifts, 'EL Centro', earthquakes, scaled_factors)
+    peak_interstorey_drift_ratio_versus_storey_level(
+        story_drifts, 'EL Centro', earthquakes, scaled_factors)
+
+
+story_drifts = dataset()
+print(story_drifts.head())
+figure1()
 plt.show()

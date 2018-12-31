@@ -1,13 +1,11 @@
 clc; clear; close all;
 
-filename = 'elcentro_EW';
+filename = 'chichi_TCU068 max ag';
 
 period = filename_to_array(filename, 2, 1);
 ag = filename_to_array(filename, 2, 2);
 
-% ag = ag / max(abs(ag)) * 0.4;
-
-tn = 0.001 : 0.001 : 1;
+tn = 0.01 : 0.01 : 5;
 tn_length = length(tn);
 acceleration = zeros(1, tn_length);
 

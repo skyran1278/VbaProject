@@ -1,22 +1,22 @@
 % write in too long ago, very hard to read 2018/12/17
 clc; clear; close all;
 
-input = 'chichi_TCU052.txt';
-output = 'chichi_TCU052 max ag.txt';
+input = 'chichi_TAP010.txt';
+output = 'chichi_TAP010 max ag.txt';
 
 PGA = dlmread(input, '', 11, 0);
 
-% only pick x y max
-[max_PGA, argmax] = max(max(abs(PGA(:, [3 4]))), [], 2);
+NSEW = [3 4];
 
-maxrow = argmax + 1;
+% only pick x y max
+[max_PGA, argmax] = max(max(abs(PGA(:, NSEW))), [], 2);
 
 % gal scale to g
 PGA(:, [2 3 4]) = PGA(:, [2 3 4]) / 980.665;
 
 % write to file
 % .7f
-dlmwrite(output, PGA(:, [1 maxrow]), 'delimiter', ' ', 'precision', '%.7f');
+dlmwrite(output, PGA(:, [1 NSEW(argmax)]), 'delimiter', ' ', 'precision', '%.7f');
 
 % normalize
 % PGA(:,2) = PGA(:,2) / max_PGA;
