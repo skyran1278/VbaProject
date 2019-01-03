@@ -1,7 +1,7 @@
 import numpy as np
 
-BEAM_DESIGN = '20181224 flat 8m v1.1.xlsx'
-E2K = '20181224 flat 8m v1.1.e2k'
+BEAM_DESIGN = '20190103 v3.0 3floor for v9.xlsx'
+E2K = '20190103 v3.0 3floor for v9.e2k'
 
 STIRRUP_REBAR = ['#4', '2#4', '2#5', '2#6']
 STIRRUP_SPACING = [10, 12, 15, 18, 20, 22, 25, 30]
