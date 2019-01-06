@@ -1,6 +1,6 @@
 clc; clear; close all;
 
-filename = 'chichi_TCU068 max ag';
+filename = 'chichi_TAP010 max ag';
 
 period = filename_to_array(filename, 2, 1);
 ag = filename_to_array(filename, 2, 2);
@@ -21,7 +21,7 @@ end
 
 tol = eps(0.5);
 
-fprintf('PGA: %.3f, PGA: %.3f, Sa: %.3f\n', max(abs(ag)), acceleration(1), acceleration(abs(tn - 0.344) < tol));
+fprintf('PGA: %.3f, PGA: %.3f, Sa: %.3f\n', max(abs(ag)), acceleration(1), acceleration(abs(tn - 0.344) < tol);
 
 figure;
 plot(tn, acceleration);
