@@ -15,40 +15,54 @@ storys = {
     '2F': 2,
 }
 
-scaled_factors = [1, 2, 4, 5, 8, 10, 15, 16, 20]
-
 earthquakes = {
-    'EL Centro': {
+    'El Centro': {
         'pga': 0.214,
-        'sa': 0.415
+        'sa': 0.414
     },
-    'chichi_TAP010': {
+    'TAP010': {
         'pga': 0.117,
-        'sa': 0.172
+        'sa': 0.171,
+        'scaled_factors': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1,
+                           2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3, 4, 5, 5.1,  6, 7, 8, 9, 10]
+    },
+    'TCU052': {
+        'pga': 0.447,
+        'sa': 0.683
+    },
+    'TCU067': {
+        'pga': 0.498,
+        'sa': 1.234
+    },
+    'TCU068': {
+        'pga': 0.511,
+        'sa': 1.383
     },
 }
 
 
 def dataset():
-    filename = '20181229 story drift.xlsx'
+    filename = '20190107 story drifts.xlsx'
 
     read_file = f'{SCRIPT_DIR}/{filename}'
 
     df = pd.read_excel(
         read_file, sheet_name='Story Drifts', header=1, usecols=3, skiprows=[2])
 
-    df = df.assign(StoryLevel=None)
-
+    # convert story label to number
     df = story2level(df, storys)
+
+    # delete max and min string
+    df.loc[:, 'Load Case/Combo'] = df['Load Case/Combo'].str[:-4]
 
     df = df.assign(
         StoryAndCase=lambda x: x['Story'] + ' ' + x['Load Case/Combo'])
 
-    df.loc[:, 'StoryAndCase'] = df['StoryAndCase'].str[:-4]
-
+    # combine max min
     df = df.groupby('StoryAndCase', as_index=False, sort=False).agg('max')
 
-    df.loc[:, 'Load Case/Combo'] = df['Load Case/Combo'].str[:-4]
+    df['Load Case'], df['Scaled Factors'] = df['Load Case/Combo'].str.rsplit(
+        '-', 1).str
 
     return df
 
@@ -58,6 +72,48 @@ def story2level(df, storys):
         df.loc[df['Story'] == story, 'StoryLevel'] = storys[story]
 
     return df
+
+
+story_drifts = dataset()
+print(story_drifts.head())
+
+
+def single_IDA_points(earthquake, earthquakes, story_drifts, accel_unit='sa'):
+    accel = earthquakes[earthquake][accel_unit]
+
+    earthquake_drift = story_drifts.loc[story_drifts['Load Case']
+                                        == earthquake, :]
+
+    max_drift = earthquake_drift.groupby(
+        'Scaled Factors', as_index=False, sort=False)['Drift'].max()
+
+    max_drift.loc[:, 'Scaled Factors'] = max_drift.loc[:,
+                                                       'Scaled Factors'].astype('float64') * accel
+
+    return max_drift['Drift'], max_drift['Scaled Factors']
+
+
+def plot_single_IDA(earthquake, earthquakes, df, accel_unit='sa', xlim_max=0.15):
+    plt.figure()
+    plt.title('Single IDA curve')
+
+    plt.xlabel(r'Maximum interstorey drift ratio $\theta_{max}$')
+
+    if accel_unit == 'sa':
+        plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)(g)')
+    elif accel_unit == 'pga':
+        plt.ylabel('Peak ground acceleration PGA(g)')
+
+    plt.xlim((0, xlim_max))
+
+    drifts, accelerations = single_IDA_points(
+        earthquake, earthquakes, df, accel_unit)
+
+    plt.plot(drifts, accelerations)
+
+
+plot_single_IDA('TAP010', earthquakes, story_drifts)
+plt.show()
 
 
 def peak_interstorey_drift_ratio_versus_storey_level(df, earthquake, earthquakes, scaled_factors):
@@ -75,47 +131,3 @@ def peak_interstorey_drift_ratio_versus_storey_level(df, earthquake, earthquakes
         plt.plot(level_drift['Drift'], level_drift['StoryLevel'])
 
     plt.legend(['%.3fg' % (i * sa) for i in scaled_factors], loc=0)
-
-
-def single_IDA_curve_versus_static_pushover(df, earthquake, earthquakes, scaled_factors):
-    sa = earthquakes[earthquake]['sa']
-
-    drifts = []
-    sas = []
-
-    plt.figure()
-    plt.title('Single IDA curve versus Static Pushover')
-    plt.xlabel(r'Maximum interstorey drift ratio $\theta_i$')
-    plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)')
-    # plt.xlim((0, 0.3))
-
-    max_drift = df.groupby(
-        'Load Case/Combo', as_index=False, sort=False).agg('max')
-
-    for i in scaled_factors:
-        load_case = f'{earthquake}-{i}'
-        drift = max_drift.loc[df['Load Case/Combo']
-                              == load_case, 'Drift'].iat[0]
-        sas.append(sa * i)
-        drifts.append(drift)
-
-    plt.plot(drifts, sas)
-
-    # plt.legend(['%.3fg' % (i * sa) for i in scaled_factors], loc=0)
-
-
-def four_records(df, earthquakes, scaled_factors):
-    pass
-
-
-def figure1():
-    single_IDA_curve_versus_static_pushover(
-        story_drifts, 'EL Centro', earthquakes, scaled_factors)
-    peak_interstorey_drift_ratio_versus_storey_level(
-        story_drifts, 'EL Centro', earthquakes, scaled_factors)
-
-
-story_drifts = dataset()
-print(story_drifts.head())
-figure1()
-plt.show()
