@@ -23,8 +23,6 @@ earthquakes = {
     'TAP010': {
         'pga': 0.117,
         'sa': 0.171,
-        'scaled_factors': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1,
-                           2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3, 4, 5, 5.1,  6, 7, 8, 9, 10]
     },
     'TCU052': {
         'pga': 0.447,
@@ -93,7 +91,7 @@ def single_IDA_points(earthquake, earthquakes, story_drifts, accel_unit='sa'):
     return max_drift['Drift'], max_drift['Scaled Factors']
 
 
-def plot_single_IDA(earthquake, earthquakes, df, accel_unit='sa', xlim_max=0.15):
+def plot_single_IDA(earthquake, earthquakes, story_drifts, xlim_max=0.025, accel_unit='sa'):
     plt.figure()
     plt.title('Single IDA curve')
 
@@ -107,12 +105,41 @@ def plot_single_IDA(earthquake, earthquakes, df, accel_unit='sa', xlim_max=0.15)
     plt.xlim((0, xlim_max))
 
     drifts, accelerations = single_IDA_points(
-        earthquake, earthquakes, df, accel_unit)
+        earthquake, earthquakes, story_drifts, accel_unit)
 
-    plt.plot(drifts, accelerations)
+    if not drifts.empty:
+        plt.plot(drifts, accelerations)
+    else:
+        print(f'{earthquake} is not in data')
 
 
-plot_single_IDA('TAP010', earthquakes, story_drifts)
+def plot_multi_IDAS(earthquakes, story_drifts, xlim_max=0.025, accel_unit='sa'):
+    plt.figure()
+    plt.title('IDA curves')
+
+    plt.xlabel(r'Maximum interstorey drift ratio $\theta_{max}$')
+
+    if accel_unit == 'sa':
+        plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)(g)')
+    elif accel_unit == 'pga':
+        plt.ylabel('Peak ground acceleration PGA(g)')
+
+    plt.xlim((0, xlim_max))
+
+    for earthquake in earthquakes:
+        drifts, accelerations = single_IDA_points(
+            earthquake, earthquakes, story_drifts, accel_unit)
+
+        if not drifts.empty:
+            plt.plot(drifts, accelerations, label=earthquake)
+        else:
+            print(f'{earthquake} is not in data')
+
+    plt.legend(loc='upper right')
+
+
+plot_single_IDA('TCU067', earthquakes, story_drifts)
+plot_multi_IDAS(earthquakes, story_drifts)
 plt.show()
 
 
