@@ -6,6 +6,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from scipy.interpolate import interp1d
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
@@ -16,7 +18,7 @@ storys = {
 }
 
 earthquakes = {
-    'El Centro': {
+    'elcentro': {
         'pga': 0.214,
         'sa': 0.414
     },
@@ -88,10 +90,12 @@ def single_IDA_points(earthquake, earthquakes, story_drifts, accel_unit='sa'):
     max_drift.loc[:, 'Scaled Factors'] = max_drift.loc[:,
                                                        'Scaled Factors'].astype('float64') * accel
 
+    # max_drift = max_drift.sort_values(by=['Scaled Factors'])
+
     return max_drift['Drift'], max_drift['Scaled Factors']
 
 
-def plot_single_IDA(earthquake, earthquakes, story_drifts, xlim_max=0.025, accel_unit='sa'):
+def plot_single_IDA(earthquake, earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, accel_unit='sa'):
     plt.figure()
     plt.title('Single IDA curve')
 
@@ -103,6 +107,7 @@ def plot_single_IDA(earthquake, earthquakes, story_drifts, xlim_max=0.025, accel
         plt.ylabel('Peak ground acceleration PGA(g)')
 
     plt.xlim((0, xlim_max))
+    plt.ylim((0, ylim_max))
 
     drifts, accelerations = single_IDA_points(
         earthquake, earthquakes, story_drifts, accel_unit)
@@ -113,7 +118,7 @@ def plot_single_IDA(earthquake, earthquakes, story_drifts, xlim_max=0.025, accel
         print(f'{earthquake} is not in data')
 
 
-def plot_multi_IDAS(earthquakes, story_drifts, xlim_max=0.025, accel_unit='sa'):
+def plot_multi_IDAS(earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, accel_unit='sa'):
     plt.figure()
     plt.title('IDA curves')
 
@@ -125,21 +130,29 @@ def plot_multi_IDAS(earthquakes, story_drifts, xlim_max=0.025, accel_unit='sa'):
         plt.ylabel('Peak ground acceleration PGA(g)')
 
     plt.xlim((0, xlim_max))
+    plt.ylim((0, ylim_max))
 
     for earthquake in earthquakes:
         drifts, accelerations = single_IDA_points(
             earthquake, earthquakes, story_drifts, accel_unit)
 
+        # xnew = np.linspace(drifts.min(), drifts.max(), 10000000)
+
+        # f = interp1d(drifts, accelerations, kind='cubic')
+
         if not drifts.empty:
-            plt.plot(drifts, accelerations, label=earthquake)
+            # plt.plot(xnew, f(xnew), label=earthquake, marker='.')
+            plt.plot(drifts, accelerations, label=earthquake, marker='.')
         else:
             print(f'{earthquake} is not in data')
 
-    plt.legend(loc='upper right')
+    plt.legend(loc='upper left')
 
 
-plot_single_IDA('TCU067', earthquakes, story_drifts)
-plot_multi_IDAS(earthquakes, story_drifts)
+plot_single_IDA('TCU067', earthquakes, story_drifts, ylim_max=3)
+plot_multi_IDAS(earthquakes, story_drifts, ylim_max=3)
+plot_multi_IDAS(earthquakes, story_drifts,
+                ylim_max=1.2, accel_unit='pga')
 plt.show()
 
 
