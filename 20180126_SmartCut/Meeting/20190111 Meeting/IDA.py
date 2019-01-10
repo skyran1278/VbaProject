@@ -41,28 +41,39 @@ earthquakes = {
 }
 
 
-def dataset():
-    filename = '20190107 story drifts.xlsx'
+def dataset(filename):
+    pkl_file = f'{SCRIPT_DIR}/{filename} for IDA.pkl'
 
-    read_file = f'{SCRIPT_DIR}/{filename}'
+    if not os.path.exists(pkl_file):
+        print("Reading excel...")
 
-    df = pd.read_excel(
-        read_file, sheet_name='Story Drifts', header=1, usecols=3, skiprows=[2])
+        read_file = f'{SCRIPT_DIR}/{filename}.xlsx'
 
-    # convert story label to number
-    df = story2level(df, storys)
+        df = pd.read_excel(
+            read_file, sheet_name='Story Drifts', header=1, usecols=3, skiprows=[2])
 
-    # delete max and min string
-    df.loc[:, 'Load Case/Combo'] = df['Load Case/Combo'].str[:-4]
+        # convert story label to number
+        df = story2level(df, storys)
 
-    df = df.assign(
-        StoryAndCase=lambda x: x['Story'] + ' ' + x['Load Case/Combo'])
+        # delete max and min string
+        df.loc[:, 'Load Case/Combo'] = df['Load Case/Combo'].str[:-4]
 
-    # combine max min
-    df = df.groupby('StoryAndCase', as_index=False, sort=False).agg('max')
+        df = df.assign(
+            StoryAndCase=lambda x: x['Story'] + ' ' + x['Load Case/Combo'])
 
-    df['Load Case'], df['Scaled Factors'] = df['Load Case/Combo'].str.rsplit(
-        '-', 1).str
+        # combine max min
+        df = df.groupby('StoryAndCase', as_index=False, sort=False).agg('max')
+
+        df['Load Case'], df['Scaled Factors'] = df['Load Case/Combo'].str.rsplit(
+            '-', 1).str
+
+        print("Creating pickle file ...")
+        with open(pkl_file, 'wb') as f:
+            pickle.dump(df, f, True)
+        print("Done!")
+
+    with open(pkl_file, 'rb') as f:
+        df = pickle.load(f)
 
     return df
 
@@ -74,8 +85,8 @@ def story2level(df, storys):
     return df
 
 
-story_drifts = dataset()
-print(story_drifts.head())
+def multi_rebar(parameter_list):
+    pass
 
 
 def single_IDA_points(earthquake, earthquakes, story_drifts, accel_unit='sa'):
@@ -90,9 +101,9 @@ def single_IDA_points(earthquake, earthquakes, story_drifts, accel_unit='sa'):
     max_drift.loc[:, 'Scaled Factors'] = max_drift.loc[:,
                                                        'Scaled Factors'].astype('float64') * accel
 
-    # max_drift = max_drift.sort_values(by=['Scaled Factors'])
+    max_drift = max_drift.sort_values(by=['Scaled Factors'])
 
-    return max_drift['Drift'], max_drift['Scaled Factors']
+    return max_drift['Drift'].values, max_drift['Scaled Factors'].values
 
 
 def plot_single_IDA(earthquake, earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, accel_unit='sa'):
@@ -112,7 +123,7 @@ def plot_single_IDA(earthquake, earthquakes, story_drifts, ylim_max=4, xlim_max=
     drifts, accelerations = single_IDA_points(
         earthquake, earthquakes, story_drifts, accel_unit)
 
-    if not drifts.empty:
+    if not drifts.size == 0:
         plt.plot(drifts, accelerations)
     else:
         print(f'{earthquake} is not in data')
@@ -140,7 +151,7 @@ def plot_multi_IDAS(earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, accel
 
         # f = interp1d(drifts, accelerations, kind='cubic')
 
-        if not drifts.empty:
+        if not drifts.size == 0:
             # plt.plot(xnew, f(xnew), label=earthquake, marker='.')
             plt.plot(drifts, accelerations, label=earthquake, marker='.')
         else:
@@ -149,10 +160,60 @@ def plot_multi_IDAS(earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, accel
     plt.legend(loc='upper left')
 
 
-plot_single_IDA('TCU067', earthquakes, story_drifts, ylim_max=3)
-plot_multi_IDAS(earthquakes, story_drifts, ylim_max=3)
+def plot_median_IDAS(earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, accel_unit='sa'):
+    plt.figure()
+    plt.title('50% fractiles IDA curves')
+
+    plt.xlabel(r'Maximum interstorey drift ratio $\theta_{max}$')
+
+    if accel_unit == 'sa':
+        plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)(g)')
+    elif accel_unit == 'pga':
+        plt.ylabel('Peak ground acceleration PGA(g)')
+
+    plt.xlim((0, xlim_max))
+    plt.ylim((0, ylim_max))
+
+    x = pd.DataFrame()
+    y = pd.DataFrame()
+
+    for earthquake in earthquakes:
+        drifts, accelerations = single_IDA_points(
+            earthquake, earthquakes, story_drifts, accel_unit)
+
+        x = pd.concat(
+            [x, pd.DataFrame({earthquake: drifts})], axis=1)
+        y = pd.concat(
+            [y, pd.DataFrame({earthquake: accelerations})], axis=1)
+
+    # min_y, max_y = y.min(axis=0), y.max(axis=0)
+    # for target_list in expression_list:
+    #     pass
+    # np.linspace(i, a, 100) for i, a in (min_y, max_y):
+    #     pass
+
+    if not drifts.size == 0:
+        # plt.plot(xnew, f(xnew), label=earthquake, marker='.')
+        plt.plot(drifts, accelerations, label=earthquake, marker='.')
+    else:
+        print(f'{earthquake} is not in data')
+
+    plt.legend(loc='upper left')
+
+
+story_drifts = dataset('20190109 multi story drifts')
+# print(story_drifts.head())
+# plot_single_IDA('TCU067', earthquakes, story_drifts, ylim_max=3)
+plot_median_IDAS(earthquakes, story_drifts,
+                 ylim_max=2, accel_unit='pga')
+plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
 plot_multi_IDAS(earthquakes, story_drifts,
-                ylim_max=1.2, accel_unit='pga')
+                ylim_max=2, accel_unit='pga')
+
+story_drifts = dataset('20190110 story drifts')
+plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
+plot_multi_IDAS(earthquakes, story_drifts,
+                ylim_max=2, accel_unit='pga')
 plt.show()
 
 
