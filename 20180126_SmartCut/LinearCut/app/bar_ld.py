@@ -94,6 +94,7 @@ def calc_ld(beam_v_m):
 
         # 5.3.1
         ld[ld < 30] = 30
+        simple_ld[simple_ld < 30] = 30
 
         return {
             # cm => m

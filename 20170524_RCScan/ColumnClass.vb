@@ -46,7 +46,8 @@ Private Const COL_LL = 7
 Private Const COL_BAND = 8
 Private Const COL_SLAB = 9
 Private Const COL_COVER = 10
-Private Const COL_STOREY_NUM = 11
+Private Const COL_STIRRUP_10 = 11
+Private Const COL_STOREY_NUM = 12
 
 ' REBAR_SIZE 資料命名
 Private Const COL_DB = 7
@@ -95,7 +96,7 @@ Function GetGeneralInformation()
     Set wsGeneralInformation = Worksheets("General Information")
 
     ' 後面多空出一行，以增加代號
-    arrGeneralInformation = ran.GetRangeToArray(wsGeneralInformation, 1, 4, 4, 14)
+    arrGeneralInformation = ran.GetRangeToArray(wsGeneralInformation, 1, 4, 4, 15)
 
     lbGeneralInformation = LBound(arrGeneralInformation, 1)
     ubGeneralInformation = UBound(arrGeneralInformation, 1)
@@ -123,8 +124,8 @@ Function GetGeneralInformation()
     Set OBJ_INFO = ran.CreateDictionary(arrGeneralInformation, 1, False)
 
     ' Use Cells(13, 16).Text instead of .Value
-    NUM_TOP_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 16).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
-    NUM_FIRST_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 16).Text), COL_STOREY_NUM, "搜尋不到地面層")
+    NUM_TOP_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 17).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
+    NUM_FIRST_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 17).Text), COL_STOREY_NUM, "搜尋不到地面層")
 
 End Function
 

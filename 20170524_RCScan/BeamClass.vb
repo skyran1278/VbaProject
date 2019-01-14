@@ -37,9 +37,12 @@ Private Const COL_STIRRUP_MID = 11
 Private Const COL_STIRRUP_RIGHT = 12
 Private Const COL_SPAN = 13
 Private Const COL_SUPPORT = 14
-Private Const COL_LOCATION = 15
+Private Const COL_NOTE = 15
 ' 輸出資料位置
-Private Const COL_MESSAGE = 16
+Private Const COL_LAP_LEFT = 17
+Private Const COL_LAP_MID = 18
+Private Const COL_LAP_RIGHT = 19
+Private Const COL_MESSAGE = 20
 
 ' GENERAL_INFORMATION 資料命名
 Private Const COL_FY = 2
@@ -51,7 +54,8 @@ Private Const COL_LL = 7
 Private Const COL_BAND = 8
 Private Const COL_SLAB = 9
 Private Const COL_COVER = 10
-Private Const COL_STOREY_NUM = 11
+Private Const COL_STIRRUP_10 = 11
+Private Const COL_STOREY_NUM = 12
 
 Private Const COL_DB = 7
 Private Const COL_AREA = 10
@@ -110,7 +114,7 @@ Function GetGeneralInformation()
     Set wsGeneralInformation = Worksheets("General Information")
 
     ' 後面多空出一行，以增加代號
-    arrGeneralInformation = ran.GetRangeToArray(wsGeneralInformation, 1, 4, 4, 14)
+    arrGeneralInformation = ran.GetRangeToArray(wsGeneralInformation, 1, 4, 4, 15)
 
     lbGeneralInformation = LBound(arrGeneralInformation, 1)
     ubGeneralInformation = UBound(arrGeneralInformation, 1)
@@ -138,8 +142,8 @@ Function GetGeneralInformation()
     Set OBJ_INFO = ran.CreateDictionary(arrGeneralInformation, 1, False)
 
     ' Use Cells(13, 16).Text instead of .Value
-    NUM_TOP_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 16).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
-    NUM_FIRST_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 16).Text), COL_STOREY_NUM, "搜尋不到地面樓層")
+    NUM_TOP_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 17).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
+    NUM_FIRST_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 17).Text), COL_STOREY_NUM, "搜尋不到地面樓層")
 
 End Function
 
@@ -207,6 +211,20 @@ Private Function SortRawData(ByVal sheet)
     colStoreyNum = colUbRawData - 1
     colNumberNoC = colUbRawData
 
+    ' clear output area
+    For i = 1 To UB_REBAR Step 1
+        For j = COL_NOTE + 1 To colUbRawData Step 1
+            arrRawData(i, j) = ""
+        Next j
+    Next i
+
+    ' title
+    arrRawData(1, COL_LAP_LEFT) = "搭接長度"
+    arrRawData(2, COL_LAP_LEFT) = "左端"
+    arrRawData(2, COL_LAP_MID) = "中央"
+    arrRawData(2, COL_LAP_RIGHT) = "右端"
+    arrRawData(1, COL_MESSAGE) = "Warning"
+
     For i = LB_REBAR To UB_REBAR Step 4
 
         ' 樓層數字化，用以比較上下樓層。
@@ -244,7 +262,7 @@ Private Function SortRawData(ByVal sheet)
 
         ' 以樓層排序，再以去掉 c 的文字排序
         .Range(.Cells(LB_REBAR, colLbRawData), .Cells(rowUbRawData, colUbRawData)).Sort _
-            Key1:=.Range(.Cells(LB_REBAR, colStoreyNum), .Cells(rowUbRawData, colStoreyNum)), Order1:=xlAscending, DataOption1:=xlSortNormal, _
+            Key1:=.Range(.Cells(LB_REBAR, colStoreyNum), .Cells(rowUbRawData, colStoreyNum)), Order1:=xlDescending, DataOption1:=xlSortNormal, _
             Key2:=.Range(.Cells(LB_REBAR, colNumberNoC), .Cells(rowUbRawData, colNumberNoC)), Order2:=xlAscending, DataOption2:=xlSortNormal, _
             Header:=xlNo, MatchCase:=True, Orientation:=xlTopToBottom, SortMethod:=xlPinYin
 
@@ -420,9 +438,11 @@ Function PrintResult()
                 .Range(.Cells(i, j), .Cells(i + 3, j)).Merge
             Next j
 
-            For j = COL_SIDEBAR To COL_MESSAGE
+            For j = COL_SIDEBAR To COL_NOTE
                 .Range(.Cells(i, j), .Cells(i + 3, j)).Merge
             Next j
+
+            .Range(.Cells(i, COL_MESSAGE), .Cells(i + 3, COL_MESSAGE)).Merge
 
             If ARR_REBAR(i, COL_MESSAGE) = "" Then
                 ARR_REBAR(i, COL_MESSAGE) = "(S), (E), (i) - SCAN 結果 ok"
@@ -636,6 +656,7 @@ Private Sub Class_Terminate()
     ' Called automatically when all references to class instance are removed
 
 End Sub
+
 
 ' -------------------------------------------------------------------------
 ' 以下為實作內容
@@ -1233,5 +1254,185 @@ Function Norm3_7_5()
         End If
 
     Next
+
+End Function
+
+Function CalcLap()
+'
+' calc lap.
+'
+' @see Ld
+'
+
+    For top = LB_REBAR To UB_REBAR Step 4
+
+        bot = top + 3
+
+        B = ARR_REBAR(top, COL_BW)
+        fc = OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_FC_BEAM)
+        fy = OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_FY)
+        fyt = OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_FYT)
+        cover = OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_COVER)
+
+        For loc_ = top To bot Step 3
+
+            rebar = Split(ARR_REBAR(loc_, COL_STIRRUP_LEFT), "-")
+            fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
+            num = rebar(0)
+
+            ARR_REBAR(top, COL_LAP_LEFT) = ran.Max(Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_LEFT, "top"), Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_MID, "top"))
+
+            rebar = Split(ARR_REBAR(loc_, COL_STIRRUP_MID), "-")
+            fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
+            num = rebar(0)
+
+            ARR_REBAR(top, COL_LAP_MID) = ran.Max(Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_LEFT, "top"), Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_MID, "top"), Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_RIGHT, "top"))
+
+            rebar = Split(ARR_REBAR(loc_, COL_STIRRUP_RIGHT), "-")
+            fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
+            num = rebar(0)
+
+            ARR_REBAR(top, COL_LAP_RIGHT) = ran.Max(Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_RIGHT, "top"), Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_MID, "top"))
+
+        Next loc_
+
+        ' For col_rebar = COL_REBAR_LEFT To COL_REBAR_RIGHT Step 1
+
+        '     col_stirrup = col_rebar + (COL_STIRRUP_LEFT - COL_REBAR_LEFT)
+        '     col_lap = col_rebar + (COL_LAP_LEFT - COL_REBAR_LEFT)
+
+        '     rebar = Split(ARR_REBAR(top, col_rebar), "-")
+        '     fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
+        '     num = rebar(0)
+
+        '     Lap(B, fc, fy, fyt, cover, fyDb, num, "top", COL_STIRRUP_LEFT)
+
+        '     stirrup = Split(ARR_REBAR(top, col_stirrup), "@")
+        '     fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
+        '     avh = ARR_RATIO(top, col_stirrup)
+        '     spacing = stirrup(1)
+
+        '     ' Girder stirrups is 10cm
+        '     If S_BEAM_TYPE = "大梁" And OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_STIRRUP_10) Then
+        '         spacing = 10
+        '     End If
+
+        '     If num > 1 Then
+        '         ARR_REBAR(top, col_lap) = ran.RoundUp(1.3 * Ld(B, fc, fy, fyt, cover, fyDb, num, fytDb, avh, spacing, "top"))
+        '     Else
+        '         OBJ_ERR_MSG.Add "Cells(" & top & ", " & col_rebar & ") rebar number smaller than 2."
+        '     End If
+
+        ' Next col_rebar
+
+        ' For col_rebar = COL_REBAR_LEFT To COL_REBAR_RIGHT Step 1
+
+        '     col_stirrup = col_rebar + (COL_STIRRUP_LEFT - COL_REBAR_LEFT)
+        '     col_lap = col_rebar + (COL_LAP_LEFT - COL_REBAR_LEFT)
+
+        '     rebar = Split(ARR_REBAR(bot, col_rebar), "-")
+        '     fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
+        '     num = rebar(0)
+
+        '     stirrup = Split(ARR_REBAR(top, col_stirrup), "@")
+        '     fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
+        '     avh = ARR_RATIO(top, col_stirrup)
+        '     spacing = stirrup(1)
+
+        '     ' Girder stirrups is 10cm
+        '     If S_BEAM_TYPE = "大梁" And OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_STIRRUP_10) Then
+        '         spacing = 10
+        '     End If
+
+        '     If num > 1 Then
+        '         ARR_REBAR(bot, col_lap) = ran.RoundUp(1.3 * Ld(B, fc, fy, fyt, cover, fyDb, num, fytDb, avh, spacing, "bot"))
+        '     Else
+        '         OBJ_ERR_MSG.Add "Cells(" & bot & ", " & col_rebar & ") rebar number smaller than 2."
+        '     End If
+
+        ' Next col_rebar
+
+    Next top
+
+End Function
+
+Function Lap(ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal num, ByVal top, ByVal loc, ByVal col_stirrup, ByVal top_or_bot)
+'
+'
+
+    stirrup = Split(ARR_REBAR(top, col_stirrup), "@")
+    fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
+    avh = ARR_RATIO(top, col_stirrup)
+    spacing = stirrup(1)
+
+    ' Girder stirrups is 10cm
+    If S_BEAM_TYPE = "大梁" And OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_STIRRUP_10) Then
+        spacing = 10
+    End If
+
+    If num > 1 Then
+        Lap = ran.RoundUp(1.3 * Ld(B, fc, fy, fyt, cover, fyDb, num, fytDb, avh, spacing, top_or_bot))
+    Else
+        OBJ_ERR_MSG.Add "Cells(" & loc & ", " & col_rebar & ") rebar number smaller than 2."
+    End If
+
+End Function
+
+Function Ld(ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal num, ByVal dh, ByVal avh, ByVal spacing, ByVal loc)
+'
+' ld.
+'
+' @since 1.0.0
+' @param {number} [B] Girder/Beam Width (cm).
+' @param {number} [fc] 28-days concrete compressive strength (kgf/cm2).
+' @param {number} [fy] Rebar Nominal Yielding Streng (kgf/cm2).
+' @param {number} [fyh] Stirrup Nominal Yielding Streng (kgf/cm2).
+' @param {number} [cover] Clear Cover THK (cm).
+' @param {number} [db] diameter of flexural rebar (cm).
+' @param {number} [num] numbers of flexural rebar at lap location.
+' @param {number} [dh] stirrup diameter (cm).
+' @param {number} [avh] stirrup area (cm2).
+' @param {number} [spacing] space of stirrup at lap location of flexural rebar (cm).
+' @param {string} [loc] "top" or "bot".
+' @return {number} [Ld] ld.
+'
+
+    ' 5.2.2
+    If sqr(fc) > 26.5 Then fc = 700
+
+    ' R5.3.4.1.1
+    cc = dh + cover
+
+    ' R5.3.4.1.1
+    cs = (B - db * num - dh * 2 - cover * 2) / (num - 1) / 2
+
+    ' Vertical splitting failure / Horizontal splitting failure
+    cb = ran.Min(cc, cs) + db / 2
+
+    ' R5.3.4.1.2
+    If cc <= cs Then
+        ktr = avh * fyh / 105 / spacing
+    Else
+        ktr = 2 / num * avh * fyh / 105 / spacing
+    End If
+
+    ' 5.3.4.1
+    ld = 0.28 * fy / sqr(fc) * db / ran.Min((cb + ktr) / db, 2.5)
+
+    ' 5.3.4.1
+    simple_ld = 0.19 * fy / sqr(fc) * db
+
+    ld = ran.Min(ld, simple_ld)
+
+    ' phi_s factor
+    If db < 2.2 Then ld = 0.8 * ld
+
+    ' phi_t factor
+    If loc = "top" Then ld = 1.3 * ld
+
+    ' 5.3.1
+    If ld < 30 Then ld = 30
+
+    Ld = ld
 
 End Function

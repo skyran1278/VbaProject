@@ -59,6 +59,9 @@ Sub ScanFBNorm()
     FB.EconomicTopRebarRelativeForGB
     FB.SafetyStirrupSpace
 
+    ' calc lap
+    FB.CalcLap
+
     FB.PrintResult
 
     ' FB.CountRebarNumber
@@ -93,6 +96,9 @@ Sub ScanBeamNorm()
     Beam.Norm13_5_1AndSafetyRebarNumber
     Beam.SafetyRebarRatioForSB
     Beam.SafetyLoad
+
+    ' calc lap
+    Beam.CalcLap
 
     Beam.PrintResult
 
@@ -133,6 +139,9 @@ Sub ScanGirderNorm()
     Girder.Norm15_4_2_2
     Girder.SafetyStirrupSpace
     Girder.EconomicTopRebarRelative
+
+    ' calc lap
+    Girder.CalcLap
 
     Girder.PrintResult
 
