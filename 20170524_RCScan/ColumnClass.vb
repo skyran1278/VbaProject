@@ -124,8 +124,8 @@ Function GetGeneralInformation()
     Set OBJ_INFO = ran.CreateDictionary(arrGeneralInformation, 1, False)
 
     ' Use Cells(13, 16).Text instead of .Value
-    NUM_TOP_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 17).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
-    NUM_FIRST_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 17).Text), COL_STOREY_NUM, "搜尋不到地面層")
+    NUM_TOP_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(1, 17).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
+    NUM_FIRST_STOREY = WarnDicEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(2, 17).Text), COL_STOREY_NUM, "搜尋不到地面層")
 
 End Function
 

@@ -142,8 +142,8 @@ Function GetGeneralInformation()
     Set OBJ_INFO = ran.CreateDictionary(arrGeneralInformation, 1, False)
 
     ' Use Cells(13, 16).Text instead of .Value
-    NUM_TOP_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(13, 17).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
-    NUM_FIRST_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(14, 17).Text), COL_STOREY_NUM, "搜尋不到地面樓層")
+    NUM_TOP_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(1, 17).Text), COL_STOREY_NUM, "搜尋不到頂樓樓層")
+    NUM_FIRST_STOREY = DicIsEmpty(OBJ_INFO.Item(wsGeneralInformation.Cells(2, 17).Text), COL_STOREY_NUM, "搜尋不到地面樓層")
 
 End Function
 
@@ -1264,121 +1264,78 @@ Function CalcLap()
 ' @see Ld
 '
 
-    For top = LB_REBAR To UB_REBAR Step 4
+    For top_row = LB_REBAR To UB_REBAR Step 4
 
-        bot = top + 3
+        bot_row = top_row + 3
 
-        B = ARR_REBAR(top, COL_BW)
-        fc = OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_FC_BEAM)
-        fy = OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_FY)
-        fyt = OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_FYT)
-        cover = OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_COVER)
+        B = ARR_REBAR(top_row, COL_BW)
+        fc = OBJ_INFO.Item(ARR_REBAR(top_row, COL_STOREY))(COL_FC_BEAM)
+        fy = OBJ_INFO.Item(ARR_REBAR(top_row, COL_STOREY))(COL_FY)
+        fyh = OBJ_INFO.Item(ARR_REBAR(top_row, COL_STOREY))(COL_FYT)
+        cover = OBJ_INFO.Item(ARR_REBAR(top_row, COL_STOREY))(COL_COVER)
 
-        For loc_ = top To bot Step 3
+        Call AssignLapWithDifferentRowAndWithDifferentStirrup(top_row, "top", top_row, B, fc, fy, fyh, cover)
+        Call AssignLapWithDifferentRowAndWithDifferentStirrup(bot_row, "bot", top_row, B, fc, fy, fyh, cover)
 
-            rebar = Split(ARR_REBAR(loc_, COL_STIRRUP_LEFT), "-")
-            fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
-            num = rebar(0)
-
-            ARR_REBAR(top, COL_LAP_LEFT) = ran.Max(Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_LEFT, "top"), Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_MID, "top"))
-
-            rebar = Split(ARR_REBAR(loc_, COL_STIRRUP_MID), "-")
-            fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
-            num = rebar(0)
-
-            ARR_REBAR(top, COL_LAP_MID) = ran.Max(Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_LEFT, "top"), Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_MID, "top"), Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_RIGHT, "top"))
-
-            rebar = Split(ARR_REBAR(loc_, COL_STIRRUP_RIGHT), "-")
-            fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
-            num = rebar(0)
-
-            ARR_REBAR(top, COL_LAP_RIGHT) = ran.Max(Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_RIGHT, "top"), Lap(B, fc, fy, fyt, cover, fyDb, num, top, loc_, COL_STIRRUP_MID, "top"))
-
-        Next loc_
-
-        ' For col_rebar = COL_REBAR_LEFT To COL_REBAR_RIGHT Step 1
-
-        '     col_stirrup = col_rebar + (COL_STIRRUP_LEFT - COL_REBAR_LEFT)
-        '     col_lap = col_rebar + (COL_LAP_LEFT - COL_REBAR_LEFT)
-
-        '     rebar = Split(ARR_REBAR(top, col_rebar), "-")
-        '     fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
-        '     num = rebar(0)
-
-        '     Lap(B, fc, fy, fyt, cover, fyDb, num, "top", COL_STIRRUP_LEFT)
-
-        '     stirrup = Split(ARR_REBAR(top, col_stirrup), "@")
-        '     fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
-        '     avh = ARR_RATIO(top, col_stirrup)
-        '     spacing = stirrup(1)
-
-        '     ' Girder stirrups is 10cm
-        '     If S_BEAM_TYPE = "大梁" And OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_STIRRUP_10) Then
-        '         spacing = 10
-        '     End If
-
-        '     If num > 1 Then
-        '         ARR_REBAR(top, col_lap) = ran.RoundUp(1.3 * Ld(B, fc, fy, fyt, cover, fyDb, num, fytDb, avh, spacing, "top"))
-        '     Else
-        '         OBJ_ERR_MSG.Add "Cells(" & top & ", " & col_rebar & ") rebar number smaller than 2."
-        '     End If
-
-        ' Next col_rebar
-
-        ' For col_rebar = COL_REBAR_LEFT To COL_REBAR_RIGHT Step 1
-
-        '     col_stirrup = col_rebar + (COL_STIRRUP_LEFT - COL_REBAR_LEFT)
-        '     col_lap = col_rebar + (COL_LAP_LEFT - COL_REBAR_LEFT)
-
-        '     rebar = Split(ARR_REBAR(bot, col_rebar), "-")
-        '     fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
-        '     num = rebar(0)
-
-        '     stirrup = Split(ARR_REBAR(top, col_stirrup), "@")
-        '     fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
-        '     avh = ARR_RATIO(top, col_stirrup)
-        '     spacing = stirrup(1)
-
-        '     ' Girder stirrups is 10cm
-        '     If S_BEAM_TYPE = "大梁" And OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_STIRRUP_10) Then
-        '         spacing = 10
-        '     End If
-
-        '     If num > 1 Then
-        '         ARR_REBAR(bot, col_lap) = ran.RoundUp(1.3 * Ld(B, fc, fy, fyt, cover, fyDb, num, fytDb, avh, spacing, "bot"))
-        '     Else
-        '         OBJ_ERR_MSG.Add "Cells(" & bot & ", " & col_rebar & ") rebar number smaller than 2."
-        '     End If
-
-        ' Next col_rebar
-
-    Next top
+    Next top_row
 
 End Function
 
-Function Lap(ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal num, ByVal top, ByVal loc, ByVal col_stirrup, ByVal top_or_bot)
+Function AssignLapWithDifferentRowAndWithDifferentStirrup(ByVal loc_row, ByVal top_bot_string, ByVal top_row, ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover)
 '
 '
 
-    stirrup = Split(ARR_REBAR(top, col_stirrup), "@")
-    fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
-    avh = ARR_RATIO(top, col_stirrup)
+    rebar = Split(ARR_REBAR(loc_row, COL_REBAR_LEFT), "-")
+    fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
+    num = rebar(0)
+
+    If num > 1 Then
+        ARR_REBAR(loc_row, COL_LAP_LEFT) = ran.Max(LapWithDifferentStirrup(COL_STIRRUP_LEFT, top_bot_string, top_row, B, fc, fy, fyh, cover, fyDb, num), LapWithDifferentStirrup(COL_STIRRUP_MID, top_bot_string, top_row, B, fc, fy, fyh, cover, fyDb, num))
+    Else
+        OBJ_ERR_MSG.Add "Cells(" & loc_row & ", " & COL_REBAR_LEFT & ") rebar number smaller than 2."
+    End If
+
+    rebar = Split(ARR_REBAR(loc_row, COL_REBAR_MID), "-")
+    fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
+    num = rebar(0)
+
+    If num > 1 Then
+        ARR_REBAR(loc_row, COL_LAP_MID) = ran.Max(LapWithDifferentStirrup(COL_STIRRUP_LEFT, top_bot_string, top_row, B, fc, fy, fyh, cover, fyDb, num), LapWithDifferentStirrup(COL_STIRRUP_MID, top_bot_string, top_row, B, fc, fy, fyh, cover, fyDb, num), LapWithDifferentStirrup(COL_STIRRUP_RIGHT, top_bot_string, top_row, B, fc, fy, fyh, cover, fyDb, num))
+    Else
+        OBJ_ERR_MSG.Add "Cells(" & loc_row & ", " & COL_LAP_MID & ") rebar number smaller than 2."
+    End If
+
+    rebar = Split(ARR_REBAR(loc_row, COL_REBAR_RIGHT), "-")
+    fyDb = OBJ_REBAR_SIZE.Item(rebar(1))(COL_DB)
+    num = rebar(0)
+
+    If num > 1 Then
+        ARR_REBAR(loc_row, COL_LAP_RIGHT) = ran.Max(LapWithDifferentStirrup(COL_STIRRUP_RIGHT, top_bot_string, top_row, B, fc, fy, fyh, cover, fyDb, num), LapWithDifferentStirrup(COL_STIRRUP_MID, top_bot_string, top_row, B, fc, fy, fyh, cover, fyDb, num))
+    Else
+        OBJ_ERR_MSG.Add "Cells(" & loc_row & ", " & COL_LAP_RIGHT & ") rebar number smaller than 2."
+    End If
+
+End Function
+
+Function LapWithDifferentStirrup(ByVal col_stirrup, ByVal top_bot_string, ByVal top_row, ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal num)
+'
+'
+
+    stirrup = Split(ARR_REBAR(top_row, col_stirrup), "@")
+    dh = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
+    avh = ARR_RATIO(top_row, col_stirrup)
     spacing = stirrup(1)
 
     ' Girder stirrups is 10cm
-    If S_BEAM_TYPE = "大梁" And OBJ_INFO.Item(ARR_REBAR(top, COL_STOREY))(COL_STIRRUP_10) Then
+    If S_BEAM_TYPE = "大梁" And OBJ_INFO.Item(ARR_REBAR(top_row, COL_STOREY))(COL_STIRRUP_10) Then
         spacing = 10
     End If
 
-    If num > 1 Then
-        Lap = ran.RoundUp(1.3 * Ld(B, fc, fy, fyt, cover, fyDb, num, fytDb, avh, spacing, top_or_bot))
-    Else
-        OBJ_ERR_MSG.Add "Cells(" & loc & ", " & col_rebar & ") rebar number smaller than 2."
-    End If
+    LapWithDifferentStirrup = ran.RoundUp(1.3 * Ld(B, fc, fy, fyh, cover, db, num, dh, avh, spacing, top_bot_string))
 
 End Function
 
-Function Ld(ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal num, ByVal dh, ByVal avh, ByVal spacing, ByVal loc)
+Function Ld(ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal num, ByVal dh, ByVal avh, ByVal spacing, ByVal top_bot_string)
 '
 ' ld.
 '
@@ -1393,7 +1350,7 @@ Function Ld(ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal
 ' @param {number} [dh] stirrup diameter (cm).
 ' @param {number} [avh] stirrup area (cm2).
 ' @param {number} [spacing] space of stirrup at lap location of flexural rebar (cm).
-' @param {string} [loc] "top" or "bot".
+' @param {string} [top_bot_string] "top" or "bot".
 ' @return {number} [Ld] ld.
 '
 
@@ -1428,7 +1385,7 @@ Function Ld(ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal
     If db < 2.2 Then ld = 0.8 * ld
 
     ' phi_t factor
-    If loc = "top" Then ld = 1.3 * ld
+    If top_bot_string = "top" Then ld = 1.3 * ld
 
     ' 5.3.1
     If ld < 30 Then ld = 30
