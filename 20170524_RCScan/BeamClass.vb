@@ -698,10 +698,10 @@ Function SafetyRebarRatioAndSpace()
                     fytDb = OBJ_REBAR_SIZE.Item(SplitStirrup(stirrup(0)))(COL_DB)
                     ' fytDb = APP.VLookup(SplitStirrup(SplitStirrup(stirrup(0))), REBAR_SIZE, COL_DB, False)
 
-                    Spacing = (ARR_REBAR(i, COL_BW) - OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_COVER) * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
+                    spacing = (ARR_REBAR(i, COL_BW) - OBJ_INFO.Item(ARR_REBAR(i, COL_STOREY))(COL_COVER) * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
 
-                    If Not Spacing < 25 Then
-                        Call WarningMessage("【0106】主筋淨間距不得大於 25 cm (主筋淨間距 = " & Spacing & " cm)", i)
+                    If Not spacing < 25 Then
+                        Call WarningMessage("【0106】主筋淨間距不得大於 25 cm (主筋淨間距 = " & spacing & " cm)", i)
                     End If
 
                 ElseIf rebar_(0) = "1" Then
@@ -1116,11 +1116,11 @@ Function Norm13_5_1AndSafetyRebarNumber()
                 ' spacing = (ARR_REBAR(i, COL_BW) - 4 * 2 - fytDb * 2 - fyDb) / (CInt(rebar_(0)) - 1) - fyDb
                 ' 可以不需要型別轉換
                 ' Spacing = (ARR_REBAR(i, COL_BW) - 4 * 2 - fytDb * 2 - CInt(rebar_(0)) * fyDb) / (CInt(rebar_(0)) - 1)
-                Spacing = (ARR_REBAR(i, COL_BW) - cover_ * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
+                spacing = (ARR_REBAR(i, COL_BW) - cover_ * 2 - fytDb * 2 - rebar_(0) * fyDb) / (rebar_(0) - 1)
 
                 ' Norm13_5_1
                 ' 淨距不少於1Db
-                If Spacing < fyDb Or Spacing < 2.5 Then
+                If spacing < fyDb Or spacing < 2.5 Then
                     Call WarningMessage(GetTypeMessage("【0210】請確認單排支數上限，是否符合淨距不少於 1 Db 規定", "【0308】請確認單排支數上限，是否符合淨距不少於 1 Db 規定", "請確認單排支數上限，是否符合淨距不少於 1 Db 規定"), i)
                 End If
 
@@ -1355,7 +1355,7 @@ Function Ld(ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal
 '
 
     ' 5.2.2
-    If sqr(fc) > 26.5 Then fc = 700
+    If Sqr(fc) > 26.5 Then fc = 700
 
     ' R5.3.4.1.1
     cc = dh + cover
@@ -1374,22 +1374,20 @@ Function Ld(ByVal B, ByVal fc, ByVal fy, ByVal fyh, ByVal cover, ByVal db, ByVal
     End If
 
     ' 5.3.4.1
-    ld = 0.28 * fy / sqr(fc) * db / ran.Min((cb + ktr) / db, 2.5)
+    Ld = 0.28 * fy / Sqr(fc) * db / ran.Min((cb + ktr) / db, 2.5)
 
     ' 5.3.4.1
-    simple_ld = 0.19 * fy / sqr(fc) * db
+    simple_ld = 0.19 * fy / Sqr(fc) * db
 
-    ld = ran.Min(ld, simple_ld)
+    Ld = ran.Min(Ld, simple_ld)
 
     ' phi_s factor
-    If db < 2.2 Then ld = 0.8 * ld
+    If db < 2.2 Then Ld = 0.8 * Ld
 
     ' phi_t factor
-    If top_bot_string = "top" Then ld = 1.3 * ld
+    If top_bot_string = "top" Then Ld = 1.3 * Ld
 
     ' 5.3.1
-    If ld < 30 Then ld = 30
-
-    Ld = ld
+    If Ld < 30 Then Ld = 30
 
 End Function
