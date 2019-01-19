@@ -11,6 +11,8 @@ from scipy.interpolate import interp1d
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
+# 建議 scaled 到差不多的大小，因為會取最小的來做 median。
+
 storys = {
     'RF': 4,
     '3F': 3,
