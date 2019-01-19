@@ -85,10 +85,6 @@ def story2level(df, storys):
     return df
 
 
-def multi_rebar(parameter_list):
-    pass
-
-
 def single_IDA_points(earthquake, earthquakes, story_drifts, accel_unit='sa'):
     accel = earthquakes[earthquake][accel_unit]
 
@@ -164,6 +160,12 @@ def plot_capacity_rule(earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, ac
     interpolation_x, interpolation_y = interp_IDAS(
         earthquakes, story_drifts, accel_unit)
 
+    plt.figure()
+
+    for earthquake in interpolation_x:
+        plt.plot(interpolation_x[earthquake],
+                 interpolation_y, label=earthquake)
+
     interpolation_x = interpolation_x.quantile(
         0.5, axis=1, interpolation='nearest').values
 
@@ -172,42 +174,43 @@ def plot_capacity_rule(earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, ac
     initial_stiffness = (
         interpolation_y[1] - interpolation_y[0]) / (interpolation_x[1] - interpolation_x[0])
 
-    plt.figure()
-    plt.xlabel(r'Maximum interstorey drift ratio, $\theta_{max}$')
-    plt.subplot(2, 1, 1)
-    plt.title('DM-base rule')
+    plt.legend(loc='upper right')
+    # plt.figure()
+    # plt.xlabel(r'Maximum interstorey drift ratio, $\theta_{max}$')
+    # plt.subplot(2, 1, 1)
+    # plt.title('DM-base rule')
 
-    if accel_unit == 'sa':
-        plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)(g)')
-    elif accel_unit == 'pga':
-        plt.ylabel('Peak ground acceleration PGA(g)')
+    # if accel_unit == 'sa':
+    #     plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)(g)')
+    # elif accel_unit == 'pga':
+    #     plt.ylabel('Peak ground acceleration PGA(g)')
 
-    plt.xlim(0, xlim_max)
-    plt.ylim(0, ylim_max)
+    # plt.xlim(0, xlim_max)
+    # plt.ylim(0, ylim_max)
 
-    # plot 50%
-    plt.plot(interpolation_x, interpolation_y, label='50%')
-    plt.plot([C_DM, C_DM], [0, ylim_max], marks='--')
+    # # plot 50%
+    # plt.plot(interpolation_x, interpolation_y, label='50%')
+    # plt.plot([C_DM, C_DM], [0, ylim_max], marks='--')
 
-    plt.subplot(2, 1, 2)
-    plt.title('IM-base rule')
+    # plt.subplot(2, 1, 2)
+    # plt.title('IM-base rule')
 
-    plt.xlabel(r'Maximum interstorey drift ratio, $\theta_{max}$')
+    # plt.xlabel(r'Maximum interstorey drift ratio, $\theta_{max}$')
 
-    if accel_unit == 'sa':
-        plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)(g)')
-    elif accel_unit == 'pga':
-        plt.ylabel('Peak ground acceleration PGA(g)')
+    # if accel_unit == 'sa':
+    #     plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)(g)')
+    # elif accel_unit == 'pga':
+    #     plt.ylabel('Peak ground acceleration PGA(g)')
 
-    plt.xlim(0, xlim_max)
-    plt.ylim(0, ylim_max)
+    # plt.xlim(0, xlim_max)
+    # plt.ylim(0, ylim_max)
 
-    # plot 50%
-    plt.plot(interpolation_x, interpolation_y, label='50%')
-    plt.plot([C_DM, C_DM], [0, ylim_max], marks='--')
+    # # plot 50%
+    # plt.plot(interpolation_x, interpolation_y, label='50%')
+    # plt.plot([C_DM, C_DM], [0, ylim_max], marks='--')
 
 
-def interp_IDAS(earthquakes, story_drifts, accel_unit='sa', num=100):
+def interp_IDAS(earthquakes, story_drifts, accel_unit='sa', num=1000):
     x = pd.DataFrame()
     y = pd.DataFrame()
     interpolation_x = pd.DataFrame()
@@ -223,7 +226,7 @@ def interp_IDAS(earthquakes, story_drifts, accel_unit='sa', num=100):
             [y, pd.DataFrame({earthquake: accelerations})], axis=1)
 
     # scaled to same y
-    interpolation_y = np.linspace(y.min().min(), y.max().max(), num=num)
+    interpolation_y = np.linspace(y.min().max(), y.max().min(), num=num)
 
     # interp nan, to delete nan
     x = x.interpolate()
@@ -284,21 +287,21 @@ def plot_fractiles(earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, accel_
     plt.grid(True, which="both")
 
 
-story_drifts = dataset('20190109 multi story drifts')
+story_drifts = dataset('20190117 multi story drifts')
 # print(story_drifts.head())
 # plot_single_IDA('TCU067', earthquakes, story_drifts, ylim_max=3)
 # plot_capacity_rule(earthquakes, story_drifts, ylim_max=4,
 #                    xlim_max=0.025, accel_unit='sa', C_IM=0.2, C_DM=0.02)
 plot_fractiles(earthquakes, story_drifts, ylim_max=2, accel_unit='pga')
-plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
-plot_multi_IDAS(earthquakes, story_drifts,
-                ylim_max=2, accel_unit='pga')
+# plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
+# plot_multi_IDAS(earthquakes, story_drifts,
+#                 ylim_max=2, accel_unit='pga')
 
-story_drifts = dataset('20190110 story drifts')
+story_drifts = dataset('20190117 story drifts')
 plot_fractiles(earthquakes, story_drifts, ylim_max=2, accel_unit='pga')
-plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
-plot_multi_IDAS(earthquakes, story_drifts,
-                ylim_max=2, accel_unit='pga')
+# plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
+# plot_multi_IDAS(earthquakes, story_drifts,
+#                 ylim_max=2, accel_unit='pga')
 plt.show()
 
 
