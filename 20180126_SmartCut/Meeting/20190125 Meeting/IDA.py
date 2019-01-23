@@ -12,7 +12,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 # 建議 scaled 到差不多的大小，因為會取最小的來做 median。
-
+# TODO: 把圖拆開
 storys = {
     'RF': 4,
     '3F': 3,
@@ -295,15 +295,15 @@ story_drifts = dataset('20190117 multi story drifts')
 plot_capacity_rule(earthquakes, story_drifts, ylim_max=1.25,
                    xlim_max=0.025, accel_unit='pga', C_IM=0.2, C_DM=0.02)
 plot_fractiles(earthquakes, story_drifts, ylim_max=2, accel_unit='pga')
-# plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
-# plot_multi_IDAS(earthquakes, story_drifts,
-#                 ylim_max=2, accel_unit='pga')
+plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
+plot_multi_IDAS(earthquakes, story_drifts,
+                ylim_max=2, accel_unit='pga')
 
 story_drifts = dataset('20190117 story drifts')
 plot_fractiles(earthquakes, story_drifts, ylim_max=2, accel_unit='pga')
-# plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
-# plot_multi_IDAS(earthquakes, story_drifts,
-#                 ylim_max=2, accel_unit='pga')
+plot_multi_IDAS(earthquakes, story_drifts, ylim_max=5)
+plot_multi_IDAS(earthquakes, story_drifts,
+                ylim_max=2, accel_unit='pga')
 plt.show()
 
 
