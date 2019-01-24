@@ -54,10 +54,10 @@ multi_story_drifts = dataset('20190124 multi story drifts', storys)
 # print(multi_story_drifts.head())
 # plot_single_IDA('TCU067', earthquakes, multi_story_drifts, ylim_max=3)
 
-plot_multi_IDAS(earthquakes, multi_story_drifts,
-                ylim_max=None, xlim_max=None, accel_unit='pga')
-plot_multi_IDAS(earthquakes, multi_story_drifts,
-                ylim_max=None, xlim_max=0.025, accel_unit='sa')
+# plot_multi_IDAS(earthquakes, multi_story_drifts,
+#                 ylim_max=None, xlim_max=None, accel_unit='pga')
+# plot_multi_IDAS(earthquakes, multi_story_drifts,
+#                 ylim_max=None, xlim_max=0.025, accel_unit='sa')
 
 # plot_fractiles(earthquakes, multi_story_drifts, ylim_max=2, accel_unit='pga')
 # plot_fractiles_log(earthquakes, multi_story_drifts,
@@ -78,7 +78,7 @@ plot_multi_IDAS(earthquakes, multi_story_drifts,
 #              xlim_max=0.25, accel_unit='sa', C_IM=2.03)
 
 
-# normal_story_drifts = dataset('20190124 normal story drifts', storys)
+normal_story_drifts = dataset('20190124 normal story drifts', storys)
 # plot_multi_IDAS(earthquakes, normal_story_drifts, ylim_max=2, accel_unit='pga')
 # plot_multi_IDAS(earthquakes, normal_story_drifts, ylim_max=4, accel_unit='sa')
 
@@ -95,13 +95,13 @@ plot_multi_IDAS(earthquakes, multi_story_drifts,
 # plot_IM_rule(normal_x, normal_y, ylim_max=4,
 #              xlim_max=0.025, accel_unit='sa', C_IM=0.77)
 
-# plot_normal_versus_multi(earthquakes, normal_story_drifts,
-#                          multi_story_drifts, ylim_max=3, xlim_max=0.025, accel_unit='sa')
-# plot_normal_versus_multi_log(earthquakes, normal_story_drifts,
-#                              multi_story_drifts, ylim_max=3, xlim_max=0.025, accel_unit='sa')
-# plot_normal_versus_multi(earthquakes, normal_story_drifts,
-#                          multi_story_drifts, ylim_max=1.25, xlim_max=0.025, accel_unit='pga')
-# plot_normal_versus_multi_log(earthquakes, normal_story_drifts,
-#                              multi_story_drifts, ylim_max=1.25, xlim_max=0.025, accel_unit='pga')
+plot_normal_versus_multi(earthquakes, normal_story_drifts,
+                         multi_story_drifts, ylim_max=3, xlim_max=0.025, accel_unit='sa')
+plot_normal_versus_multi_log(earthquakes, normal_story_drifts,
+                             multi_story_drifts, ylim_max=3, xlim_max=0.025, accel_unit='sa')
+plot_normal_versus_multi(earthquakes, normal_story_drifts,
+                         multi_story_drifts, ylim_max=1.25, xlim_max=0.025, accel_unit='pga')
+plot_normal_versus_multi_log(earthquakes, normal_story_drifts,
+                             multi_story_drifts, ylim_max=1.25, xlim_max=0.025, accel_unit='pga')
 
 plt.show()

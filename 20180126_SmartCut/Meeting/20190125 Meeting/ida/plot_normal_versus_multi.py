@@ -24,9 +24,9 @@ def plot_normal_versus_multi_log(earthquakes, normal_story_drifts, multi_story_d
     plt.xlim(10**-4, xlim_max)
 
     plt.loglog(normal_x.quantile(0.5, axis=1, interpolation='nearest'),
-               normal_y, label='50%')
+               normal_y, label='normal')
     plt.loglog(multi_x.quantile(0.5, axis=1, interpolation='nearest'),
-               multi_y, label='50%')
+               multi_y, label='multi')
 
     plt.legend(loc='upper left')
     plt.grid(True, which="both")
@@ -54,8 +54,8 @@ def plot_normal_versus_multi(earthquakes, normal_story_drifts, multi_story_drift
     plt.ylim(0, ylim_max)
 
     plt.plot(normal_x.quantile(0.5, axis=1, interpolation='nearest'),
-             normal_y, label='50%')
+             normal_y, label='normal')
     plt.plot(multi_x.quantile(0.5, axis=1, interpolation='nearest'),
-             multi_y, label='50%')
+             multi_y, label='multi')
 
     plt.legend(loc='upper left')
