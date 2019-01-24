@@ -6,7 +6,7 @@ from scipy.interpolate import spline
 from interp_IDAS import interp_IDAS
 
 
-def plot_IM_rule(story_drifts, scaled_earthquake, ylim_max=4, xlim_max=0.025, accel_unit='sa', C_IM=0.2):
+def plot_IM_rule(story_drifts, scaled_earthquake, ylim_max=4, xlim_max=0.25, accel_unit='sa', C_IM=0.2):
     # interpolation_x, interpolation_y = interp_IDAS(
     #     earthquakes, story_drifts, accel_unit)
 
@@ -51,7 +51,7 @@ def plot_IM_rule(story_drifts, scaled_earthquake, ylim_max=4, xlim_max=0.025, ac
     plt.plot([0, xlim_max], [C_IM, C_IM], '--')
 
 
-def plot_DM_rule(story_drifts, scaled_earthquake, ylim_max=4, xlim_max=0.025, accel_unit='sa', C_DM=0.02):
+def plot_DM_rule(story_drifts, scaled_earthquake, ylim_max=4, xlim_max=0.25, accel_unit='sa', C_DM=0.02):
     # interpolation_x, interpolation_y = interp_IDAS(
     #     earthquakes, story_drifts, accel_unit)
 

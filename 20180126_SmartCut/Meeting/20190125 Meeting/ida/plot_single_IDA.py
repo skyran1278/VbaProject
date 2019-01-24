@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from single_IDA_points import single_IDA_points
 
 
-def plot_single_IDA(earthquake, earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, accel_unit='sa'):
+def plot_single_IDA(earthquake, earthquakes, story_drifts, ylim_max=4, xlim_max=0.25, accel_unit='sa'):
     plt.figure()
     plt.title('Single IDA curve')
 

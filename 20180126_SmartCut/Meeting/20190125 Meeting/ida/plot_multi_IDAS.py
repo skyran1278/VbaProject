@@ -14,8 +14,10 @@ def plot_multi_IDAS(earthquakes, story_drifts, ylim_max=4, xlim_max=0.025, accel
     elif accel_unit == 'pga':
         plt.ylabel('Peak ground acceleration PGA(g)')
 
-    plt.xlim(0, xlim_max)
-    plt.ylim(0, ylim_max)
+    if xlim_max is not None:
+        plt.xlim(0, xlim_max)
+    if ylim_max is not None:
+        plt.ylim(0, ylim_max)
 
     for earthquake in earthquakes:
         drifts, accelerations = single_IDA_points(
