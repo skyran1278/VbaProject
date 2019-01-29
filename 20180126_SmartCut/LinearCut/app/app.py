@@ -101,10 +101,12 @@ def full_run(multi, calc_db, path):
 
 
 def first_full_run():
+    """ first run by beam"""
     full_run(multi=3, calc_db=calc_db_by_beam, path='/../out/first_run.xlsx')
 
 
 def second_run():
+    """ second run by frame, need ID"""
     full_run(multi=3, calc_db=calc_db_by_frame, path='/../out/second_run.xlsx')
 
 
