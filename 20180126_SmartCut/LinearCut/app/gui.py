@@ -5,7 +5,7 @@ GUI for SmartCut.
 import os
 import wx
 
-from app import first_full_run, second_run
+from LinearCut.app import first_full_run, second_run
 
 
 class SmartCutPanel(wx.Panel):
