@@ -1,3 +1,5 @@
+""" load e2k
+"""
 import os
 import sys
 import pickle
@@ -6,10 +8,10 @@ import re
 import pandas as pd
 import numpy as np
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
-from database.const import E2K
+from const import E2K
 
 read_file = f'{SCRIPT_DIR}/{E2K}'
 save_file = f'{SCRIPT_DIR}/../temp/{E2K}.pkl'

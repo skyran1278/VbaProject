@@ -1,4 +1,7 @@
+""" const from user. """
 import numpy as np
+
+from gui import FRAME
 
 BEAM_DESIGN = '20190103 v3.0 3floor for v9.xlsx'
 E2K = '20190103 v3.0 3floor for v9.e2k'

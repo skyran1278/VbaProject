@@ -1,11 +1,11 @@
-# pylint: disable=C0103, W0613
 """
 GUI for SmartCut.
 """
 import os
 import wx
 
-from .app import first_full_run, second_run
+# from app import first_full_run, second_run
+# pylint: disable=C0103, W0613
 
 
 class SmartCutPanel(wx.Panel):
@@ -196,7 +196,7 @@ class SmartCutFrame(wx.Frame):
 
     def OnAbout(self, event):
         """Display an About Dialog"""
-        wx.MessageBox("Copyright © 2019 RCBIMX Team. Powered by Paul.",
+        wx.MessageBox("Copyright 2019 RCBIMX Team. Powered by Paul.",
                       "About Smart Cut",
                       wx.OK | wx.ICON_INFORMATION)
 

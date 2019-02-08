@@ -1,3 +1,4 @@
+""" echo execution_time """
 import time
 
 from colorama import init
@@ -8,7 +9,10 @@ from colorama import Style
 init()
 
 
-class Clock():
+class Execution():
+    """ print execution time
+    """
+
     def __init__(self):
         self.start_time = None
         self.title = None
@@ -21,6 +25,10 @@ class Clock():
         return f'\n{Fore.BLACK}{Back.WHITE}{title}{Style.RESET_ALL}'
 
     def time(self, title=None):
+        """
+        if first call, set title
+        if second call, print execution time and reset
+        """
         if title is not None:
             self.title = title
 
@@ -29,7 +37,6 @@ class Clock():
             print(f'{self._format_title(self.title)}')
 
         else:
-            # print("%.3f seconds" % (time.time() - self.start_time))
             print(
                 f'{Fore.BLUE}{round(time.time() - self.start_time, 4)}{Style.RESET_ALL} seconds')
 
@@ -38,12 +45,14 @@ class Clock():
 
 
 def main():
-    clock = Clock()
-    clock.time('3 points')
-    clock.time('3 points')
-    clock.time()
-    clock.time()
-    clock.time()
+    """test
+    """
+    execution = Execution()
+    execution.time('3 points')
+    execution.time('3 points')
+    execution.time()
+    execution.time()
+    execution.time()
 
 
 if __name__ == '__main__':
