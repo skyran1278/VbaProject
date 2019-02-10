@@ -1,7 +1,6 @@
 """ load e2k
 """
 import os
-import sys
 import pickle
 import re
 
@@ -11,26 +10,35 @@ import numpy as np
 # SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
-from const import E2K
+# from const import E2K_DIR, E2K_FILE
 
-read_file = f'{SCRIPT_DIR}/{E2K}'
-save_file = f'{SCRIPT_DIR}/../temp/{E2K}.pkl'
+# read_file = f'{E2K_DIR}/{E2K_FILE}'
+# save_file = f'{E2K_DIR}/temp/{E2K_FILE}.pkl'
 
 
 def _load_e2k(read_file):
-    # with open(read_file, encoding='utf-8') as f:
-    with open(read_file) as f:
-        content = f.readlines()
+    with open(read_file, encoding='big5') as path:
+        content = path.readlines()
         content = [x.strip() for x in content]
+
     return content
+
+
+def right_version(parameter_list):
+    if checking == '$ PROGRAM INFORMATION' and words[0] == 'PROGRAM':
+        if words[1] != '"ETABS"':
+            print('PROGRAM should be "ETABS"')
+        if words[3] != '"9.7.3"':
+            print('VERSION should be "9.7.3"')
+        continue
 
 
 def _init_e2k(read_file):
     content = _load_e2k(read_file)
 
-    rebars = {}
+    # rebars = {}
 
-    stories = {}
+    # stories = {}
     point_coordinates = {}
     # point_coordinates = []
     lines = {}
@@ -40,13 +48,14 @@ def _init_e2k(read_file):
     sections = {}
 
     for line in content:
-        # 轉換多格成一格，因為 ETABS 自己好像也不管
+        # 正規表達式，轉換多格成一格，因為 ETABS 自己好像也不管
         line = re.sub(' +', ' ', line)
         words = np.array(line.split(' '))
 
         if words[0] == '':
             continue
 
+        # checking 是不容易變的
         if words[0] == '$':
             checking = line
 
@@ -62,28 +71,31 @@ def _init_e2k(read_file):
                 print('UNITS should be "TON"  "M"')
             continue
 
-        if checking == '$ STORIES - IN SEQUENCE FROM TOP' and words[0] == 'STORY':
-            story_name = words[1].strip('"')
-            height = float(words[3])
-            stories[story_name] = height
+        # if checking == '$ STORIES - IN SEQUENCE FROM TOP' and words[0] == 'STORY':
+        #     story_name = words[1].strip('"')
+        #     height = float(words[3])
+        #     stories[story_name] = height
 
-        if checking == '$ MATERIAL PROPERTIES' and words[0] == 'MATERIAL' and words[3] == '"CONCRETE"':
+        if checking == '$ MATERIAL PROPERTIES' and (
+                words[0] == 'MATERIAL' and words[3] == '"CONCRETE"'):
             material_name = words[1].strip('"')
             materials[(material_name, 'FY')] = float(words[5])
             materials[(material_name, 'FC')] = float(words[7])
 
-        if checking == '$ FRAME SECTIONS' and words[0] == 'FRAMESECTION' and words[5] == '"Rectangular"':
+        if checking == '$ FRAME SECTIONS' and (
+                words[0] == 'FRAMESECTION' and words[5] == '"Rectangular"'):
             section_name = words[1].strip('"')
             sections[(section_name, 'MATERIAL')] = words[3].strip('"')
             sections[(section_name, 'D')] = float(words[7])
             sections[(section_name, 'B')] = float(words[9])
 
-        if checking == '$ REBAR DEFINITIONS' and words[0] == 'REBARDEFINITION':
-            rebar_name = words[1].strip('"')
-            rebars[(rebar_name, 'AREA')] = float(words[3])
-            rebars[(rebar_name, 'DIA')] = float(words[5])
+        # if checking == '$ REBAR DEFINITIONS' and words[0] == 'REBARDEFINITION':
+        #     rebar_name = words[1].strip('"')
+        #     rebars[(rebar_name, 'AREA')] = float(words[3])
+        #     rebars[(rebar_name, 'DIA')] = float(words[5])
 
-        if checking == '$ CONCRETE SECTIONS' and words[0] == 'CONCRETESECTION' and words[3] == '"BEAM"':
+        if checking == '$ CONCRETE SECTIONS' and (
+                words[0] == 'CONCRETESECTION' and words[3] == '"BEAM"'):
             section_name = words[1].strip('"')
             sections[(section_name, 'COVERTOP')] = float(words[5])
             sections[(section_name, 'COVERBOT')] = float(words[7])
@@ -115,7 +127,7 @@ def _init_e2k(read_file):
     point_coordinates = pd.DataFrame.from_dict(
         point_coordinates, orient='index', columns=['X', 'Y'])
 
-    return rebars, stories, point_coordinates, lines, materials, sections
+    return point_coordinates, lines, materials, sections
 
 
 def _init_pkl(read_file, save_file):
@@ -127,7 +139,9 @@ def _init_pkl(read_file, save_file):
     print("Done!")
 
 
-def load_e2k(read_file=read_file, save_file=save_file):
+def load_e2k(read_file, save_file):
+    """ load e2k file
+    """
     if not os.path.exists(save_file):
         _init_pkl(read_file, save_file)
 
@@ -139,7 +153,11 @@ def load_e2k(read_file=read_file, save_file=save_file):
 
 
 if __name__ == '__main__':
-    _init_pkl(read_file, save_file)
-    rebars, stories, point_coordinates, lines, materials, sections = load_e2k(
-        read_file, save_file)
-    print(stories)
+    from const import E2K
+
+    READ_FILE = f'{E2K}'
+    SAVE_FILE = f'{E2K}.pkl'
+
+    _init_pkl(READ_FILE, SAVE_FILE)
+    E2K = load_e2k(READ_FILE, SAVE_FILE)
+    print(E2K[1])

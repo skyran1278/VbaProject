@@ -5,7 +5,6 @@ import os
 import wx
 
 # from app import first_full_run, second_run
-# pylint: disable=C0103, W0613
 
 
 class SmartCutPanel(wx.Panel):
@@ -33,42 +32,42 @@ class SmartCutPanel(wx.Panel):
         fgs_4.AddGrowableCol(idx=0)
         fgs_4.AddGrowableCol(idx=1)
 
-        self.BEAM_DESIGN = wx.TextCtrl(
-            self, style=wx.TE_CENTRE, value=self.excel)
+        self.beam_design = wx.TextCtrl(
+            self, style=wx.TE_CENTRE)
         self.excel_btn = wx.Button(self, label="Browser Excel")
         self.excel_btn.Bind(wx.EVT_BUTTON, self.OnOpenExcel)
         fgs_1.AddMany([wx.StaticText(self, label="Beam Design Excel"),
-                       (self.BEAM_DESIGN, 1, wx.EXPAND), self.excel_btn])
+                       (self.beam_design, 1, wx.EXPAND), self.excel_btn])
 
-        self.E2K = wx.TextCtrl(self, style=wx.TE_CENTRE, value=self.e2k)
+        self.e2k = wx.TextCtrl(self, style=wx.TE_CENTRE, value=self.e2k)
         self.e2k_btn = wx.Button(self, label="Browser E2k")
         self.e2k_btn.Bind(wx.EVT_BUTTON, self.OnOpenE2k)
         fgs_1.AddMany([wx.StaticText(self, label="E2k"),
-                       (self.E2K, 1, wx.EXPAND), self.e2k_btn])
+                       (self.e2k, 1, wx.EXPAND), self.e2k_btn])
 
-        self.BARTOP = wx.TextCtrl(
+        self.bartop = wx.TextCtrl(
             self, value='#7, #8, #10, #11, #14', size=(250, -1))
         fgs_2.AddMany([wx.StaticText(self, label="Top Rebar"),
-                       (self.BARTOP, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
+                       (self.bartop, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
-        self.BARBOT = wx.TextCtrl(
+        self.barbot = wx.TextCtrl(
             self, value='#7, #8, #10, #11, #14')
         fgs_2.AddMany([wx.StaticText(self, label="Bot Rebar"),
-                       (self.BARBOT, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
+                       (self.barbot, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
-        self.DB_SPACING = wx.TextCtrl(self, value='1.5')
+        self.db_spacing = wx.TextCtrl(self, value='1.5')
         fgs_2.AddMany([wx.StaticText(self, label="Db Spacing"),
-                       (self.DB_SPACING, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
+                       (self.db_spacing, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
-        self.STIRRUP_REBAR = wx.TextCtrl(
+        self.stirrup_rebar = wx.TextCtrl(
             self, value='#4, 2#4, 2#5, 2#6')
         fgs_2.AddMany([wx.StaticText(self, label="Stirrup Rebar"),
-                       (self.STIRRUP_REBAR, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
+                       (self.stirrup_rebar, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
-        self.STIRRUP_SPACING = wx.TextCtrl(
+        self.stirrup_spacing = wx.TextCtrl(
             self, value='10, 12, 15, 18, 20, 22, 25, 30')
         fgs_2.AddMany([wx.StaticText(self, label="Stirrup Spacing"),
-                       (self.STIRRUP_SPACING, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
+                       (self.stirrup_spacing, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
         self.left = wx.TextCtrl(self, value='0.15', style=wx.TE_CENTRE)
         self.leftmid = wx.TextCtrl(self, value='0.45', style=wx.TE_CENTRE)
@@ -102,14 +101,14 @@ class SmartCutPanel(wx.Panel):
     def GET_BAR(self):
         """ BAR """
         return {
-            'Top': self.BARTOP.GetValue(),
-            'Bot': self.BARBOT.GetValue()
+            'Top': self.bartop.GetValue(),
+            'Bot': self.barbot.GetValue()
         }
 
     def FirstRun(self, event):
         """ first run by beam"""
-        # first_full_run()
-        print(self.GET_BAR())
+        first_full_run()
+        # print(self.GET_BAR())
 
     def SecondRun(self, event):
         """ second run by frame"""
@@ -124,6 +123,8 @@ class SmartCutPanel(wx.Panel):
             # f = open(os.path.join(self.dirname, self.filename), 'r')
             # self.control.SetValue(f.read())
             # f.close()
+            self.beam_design.SetValue(self.excel)
+
         dlg.Destroy()
 
     def OnOpenE2k(self, event):

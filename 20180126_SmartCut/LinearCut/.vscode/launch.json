@@ -8,6 +8,9 @@
       "name": "Python",
       "type": "python",
       "request": "launch",
+      "env": {
+        "PYTHONPATH": "${workspaceRoot}/src"
+      },
       "program": "${file}",
       "console": "integratedTerminal"
     },
