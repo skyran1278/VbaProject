@@ -124,3 +124,4 @@ def calc_stirrups(etabs_design, beam):
 
 if __name__ == "__main__":
     from utils.execution_time import Execution
+    from components.init_beam import init_beam

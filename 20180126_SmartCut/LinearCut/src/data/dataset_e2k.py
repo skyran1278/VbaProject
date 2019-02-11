@@ -152,7 +152,7 @@ def load_e2k(read_file, save_file):
 if __name__ == '__main__':
     from const import E2K
 
-    READ_FILE = f'{E2K}'
+    READ_FILE = E2K
     SAVE_FILE = f'{E2K}.pkl'
 
     _init_pkl(READ_FILE, SAVE_FILE)
