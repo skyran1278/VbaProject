@@ -20,6 +20,7 @@ SPACING = STIRRUP_SPACING / 100
 
 
 def _first_calc_dbt_spacing(etabs_design):
+    print('Start calculate stirrup spacing and size...')
     # first calc VSize to spacing
     return etabs_design.assign(VSize=STIRRUP_REBAR[0], Spacing=(
         lambda x: double_area(STIRRUP_REBAR[0]) / x.VRebar))
@@ -113,7 +114,7 @@ def _merge_segments(etabs_design, beam):
 
 
 def calc_stirrups(etabs_design, beam):
-    """ calc stirrups depands on
+    """ calc stirrups
     """
     etabs_design = _first_calc_dbt_spacing(etabs_design)
     etabs_design = _upgrade_size(etabs_design)
@@ -123,5 +124,18 @@ def calc_stirrups(etabs_design, beam):
 
 
 if __name__ == "__main__":
-    from utils.execution_time import Execution
+    from const import E2K_PATH, ETABS_DESIGN_PATH
     from components.init_beam import init_beam
+    from data.dataset_e2k import load_e2k
+    from data.dataset_etabs_design import load_beam_design
+    from utils.execution_time import Execution
+
+    E2K = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    ETABS_DESIGN = load_beam_design(
+        ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
+
+    BEAM = init_beam(ETABS_DESIGN, E2K, moment=3, shear=True)
+    EXECUTION = Execution()
+    EXECUTION.time('Stirrup Time')
+    ETABS_DESIGN, BEAM = calc_stirrups(ETABS_DESIGN, BEAM)
+    EXECUTION.time()

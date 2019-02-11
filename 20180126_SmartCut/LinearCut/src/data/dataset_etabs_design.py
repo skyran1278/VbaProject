@@ -46,10 +46,10 @@ def load_beam_design(read_file, save_file):
 
 
 if __name__ == '__main__':
-    from const import ETABS_DESIGN
+    from const import ETABS_DESIGN_PATH
 
-    READ_FILE = ETABS_DESIGN
-    SAVE_FILE = f'{ETABS_DESIGN}.pkl'
+    READ_FILE = ETABS_DESIGN_PATH
+    SAVE_FILE = f'{ETABS_DESIGN_PATH}.pkl'
 
     _init_pkl(READ_FILE, SAVE_FILE)
     DATASET = load_beam_design(READ_FILE, SAVE_FILE)

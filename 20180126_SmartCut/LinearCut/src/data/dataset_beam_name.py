@@ -36,10 +36,10 @@ def load_beam_name(read_file, save_file):
 
 
 if __name__ == "__main__":
-    from const import BEAM_NAME
+    from const import BEAM_NAME_PATH
 
-    READ_FILE = f'{BEAM_NAME}'
-    SAVE_FILE = f'{BEAM_NAME}.pkl'
+    READ_FILE = f'{BEAM_NAME_PATH}'
+    SAVE_FILE = f'{BEAM_NAME_PATH}.pkl'
 
     _init_pkl(READ_FILE, SAVE_FILE)
     DATASET = load_beam_name(READ_FILE, SAVE_FILE)
