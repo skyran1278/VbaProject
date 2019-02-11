@@ -24,13 +24,18 @@ def _load_e2k(read_file):
     return content
 
 
-def right_version(parameter_list):
+def _is_right_version(checking, words):
     if checking == '$ PROGRAM INFORMATION' and words[0] == 'PROGRAM':
         if words[1] != '"ETABS"':
             print('PROGRAM should be "ETABS"')
         if words[3] != '"9.7.3"':
             print('VERSION should be "9.7.3"')
-        continue
+
+
+def _is_right_unit(checking, words):
+    if checking == '$ CONTROLS' and words[0] == 'UNITS':
+        if words[1] != '"TON"' and words[2] != '"M"':
+            print('UNITS should be "TON"  "M"')
 
 
 def _init_e2k(read_file):
@@ -52,24 +57,12 @@ def _init_e2k(read_file):
         line = re.sub(' +', ' ', line)
         words = np.array(line.split(' '))
 
-        if words[0] == '':
-            continue
-
         # checking 是不容易變的
         if words[0] == '$':
             checking = line
 
-        if checking == '$ PROGRAM INFORMATION' and words[0] == 'PROGRAM':
-            if words[1] != '"ETABS"':
-                print('PROGRAM should be "ETABS"')
-            if words[3] != '"9.7.3"':
-                print('VERSION should be "9.7.3"')
-            continue
-
-        if checking == '$ CONTROLS' and words[0] == 'UNITS':
-            if words[1] != '"TON"' and words[2] != '"M"':
-                print('UNITS should be "TON"  "M"')
-            continue
+        _is_right_version(checking, words)
+        _is_right_unit(checking, words)
 
         # if checking == '$ STORIES - IN SEQUENCE FROM TOP' and words[0] == 'STORY':
         #     story_name = words[1].strip('"')
@@ -127,15 +120,15 @@ def _init_e2k(read_file):
     point_coordinates = pd.DataFrame.from_dict(
         point_coordinates, orient='index', columns=['X', 'Y'])
 
-    return point_coordinates, lines, materials, sections
+    return {point_coordinates, lines, materials, sections}
 
 
 def _init_pkl(read_file, save_file):
     dataset = _init_e2k(read_file)
 
     print("Creating pickle file ...")
-    with open(save_file, 'wb') as f:
-        pickle.dump(dataset, f, True)
+    with open(save_file, 'wb') as filename:
+        pickle.dump(dataset, filename, True)
     print("Done!")
 
 
@@ -145,9 +138,9 @@ def load_e2k(read_file, save_file):
     if not os.path.exists(save_file):
         _init_pkl(read_file, save_file)
 
-    with open(save_file, 'rb') as f:
+    with open(save_file, 'rb') as filename:
         rebars, stories, point_coordinates, lines, materials, sections = pickle.load(
-            f)
+            filename)
 
     return rebars, stories, point_coordinates, lines, materials, sections
 
