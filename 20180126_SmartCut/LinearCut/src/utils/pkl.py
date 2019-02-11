@@ -1,8 +1,8 @@
-""" create pkl """
+""" pkl functions """
 import pickle
 
 
-def _create_pkl(save_file, dataset):
+def _init_pkl(dataset, save_file):
     print("Creating pickle file ...")
     with open(save_file, 'wb') as filename:
         pickle.dump(dataset, filename, True)
@@ -14,7 +14,7 @@ def _create_pkl(save_file, dataset):
 def load_pkl(save_file, dataset=None):
     """ if no dataset, create pkl, or load pkl """
     if dataset is not None:
-        dataset = _create_pkl(save_file, dataset)
+        dataset = _init_pkl(dataset, save_file)
     else:
         with open(save_file, 'rb') as filename:
             dataset = pickle.load(filename)

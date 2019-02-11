@@ -120,7 +120,12 @@ def _init_e2k(read_file):
     point_coordinates = pd.DataFrame.from_dict(
         point_coordinates, orient='index', columns=['X', 'Y'])
 
-    return {point_coordinates, lines, materials, sections}
+    return {
+        'point_coordinates': point_coordinates,
+        'lines': lines,
+        'materials': materials,
+        'sections': sections
+    }
 
 
 def _init_pkl(read_file, save_file):
@@ -139,10 +144,9 @@ def load_e2k(read_file, save_file):
         _init_pkl(read_file, save_file)
 
     with open(save_file, 'rb') as filename:
-        rebars, stories, point_coordinates, lines, materials, sections = pickle.load(
-            filename)
+        e2k = pickle.load(filename)
 
-    return rebars, stories, point_coordinates, lines, materials, sections
+    return e2k
 
 
 if __name__ == '__main__':
@@ -153,4 +157,4 @@ if __name__ == '__main__':
 
     _init_pkl(READ_FILE, SAVE_FILE)
     E2K = load_e2k(READ_FILE, SAVE_FILE)
-    print(E2K[1])
+    print(E2K['point_coordinates'])
