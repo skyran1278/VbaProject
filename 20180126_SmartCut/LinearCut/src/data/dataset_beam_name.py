@@ -1,15 +1,15 @@
+""" load user defined beam name
+"""
 import os
-import sys
 import pickle
 
 import pandas as pd
-import numpy as np
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
-read_file = f'{SCRIPT_DIR}/../out/first_run.xlsx'
-save_file = f'{SCRIPT_DIR}/../temp/beam_name.pkl'
+# read_file = f'{SCRIPT_DIR}/../out/first_run.xlsx'
+# save_file = f'{SCRIPT_DIR}/../temp/beam_name.pkl'
 
 
 def _load_name(read_file):
@@ -25,7 +25,9 @@ def _init_pkl(read_file, save_file):
     print("Done!")
 
 
-def load_beam_name(read_file=read_file, save_file=save_file):
+def load_beam_name(read_file, save_file):
+    """ load beam name
+    """
     if not os.path.exists(save_file):
         _init_pkl(read_file, save_file)
 
@@ -34,8 +36,13 @@ def load_beam_name(read_file=read_file, save_file=save_file):
 
 
 if __name__ == "__main__":
-    _init_pkl(read_file, save_file)
-    dataset = load_beam_name(read_file, save_file)
-    print(dataset.head())
+    from const import BEAM_NAME_PATH
+
+    READ_FILE = f'{BEAM_NAME_PATH}'
+    SAVE_FILE = f'{BEAM_NAME_PATH}.pkl'
+
+    _init_pkl(READ_FILE, SAVE_FILE)
+    DATASET = load_beam_name(READ_FILE, SAVE_FILE)
+    print(DATASET.head())
     # print(dataset['樓層'])
     # print(list(dataset))

@@ -1,31 +1,25 @@
-import os
-import sys
-import math
-import time
-
-import pandas as pd
+""" calculate rebar size and num by moment
+"""
 import numpy as np
-import matplotlib.pyplot as plt
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+# sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
-from utils.pkl import load_pkl
-from utils.Clock import Clock
+# from utils.pkl import load_pkl
 
-from database.const import BAR, DB_SPACING
+from const import BAR, DB_SPACING, COVER
 
-from database.dataset_beam_design import load_beam_design
-from database.dataset_e2k import load_e2k
-from database.dataset_beam_name import load_beam_name
-
-from stirrups import calc_sturrups
+# from data.dataset_etabs_design import load_beam_design
+# from data.dataset_e2k import load_e2k
+# from data.dataset_beam_name import load_beam_name
+from data.dataset_rebar import rebar_db, rebar_area
 
 # save_file = SCRIPT_DIR + '/3pionts.xlsx'
-stirrups_save_file = SCRIPT_DIR + '/stirrups.pkl'
+# stirrups_save_file = SCRIPT_DIR + '/stirrups.pkl'
 
-rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
-# beam_v = load_beam_design()
+# e2k = load_e2k()
+# sections = e2k['sections']
+# etabs_design = load_beam_design()
 # beam_3p = init_beam_3points_table()
 # beam_3p, beam_design_table_stirrups = calc_sturrups(beam_3p)
 # beam_3points_table = init_beam_3points_table()
@@ -33,39 +27,40 @@ rebars, stories, point_coordinates, lines, materials, sections = load_e2k()
 #     beam_3points_table)
 # (beam_3points_table, beam_design_table_stirrups) = load_pkl(
 #     stirrups_save_file, (beam_3points_table, beam_design_table_stirrups))
-# (beam_3p, beam_v) = load_pkl(stirrups_save_file)
+# (beam_3p, etabs_design) = load_pkl(stirrups_save_file)
 
 
-def _bar_name(Loc):
-    bar_size = 'Bar' + Loc + 'Size'
-    bar_num = 'Bar' + Loc + 'Num'
-    bar_cap = 'Bar' + Loc + 'Cap'
-    bar_1st = 'Bar' + Loc + '1st'
-    bar_2nd = 'Bar' + Loc + '2nd'
+def _bar_name(loc):
+    bar_size = 'Bar' + loc + 'Size'
+    bar_num = 'Bar' + loc + 'Num'
+    bar_cap = 'Bar' + loc + 'Cap'
+    bar_1st = 'Bar' + loc + '1st'
+    bar_2nd = 'Bar' + loc + '2nd'
 
     return (bar_size, bar_num, bar_cap, bar_1st, bar_2nd)
 
 
-def _calc_bar_size_num(Loc, i):
-    # Loc = Loc.capitalize()
+def _calc_bar_size_num(i, loc, e2k):
+    sections = e2k['sections']
+    bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(loc)
 
-    bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(Loc)
-
-    def calc_capacity(df):
+    def _calc_capacity(df):
         # dh = df['VSize'].apply()
         # 應該可以用 apply 來改良，晚點再來做
         # 這裡應該拿最後配的來算，但是因為號數整支梁都會相同，所以沒差
         # 後來查了一下 發現好像差不多
-        dh = np.array([rebars['#' + v_size.split('#')[1], 'DIA']
-                       for v_size in df['VSize']])
-        db = rebars[BAR[Loc][i], 'DIA']
-        width = np.array([sections[(sec_ID, 'B')] for sec_ID in df['SecID']])
-        # cover = np.array([sections[(sec_ID, 'COVER' + Loc)] for sec_ID in df['SecID']])
+        dh = df['VSize'].apply(lambda x: rebar_db('#' + x.split('#')[1]))
+        # dh = np.array([rebar_db('#' + v_size.split('#')[1])
+        #    for v_size in df['VSize']])
+        db = rebar_db(BAR[loc][i])
+        width = df['SecID'].apply(lambda x: sections[(x, 'B')])
+        # width = np.array([sections[(sec_ID, 'B')] for sec_ID in df['SecID']])
+        # cover = np.array([sections[(sec_ID, 'COVER' + loc)] for sec_ID in df['SecID']])
 
-        return np.floor((width - 2 * 0.04 - 2 * dh - db) / (DB_SPACING * db + db)) + 1
-        # return np.ceil((width - 2 * 0.04 - 2 * dh - db) / (DB_SPACING * db + db))
+        return np.floor((width - 2 * COVER - 2 * dh - db) / (DB_SPACING * db + db)) + 1
+        # return np.ceil((width - 2 * COVER - 2 * dh - db) / (DB_SPACING * db + db))
 
-    def calc_1st(df):
+    def _calc_1st(df):
         bar_1st = np.where(df[bar_num] > df[bar_cap],
                            df[bar_cap], df[bar_num])
         bar_1st[df[bar_num] - df[bar_cap] ==
@@ -73,7 +68,7 @@ def _calc_bar_size_num(Loc, i):
 
         return bar_1st
 
-    def calc_2nd(df):
+    def _calc_2nd(df):
         bar_2nd = np.where(df[bar_num] > df[bar_cap],
                            df[bar_num] - df[bar_cap], 0)
         bar_2nd[df[bar_num] - df[bar_cap] == 1] = 2
@@ -93,136 +88,114 @@ def _calc_bar_size_num(Loc, i):
         #     beam_3p.loc[i + to_2nd, ('主筋', bar_loc)] = 0
 
     return {
-        bar_size: BAR[Loc][i],
-        bar_cap: calc_capacity,
+        bar_size: BAR[loc][i],
+        bar_cap: _calc_capacity,
         # 增加扣 0.05 的容量
-        bar_num: lambda x: np.maximum(np.ceil(x['As' + Loc] / rebars[BAR[Loc][i], 'AREA'] - 0.05), 2),
-        bar_1st: calc_1st,
-        bar_2nd: calc_2nd
+        bar_num: lambda x: np.maximum(np.ceil(x['As' + loc] / rebar_area(BAR[loc][i]) - 0.05), 2),
+        bar_1st: _calc_1st,
+        bar_2nd: _calc_2nd
     }
 
 
-# def calc_capacity(width, cover, dh, db, DB_SPACING):
-#     return math.ceil((width - 2 * 0.04 - 2 * dh - db) / (DB_SPACING * db + db))
+def calc_db(by, etabs_design, e2k):
+    """ calculate db by beam or usr defined frame, should first calculate stirrups
+    """
+    db_design = etabs_design.copy()
 
+    for loc in BAR:
 
-# def calc_dbt(group, rebars):
-#     v_size = group['VSize'].iat[0]
-#     v_sizeout_double = '#' + v_size.split('#')[1]
-#     return rebars[v_sizeout_double, 'DIA']
+        bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(loc)
 
+        db_design = db_design.assign(
+            **_calc_bar_size_num(0, loc, e2k))
 
-def calc_db_by_beam(beam_v):
-    beam_v_m = beam_v.copy()
-
-    for Loc in BAR.keys():
-        # Loc = Loc.capitalize()
-
-        bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(Loc)
-
-        # loc = Loc.lower()
-        # Loc = Loc.upper()
-        i = 0
-
-        beam_v_m = beam_v_m.assign(**_calc_bar_size_num(Loc, i))
-
-        # beam_v_m.to_excel(save_file)
-
-        # print(beam_v_m.head())
-
-        for _, group in beam_v_m.groupby(['Story', 'BayID'], sort=False):
-            i = 0
-            # SecID = group['SecID'].iat[0]
-            # dh = calc_dbt(group, rebars)
-            # db = rebars[BAR[Loc][i], 'DIA']
-            # width = sections[(SecID, 'B')]
-            # cover = sections[(SecID, 'COVER' + Loc)]
-            # capacity = calc_capacity(width, cover, dh, db, DB_SPACING)
-            # group = group.assign(**calc_bar_size_num(Loc, i))
-            # print(Story, BayID)
-
-            while np.any(group[bar_num] > 2 * group[bar_cap]):
-                i += 1
-                group = group.assign(**_calc_bar_size_num(Loc, i))
-                # db = rebars[BAR[Loc][i], 'DIA']
-                # capacity = calc_capacity(width, cover, dh, db, DB_SPACING)
-                # print(capacity)
-
-            beam_v_m.loc[group.index.tolist(), [bar_size, bar_num, bar_cap, bar_1st, bar_2nd]
-                         ] = group[[bar_size, bar_num, bar_cap, bar_1st, bar_2nd]]
-            # print(group)
-
-    return beam_v_m
-
-
-def calc_db_by_frame(beam_v):
-    beam_v_m = _add_beam_name(beam_v)
-
-    for Loc in BAR.keys():
-        bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(Loc)
-
-        i = 0
-
-        beam_v_m = beam_v_m.assign(**_calc_bar_size_num(Loc, i))
-
-        for _, group in beam_v_m.groupby(['Story', 'FrameID'], sort=False):
+        for _, group in db_design.groupby(['Story', by], sort=False):
             i = 0
 
             while np.any(group[bar_num] > 2 * group[bar_cap]):
                 i += 1
-                group = group.assign(**_calc_bar_size_num(Loc, i))
+                group = group.assign(**_calc_bar_size_num(i, loc, e2k))
 
-            beam_v_m.loc[group.index, [bar_size, bar_num, bar_cap, bar_1st, bar_2nd]
-                         ] = group[[bar_size, bar_num, bar_cap, bar_1st, bar_2nd]]
+            db_design.loc[group.index.tolist(), [bar_size, bar_num, bar_cap, bar_1st, bar_2nd]
+                          ] = group[[bar_size, bar_num, bar_cap, bar_1st, bar_2nd]]
 
-    return beam_v_m
+    return db_design
 
 
-def _add_beam_name(beam_v):
-    beam_name = load_beam_name()
-    beam_v = beam_v.assign(BeamID='', FrameID='')
+# def calc_db_by_frame(etabs_design, e2k):
+#     """ calculate db by usr defined frame, should first calculate stirrups
+#     """
+#     db_design = etabs_design.copy()
 
-    for (story, bayID), group in beam_v.groupby(['Story', 'BayID'], sort=False):
-        beamID, frameID = beam_name.loc[(story, bayID), :]
-        group = group.assign(BeamID=beamID, FrameID=frameID)
-        beam_v.loc[group.index, ['BeamID', 'FrameID']
-                   ] = group[['BeamID', 'FrameID']]
+#     for loc in BAR:
+#         bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(loc)
 
-    return beam_v
+#         i = 0
+
+#         db_design = db_design.assign(
+#             **_calc_bar_size_num(loc, i, e2k))
+
+#         for _, group in db_design.groupby(['Story', 'FrameID'], sort=False):
+#             i = 0
+
+#             while np.any(group[bar_num] > 2 * group[bar_cap]):
+#                 i += 1
+#                 group = group.assign(**_calc_bar_size_num(loc, i, e2k))
+
+#             db_design.loc[group.index, [bar_size, bar_num, bar_cap, bar_1st, bar_2nd]
+#                           ] = group[[bar_size, bar_num, bar_cap, bar_1st, bar_2nd]]
+
+#     return db_design
+
+
+# def _add_beam_name(etabs_design):
+#     """ calculate db by usr defined frame, should first calculate stirrups
+#     """
+    # beam_name = load_beam_name()
+#     etabs_design = etabs_design.assign(BeamID='', FrameID='')
+
+#     for (story, bayID), group in etabs_design.groupby(['Story', 'BayID'], sort=False):
+#         beamID, frameID = beam_name.loc[(story, bayID), :]
+#         group = group.assign(BeamID=beamID, FrameID=frameID)
+#         etabs_design.loc[group.index, ['BeamID', 'FrameID']
+#                          ] = group[['BeamID', 'FrameID']]
+
+#     return etabs_design
+
+def main():
+    """ test
+    """
+    from components.init_beam import init_beam, add_and_alter_beam_id
+    from const import E2K_PATH, ETABS_DESIGN_PATH, BEAM_NAME_PATH
+    from data.dataset_etabs_design import load_beam_design
+    from data.dataset_e2k import load_e2k
+    from data.dataset_beam_name import load_beam_name
+    from utils.execution_time import Execution
+    from components.stirrups import calc_stirrups
+
+    e2k = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    etabs_design = load_beam_design(
+        ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
+    beam_name = load_beam_name(BEAM_NAME_PATH, BEAM_NAME_PATH + '.pkl')
+
+    beam = init_beam(etabs_design, e2k, moment=3, shear=True)
+    execution = Execution()
+    beam, dh_design = calc_stirrups(beam, etabs_design)
+
+    # (_, etabs_design) = load_pkl(stirrups_save_file)
+    execution.time('BayID')
+    db_design = calc_db('BayID', dh_design, e2k)
+    print(db_design.head())
+    execution.time('BayID')
+
+    execution.time('FrameID')
+    beam, dh_design = add_and_alter_beam_id(
+        beam, beam_name, dh_design)
+    db_design = calc_db('FrameID', dh_design, e2k)
+    print(db_design.head())
+    execution.time('FrameID')
+    # db_design = load_pkl(SCRIPT_DIR + '/db_design.pkl', db_design)
 
 
 if __name__ == "__main__":
-    clock = Clock()
-    (_, beam_v) = load_pkl(stirrups_save_file)
-    beam_v_m = calc_db_by_beam(beam_v)
-    # beam_v_m = calc_db_by_frame(beam_v)
-    beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl', beam_v_m)
-
-# start = time.time()
-
-# print(time.time() - start)
-# start = time.time()
-# beam_3p_bar = cut_conservative(beam_v_m, beam_3p)
-# beam_v_m_ld = calc_ld(beam_v_m)
-
-# beam_v_m_ld = load_pkl(SCRIPT_DIR + '/beam_v_m_ld.pkl')
-
-# start = time.time()
-
-# beam_v_m_add_ld = add_ld(beam_v_m_ld)
-
-# print(time.time() - start)
-
-
-# start = time.time()
-# for i in range(10000):
-#     b = beam_v_m_ld['StnLoc'][2]
-# print(time.time() - start)
-
-# start = time.time()
-# for i in range(10000):
-#     a = beam_v_m_ld.loc[beam_v_m_ld.index[2], 'StnLoc']
-# print(time.time() - start)
-
-# beam_3p_bar.to_excel(save_file)
-# beam_v_m_add_ld.to_excel(SCRIPT_DIR + '/beam_v_m.xlsx')
+    main()
