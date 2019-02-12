@@ -93,7 +93,7 @@ def init_beam(etabs_design, e2k, moment=3, shear=False):
     return _basic_information(header, etabs_design, e2k)
 
 
-def add_usr_beam_name_and_alter_beam_id(beam, beam_name, etabs_design):
+def add_and_alter_beam_id(beam, beam_name, etabs_design):
     """
     first add beam/frame name id to etabs_design
     second change bayID to usr defined beam id
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     BEAM_NAME_EMPTY = init_beam_name(ETABS_DESIGN)
     print(BEAM_NAME_EMPTY.head())
 
-    BEAM, ETABS_DESIGN = add_usr_beam_name_and_alter_beam_id(
+    BEAM, ETABS_DESIGN = add_and_alter_beam_id(
         BEAM, BEAM_NAME, ETABS_DESIGN)
     print(BEAM.head())
     print(ETABS_DESIGN.head())

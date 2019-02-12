@@ -28,8 +28,8 @@ def _init_pkl(read_file, save_file):
     dataset = _load_file(read_file)
 
     print("Creating pickle file ...")
-    with open(save_file, 'wb') as filename:
-        pickle.dump(dataset, filename, True)
+    with open(save_file, 'wb') as f:
+        pickle.dump(dataset, f, True)
     print("Done!")
 
 
@@ -39,8 +39,8 @@ def load_beam_design(read_file, save_file):
     if not os.path.exists(save_file):
         _init_pkl(read_file, save_file)
 
-    with open(save_file, 'rb') as filename:
-        dataset = pickle.load(filename)
+    with open(save_file, 'rb') as f:
+        dataset = pickle.load(f)
 
     return dataset
 

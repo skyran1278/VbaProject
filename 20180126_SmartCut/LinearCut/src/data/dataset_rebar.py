@@ -40,3 +40,15 @@ def double_area(number):
     number: string, rebar No. (ex: '#4')
     """
     return REBARS[(number, 'AREA')] * 2
+
+
+def rebar_db(number):
+    """ rebar db
+    """
+    return REBARS[(number, 'DB')] * 2
+
+
+def rebar_area(number):
+    """ rebar area
+    """
+    return REBARS[(number, 'AREA')] * 2

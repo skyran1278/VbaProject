@@ -63,7 +63,7 @@ def _get_spacing(group, loc_min, loc_max):
     return group['Spacing'][(group['StnLoc'] >= loc_min) & (group['StnLoc'] <= loc_max)]
 
 
-def _merge_segments(etabs_design, beam):
+def _merge_segments(beam, etabs_design):
     print('Start merge to 3 segments...')
 
     etabs_design = etabs_design.assign(RealVSize='', RealSpacing=0)
@@ -113,29 +113,35 @@ def _merge_segments(etabs_design, beam):
     return beam, etabs_design
 
 
-def calc_stirrups(etabs_design, beam):
+def calc_stirrups(beam, etabs_design):
     """ calc stirrups
     """
     etabs_design = _first_calc_dbt_spacing(etabs_design)
     etabs_design = _upgrade_size(etabs_design)
-    etabs_design, beam = _merge_segments(etabs_design, beam)
+    beam, etabs_design = _merge_segments(beam, etabs_design)
 
-    return etabs_design, beam
+    return beam, etabs_design
 
 
-if __name__ == "__main__":
+def _main():
     from const import E2K_PATH, ETABS_DESIGN_PATH
     from components.init_beam import init_beam
     from data.dataset_e2k import load_e2k
     from data.dataset_etabs_design import load_beam_design
     from utils.execution_time import Execution
 
-    E2K = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
-    ETABS_DESIGN = load_beam_design(
+    e2k = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    etabs_design = load_beam_design(
         ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
 
-    BEAM = init_beam(ETABS_DESIGN, E2K, moment=3, shear=True)
-    EXECUTION = Execution()
-    EXECUTION.time('Stirrup Time')
-    ETABS_DESIGN, BEAM = calc_stirrups(ETABS_DESIGN, BEAM)
-    EXECUTION.time()
+    beam = init_beam(etabs_design, e2k, moment=3, shear=True)
+    execution = Execution()
+    execution.time('Stirrup Time')
+    beam, dh_design = calc_stirrups(beam, etabs_design)
+    print(beam.head())
+    print(dh_design.head())
+    execution.time()
+
+
+if __name__ == "__main__":
+    _main()

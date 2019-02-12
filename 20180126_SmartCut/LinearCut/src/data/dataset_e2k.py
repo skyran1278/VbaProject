@@ -132,8 +132,8 @@ def _init_pkl(read_file, save_file):
     dataset = _init_e2k(read_file)
 
     print("Creating pickle file ...")
-    with open(save_file, 'wb') as filename:
-        pickle.dump(dataset, filename, True)
+    with open(save_file, 'wb') as f:
+        pickle.dump(dataset, f, True)
     print("Done!")
 
 
@@ -143,8 +143,8 @@ def load_e2k(read_file, save_file):
     if not os.path.exists(save_file):
         _init_pkl(read_file, save_file)
 
-    with open(save_file, 'rb') as filename:
-        e2k = pickle.load(filename)
+    with open(save_file, 'rb') as f:
+        e2k = pickle.load(f)
 
     return e2k
 

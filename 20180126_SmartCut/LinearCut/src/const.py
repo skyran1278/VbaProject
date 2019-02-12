@@ -22,3 +22,5 @@ ITERATION_GAP = {
     'Left': np.array([0.15, 0.45]),
     'Right': np.array([0.55, 0.85])
 }
+
+COVER = 0.04
