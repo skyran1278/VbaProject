@@ -76,10 +76,10 @@ class SmartCutPanel(wx.Panel):
         fgs_3.AddMany([wx.StaticText(self, label="Boundry Condition"),
                        self.left, self.leftmid, self.rightmid, self.right])
 
-        first_run_btn = wx.Button(self, label="First Run")
+        first_run_btn = wx.Button(self, label="Run by Beam")
         first_run_btn.Bind(wx.EVT_BUTTON, self.FirstRun)
 
-        second_run_btn = wx.Button(self, label="Second Run")
+        second_run_btn = wx.Button(self, label="Run by Frame")
         second_run_btn.Bind(wx.EVT_BUTTON, self.SecondRun)
 
         fgs_4.AddMany([(first_run_btn, 1, wx.EXPAND),

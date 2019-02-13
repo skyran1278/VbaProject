@@ -7,7 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 
-from dataset import dataset_ida
+from pushover import Pushover
+from dataset import dataset_ida_storydrifts
 from interp_IDAS import interp_IDAS
 from plot_single_IDA import plot_single_IDA
 from plot_multi_IDAS import plot_multi_IDAS
@@ -17,7 +18,7 @@ from plot_normal_versus_multi import plot_normal_versus_multi, plot_normal_versu
 
 # 建議 scaled 到差不多的大小，因為會取最小的來做 median。
 # TODO: 把圖拆開
-storys = {
+stories = {
     'RF': 4,
     '3F': 3,
     '2F': 2,
@@ -50,8 +51,15 @@ loadcases = [
     'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2', 'PUSHX-3', 'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
 ]
 
-dataset_pushover_storydrifts(filename, storys)
-multi_story_drifts = dataset_ida('20190124 multi story drifts', storys)
+file_dir = os.path.dirname(os.path.abspath(__file__))
+
+pushover = Pushover(story_drifts_path=file_dir + '/20190212 pushover story drifts',
+                    base_shear_path=file_dir + '/20190212 pushover base shear',
+                    stories=stories, loadcases=loadcases)
+
+
+multi_story_drifts = dataset_ida_storydrifts(
+    '20190124 multi story drifts', stories)
 # print(multi_story_drifts.head())
 # plot_single_IDA('TCU067', earthquakes, multi_story_drifts, ylim_max=3)
 
@@ -79,7 +87,8 @@ multi_story_drifts = dataset_ida('20190124 multi story drifts', storys)
 #              xlim_max=0.25, accel_unit='sa', C_IM=2.03)
 
 
-normal_story_drifts = dataset_ida('20190124 normal story drifts', storys)
+normal_story_drifts = dataset_ida_storydrifts(
+    '20190124 normal story drifts', stories)
 # plot_multi_IDAS(earthquakes, normal_story_drifts, ylim_max=2, accel_unit='pga')
 # plot_multi_IDAS(earthquakes, normal_story_drifts, ylim_max=4, accel_unit='sa')
 
@@ -98,6 +107,8 @@ normal_story_drifts = dataset_ida('20190124 normal story drifts', storys)
 
 plot_normal_versus_multi(earthquakes, normal_story_drifts,
                          multi_story_drifts, ylim_max=3, xlim_max=0.025, accel_unit='sa')
+for loadcase in loadcases:
+    pushover.plot_in_drift_and_accel(loadcase)
 plot_normal_versus_multi_log(earthquakes, normal_story_drifts,
                              multi_story_drifts, ylim_max=3, xlim_max=0.025, accel_unit='sa')
 plot_normal_versus_multi(earthquakes, normal_story_drifts,
