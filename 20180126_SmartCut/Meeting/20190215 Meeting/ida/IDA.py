@@ -1,249 +1,284 @@
 """
-plot ida
+ida data and function
 """
 import os
+import pickle
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.interpolate import interp1d
-
-from pushover import Pushover
-from dataset import dataset_ida_storydrifts, dataset_ida_storydisp
-from interp_IDAS import interp_IDAS
-from plot_single_IDA import plot_single_IDA
-from plot_multi_IDAS import plot_multi_IDAS
-from plot_fractiles import plot_fractiles, plot_fractiles_log
-from plot_capacity_rule import plot_DM_rule, plot_IM_rule
-from plot_normal_versus_multi import plot_normal_versus_multi, plot_normal_versus_multi_log
-from plot_ida_pushover import plot_median_idas_and_pushover, plot_multi_idas_and_pushover
-
-# 建議 scaled 到差不多的大小，因為會取最小的來做 median。
-# TODO: 把圖拆開
-stories = {
-    'RF': 4,
-    '3F': 3,
-    '2F': 2,
-}
-
-earthquakes = {
-    'elcentro': {
-        'pga': 0.214,
-        'sa': 0.414
-    },
-    'TAP010': {
-        'pga': 0.117,
-        'sa': 0.171,
-    },
-    'TCU052': {
-        'pga': 0.447,
-        'sa': 0.683
-    },
-    'TCU067': {
-        'pga': 0.498,
-        'sa': 1.234
-    },
-    'TCU068': {
-        'pga': 0.511,
-        'sa': 1.383
-    },
-}
-
-loadcases = [
-    'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2', 'PUSHX-3', 'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-]
-
-loadcases = [
-    'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-]
-
-file_dir = os.path.dirname(os.path.abspath(__file__))
-
-multi_pushover = Pushover(
-    base_shear_path=file_dir + '/20190214 multi pushover base shear',
-    story_drifts_path=file_dir + '/20190214 multi pushover story drifts',
-    story_disp_path=file_dir + '/20190214 multi pushover displacement',
-    stories=stories
-)
 
 
-multi_story_drifts = dataset_ida_storydrifts(
-    '20190214 multi ida story drifts', stories)
-# print(multi_story_drifts.head())
-# plot_single_IDA('TCU067', earthquakes, multi_story_drifts, ylim_max=3)
+class IDA():
+    """
+    IDA data and function
+    """
 
-# plot_multi_IDAS(earthquakes, multi_story_drifts,
-#                 ylim_max=None, xlim_max=None, accel_unit='pga')
-# plot_multi_IDAS(earthquakes, multi_story_drifts,
-#                 ylim_max=None, xlim_max=0.025, accel_unit='sa')
+    def __init__(self, story_drifts_path, story_displacements_path, earthquakes, stories):
+        self.story_drifts_path = story_drifts_path
+        self.story_displacements_path = story_displacements_path
+        self.earthquakes = earthquakes
+        self.stories = stories
+        self.story_drifts = None
+        self.story_displacements = None
+        self.intensity_measure = 'sa'
+        self.damage_measure = 'story_drifts'
 
-# pushover.plot_all_loadcases()
+    def _story2level(self, df):
+        for story in self.stories:
+            df.loc[df['Story'] == story, 'StoryLevel'] = self.stories[story]
 
-plot_multi_idas_and_pushover(
-    earthquakes, multi_story_drifts, multi_pushover, loadcases=[
-        'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2',
-        'PUSHX-3', 'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-    ], ylim_max=4, xlim_max=0.02)
-plot_median_idas_and_pushover(
-    earthquakes, multi_story_drifts, multi_pushover, loadcases=[
-        'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
-    ], ylim_max=2.5, xlim_max=0.02)
-plot_median_idas_and_pushover(
-    earthquakes, multi_story_drifts, multi_pushover, loadcases=[
-        'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-    ], ylim_max=2.5, xlim_max=0.02)
+        return df
+
+    def _init_damage(self, damage_measure='story_drifts'):
+        """
+        init time history story drifts or story displacements
+        damage_measure='story_drifts' or story_displacements
+        """
+        if damage_measure == 'story_drifts':
+            filepath = self.story_drifts_path
+            sheet_name = 'Story Drifts'
+        elif damage_measure == 'story_displacements':
+            filepath = self.story_displacements_path
+            sheet_name = 'Story Max Avg Displacements'
+
+        pkl_file = f'{filepath} for IDA.pkl'
+
+        if not os.path.exists(pkl_file):
+            print("Reading excel...")
+
+            read_file = f'{filepath}.xlsx'
+
+            df = pd.read_excel(
+                read_file, sheet_name=sheet_name, header=1, usecols=3, skiprows=[2])
+
+            # convert story label to number
+            df = self._story2level(df)
+
+            # delete max and min string
+            df.loc[:, 'Load Case/Combo'] = df['Load Case/Combo'].str[:-4]
+
+            df = df.assign(
+                StoryAndCase=lambda x: x['Story'] + ' ' + x['Load Case/Combo'])
+
+            # combine max min
+            df = df.groupby('StoryAndCase', as_index=False,
+                            sort=False).agg('max')
+
+            df['Load Case'], df['Scaled Factors'] = df['Load Case/Combo'].str.rsplit(
+                '-', 1).str
+
+            print("Creating pickle file ...")
+            with open(pkl_file, 'wb') as f:
+                pickle.dump(df, f, True)
+            print("Done!")
+
+        with open(pkl_file, 'rb') as f:
+            df = pickle.load(f)
+
+        if damage_measure == 'story_drifts':
+            self.story_drifts = df
+        elif damage_measure == 'story_displacements':
+            self.story_displacements = df
+
+    def get_story_damage(self, damage_measure='story_drifts'):
+        """
+        get every step pushover story drifts or story displacements
+        """
+        if damage_measure == 'story_drifts':
+            if self.story_drifts is None:
+                self._init_damage(damage_measure)
+
+            return self.story_drifts
+        if damage_measure == 'story_displacements':
+            if self.story_displacements is None:
+                self._init_damage(damage_measure)
+
+            return self.story_displacements
+
+        return None
+
+    def _get_damage_measure_column(self, damage_measure='story_drifts'):
+        if damage_measure == 'story_drifts':
+            damage_measure_column = 'Drift'
+        elif damage_measure == 'story_displacements':
+            damage_measure_column = 'Maximum'
+        return damage_measure_column
+
+    def get_damage(self, damage_measure='story_drifts'):
+        """
+        condense story drift to max drift
+        """
+        column = self._get_damage_measure_column(damage_measure)
+
+        story_damage = self.get_story_damage(damage_measure)
+
+        damage = story_damage[story_damage.groupby(
+            'Load Case/Combo')[column].transform(max) == story_damage[column]]
+
+        damage = damage.drop_duplicates('Load Case/Combo')
+
+        return damage
+
+    def get_points(self, earthquake, damage_measure='story_drifts', intensity_measure='sa'):
+        """
+        get damage and intensity by loadcase and damage_measure
+        """
+        column = self._get_damage_measure_column(damage_measure)
+        damage = self.get_damage(damage_measure)
+        intensity = self.earthquakes[earthquake][intensity_measure]
+
+        damage = damage.loc[damage['Load Case'] == earthquake, :].copy()
+
+        damage.loc[:, 'Scaled Factors'] = damage.loc[
+            :, 'Scaled Factors'].astype('float64') * intensity
+
+        damage = damage.sort_values(by=['Scaled Factors'])
+
+        return damage[column].values, damage['Scaled Factors'].values
+
+    def interp(self, damage_measure='story_drifts', intensity_measure='sa', num=1000):
+        x = pd.DataFrame()
+        y = pd.DataFrame()
+        interpolation_x = pd.DataFrame()
+
+        for earthquake in self.earthquakes:
+            damage, intensity = self.get_points(
+                earthquake, damage_measure, intensity_measure)
+
+            # concat all drift and accel
+            x = pd.concat(
+                [x, pd.DataFrame({earthquake: damage})], axis=1)
+            y = pd.concat(
+                [y, pd.DataFrame({earthquake: intensity})], axis=1)
+
+        # scaled to same y
+        interpolation_y = np.linspace(y.min().max(), y.max().min(), num=num)
+
+        # interp nan, to delete nan
+        x = x.interpolate()
+        y = y.interpolate()
+
+        # interpolate to same y to x
+        for column in x:
+            interpolation_x.loc[:, column] = np.interp(
+                interpolation_y, y[column], x[column])
+
+        return interpolation_x, interpolation_y
+
+    def plot_all(self, *args, damage_measure='story_drifts', intensity_measure='sa', **kwargs):
+        """
+        plot ida in drift and acceleration by load case
+        """
+        for earthquake in self.earthquakes:
+            damage, intensity = self.get_points(
+                earthquake, damage_measure, intensity_measure)
+
+            if not damage.size == 0:
+                # plt.plot(xnew, f(xnew), label=earthquake, marker='.')
+                plt.plot(damage, intensity, label=earthquake,
+                         marker='.', *args, **kwargs)
+            else:
+                print(f'{earthquake} is not in data')
+
+        plt.legend(loc='upper left')
+
+    def plot(self, earthquake, *args,
+             damage_measure='story_drifts', intensity_measure='sa', **kwargs):
+        """
+        plot pushover in drift and acceleration by load case
+        """
+        damage, intensity = self.get_points(
+            earthquake, damage_measure, intensity_measure)
+        plt.plot(damage, intensity, *args, **kwargs)
+
+    def plot_median(self, *args,
+                    damage_measure='story_drifts', intensity_measure='sa', **kwargs):
+        """
+        plot pushover in drift and acceleration by load case
+        """
+        damage, intensity = self.interp(
+            damage_measure, intensity_measure, num=1000)
+        plt.plot(damage.quantile(0.5, axis=1, interpolation='nearest'),
+                 intensity, label='median IDA curve', *args, **kwargs)
+
+    def figure(self,
+               ylim_max=4, xlim_max=0.025,
+               damage_measure='story_drifts', intensity_measure='sa',
+               title='IDA versus Static Pushover for a 3-storey moment resisting frame'):
+        """
+        figure
+        """
+        plt.figure()
+        plt.title(title)
+
+        if damage_measure == 'story_drifts':
+            plt.xlabel(r'Maximum interstorey drift ratio, $\theta_{max}$')
+        elif damage_measure == 'story_displacements':
+            plt.xlabel('Maximum displacement(mm)')
+
+        if intensity_measure == 'sa':
+            plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)(g)')
+        elif intensity_measure == 'pga':
+            plt.ylabel('Peak ground acceleration PGA(g)')
+
+        if xlim_max is not None:
+            plt.xlim(0, xlim_max)
+        if ylim_max is not None:
+            plt.ylim(0, ylim_max)
 
 
-multi_story_disp = dataset_ida_storydisp(
-    '20190214 multi ida story displacement', stories)
-# print(multi_story_disp.head())
-# plot_single_IDA('TCU067', earthquakes, multi_story_disp, ylim_max=3)
+def _main():
+    stories = {
+        'RF': 4,
+        '3F': 3,
+        '2F': 2,
+    }
 
-# plot_multi_IDAS(earthquakes, multi_story_disp,
-#                 ylim_max=None, xlim_max=None, accel_unit='pga')
-# plot_multi_IDAS(earthquakes, multi_story_disp,
-#                 ylim_max=None, xlim_max=0.025, accel_unit='sa')
+    earthquakes = {
+        'elcentro': {
+            'pga': 0.214,
+            'sa': 0.414
+        },
+        'TAP010': {
+            'pga': 0.117,
+            'sa': 0.171,
+        },
+        'TCU052': {
+            'pga': 0.447,
+            'sa': 0.683
+        },
+        'TCU067': {
+            'pga': 0.498,
+            'sa': 1.234
+        },
+        'TCU068': {
+            'pga': 0.511,
+            'sa': 1.383
+        },
+    }
 
-# pushover.plot_all_loadcases()
+    file_dir = os.path.dirname(os.path.abspath(__file__))
 
-plot_multi_idas_and_pushover(
-    earthquakes, multi_story_disp, multi_pushover, loadcases=[
-        'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2',
-        'PUSHX-3', 'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-    ], ylim_max=4, xlim_max=0.02)
-plot_median_idas_and_pushover(
-    earthquakes, multi_story_disp, multi_pushover, loadcases=[
-        'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
-    ], ylim_max=2.5, xlim_max=0.02)
-plot_median_idas_and_pushover(
-    earthquakes, multi_story_disp, multi_pushover, loadcases=[
-        'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-    ], ylim_max=2.5, xlim_max=0.02)
-# plot_median_idas_and_single_pushover(
-#     earthquakes, multi_story_drifts, multi_pushover, 'PUSHX-T', ylim_max=None, xlim_max=0.025)
-# plot_fractiles(earthquakes, multi_story_drifts, ylim_max=2, accel_unit='pga')
-# plot_fractiles_log(earthquakes, multi_story_drifts,
-#                    ylim_max=2, accel_unit='pga')
+    ida = IDA(
+        story_drifts_path=file_dir + '/20190214 multi ida story drifts',
+        story_displacements_path=file_dir + '/20190214 multi ida displacement',
+        earthquakes=earthquakes,
+        stories=stories
+    )
 
-# plot_fractiles(earthquakes, multi_story_drifts,
-#                ylim_max=4, xlim_max=0.025, accel_unit='sa')
-# plot_fractiles_log(earthquakes, multi_story_drifts,
-#                    ylim_max=4, xlim_max=0.25, accel_unit='sa')
+    ida.figure(xlim_max=300, ylim_max=None,
+               damage_measure='story_displacements')
+    ida.plot_median(damage_measure='story_displacements')
+
+    plt.show()
+
+    # ida.plot('PUSHX-T', damage_measure='story_displacements',
+    #   label = 'Static Pushover Curve')
+
+    # plt.legend(loc='upper left')
+    # plt.show()
 
 
-# def median_ida_points(earthquakes, multi_story_drifts, accel_unit='sa'):
-#     multi_x, multi_y = interp_IDAS(
-#         earthquakes, multi_story_drifts, accel_unit='sa')
-#     multi_x = multi_x.quantile(
-#         0.5, axis=1, interpolation='nearest').values
-
-#     return multi_x, multi_y
-
-# plot_DM_rule(multi_x, multi_y, ylim_max=4,
-#              xlim_max=0.25, accel_unit='sa', C_DM=0.02)
-# plot_IM_rule(multi_x, multi_y, ylim_max=4,
-#              xlim_max=0.25, accel_unit='sa', C_IM=2.03)
-
-
-# normal_story_drifts = dataset_ida_storydrifts(
-#     '20190214 normal ida story drifts', stories)
-
-# normal_pushover = Pushover(
-#     story_drifts_path=os.path.join(
-#         file_dir, '20190214 normal pushover story drifts'),
-#     base_shear_path=os.path.join(
-#         file_dir, '20190214 normal pushover base shear'),
-#     stories=stories
-# )
-
-# plot_multi_idas_and_pushover(
-#     earthquakes, normal_story_drifts, normal_pushover, loadcases=[
-#         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2',
-#         'PUSHX-3', 'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-#     ], ylim_max=4, xlim_max=0.02)
-# plot_median_idas_and_pushover(
-#     earthquakes, normal_story_drifts, normal_pushover, loadcases=[
-#         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
-#     ], ylim_max=2.5, xlim_max=0.02)
-# plot_median_idas_and_pushover(
-#     earthquakes, normal_story_drifts, normal_pushover, loadcases=[
-#         'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-#     ], ylim_max=2.5, xlim_max=0.02)
-
-# normal_scwb_story_drifts = dataset_ida_storydrifts(
-#     '20190214 normal scwb ida story drifts', stories)
-
-# normal_scwb_pushover = Pushover(
-#     story_drifts_path=os.path.join(
-#         file_dir, '20190214 normal scwb pushover story drifts'),
-#     base_shear_path=os.path.join(
-#         file_dir, '20190214 normal scwb pushover base shear'),
-#     stories=stories
-# )
-
-# plot_multi_idas_and_pushover(
-#     earthquakes, normal_scwb_story_drifts, normal_scwb_pushover, loadcases=[
-#         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2',
-#         'PUSHX-3', 'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-#     ], ylim_max=4, xlim_max=0.02)
-# plot_median_idas_and_pushover(
-#     earthquakes, normal_scwb_story_drifts, normal_scwb_pushover, loadcases=[
-#         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
-#     ], ylim_max=2.5, xlim_max=0.02)
-# plot_median_idas_and_pushover(
-#     earthquakes, normal_scwb_story_drifts, normal_scwb_pushover, loadcases=[
-#         'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-#     ], ylim_max=2.5, xlim_max=0.02)
-
-# multi_scwb_story_drifts = dataset_ida_storydrifts(
-#     '20190214 multi scwb ida story drifts', stories)
-
-# multi_scwb_pushover = Pushover(
-#     story_drifts_path=os.path.join(
-#         file_dir, '20190214 multi scwb pushover story drifts'),
-#     base_shear_path=os.path.join(
-#         file_dir, '20190214 multi scwb pushover base shear'),
-#     stories=stories
-# )
-
-# plot_multi_idas_and_pushover(
-#     earthquakes, multi_scwb_story_drifts, multi_scwb_pushover, loadcases=[
-#         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2',
-#         'PUSHX-3', 'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-#     ], ylim_max=4, xlim_max=0.02)
-# plot_median_idas_and_pushover(
-#     earthquakes, multi_scwb_story_drifts, multi_scwb_pushover, loadcases=[
-#         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
-#     ], ylim_max=2.5, xlim_max=0.02)
-# plot_median_idas_and_pushover(
-#     earthquakes, multi_scwb_story_drifts, multi_scwb_pushover, loadcases=[
-#         'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-#     ], ylim_max=2.5, xlim_max=0.02)
-# plot_multi_IDAS(earthquakes, normal_story_drifts, ylim_max=2, accel_unit='pga')
-# plot_multi_IDAS(earthquakes, normal_story_drifts, ylim_max=4, accel_unit='sa')
-
-# plot_fractiles(earthquakes, normal_story_drifts, ylim_max=4, accel_unit='sa')
-# plot_fractiles_log(earthquakes, normal_story_drifts,
-#                    ylim_max=4, accel_unit='sa')
-
-# normal_x, normal_y = interp_IDAS(
-#     earthquakes, normal_story_drifts, accel_unit='sa')
-# normal_x = normal_x.quantile(
-#     0.5, axis=1, interpolation='nearest').values
-# plot_DM_rule(normal_x, normal_y, ylim_max=4,
-#              xlim_max=0.025, accel_unit='sa', C_DM=0.02)
-# plot_IM_rule(normal_x, normal_y, ylim_max=4,
-#              xlim_max=0.025, accel_unit='sa', C_IM=0.77)
-
-# for loadcase in loadcases:
-#     pushover.plot_in_drift_and_accel(loadcase)
-# plot_normal_versus_multi(earthquakes, normal_story_drifts,
-#                          multi_story_drifts, ylim_max=3, xlim_max=0.025, accel_unit='sa')
-# plot_normal_versus_multi_log(earthquakes, normal_story_drifts,
-#                              multi_story_drifts, ylim_max=3, xlim_max=0.025, accel_unit='sa')
-# plot_normal_versus_multi(earthquakes, normal_story_drifts,
-#                          multi_story_drifts, ylim_max=1.25, xlim_max=0.025, accel_unit='pga')
-# plot_normal_versus_multi_log(earthquakes, normal_story_drifts,
-#                              multi_story_drifts, ylim_max=1.25, xlim_max=0.025, accel_unit='pga')
-
-plt.show()
+if __name__ == "__main__":
+    _main()

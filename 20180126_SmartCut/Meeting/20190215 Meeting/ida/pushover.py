@@ -112,10 +112,10 @@ class Pushover():
         """
         column = self._get_damage_measure_column(damage_measure)
 
-        story_damage_measure = self.get_story_damage(damage_measure)
+        story_damage = self.get_story_damage(damage_measure)
 
-        damage = story_damage_measure[story_damage_measure.groupby(
-            'Load Case/Combo')[column].transform(max) == story_damage_measure[column]]
+        damage = story_damage[story_damage.groupby(
+            'Load Case/Combo')[column].transform(max) == story_damage[column]]
 
         damage = damage.drop_duplicates('Load Case/Combo')
 
@@ -192,6 +192,8 @@ class Pushover():
                 damage, intensity = self.get_points(loadcase, damage_measure)
                 plt.plot(damage, intensity, label=loadcase, *args, **kwargs)
 
+        plt.legend(loc='upper left')
+
 
 def _main():
     stories = {
@@ -200,10 +202,10 @@ def _main():
         '2F': 2,
     }
 
-    loadcases = [
-        'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2', 'PUSHX-3', 'PUSHX-MMC',
-        'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-    ]
+    # loadcases = [
+    #     'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2', 'PUSHX-3', 'PUSHX-MMC',
+    #     'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
+    # ]
 
     file_dir = os.path.dirname(os.path.abspath(__file__))
 
