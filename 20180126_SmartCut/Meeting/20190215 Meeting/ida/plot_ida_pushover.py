@@ -7,7 +7,7 @@ from interp_IDAS import interp_IDAS
 def plot_multi_idas_and_pushover(earthquakes, multi_story_drifts, pushover, loadcases, ylim_max=None, xlim_max=0.025):
     plot_multi_IDAS(earthquakes, multi_story_drifts,
                     ylim_max, xlim_max, accel_unit='sa')
-    pushover.plot_in_disp_and_accel(loadcases, marker='.')
+    pushover.plot(loadcases, marker='.')
     plt.title('IDA versus Static Pushover for a 3-storey moment resisting frame')
     plt.legend(loc='upper left')
 
@@ -49,8 +49,7 @@ def plot_median_idas_and_pushover(earthquakes, multi_story_drifts, pushover, loa
         earthquakes, multi_story_drifts, accel_unit='sa')
     plt.plot(multi_x, multi_y, label='median IDA curve')
 
-    pushover.plot_in_disp_and_accel(
-        loadcases, label='Static Pushover curve', marker='.')
+    pushover.plot(loadcases, marker='.')
 
     plt.legend(loc='upper left')
 

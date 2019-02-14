@@ -216,6 +216,7 @@ def _main():
 
     pushover.plot('PUSHX-T', damage_measure='story_displacements',
                   label='Static Pushover Curve')
+
     plt.legend(loc='upper left')
     plt.show()
 
