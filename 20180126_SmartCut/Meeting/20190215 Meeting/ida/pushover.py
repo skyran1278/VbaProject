@@ -14,12 +14,13 @@ class Pushover():
     pushover data and function
     """
 
-    def __init__(self, base_shear_path, story_drifts_path, stories, loadcases):
+    def __init__(self, base_shear_path, story_drifts_path, story_displacements_path, stories):
         self.base_shear_path = base_shear_path
         self.story_drifts_path = story_drifts_path
+        self.story_displacements_path = story_displacements_path
         self.stories = stories
-        self.loadcases = loadcases
         self.story_drifts = None
+        self.story_displacements = None
         self.base_shear = None
 
     def _story2level(self, df):
@@ -28,28 +29,51 @@ class Pushover():
 
         return df
 
-    def get_story_drifts(self):
+    def get_story_damage(self, damage_measure='story_drifts'):
         """
-        get every step pushover story drifts
+        get every step pushover story drifts or story displacements
         """
-        if not self.story_drifts:
-            self._init_story_drifts()
+        # if self.__dict__[damage_measure] is None:
+        #     self._init_damage(damage_measure)
 
-        return self.story_drifts
+        # return self.__dict__[damage_measure]
 
-    def _init_story_drifts(self):
+        if damage_measure == 'story_drifts':
+            if self.story_drifts is None:
+                self._init_damage('story_drifts')
+
+            return self.story_drifts
+        if damage_measure == 'story_displacements':
+            if self.story_displacements is None:
+                self._init_damage('story_displacements')
+
+            return self.story_displacements
+
+        return None
+
+    def _init_damage(self, damage_measure='story_drifts'):
         """
-        get every step pushover story drifts
+        init every step pushover story drifts or story displacements
+        damage_measure='story_drifts' or story_displacements
         """
-        pkl_file = f'{self.story_drifts_path} for pushover.pkl'
+        if damage_measure == 'story_drifts':
+            filepath = self.story_drifts_path
+            sheet_name = 'Story Drifts'
+        elif damage_measure == 'story_displacements':
+            filepath = self.story_displacements_path
+            sheet_name = 'Story Max Avg Displacements'
+        else:
+            print('Error damage_measure in _init_damage')
+
+        pkl_file = f'{filepath} for pushover.pkl'
 
         if not os.path.exists(pkl_file):
             print("Reading excel...")
 
-            read_file = f'{self.story_drifts_path}.xlsx'
+            read_file = f'{filepath}.xlsx'
 
             df = pd.read_excel(
-                read_file, sheet_name='Story Drifts', header=1, usecols=3, skiprows=[2])
+                read_file, sheet_name=sheet_name, header=1, usecols=3, skiprows=[2])
 
             # convert story label to number
             df = self._story2level(df)
@@ -70,30 +94,34 @@ class Pushover():
         with open(pkl_file, 'rb') as f:
             df = pickle.load(f)
 
-        self.story_drifts = df
+        if damage_measure == 'story_drifts':
+            self.story_drifts = df
+        elif damage_measure == 'story_displacements':
+            self.story_displacements = df
 
-    def get_max_drifts(self):
+    def _get_damage_measure_column(self, damage_measure='story_drifts'):
+        if damage_measure == 'story_drifts':
+            damage_measure_column = 'Drift'
+        elif damage_measure == 'story_displacements':
+            damage_measure_column = 'Maximum'
+        return damage_measure_column
+
+    def get_damage(self, damage_measure='story_drifts'):
         """
         condense story drift to max drift
         """
-        if self.story_drifts is None:
-            self._init_story_drifts()
+        column = self._get_damage_measure_column(damage_measure)
 
-        max_drifts = self.story_drifts[self.story_drifts.groupby(
-            'Load Case/Combo')['Drift'].transform(max) == self.story_drifts['Drift']]
+        story_damage_measure = self.get_story_damage(damage_measure)
 
-        max_drifts = max_drifts.drop_duplicates('Load Case/Combo')
+        damage = story_damage_measure[story_damage_measure.groupby(
+            'Load Case/Combo')[column].transform(max) == story_damage_measure[column]]
 
-        # max_drifts = max_drifts.reset_index(drop=True)
+        damage = damage.drop_duplicates('Load Case/Combo')
 
-        # print(max_drifts.head(30))
+        return damage
 
-        # max_drifts = self.story_drifts.groupby(
-        #     'Load Case/Combo', as_index=False, sort=False)['Drift'].max()
-
-        return max_drifts
-
-    def _init_base_shear(self):
+    def _init_intensity(self):
         """
         get pushover base shear and acceleration
         """
@@ -123,38 +151,46 @@ class Pushover():
 
         self.base_shear = df
 
-    def get_base_shear(self):
+    def get_intensity(self):
         """
         get pushover base shear and acceleration
         """
         if self.base_shear is None:
-            self._init_base_shear()
+            self._init_intensity()
         return self.base_shear
 
-    def get_loadcase_drift_and_accel(self, loadcase):
+    def get_points(self, loadcase, damage_measure='story_drifts'):
         """
-        get drift and accel by load case
+        get damage and intensity by loadcase and damage_measure
         """
-        drifts = self.get_max_drifts()
-        base_shear = self.get_base_shear()
+        column = self._get_damage_measure_column(damage_measure)
+        damage = self.get_damage(damage_measure)
+        intensity = self.get_intensity()
 
-        drifts = drifts.loc[drifts['Load Case'] == loadcase, :].copy()
-        drifts.loc[:, 'Step'] = drifts['Step'].astype('float64')
-        drifts = drifts.sort_values(by=['Step'])
+        damage = damage.loc[damage['Load Case'] == loadcase, :].copy()
+        damage.loc[:, 'Step'] = damage['Step'].astype('float64')
+        damage = damage.sort_values(by=['Step'])
 
-        base_shear = base_shear.loc[base_shear['Load Case']
-                                    == loadcase, :].copy()
-        base_shear.loc[:, 'Step'] = base_shear.loc[:, 'Step'].astype('float64')
-        base_shear = base_shear.sort_values(by=['Step'])
+        intensity = intensity.loc[
+            intensity['Load Case'] == loadcase, :].copy()
+        intensity.loc[:, 'Step'] = intensity.loc[:, 'Step'].astype('float64')
+        intensity = intensity.sort_values(by=['Step'])
 
-        return drifts['Drift'].values, base_shear['Accel'].values
+        return damage[column].values, intensity['Accel'].values
 
-    def plot_in_drift_and_accel(self, loadcase):
+    def plot(self, loadcases, *args, damage_measure='story_drifts', **kwargs):
         """
         plot pushover in drift and acceleration by load case
         """
-        drifts, base_shear = self.get_loadcase_drift_and_accel(loadcase)
-        plt.plot(drifts, base_shear)
+        if isinstance(loadcases, str):
+            loadcase = loadcases
+            damage, intensity = self.get_points(loadcase, damage_measure)
+            plt.plot(damage, intensity, *args, **kwargs)
+
+        else:
+            for loadcase in loadcases:
+                damage, intensity = self.get_points(loadcase, damage_measure)
+                plt.plot(damage, intensity, label=loadcase, *args, **kwargs)
 
 
 def _main():
@@ -171,11 +207,16 @@ def _main():
 
     file_dir = os.path.dirname(os.path.abspath(__file__))
 
-    pushover = Pushover(story_drifts_path=file_dir + '/20190212 pushover story drifts',
-                        base_shear_path=file_dir + '/20190212 pushover base shear',
-                        stories=stories, loadcases=loadcases)
+    pushover = Pushover(
+        base_shear_path=file_dir + '/20190214 multi pushover base shear',
+        story_drifts_path=file_dir + '/20190214 multi pushover story drifts',
+        story_displacements_path=file_dir + '/20190214 multi pushover displacement',
+        stories=stories
+    )
 
-    pushover.plot_in_drift_and_accel('PUSHX-T')
+    pushover.plot('PUSHX-T', damage_measure='story_displacements',
+                  label='Static Pushover Curve')
+    plt.legend(loc='upper left')
     plt.show()
 
 

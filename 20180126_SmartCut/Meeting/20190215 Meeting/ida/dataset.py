@@ -12,12 +12,14 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 def dataset_ida_storydrifts(filename, stories):
     """ get time history max story drift
     """
-    pkl_file = f'{SCRIPT_DIR}/{filename} for IDA.pkl'
+    filepath = os.path.join(SCRIPT_DIR, filename)
+
+    pkl_file = f'{filepath} for IDA.pkl'
 
     if not os.path.exists(pkl_file):
         print("Reading excel...")
 
-        read_file = f'{SCRIPT_DIR}/{filename}.xlsx'
+        read_file = f'{filepath}.xlsx'
 
         df = pd.read_excel(
             read_file, sheet_name='Story Drifts', header=1, usecols=3, skiprows=[2])
@@ -48,30 +50,35 @@ def dataset_ida_storydrifts(filename, stories):
     return df
 
 
-def dataset_pushover_storydrifts(filename, stories):
+def dataset_ida_storydisp(filename, stories):
+    """ get time history max story drift
     """
-    get every step pushover story drifts
-    """
-    pkl_file = f'{SCRIPT_DIR}/{filename} for pushover.pkl'
+    filepath = os.path.join(SCRIPT_DIR, filename)
+
+    pkl_file = f'{filepath} for IDA.pkl'
 
     if not os.path.exists(pkl_file):
         print("Reading excel...")
 
-        read_file = f'{SCRIPT_DIR}/{filename}.xlsx'
+        read_file = f'{filepath}.xlsx'
 
         df = pd.read_excel(
-            read_file, sheet_name='Story Drifts', header=1, usecols=3, skiprows=[2])
+            read_file, sheet_name='Story Max Avg Displacements', header=1, usecols=3, skiprows=[2])
 
         # convert story label to number
         df = _story2level(df, stories)
 
-        # StoryAndCase = Story + Load Case/Combo
+        # delete max and min string
+        df.loc[:, 'Load Case/Combo'] = df['Load Case/Combo'].str[:-4]
+
         df = df.assign(
             StoryAndCase=lambda x: x['Story'] + ' ' + x['Load Case/Combo'])
 
-        # split Load Case/Combo to load case and step
-        df['Load Case'], df['Step'] = df['Load Case/Combo'].str.rsplit(
-            ' ', 1).str
+        # combine max min
+        df = df.groupby('StoryAndCase', as_index=False, sort=False).agg('max')
+
+        df['Load Case'], df['Scaled Factors'] = df['Load Case/Combo'].str.rsplit(
+            '-', 1).str
 
         print("Creating pickle file ...")
         with open(pkl_file, 'wb') as f:
@@ -84,44 +91,82 @@ def dataset_pushover_storydrifts(filename, stories):
     return df
 
 
-def get_max_story_drift(df):
-    """
-    condense story drift to max drift
-    """
-    return df.groupby(
-        'Load Case/Combo', as_index=False, sort=False)['Drift'].max()
+# def dataset_pushover_storydrifts(filename, stories):
+#     """
+#     get every step pushover story drifts
+#     """
+#     filepath = os.path.join(SCRIPT_DIR, filename)
+
+#     pkl_file = f'{filepath} for pushover.pkl'
+
+#     if not os.path.exists(pkl_file):
+#         print("Reading excel...")
+
+#         read_file = f'{filepath}.xlsx'
+
+#         df = pd.read_excel(
+#             read_file, sheet_name='Story Drifts', header=1, usecols=3, skiprows=[2])
+
+#         # convert story label to number
+#         df = _story2level(df, stories)
+
+#         # StoryAndCase = Story + Load Case/Combo
+#         df = df.assign(
+#             StoryAndCase=lambda x: x['Story'] + ' ' + x['Load Case/Combo'])
+
+#         # split Load Case/Combo to load case and step
+#         df['Load Case'], df['Step'] = df['Load Case/Combo'].str.rsplit(
+#             ' ', 1).str
+
+#         print("Creating pickle file ...")
+#         with open(pkl_file, 'wb') as f:
+#             pickle.dump(df, f, True)
+#         print("Done!")
+
+#     with open(pkl_file, 'rb') as f:
+#         df = pickle.load(f)
+
+#     return df
 
 
-def dataset_pushover_baseshear(filename):
-    """
-    get pushover base shear and acceleration
-    """
-    pkl_file = f'{SCRIPT_DIR}/{filename} for pushover.pkl'
+# def get_max_story_drift(df):
+#     """
+#     condense story drift to max drift
+#     """
+#     return df.groupby(
+#         'Load Case/Combo', as_index=False, sort=False)['Drift'].max()
 
-    if not os.path.exists(pkl_file):
-        print("Reading excel...")
 
-        read_file = f'{SCRIPT_DIR}/{filename}.xlsx'
+# def dataset_pushover_baseshear(filename):
+#     """
+#     get pushover base shear and acceleration
+#     """
+#     pkl_file = f'{SCRIPT_DIR}/{filename} for pushover.pkl'
 
-        df = pd.read_excel(
-            read_file, sheet_name='Base Reactions', header=1, usecols=3, skiprows=[2])
+#     if not os.path.exists(pkl_file):
+#         print("Reading excel...")
 
-        df['Load Case'], df['Step'] = df['Load Case/Combo'].str.rsplit(
-            ' ', 1).str
+#         read_file = f'{SCRIPT_DIR}/{filename}.xlsx'
 
-        df['Accel'] = np.abs(df['FX'] / df['FZ'])
+#         df = pd.read_excel(
+#             read_file, sheet_name='Base Reactions', header=1, usecols=3, skiprows=[2])
 
-        print(df.head())
+#         df['Load Case'], df['Step'] = df['Load Case/Combo'].str.rsplit(
+#             ' ', 1).str
 
-        print("Creating pickle file ...")
-        with open(pkl_file, 'wb') as f:
-            pickle.dump(df, f, True)
-        print("Done!")
+#         df['Accel'] = np.abs(df['FX'] / df['FZ'])
 
-    with open(pkl_file, 'rb') as f:
-        df = pickle.load(f)
+#         print(df.head())
 
-    return df
+#         print("Creating pickle file ...")
+#         with open(pkl_file, 'wb') as f:
+#             pickle.dump(df, f, True)
+#         print("Done!")
+
+#     with open(pkl_file, 'rb') as f:
+#         df = pickle.load(f)
+
+#     return df
 
 
 def _story2level(df, stories):
@@ -138,13 +183,13 @@ def _main():
         '2F': 2,
     }
 
-    pushouver_story_drifts = dataset_pushover_storydrifts(
-        '20190212 pushover story drifts', stories)
+    # pushouver_story_drifts = dataset_pushover_storydrifts(
+    #     '20190212 pushover story drifts', stories)
 
-    get_max_story_drift(pushouver_story_drifts)
+    # get_max_story_drift(pushouver_story_drifts)
 
-    pushouver_base_shear = dataset_pushover_baseshear(
-        '20190212 pushover base shear')
+    # pushouver_base_shear = dataset_pushover_baseshear(
+    #     '20190212 pushover base shear')
 
 
 if __name__ == "__main__":
