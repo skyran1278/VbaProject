@@ -104,7 +104,7 @@ def calc_ld(etbas_design, e2k):
     return etbas_design
 
 
-def add_ld(etbas_design):
+def add_ld(etbas_design, ld_type):
     """
     add ld
     """
@@ -119,8 +119,8 @@ def add_ld(etbas_design):
     # 分比較方便
     for loc in BAR:
         bar_num = 'Bar' + loc + 'Num'
-        ld = loc + 'Ld'
-        bar_num_ld = bar_num + 'Ld'
+        ld = loc + ld_type
+        bar_num_ld = bar_num + ld_type
 
         ld_design = ld_design.assign(**init_ld(ld_design))
 
@@ -137,6 +137,7 @@ def add_ld(etbas_design):
                     group.at[group.index[i], bar_num], group.loc[stn_inter, bar_num_ld])
 
             ld_design.loc[group.index, bar_num_ld] = group[bar_num_ld]
+
             count += 1
             if count % 100 == 0:
                 print(name)
@@ -172,9 +173,14 @@ def main():
     execution.time('ld')
 
     execution.time('add_ld')
-    ld_design = add_ld(ld_design)
+    ld_design = add_ld(ld_design, 'Ld')
     print(ld_design.head())
     execution.time('add_ld')
+
+    execution.time('add_simple_ld')
+    ld_design = add_ld(ld_design, 'SimpleLd')
+    print(ld_design.head())
+    execution.time('add_simple_ld')
 
 
 if __name__ == "__main__":

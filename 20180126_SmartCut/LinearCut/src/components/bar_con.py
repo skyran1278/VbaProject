@@ -14,37 +14,6 @@ from data.dataset_e2k import load_e2k
 from bar_ld import calc_ld
 
 
-def add_simple_ld(beam_v_m_ld):
-    def init_ld(df):
-        return {
-            bar_num_ld: df[bar_num],
-        }
-
-    for loc in BAR:
-        bar_num = 'Bar' + loc + 'Num'
-        ld = loc + 'SimpleLd'
-        bar_num_ld = bar_num + 'SimpleLd'
-
-        if not ld in beam_v_m_ld.columns:
-            beam_v_m_ld = calc_ld(beam_v_m_ld)
-
-        beam_v_m_ld = beam_v_m_ld.assign(**init_ld(beam_v_m_ld))
-
-        for _, group in beam_v_m_ld.groupby(['Story', 'BayID'], sort=False):
-            group = group.copy()
-            for i in (0, -1):
-                stn_loc = group.at[group.index[i], 'StnLoc']
-                stn_ld = group.at[group.index[i], ld]
-                stn_inter = (group['StnLoc'] >= stn_loc -
-                             stn_ld) & (group['StnLoc'] <= stn_loc + stn_ld)
-                group.loc[stn_inter, bar_num_ld] = np.maximum(
-                    group.at[group.index[i], bar_num], group.loc[stn_inter, bar_num_ld])
-
-            beam_v_m_ld.loc[group.index, bar_num_ld] = group[bar_num_ld]
-
-    return beam_v_m_ld
-
-
 def cut_conservative(beam_v_m, beam_3p):
     rebars = load_e2k()[0]
     beam_3p = beam_3p.copy()
