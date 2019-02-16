@@ -39,16 +39,25 @@ def double_area(number):
     double area, for stirrups\n
     number: string, rebar No. (ex: '#4')
     """
+    if number[0] == '2':
+        return REBARS[(number[1:], 'AREA')] * 2
+
     return REBARS[(number, 'AREA')] * 2
 
 
 def rebar_db(number):
     """ rebar db
     """
-    return REBARS[(number, 'DB')] * 2
+    if number[0] == '2':
+        return REBARS[(number[1:], 'DB')]
+
+    return REBARS[(number, 'DB')]
 
 
 def rebar_area(number):
     """ rebar area
     """
-    return REBARS[(number, 'AREA')] * 2
+    if number[0] == '2':
+        return REBARS[(number[1:], 'AREA')]
+
+    return REBARS[(number, 'AREA')]

@@ -1,19 +1,15 @@
 """ calculate ld
 """
-import os
-import sys
-
-import pandas as pd
 import numpy as np
 
-# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
+from const import BAR, COVER
+from data.dataset_rebar import double_area, rebar_area, rebar_db
 
-from utils.pkl import load_pkl
-from utils.Clock import Clock
 
-from const import BAR
-from data.dataset_rebar import load_e2k
+def _double_size_area(real_v_size):
+    rebar_num = real_v_size[0]
+
+    return np.where(rebar_num == '2', double_area(real_v_size), rebar_area(real_v_size))
 
 
 def _ld(df, loc, e2k):
@@ -23,13 +19,6 @@ def _ld(df, loc, e2k):
     PI = 3.1415926
     """
     materials, sections = e2k['materials'], e2k['sections']
-
-    def double_size_area(df):
-        rebar_num, rebar_size = df.split(sep='#')
-        rebar_size = '#' + rebar_size
-        rebar_area = rebars[rebar_size, 'AREA']
-
-        return np.where(rebar_num == '2', rebar_area * 2, rebar_area)
 
     bar_size = 'Bar' + loc + 'Size'
     bar_1st = 'Bar' + loc + '1st'
@@ -41,12 +30,11 @@ def _ld(df, loc, e2k):
     fc = material.apply(lambda x: materials[x, 'FC']) / 10
     fy = material.apply(lambda x: materials[x, 'FY']) / 10
     fyh = fy
-    cover = 0.04 * 100
-    db = df[bar_size].apply(lambda x: rebars[x, 'DIA']) * 100
+    cover = COVER * 100
+    db = df[bar_size].apply(rebar_db) * 100
     num = df[bar_1st]
-    dh = df['RealVSize'].apply(
-        lambda x: rebars['#' + x.split(sep='#')[1], 'DIA']) * 100
-    avh = df['RealVSize'].apply(double_size_area) * 10000
+    dh = df['RealVSize'].apply(rebar_db) * 100
+    avh = df['RealVSize'].apply(_double_size_area) * 10000
     spacing = df['RealSpacing'] * 100
 
     # 5.2.2
@@ -116,32 +104,29 @@ def calc_ld(etbas_design, e2k):
     return etbas_design
 
 
-def add_ld(beam_v_m_ld):
-    beam_ld_added = beam_v_m_ld.copy()
+def add_ld(etbas_design):
+    """
+    add ld
+    """
+    ld_design = etbas_design.copy()
 
     def init_ld(df):
         return {
             bar_num_ld: df[bar_num],
-            # bar_1st_ld: df[bar_1st],
-            # bar_2nd_ld: df[bar_2nd]
         }
 
     # 好像可以不用分上下層
     # 分比較方便
     for loc in BAR:
-        # loc = loc.capitalize()
-
         bar_num = 'Bar' + loc + 'Num'
         ld = loc + 'Ld'
         bar_num_ld = bar_num + 'Ld'
-        # bar_1st_ld = bar_1st + 'Ld'
-        # bar_2nd_ld = bar_2nd + 'Ld'
 
-        beam_ld_added = beam_ld_added.assign(**init_ld(beam_ld_added))
+        ld_design = ld_design.assign(**init_ld(ld_design))
 
         count = 0
 
-        for name, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
+        for name, group in ld_design.groupby(['Story', 'BayID'], sort=False):
             group = group.copy()
             for i in range(len(group)):
                 stn_loc = group.at[group.index[i], 'StnLoc']
@@ -150,12 +135,47 @@ def add_ld(beam_v_m_ld):
                              stn_ld) & (group['StnLoc'] <= stn_loc + stn_ld)
                 group.loc[stn_inter, bar_num_ld] = np.maximum(
                     group.at[group.index[i], bar_num], group.loc[stn_inter, bar_num_ld])
-                # group.loc[group[stn_inter].index, bar_num_ld] = np.maximum(
-                #     group.at[group.index[i], bar_num], group.loc[group[stn_inter].index, bar_num_ld])
 
-            beam_ld_added.loc[group.index, bar_num_ld] = group[bar_num_ld]
+            ld_design.loc[group.index, bar_num_ld] = group[bar_num_ld]
             count += 1
             if count % 100 == 0:
                 print(name)
 
-    return beam_ld_added
+    return ld_design
+
+
+def main():
+    """
+    test
+    """
+    from components.init_beam import init_beam
+    from const import E2K_PATH, ETABS_DESIGN_PATH
+    from data.dataset_etabs_design import load_beam_design
+    from data.dataset_e2k import load_e2k
+    from utils.execution_time import Execution
+    from components.stirrups import calc_stirrups
+    from components.bar_size_num import calc_db
+
+    e2k = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    etabs_design = load_beam_design(
+        ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
+
+    beam = init_beam(etabs_design, e2k, moment=3, shear=True)
+    execution = Execution()
+    beam, dh_design = calc_stirrups(beam, etabs_design)
+
+    db_design = calc_db('BayID', dh_design, e2k)
+
+    execution.time('ld')
+    ld_design = calc_ld(db_design, e2k)
+    print(ld_design.head())
+    execution.time('ld')
+
+    execution.time('add_ld')
+    ld_design = add_ld(ld_design)
+    print(ld_design.head())
+    execution.time('add_ld')
+
+
+if __name__ == "__main__":
+    main()

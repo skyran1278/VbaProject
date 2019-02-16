@@ -1,19 +1,16 @@
-import os
-import sys
+"""
+traditional bar
+"""
 import time
 
-import pandas as pd
 import numpy as np
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
-
 from utils.pkl import load_pkl
-from utils.Clock import Clock
+from utils.execution_time import Execution
 from utils.functions import concat_num_size, num_to_1st_2nd
 
-from database.const import BAR
-from database.dataset_e2k import load_e2k
+from const import BAR
+from data.dataset_e2k import load_e2k
 from bar_ld import calc_ld
 
 
@@ -21,19 +18,12 @@ def add_simple_ld(beam_v_m_ld):
     def init_ld(df):
         return {
             bar_num_ld: df[bar_num],
-            # bar_1st_ld: df[bar_1st],
-            # bar_2nd_ld: df[bar_2nd]
         }
 
-    for Loc in BAR.keys():
-
-        # Loc = Loc.capitalize()
-
-        bar_num = 'Bar' + Loc + 'Num'
-        ld = Loc + 'SimpleLd'
+    for loc in BAR:
+        bar_num = 'Bar' + loc + 'Num'
+        ld = loc + 'SimpleLd'
         bar_num_ld = bar_num + 'SimpleLd'
-        # bar_1st_ld = bar_1st + 'Ld'
-        # bar_2nd_ld = bar_2nd + 'Ld'
 
         if not ld in beam_v_m_ld.columns:
             beam_v_m_ld = calc_ld(beam_v_m_ld)
@@ -49,11 +39,8 @@ def add_simple_ld(beam_v_m_ld):
                              stn_ld) & (group['StnLoc'] <= stn_loc + stn_ld)
                 group.loc[stn_inter, bar_num_ld] = np.maximum(
                     group.at[group.index[i], bar_num], group.loc[stn_inter, bar_num_ld])
-                # group.loc[group[stn_inter].index, bar_num_ld] = np.maximum(
-                #     group.at[group.index[i], bar_num], group.loc[group[stn_inter].index, bar_num_ld])
 
             beam_v_m_ld.loc[group.index, bar_num_ld] = group[bar_num_ld]
-            # print(name)
 
     return beam_v_m_ld
 
@@ -145,18 +132,18 @@ def cut_conservative(beam_v_m, beam_3p):
         else:
             return span * 1/5
 
-    for Loc in BAR.keys():
+    for loc in BAR:
 
-        i = output_loc[Loc]['START_LOC']
-        to_2nd = output_loc[Loc]['TO_2nd']
+        i = output_loc[loc]['START_LOC']
+        to_2nd = output_loc[loc]['TO_2nd']
 
-        bar_cap = 'Bar' + Loc + 'Cap'
-        bar_size = 'Bar' + Loc + 'Size'
-        bar_num = 'Bar' + Loc + 'Num'
-        ld = Loc + 'SimpleLd'
+        bar_cap = 'Bar' + loc + 'Cap'
+        bar_size = 'Bar' + loc + 'Size'
+        bar_num = 'Bar' + loc + 'Num'
+        ld = loc + 'SimpleLd'
         # bar_num_ld = bar_num + 'SimpleLd'
-        # bar_1st = 'Bar' + Loc + '1st'
-        # bar_2nd = 'Bar' + Loc + '2nd'
+        # bar_1st = 'Bar' + loc + '1st'
+        # bar_2nd = 'Bar' + loc + '2nd'
 
         for _, group in beam_v_m.groupby(['Story', 'BayID'], sort=False):
             num_usage = 0
