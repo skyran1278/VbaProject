@@ -1,22 +1,20 @@
 """
 traditional bar
 """
-import time
-
 import numpy as np
 
-from utils.pkl import load_pkl
 from utils.execution_time import Execution
-from utils.functions import concat_num_size, num_to_1st_2nd
+from components.bar_functions import concat_num_size, num_to_1st_2nd
 
 from const import BAR
-from data.dataset_e2k import load_e2k
-from bar_ld import calc_ld
+from data.dataset_rebar import double_area, rebar_area, rebar_db
 
 
-def cut_conservative(beam_v_m, beam_3p):
-    rebars = load_e2k()[0]
-    beam_3p = beam_3p.copy()
+def cut_traditional(etbas_design, beam):
+    """
+    traditional cut
+    """
+    beam = beam.copy()
 
     output_loc = {
         'Top': {
@@ -94,7 +92,7 @@ def cut_conservative(beam_v_m, beam_3p):
     def _get_loc_length(loc_num, loc_ld, mid_num, span):
         if loc_num > mid_num:
             if loc_ld > span * 1/3:
-                # beam_3p.at[i, ('長度', bar_loc)] = loc_length * 100
+                # beam.at[i, ('長度', bar_loc)] = loc_length * 100
                 return loc_ld
             else:
                 return span * 1/3
@@ -114,7 +112,7 @@ def cut_conservative(beam_v_m, beam_3p):
         # bar_1st = 'Bar' + loc + '1st'
         # bar_2nd = 'Bar' + loc + '2nd'
 
-        for _, group in beam_v_m.groupby(['Story', 'BayID'], sort=False):
+        for _, group in etbas_design.groupby(['Story', 'BayID'], sort=False):
             num_usage = 0
 
             group_max = np.amax(group['StnLoc'])
@@ -147,12 +145,12 @@ def cut_conservative(beam_v_m, beam_3p):
             #     loc_length = span / 3
 
             #     for bar_loc in ('左', '中', '右'):
-            #         beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(
+            #         beam.at[i, ('主筋', bar_loc)] = concat_num_size(
             #             loc_1st, group_size)
-            #         beam_3p.at[i + to_2nd, ('主筋', bar_loc)
+            #         beam.at[i + to_2nd, ('主筋', bar_loc)
             #                    ] = concat_num_size(loc_2nd, group_size)
 
-            #         beam_3p.at[i, ('長度', bar_loc)] = loc_length * 100
+            #         beam.at[i, ('長度', bar_loc)] = loc_length * 100
 
             #         num_usage = num_usage + loc_num * loc_length
 
@@ -168,12 +166,12 @@ def cut_conservative(beam_v_m, beam_3p):
                     loc_num, loc_1st, loc_2nd = group_num[bar_max]
                     loc_length = span / 3
 
-                beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(
+                beam.at[i, ('主筋', bar_loc)] = concat_num_size(
                     loc_1st, group_size)
-                beam_3p.at[i + to_2nd, ('主筋', bar_loc)
-                           ] = concat_num_size(loc_2nd, group_size)
+                beam.at[i + to_2nd, ('主筋', bar_loc)
+                        ] = concat_num_size(loc_2nd, group_size)
 
-                beam_3p.at[i, ('長度', bar_loc)] = loc_length * 100
+                beam.at[i, ('長度', bar_loc)] = loc_length * 100
 
                 num_usage = num_usage + loc_num * loc_length
 
@@ -181,14 +179,14 @@ def cut_conservative(beam_v_m, beam_3p):
 
                 # total_num = total_num + loc_num
                 # if loc_num - cap_num == 1:
-                #     beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(cap_num - 1)
-                #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = concat_num_size(2)
+                #     beam.at[i, ('主筋', bar_loc)] = concat_num_size(cap_num - 1)
+                #     beam.at[i + to_2nd, ('主筋', bar_loc)] = concat_num_size(2)
                 # elif loc_num > cap_num:
-                #     beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(cap_num)
-                #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = concat_num_size(loc_num - cap_num)
+                #     beam.at[i, ('主筋', bar_loc)] = concat_num_size(cap_num)
+                #     beam.at[i + to_2nd, ('主筋', bar_loc)] = concat_num_size(loc_num - cap_num)
                 # else:
-                #     beam_3p.at[i, ('主筋', bar_loc)] = concat_num_size(loc_num)
-                #     beam_3p.at[i + to_2nd, ('主筋', bar_loc)] = 0
+                #     beam.at[i, ('主筋', bar_loc)] = concat_num_size(loc_num)
+                #     beam.at[i + to_2nd, ('主筋', bar_loc)] = 0
 
             # 沒有處理 1/7，所以比較保守
 
@@ -211,27 +209,20 @@ def cut_conservative(beam_v_m, beam_3p):
             #     num_usage = num_usage + right_num * span * 1/3
 
             # 計算鋼筋體積 cm3
-            beam_3p.at[i, ('NOTE', '')] = num_usage * (
+            beam.at[i, ('NOTE', '')] = num_usage * (
                 rebars[(group_size, 'AREA')]) * 1000000
 
             i += 4
 
-    return beam_3p
+    return beam
 
 
 def main():
-    start = time.time()
+    """
+    test
+    """
 
-    (beam_3p, _) = load_pkl(SCRIPT_DIR + '/stirrups.pkl')
-    beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
-    beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
-
-    beam_ld_added = add_simple_ld(beam_v_m)
-    beam_3p_con = cut_conservative(beam_ld_added, beam_3p)
-
-    beam_3p_con.to_excel(SCRIPT_DIR + '/beam_3p_con.xlsx')
-
-    print(time.time() - start)
+    beam_con = cut_traditional(beam_ld_added, beam)
 
 
 if __name__ == '__main__':
