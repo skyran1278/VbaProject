@@ -135,13 +135,13 @@ def add_ld(etbas_design, ld_type):
             elif ld_type == 'SimpleLd':
                 iteration = (0, -1)
 
-            for i in iteration:
-                stn_loc = group.at[group.index[i], 'StnLoc']
-                stn_ld = group.at[group.index[i], ld]
+            for row in iteration:
+                stn_loc = group.at[group.index[row], 'StnLoc']
+                stn_ld = group.at[group.index[row], ld]
                 stn_inter = (group['StnLoc'] >= stn_loc -
                              stn_ld) & (group['StnLoc'] <= stn_loc + stn_ld)
                 group.loc[stn_inter, bar_num_ld] = np.maximum(
-                    group.at[group.index[i], bar_num], group.loc[stn_inter, bar_num_ld])
+                    group.at[group.index[row], bar_num], group.loc[stn_inter, bar_num_ld])
 
             ld_design.loc[group.index, bar_num_ld] = group[bar_num_ld]
 

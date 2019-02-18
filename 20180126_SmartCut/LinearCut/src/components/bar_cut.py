@@ -1,28 +1,22 @@
-import os
-import sys
-
-import pandas as pd
+"""
+smart cut
+"""
 import numpy as np
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
-from utils.pkl import load_pkl
-from utils.Clock import Clock
-from utils.functions import concat_num_size, num_to_1st_2nd
-
-from database.const import BAR, ITERATION_GAP
-from database.dataset_e2k import load_e2k
+from components.bar_functions import concat_num_size, num_to_1st_2nd
+from const import BAR, ITERATION_GAP
+from data.dataset_rebar import rebar_area
 
 
 def _calc_num_length(group, split_array):
     num = np.empty_like(split_array)
     length = np.empty_like(split_array)
 
-    for i in range(len(split_array)):
-        num[i] = np.amax(split_array[i])
-        length[i] = group.at[split_array[i].index[-1], 'StnLoc'] - group.at[
-            split_array[i].index[0], 'StnLoc']
+    for counter, _ in enumerate(split_array):
+        num[counter] = np.amax(split_array[counter])
+        length[counter] = group.at[split_array[counter].index[-1], 'StnLoc'] - group.at[
+            split_array[counter].index[0], 'StnLoc']
     return num, length
 
 
@@ -43,9 +37,7 @@ def _get_min_cut(group_loc, group_loc_diff, i):
         return group_loc.index[i + 1]
 
 
-def cut_5(beam_ld_added, beam_5):
-    rebars = load_e2k()[0]
-
+def cut_5(etabs_design, beam_5):
     output_loc = {
         'Top': {
             'START_LOC': 0,
@@ -57,16 +49,16 @@ def cut_5(beam_ld_added, beam_5):
         }
     }
 
-    for Loc in BAR.keys():
+    for loc in BAR:
 
-        i = output_loc[Loc]['START_LOC']
-        to_2nd = output_loc[Loc]['TO_2nd']
+        i = output_loc[loc]['START_LOC']
+        to_2nd = output_loc[loc]['TO_2nd']
 
-        bar_cap = 'Bar' + Loc + 'Cap'
-        bar_size = 'Bar' + Loc + 'Size'
-        bar_num_ld = 'Bar' + Loc + 'NumLd'
+        bar_cap = 'Bar' + loc + 'Cap'
+        bar_size = 'Bar' + loc + 'Size'
+        bar_num_ld = 'Bar' + loc + 'NumLd'
 
-        for _, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
+        for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
             min_usage = float('Inf')
 
             group_cap = group.at[group.index[0], bar_cap]
@@ -213,7 +205,7 @@ def cut_5(beam_ld_added, beam_5):
                 '右1': min_length[-1]
             }
 
-            for bar_loc in group_num.keys():
+            for bar_loc in group_num:
                 loc_1st, loc_2nd = group_num[bar_loc]
                 loc_length = group_length[bar_loc]
                 beam_5.at[i, ('主筋', bar_loc)] = concat_num_size(
@@ -222,75 +214,63 @@ def cut_5(beam_ld_added, beam_5):
                 beam_5.at[i + to_2nd, ('主筋', bar_loc)
                           ] = concat_num_size(loc_2nd, group_size)
 
-            beam_5.at[i, ('NOTE', '')] = min_usage * (
-                rebars[(group_size, 'AREA')]) * 1000000
+            beam_5.at[i, ('NOTE', '')] = min_usage * rebar_area(
+                group_size) * 1000000
 
             i += 4
 
     return beam_5
 
 
-def cut_3(beam_ld_added, beam_3p):
-    rebars = load_e2k()[0]
+def cut_3(group, loc):
+    """
+    cut 3, depands on ITERATION_GAP, ex: 0.1~0.45, 0.55~0.9
+    """
+    # initial
+    min_usage = float('Inf')
 
-    # def _calc_num_length(group, split_array):
-    #     num = np.empty_like(split_array)
-    #     length = np.empty_like(split_array)
+    bar_num_ld = 'Bar' + loc + 'NumLd'
 
-    #     for i in range(len(split_array)):
-    #         num[i] = np.amax(split_array[i])
-    #         length[i] = group.at[split_array[i].index[-1], 'StnLoc'] - group.at[
-    #             split_array[i].index[0], 'StnLoc']
-    #     return num, length
+    group_max = np.amax(group['StnLoc'])
+    group_min = np.amin(group['StnLoc'])
 
-    # # def concat_num_size(num, group_size):
-    # #     if num == 0:
-    # #         return 0
-    # #     return str(int(num)) + '-' + group_size
+    left = (group_max - group_min) * ITERATION_GAP['Left'] + group_min
+    right = (group_max - group_min) * (
+        ITERATION_GAP['Right']) + group_min
 
-    # # def num_to_1st_2nd(num, group_cap):
-    # #     if num - group_cap == 1:
-    # #         return group_cap - 1, 2
-    # #     elif num > group_cap:
-    # #         return group_cap, num - group_cap
-    # #     else:
-    # #         return max(num, 2), 0
+    group_left = group[bar_num_ld][(
+        group['StnLoc'] >= left[0]) & (group['StnLoc'] <= left[1])]
+    group_right = group[bar_num_ld][(
+        group['StnLoc'] >= right[0]) & (group['StnLoc'] <= right[1])]
 
-    # def _make_1st_last_diff(group_diff):
-    #     if group_diff[0] == 0:
-    #         group_diff[0] = 1
+    group_left_diff = np.diff(group_left)
+    group_right_diff = np.diff(group_right)
 
-    #     if group_diff[-1] == 0:
-    #         group_diff[-1] = -1
+    group_left_diff = _make_1st_last_diff(group_left_diff)
+    group_right_diff = _make_1st_last_diff(group_right_diff)
 
-    #     return group_diff
+    for i in np.flatnonzero(group_left_diff):
+        split_left = _get_min_cut(group_left, group_left_diff, i)
 
-    # def _get_min_cut(group_loc, group_loc_diff, i):
-    #     # loc = group_loc_diff[i]
-    #     # right = group_loc_diff[i + 1]
-    #     # left = group.loc[group_loc.index[i], bar_num_ld]
-    #     # right = group.loc[group_loc.index[i + 1], bar_num_ld]
-    #     if group_loc_diff[i] > 0:
-    #         return group_loc.index[i]
-    #     else:
-    #         return group_loc.index[i + 1]
-    # if left == right:
-    #     print(f'ERROR in get_min_cut {i}')
-    # if left < right:
-    #     return group_loc.index[i]
-    # else:
-    #     return group_loc.index[i + 1]
+        for j in np.flatnonzero(group_right_diff):
 
-    # def make_first_last_diff(*args):
-    #     result = []
+            split_right = _get_min_cut(
+                group_right, group_right_diff, j)
+            split_3p_array = [
+                group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
+            num, length = _calc_num_length(group, split_3p_array)
 
-    #     for arg in args:
-    #         arg[0] = 1
-    #         arg[-1] = 1
-    #         result.append(arg)
+            rebar_usage = np.sum(num * length)
 
-    #     return tuple(result)
+            if rebar_usage < min_usage:
+                min_usage = rebar_usage
+                min_num = num
+                min_length = length
 
+    return min_num, min_length, min_usage
+
+
+def output_3(beam, etabs_design):
     output_loc = {
         'Top': {
             'START_LOC': 0,
@@ -302,316 +282,86 @@ def cut_3(beam_ld_added, beam_3p):
         }
     }
 
-    for Loc in BAR.keys():
+    for loc in BAR:
+        row = output_loc[loc]['START_LOC']
+        to_2nd = output_loc[loc]['TO_2nd']
 
-        k = output_loc[Loc]['START_LOC']
-        to_2nd = output_loc[Loc]['TO_2nd']
+        for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
+            # group capacity and size
+            group_cap = group.at[group.index[0], 'Bar' + loc + 'Cap']
+            group_size = group.at[group.index[0], 'Bar' + loc + 'Size']
 
-        bar_cap = 'Bar' + Loc + 'Cap'
-        bar_size = 'Bar' + Loc + 'Size'
-        bar_num_ld = 'Bar' + Loc + 'NumLd'
-
-        for name, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
-            min_usage = float('Inf')
-
-            group_cap = group.at[group.index[0], bar_cap]
-            group_size = group.at[group.index[0], bar_size]
-
-            group_max = np.amax(group['StnLoc'])
-            group_min = np.amin(group['StnLoc'])
-
-            left = (group_max - group_min) * ITERATION_GAP['Left'] + group_min
-            right = (group_max - group_min) * (
-                ITERATION_GAP['Right']) + group_min
-
-            group_left = group[bar_num_ld][(
-                group['StnLoc'] >= left[0]) & (group['StnLoc'] <= left[1])]
-            group_right = group[bar_num_ld][(
-                group['StnLoc'] >= right[0]) & (group['StnLoc'] <= right[1])]
-
-            group_left_diff = np.diff(group_left)
-            group_right_diff = np.diff(group_right)
-
-            # (group_left_diff, group_right_diff) = make_first_last_diff(
-            #     group_left_diff, group_right_diff)
-
-            # group_left_diff = np.concatenate(([1], group_left_diff, [-1]))
-            # group_right_diff = np.concatenate(([1], group_right_diff, [-1]))
-
-            group_left_diff = _make_1st_last_diff(group_left_diff)
-            group_right_diff = _make_1st_last_diff(group_right_diff)
-
-            # group_left_diff[0] = 1
-            # group_left_diff[-1] = -1
-            # group_right_diff[0] = 1
-            # group_right_diff[-1] = -1
-
-            for i in np.flatnonzero(group_left_diff):
-                # for i in range(len(group_left_diff)):
-                # if group_left_diff[i] != 0:
-                # split_left = group_left.index[i + 1]
-                split_left = _get_min_cut(group_left, group_left_diff, i)
-                # split_left = group_left.index[i]
-
-                for j in np.flatnonzero(group_right_diff):
-
-                    # for j in range(len(group_right_diff)):
-                    # if group_right_diff[j] != 0:
-                    # split_3p_array = np.split(
-                    #     group[bar_num_ld], [group_left.index[i + 1], group_right.index[j + 1]])
-                    split_right = _get_min_cut(
-                        group_right, group_right_diff, j)
-                    # split_right = group_right.index[j]
-                    split_3p_array = [
-                        group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
-                    num, length = _calc_num_length(group, split_3p_array)
-                    # num_left = np.amax(a_left)
-                    # num_mid = np.amax(a_mid)
-                    # num_right = np.amax(a_right)
-
-                    # length_left = group.at[a_left.index[-1], 'StnLoc'] - group.at[a_left.index[0], 'StnLoc']
-                    # length_mid = group.at[a_mid.index[-1], 'StnLoc'] - group.at[a_mid.index[0], 'StnLoc']
-                    # length_right = group.at[a_right.index[-1], 'StnLoc'] - group.at[a_right.index[0], 'StnLoc']
-
-                    rebar_usage = np.sum(num * length)
-                    # rebar_usage = num_left * len(a_left) + num_mid * len(a_mid) + num_right * len(a_right)
-                    if rebar_usage < min_usage:
-                        min_usage = rebar_usage
-                        min_num = num
-                        min_length = length
-                        # min_num_mid = num_mid
-                        # min_num_right = num_right
-            # if min_usage == float('Inf'):
-            #     min_num = np.full(3, group.at[group.index[0], bar_num_ld])
-            #     min_length = np.full(3, '')
+            num, length, min_usage = cut_3(group, loc)
 
             group_num = {
-                '左': num_to_1st_2nd(min_num[0], group_cap),
-                '中': num_to_1st_2nd(min_num[1], group_cap),
-                '右': num_to_1st_2nd(min_num[2], group_cap)
+                '左': num_to_1st_2nd(num[0], group_cap),
+                '中': num_to_1st_2nd(num[1], group_cap),
+                '右': num_to_1st_2nd(num[2], group_cap)
             }
 
             group_length = {
-                '左': min_length[0],
-                # '左': min_length[0] if min_num[0] != min_num[1] else '',
-                '中': min_length[1],
-                '右': min_length[2]
-                # '右': min_length[2] if min_num[2] != min_num[1] else ''
+                '左': length[0],
+                # '左': length[0] if num[0] != num[1] else '',
+                '中': length[1],
+                '右': length[2]
+                # '右': length[2] if num[2] != num[1] else ''
             }
 
-            for bar_loc in group_num.keys():
+            for bar_loc in group_num:
                 loc_1st, loc_2nd = group_num[bar_loc]
                 loc_length = group_length[bar_loc]
-                beam_3p.at[k, ('主筋', bar_loc)] = concat_num_size(
+                beam.at[row, ('主筋', bar_loc)] = concat_num_size(
                     loc_1st, group_size)
-                beam_3p.at[k, ('長度', bar_loc)] = loc_length * 100
-                beam_3p.at[k + to_2nd, ('主筋', bar_loc)
-                           ] = concat_num_size(loc_2nd, group_size)
+                beam.at[row, ('長度', bar_loc)] = loc_length * 100
+                beam.at[row + to_2nd, ('主筋', bar_loc)
+                        ] = concat_num_size(loc_2nd, group_size)
 
-            beam_3p.at[k, ('NOTE', '')] = min_usage * (
-                rebars[(group_size, 'AREA')]) * 1000000
+            beam.at[row, ('NOTE', '')] = min_usage * rebar_area(
+                group_size) * 1000000
 
-            k += 4
-            # # x < 1/4 => max >= Spacing => Spacing max
-            # group_left_max = np.amax(SPACING[np.amin(group_left) >= SPACING])
-            # group_mid_max = np.amax(SPACING[np.amin(group_mid) >= SPACING])
-            # group_right_max = np.amax(
-            #     SPACING[np.amin(group_right) >= SPACING])
+            row += 4
 
-            # beam_design_table.loc[group_left.index.tolist(),
-            #                     'RealSpacing'] = group_left_max
-            # beam_design_table.loc[group_mid.index.tolist(),
-            #                     'RealSpacing'] = group_mid_max
-            # beam_design_table.loc[group_right.index.tolist(),
-            #                     'RealSpacing'] = group_right_max
-
-            # beam_3points_table.loc[i, ('箍筋', '左')] = (
-            #     group_size + str(int(group_left_max * 100)))
-            # beam_3points_table.loc[i, ('箍筋', '中')] = (
-            #     group_size + str(int(group_mid_max * 100)))
-            # beam_3points_table.loc[i, ('箍筋', '右')] = (
-            #     group_size + str(int(group_right_max * 100)))
-
-            # i = i + 4
-
-    return beam_3p
+    return beam
 
 
-def cut_optimization(multi, beam_ld_added, beam_cut):
+def cut_optimization(multi, etabs_design, beam_cut):
     if multi == 3:
-        return cut_3(beam_ld_added, beam_cut)
-    return cut_5(beam_ld_added, beam_cut)
+        return cut_3(etabs_design, beam_cut)
+    return cut_5(etabs_design, beam_cut)
 
 
 def main():
-    clock = Clock()
+    """
+    test
+    """
+    from components.init_beam import init_beam
+    from const import E2K_PATH, ETABS_DESIGN_PATH
+    from data.dataset_etabs_design import load_beam_design
+    from data.dataset_e2k import load_e2k
+    from utils.execution_time import Execution
+    from components.stirrups import calc_stirrups
+    from components.bar_size_num import calc_db
+    from components.bar_ld import calc_ld, add_ld
 
-    beam_cut = load_pkl(SCRIPT_DIR + '/stirrups.pkl')[0]
-    # beam_v_m = load_pkl(SCRIPT_DIR + '/beam_v_m.pkl')
-    beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
+    e2k = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    etabs_design = load_beam_design(
+        ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
 
-    # start = time.time()
-    # clock.time()
-    # beam_v_m_ld = calc_ld(beam_v_m)
-    # clock.time()
-    # # print(time.time() - start)
-    # clock.time()
-    # beam_ld_added = add_ld(beam_v_m_ld)
-    # clock.time()
-    # beam_ld_added.to_excel(SCRIPT_DIR + '/beam_ld_added.xlsx')
-    # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl', beam_ld_added)
-    # beam_ld_added = load_pkl(SCRIPT_DIR + '/beam_ld_added.pkl')
-    clock.time()
-    # beam_3p = cut_optimization(beam_ld_added, beam_cut)
-    beam_cut = cut_5(beam_ld_added, beam_cut)
-    clock.time()
+    beam = init_beam(etabs_design, e2k, moment=3, shear=True)
+    execution = Execution()
+    beam, dh_design = calc_stirrups(beam, etabs_design)
 
-    # clock.time()
-    # a = np.array([1, 2, 3, 4, 5])
-    # for i in range(10000):
-    #     np.r_[0, a, 4]
-    # clock.time()
-    # clock.time()
-    # a = np.array([1, 2, 3, 4, 5])
-    # for i in range(10000):
-    #     np.insert(a, 0, 0)
-    #     np.append(a, 4)
-    # clock.time()
-    # clock.time()
-    # a = np.array([1, 2, 3, 4, 5])
-    # for i in range(10000):
-    #     np.concatenate(([0], a, [4]))
-    # clock.time()
-    beam_cut.to_excel(SCRIPT_DIR + '/beam_cut.xlsx')
+    db_design = calc_db('BayID', dh_design, e2k)
+
+    ld_design = calc_ld(db_design, e2k)
+
+    ld_design = add_ld(ld_design, 'Ld')
+
+    execution.time('cut 3')
+    beam = output_3(beam, ld_design)
+    print(beam.head())
+    execution.time('cut 3')
 
 
 if __name__ == '__main__':
     main()
-
-
-# def calc_ld(beam_v_m):
-#     # It is used for nominal concrete in case of phi_e=1.0 & phi_t=1.0.
-#     # Reference:土木401-93
-#     PI = 3.1415926
-
-#     rebars, _, _, _, materials, sections = load_e2k()
-
-#     def _ld(df, Loc):
-#         # Loc = Loc.capitalize()
-
-#         bar_size = 'Bar' + Loc + 'Size'
-#         bar_1st = 'Bar' + Loc + '1st'
-
-#         # 延伸長度比較熟悉 cm 操作
-#         # m => cm
-#         B = df['SecID'].apply(lambda x: sections[x, 'B']) * 100
-#         material = df['SecID'].apply(lambda x: sections[x, 'MATERIAL'])
-#         fc = material.apply(lambda x: materials[x, 'FC']) / 10
-#         fy = material.apply(lambda x: materials[x, 'FY']) / 10
-#         fyh = fy
-#         cover = 0.04 * 100
-#         db = df[bar_size].apply(lambda x: rebars[x, 'DIA']) * 100
-#         num = df[bar_1st]
-#         dh = df['RealVSize'].apply(lambda x: rebars[x, 'DIA']) * 100
-#         spacing = df['RealSpacing'] * 100
-
-#         # 5.2.2
-#         fc[np.sqrt(fc) > 26.5] = 700
-
-#         # R5.3.4.1.1
-#         cc = dh + cover
-
-#         # R5.3.4.1.1
-#         cs = (B - db * num - dh * 2 - cover * 2) / (num - 1) / 2
-
-#         # Vertical splitting failure / Horizontal splitting failure
-#         cb = np.where(cc <= cs, cc, cs) + db / 2
-
-#         # R5.3.4.1.2
-#         ktr = np.where(cc <= cs, 1, 2 / num) * \
-#             (PI * dh ** 2 / 4) * fyh / 105 / spacing
-
-#         # if cs > cc:
-#         #     # Vertical splitting failure
-#         #     cb = db / 2 + cc
-#         #     # R5.3.4.1.2
-#         #     ktr = (PI * dh ** 2 / 4) * fyh / 105 / spacing
-#         # else:
-#         #     # Horizontal splitting failure
-#         #     cb = db / 2 + cs
-#         #     # R5.3.4.1.2
-#         #     ktr = 2 * (PI * dh ** 2 / 4) * fyh / 105 / spacing / num
-
-#         # 5.3.4.1
-#         ld = 0.28 * fy / np.sqrt(fc) * db / np.minimum((cb + ktr) / db, 2.5)
-
-#         # 5.3.4.1
-#         simple_ld = 0.19 * fy / np.sqrt(fc) * db
-
-#         # phi_s factor
-#         ld[db < 2.2] = 0.8 * ld
-#         simple_ld[db < 2.2] = 0.8 * simple_ld
-
-#         # phi_t factor
-#         if Loc == 'Top':
-#             ld = 1.3 * ld
-#             simple_ld = 1.3 * simple_ld
-
-#         ld[ld > simple_ld] = simple_ld
-
-#         # 5.3.1
-#         ld[ld < 30] = 30
-
-#         return {
-#             # cm => m
-#             Loc + 'Ld': ld / 100,
-#             Loc + 'SimpleLd': simple_ld / 100
-#         }
-
-#     for Loc in BAR.keys():
-#         beam_v_m = beam_v_m.assign(**_ld(beam_v_m, Loc))
-
-#     return beam_v_m
-
-
-# def add_ld(beam_v_m_ld):
-#     beam_ld_added = beam_v_m_ld.copy()
-
-#     def init_ld(df):
-#         return {
-#             bar_num_ld: df[bar_num],
-#             # bar_1st_ld: df[bar_1st],
-#             # bar_2nd_ld: df[bar_2nd]
-#         }
-
-#     for Loc in BAR.keys():
-#         # Loc = Loc.capitalize()
-
-#         bar_num = 'Bar' + Loc + 'Num'
-#         ld = Loc + 'Ld'
-#         bar_num_ld = bar_num + 'Ld'
-#         # bar_1st_ld = bar_1st + 'Ld'
-#         # bar_2nd_ld = bar_2nd + 'Ld'
-
-#         beam_ld_added = beam_ld_added.assign(**init_ld(beam_ld_added))
-
-#         count = 0
-
-#         for name, group in beam_ld_added.groupby(['Story', 'BayID'], sort=False):
-#             group = group.copy()
-#             for i in range(len(group)):
-#                 stn_loc = group.at[group.index[i], 'StnLoc']
-#                 stn_ld = group.at[group.index[i], ld]
-#                 stn_inter = (group['StnLoc'] >= stn_loc -
-#                              stn_ld) & (group['StnLoc'] <= stn_loc + stn_ld)
-#                 group.loc[stn_inter, bar_num_ld] = np.maximum(
-#                     group.at[group.index[i], bar_num], group.loc[stn_inter, bar_num_ld])
-#                 # group.loc[group[stn_inter].index, bar_num_ld] = np.maximum(
-#                 #     group.at[group.index[i], bar_num], group.loc[group[stn_inter].index, bar_num_ld])
-
-#             beam_ld_added.loc[group.index, bar_num_ld] = group[bar_num_ld]
-#             count += 1
-#             if count % 100 == 0:
-#                 print(name)
-
-#     return beam_ld_added

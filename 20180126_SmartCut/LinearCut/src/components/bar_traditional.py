@@ -48,7 +48,7 @@ def cut_traditional(beam, etbas_design):
     algorithm:
         cut in 0~1/3, 1/4~3/4, 2/3~1 to get max bar number
         cut in 1/3, 1/5 depends on bar number, but don't have 1/7
-        end length depends on ld and 1/3
+        end length depends on ld and 1/3, if ld too long, then get max rebar and length is 1/3
     """
     beam = beam.copy()
 
