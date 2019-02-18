@@ -149,24 +149,31 @@ def init_beam_name(etabs_design):
     return beam_name
 
 
-if __name__ == "__main__":
+def main():
+    """
+    test
+    """
     from const import E2K_PATH, ETABS_DESIGN_PATH, BEAM_NAME_PATH
     from data.dataset_e2k import load_e2k
     from data.dataset_etabs_design import load_beam_design
     from data.dataset_beam_name import load_beam_name
 
-    E2K = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
-    ETABS_DESIGN = load_beam_design(
+    e2k = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    etabs_design = load_beam_design(
         ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
-    BEAM_NAME = load_beam_name(BEAM_NAME_PATH, BEAM_NAME_PATH + '.pkl')
+    beam_name = load_beam_name(BEAM_NAME_PATH, BEAM_NAME_PATH + '.pkl')
 
-    BEAM = init_beam(ETABS_DESIGN, E2K, moment=3, shear=True)
-    print(BEAM.head())
+    beam = init_beam(etabs_design, e2k, moment=3, shear=True)
+    print(beam.head())
 
-    BEAM_NAME_EMPTY = init_beam_name(ETABS_DESIGN)
-    print(BEAM_NAME_EMPTY.head())
+    beam_name_empty = init_beam_name(etabs_design)
+    print(beam_name_empty.head())
 
-    BEAM, ETABS_DESIGN = add_and_alter_beam_id(
-        BEAM, BEAM_NAME, ETABS_DESIGN)
-    print(BEAM.head())
-    print(ETABS_DESIGN.head())
+    beam, etabs_design = add_and_alter_beam_id(
+        beam, beam_name, etabs_design)
+    print(beam.head())
+    print(etabs_design.head())
+
+
+if __name__ == "__main__":
+    main()

@@ -157,8 +157,8 @@ def main():
     ld_design = calc_ld(db_design, e2k)
 
     execution.time('cut traditional')
-    beam_con = cut_traditional(beam, ld_design)
-    print(beam_con.head())
+    beam_trational = cut_traditional(beam, ld_design)
+    print(beam_trational.head())
     execution.time('cut traditional')
 
 

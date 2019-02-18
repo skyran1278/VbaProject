@@ -324,10 +324,13 @@ def output_3(beam, etabs_design):
     return beam
 
 
-def cut_optimization(multi, etabs_design, beam_cut):
-    if multi == 3:
-        return cut_3(etabs_design, beam_cut)
-    return cut_5(etabs_design, beam_cut)
+def cut_optimization(moment, beam, etabs_design):
+    """
+    cut 3 or 5, optimization
+    """
+    if moment == 3:
+        return output_3(beam, etabs_design)
+    return cut_5(beam, etabs_design)
 
 
 def main():
