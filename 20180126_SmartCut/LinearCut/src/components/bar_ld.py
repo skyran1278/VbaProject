@@ -107,6 +107,7 @@ def calc_ld(etbas_design, e2k):
 def add_ld(etbas_design, ld_type):
     """
     add ld
+    ld_type: 'Ld', 'SimpleLd' I think 'SimpleLd' maybe not necessary
     """
     ld_design = etbas_design.copy()
 
@@ -128,7 +129,13 @@ def add_ld(etbas_design, ld_type):
 
         for name, group in ld_design.groupby(['Story', 'BayID'], sort=False):
             group = group.copy()
-            for i in range(len(group)):
+
+            if ld_type == 'Ld':
+                iteration = range(len(group))
+            elif ld_type == 'SimpleLd':
+                iteration = (0, -1)
+
+            for i in iteration:
                 stn_loc = group.at[group.index[i], 'StnLoc']
                 stn_ld = group.at[group.index[i], ld]
                 stn_inter = (group['StnLoc'] >= stn_loc -
