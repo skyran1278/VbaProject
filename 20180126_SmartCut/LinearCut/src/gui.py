@@ -4,7 +4,11 @@ GUI for SmartCut.
 import os
 import wx
 
-# from app import first_full_run, second_run
+from app import cut_by_beam, cut_by_frame
+
+
+# def print_path():
+#     print(FRAME.PANEL.etabs_design_path)
 
 
 class SmartCutPanel(wx.Panel):
@@ -15,13 +19,15 @@ class SmartCutPanel(wx.Panel):
         wx.Panel.__init__(self, parent, *args, **kwargs)
 
         self.parent = parent  # Sometimes one can use inline Comments
-        self.excel = ''
-        self.e2k = ''
+        self.etabs_design_path = ''
+        self.e2k_path = ''
+        self.beam_name_path = ''
+        self.output_dir = ''
 
         vbox = wx.BoxSizer(orient=wx.VERTICAL)
 
         # set 9 rows 2 cols
-        fgs_1 = wx.FlexGridSizer(2, 3, 20, 20)
+        fgs_1 = wx.FlexGridSizer(4, 3, 20, 20)
         fgs_1.AddGrowableCol(idx=1)
 
         fgs_2 = wx.FlexGridSizer(5, 2, 20, 20)
@@ -32,18 +38,33 @@ class SmartCutPanel(wx.Panel):
         fgs_4.AddGrowableCol(idx=0)
         fgs_4.AddGrowableCol(idx=1)
 
-        self.beam_design = wx.TextCtrl(
+        self.etabs_design = wx.TextCtrl(
             self, style=wx.TE_CENTRE)
-        self.excel_btn = wx.Button(self, label="Browser Excel")
-        self.excel_btn.Bind(wx.EVT_BUTTON, self.OnOpenExcel)
-        fgs_1.AddMany([wx.StaticText(self, label="Beam Design Excel"),
-                       (self.beam_design, 1, wx.EXPAND), self.excel_btn])
+        self.etabs_design_btn = wx.Button(self, label="Browser Excel")
+        self.etabs_design_btn.Bind(
+            wx.EVT_BUTTON, self.on_click_etabs_dsign_btn)
+        fgs_1.AddMany([wx.StaticText(self, label="ETBAS Beam Design Excel"),
+                       (self.etabs_design, 1, wx.EXPAND), self.etabs_design_btn])
 
-        self.e2k = wx.TextCtrl(self, style=wx.TE_CENTRE, value=self.e2k)
+        self.e2k = wx.TextCtrl(self, style=wx.TE_CENTRE)
         self.e2k_btn = wx.Button(self, label="Browser E2k")
-        self.e2k_btn.Bind(wx.EVT_BUTTON, self.OnOpenE2k)
+        self.e2k_btn.Bind(wx.EVT_BUTTON, self.on_click_e2k_btn)
         fgs_1.AddMany([wx.StaticText(self, label="E2k"),
                        (self.e2k, 1, wx.EXPAND), self.e2k_btn])
+
+        self.beam_name = wx.TextCtrl(
+            self, style=wx.TE_CENTRE)
+        self.beam_name_btn = wx.Button(self, label="Browser Excel")
+        self.beam_name_btn.Bind(wx.EVT_BUTTON, self.on_click_beam_name_btn)
+        fgs_1.AddMany([wx.StaticText(self, label="Beam Name Excel"),
+                       (self.beam_name, 1, wx.EXPAND), self.beam_name_btn])
+
+        self.output = wx.TextCtrl(
+            self, style=wx.TE_CENTRE)
+        self.output_btn = wx.Button(self, label="Browser Folder")
+        self.output_btn.Bind(wx.EVT_BUTTON, self.on_click_output_btn)
+        fgs_1.AddMany([wx.StaticText(self, label="Output Folder"),
+                       (self.output, 1, wx.EXPAND), self.output_btn])
 
         self.bartop = wx.TextCtrl(
             self, value='#7, #8, #10, #11, #14', size=(250, -1))
@@ -77,10 +98,10 @@ class SmartCutPanel(wx.Panel):
                        self.left, self.leftmid, self.rightmid, self.right])
 
         first_run_btn = wx.Button(self, label="Run by Beam")
-        first_run_btn.Bind(wx.EVT_BUTTON, self.FirstRun)
+        first_run_btn.Bind(wx.EVT_BUTTON, lambda x: cut_by_beam())
 
         second_run_btn = wx.Button(self, label="Run by Frame")
-        second_run_btn.Bind(wx.EVT_BUTTON, self.SecondRun)
+        second_run_btn.Bind(wx.EVT_BUTTON, lambda x: cut_by_frame())
 
         fgs_4.AddMany([(first_run_btn, 1, wx.EXPAND),
                        (second_run_btn, 1, wx.EXPAND)])
@@ -105,37 +126,54 @@ class SmartCutPanel(wx.Panel):
             'Bot': self.barbot.GetValue()
         }
 
-    def FirstRun(self, event):
-        """ first run by beam"""
-        first_full_run()
-        # print(self.GET_BAR())
+    def get_etabs_design_path(self):
+        print(self.etabs_design_path)
+        return self.etabs_design_path
 
-    def SecondRun(self, event):
-        """ second run by frame"""
-        second_run()
-
-    def OnOpenExcel(self, event):
+    def on_click_beam_name_btn(self, event):
         """ Open a file"""
         dlg = wx.FileDialog(self, message="Choose a file",
                             wildcard="*.xlsx", style=wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
-            self.excel = os.path.join(dlg.GetDirectory(), dlg.GetFilename())
-            # f = open(os.path.join(self.dirname, self.filename), 'r')
-            # self.control.SetValue(f.read())
-            # f.close()
-            self.beam_design.SetValue(self.excel)
+            self.beam_name_path = os.path.join(
+                dlg.GetDirectory(), dlg.GetFilename())
+            self.beam_name.SetValue(self.beam_name_path)
 
         dlg.Destroy()
 
-    def OnOpenE2k(self, event):
+    def on_click_output_btn(self, event):
+        """ Open a file"""
+        dlg = wx.DirDialog(self, message="Choose output directory",
+                           style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
+        if dlg.ShowModal() == wx.ID_OK:
+            self.output_dir = dlg.GetPath()
+            self.output.SetValue(self.output_dir)
+
+        dlg.Destroy()
+
+    def on_click_etabs_dsign_btn(self, event):
+        """ Open a file"""
+        dlg = wx.FileDialog(self, message="Choose a file",
+                            wildcard="*.xlsx", style=wx.FD_OPEN)
+        if dlg.ShowModal() == wx.ID_OK:
+            self.etabs_design_path = os.path.join(
+                dlg.GetDirectory(), dlg.GetFilename())
+            # f = open(os.path.join(self.dirname, self.filename), 'r')
+            # self.control.SetValue(f.read())
+            # f.close()
+            self.etabs_design.SetValue(self.etabs_design_path)
+            # print_path()
+
+        dlg.Destroy()
+
+    def on_click_e2k_btn(self, event):
         """ Open a file"""
         dlg = wx.FileDialog(self, message="Choose a file",
                             wildcard="*.e2k", style=wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
-            self.e2k = os.path.join(dlg.GetDirectory(), dlg.GetFilename())
-            # f = open(os.path.join(self.dirname, self.filename), 'r')
-            # self.control.SetValue(f.read())
-            # f.close()
+            self.e2k_path = os.path.join(dlg.GetDirectory(), dlg.GetFilename())
+            self.e2k.SetValue(self.e2k_path)
+
         dlg.Destroy()
 
 

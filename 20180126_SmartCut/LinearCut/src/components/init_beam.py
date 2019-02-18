@@ -1,20 +1,9 @@
 """ init beam output table
 """
-# import os
-# import sys
 import math
 
 import pandas as pd
 import numpy as np
-
-# from database.dataset_beam_design import load_beam_design
-# from database.dataset_e2k import load_e2k
-
-# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
-
-# e2k = load_e2k()
-# etabs_design = load_beam_design()
 
 
 def _basic_information(header, etabs_design, e2k):
@@ -25,28 +14,28 @@ def _basic_information(header, etabs_design, e2k):
     beam = pd.DataFrame(np.empty([len(etabs_design.groupby(
         ['Story', 'BayID'])) * 4, len(header)], dtype='<U16'), columns=header)
 
-    i = 0
+    row = 0
     for (story, bay_id), group in etabs_design.groupby(['Story', 'BayID'], sort=False):
         # print(group['StnLoc'])
-        beam.at[i, '樓層'] = story
-        beam.at[i, '編號'] = bay_id
-        beam.at[i, 'RC 梁寬'] = sections[(group['SecID'].iloc[0], 'B')] * 100
-        beam.at[i, 'RC 梁深'] = sections[(group['SecID'].iloc[0], 'D')] * 100
+        beam.at[row, '樓層'] = story
+        beam.at[row, '編號'] = bay_id
+        beam.at[row, 'RC 梁寬'] = sections[(group['SecID'].iloc[0], 'B')] * 100
+        beam.at[row, 'RC 梁深'] = sections[(group['SecID'].iloc[0], 'D')] * 100
 
         point_start = lines[(bay_id, 'BEAM', 'START')]
         point_end = lines[(bay_id, 'BEAM', 'END')]
         beam_length = math.sqrt(
             sum((point_coordinates.loc[point_end] - point_coordinates.loc[point_start]) ** 2))
 
-        beam.at[i, '梁長'] = round(beam_length, 2) * 100
-        beam.at[i, ('支承寬', '左')] = round(np.amin(group['StnLoc']), 3) * 100
-        beam.at[i, ('支承寬', '右')] = round(
+        beam.at[row, '梁長'] = round(beam_length, 2) * 100
+        beam.at[row, ('支承寬', '左')] = round(np.amin(group['StnLoc']), 3) * 100
+        beam.at[row, ('支承寬', '右')] = round(
             (beam_length - np.amax(group['StnLoc'])), 3) * 100
 
-        beam.loc[i: i + 3, ('主筋', '')] = ['上層 第一排',
-                                          '上層 第二排', '下層 第二排', '下層 第一排']
+        beam.loc[row: row + 3, ('主筋', '')] = ['上層 第一排',
+                                              '上層 第二排', '下層 第二排', '下層 第一排']
 
-        i = i + 4
+        row += 4
 
     return beam
 
@@ -109,12 +98,12 @@ def _alter_beam_id(beam, etabs_design):
     """ change bayID to usr defined beam id
     """
 
-    i = 0
+    row = 0
 
     for (_, beam_id), _ in etabs_design.groupby(['Story', 'BeamID'], sort=False):
-        beam.at[i, '編號'] = beam_id
+        beam.at[row, '編號'] = beam_id
 
-        i = i + 4
+        row += 4
 
     return beam
 
@@ -153,15 +142,18 @@ def main():
     """
     test
     """
-    from const import E2K_PATH, ETABS_DESIGN_PATH, BEAM_NAME_PATH
+    from const import CONST
     from data.dataset_e2k import load_e2k
     from data.dataset_etabs_design import load_beam_design
     from data.dataset_beam_name import load_beam_name
 
-    e2k = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    e2k_path, etabs_design_path, beam_name_path = CONST[
+        'e2k_path'], CONST['etabs_design_path'], CONST['beam_name_path']
+
+    e2k = load_e2k(e2k_path, e2k_path + '.pkl')
     etabs_design = load_beam_design(
-        ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
-    beam_name = load_beam_name(BEAM_NAME_PATH, BEAM_NAME_PATH + '.pkl')
+        etabs_design_path, etabs_design_path + '.pkl')
+    beam_name = load_beam_name(beam_name_path, beam_name_path + '.pkl')
 
     beam = init_beam(etabs_design, e2k, moment=3, shear=True)
     print(beam.head())

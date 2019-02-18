@@ -5,7 +5,6 @@ import numpy as np
 
 from components.bar_functions import concat_num_size, num_to_1st_2nd
 
-from const import BAR
 from data.dataset_rebar import rebar_area
 
 
@@ -41,25 +40,25 @@ def _get_loc_length(loc_num, loc_ld, mid_num, span):
     return span * 1/5
 
 
-def cut_traditional(beam, etbas_design):
+def cut_traditional(beam, etbas_design, bar):
     """
     traditional cut
 
     algorithm:
         cut in 0~1/3, 1/4~3/4, 2/3~1 to get max bar number
         cut in 1/3, 1/5 depends on bar number, but don't have 1/7
-        end length depends on ld and 1/3, if ld too long, then get max rebar and length is 1/3
+        end length depends on simple ld and 1/3, if ld too long, then get max rebar and length is 1/3
     """
     beam = beam.copy()
 
     output_loc = {
         'Top': {
-            'START_LOC': 0,
-            'TO_2nd': 1
+            'start_loc': 0,
+            'to_2nd': 1
         },
         'Bot': {
-            'START_LOC': 3,
-            'TO_2nd': -1
+            'start_loc': 3,
+            'to_2nd': -1
         }
     }
 
@@ -74,10 +73,10 @@ def cut_traditional(beam, etbas_design):
 
         return num, num_1st, num_2nd
 
-    for loc in BAR:
+    for loc in bar:
 
-        row = output_loc[loc]['START_LOC']
-        to_2nd = output_loc[loc]['TO_2nd']
+        row = output_loc[loc]['start_loc']
+        to_2nd = output_loc[loc]['to_2nd']
 
         bar_cap = 'Bar' + loc + 'Cap'
         bar_size = 'Bar' + loc + 'Size'
@@ -136,7 +135,7 @@ def main():
     test
     """
     from components.init_beam import init_beam
-    from const import E2K_PATH, ETABS_DESIGN_PATH
+    from const import CONST
     from data.dataset_etabs_design import load_beam_design
     from data.dataset_e2k import load_e2k
     from utils.execution_time import Execution
@@ -144,20 +143,23 @@ def main():
     from components.bar_size_num import calc_db
     from components.bar_ld import calc_ld
 
-    e2k = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    e2k_path, etabs_design_path = CONST[
+        'e2k_path'], CONST['etabs_design_path']
+
+    e2k = load_e2k(e2k_path, e2k_path + '.pkl')
     etabs_design = load_beam_design(
-        ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
+        etabs_design_path, etabs_design_path + '.pkl')
 
     beam = init_beam(etabs_design, e2k, moment=3, shear=True)
     execution = Execution()
-    beam, dh_design = calc_stirrups(beam, etabs_design)
+    beam, dh_design = calc_stirrups(beam, etabs_design, CONST)
 
     db_design = calc_db('BayID', dh_design, e2k)
 
     ld_design = calc_ld(db_design, e2k)
 
     execution.time('cut traditional')
-    beam_trational = cut_traditional(beam, ld_design)
+    beam_trational = cut_traditional(beam, ld_design, CONST['bar'])
     print(beam_trational.head())
     execution.time('cut traditional')
 

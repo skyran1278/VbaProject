@@ -1,22 +1,22 @@
 """ app control """
-import time
+# import time
 
-import pandas as pd
+# import pandas as pd
 
-from const import OUTPUT_DIR, ETABS_DESIGN_PATH, E2K_PATH, BEAM_NAME_PATH
-from utils.pkl import load_pkl
-from utils.execution_time import Execution
+# from const import OUTPUT_DIR, ETABS_DESIGN_PATH, E2K_PATH, BEAM_NAME_PATH
+# from utils.pkl import load_pkl
+# from utils.execution_time import Execution
 
-from data.dataset_etabs_design import load_beam_design
-from data.dataset_e2k import load_e2k
-from data.dataset_beam_name import load_beam_name
+# from data.dataset_etabs_design import load_beam_design
+# from data.dataset_e2k import load_e2k
+# from data.dataset_beam_name import load_beam_name
 
-from components.init_beam import init_beam, init_beam_name, add_and_alter_beam_id
-from components.stirrups import calc_stirrups
-from components.bar_size_num import calc_db
-from components.bar_ld import calc_ld, add_ld
-from components.bar_traditional import cut_traditional
-from components.bar_cut import cut_optimization
+# from components.init_beam import init_beam, init_beam_name, add_and_alter_beam_id
+# from components.stirrups import calc_stirrups
+# from components.bar_size_num import calc_db
+# from components.bar_ld import calc_ld, add_ld
+# from components.bar_traditional import cut_traditional
+# from components.bar_cut import cut_optimization
 
 # 不管是物件導向設計還是函數式編程 只要能解決問題的就是好方法
 # 現在還只是看的不爽 所以並沒有造成問題
@@ -26,6 +26,25 @@ from components.bar_cut import cut_optimization
 
 def cut_by_beam(moment=3, shear=False):
     """ run by beam, no need beam name ID"""
+    import time
+
+    import pandas as pd
+
+    from const import OUTPUT_DIR, ETABS_DESIGN_PATH, E2K_PATH, BEAM_NAME_PATH
+    from utils.pkl import load_pkl
+    from utils.execution_time import Execution
+
+    from data.dataset_etabs_design import load_beam_design
+    from data.dataset_e2k import load_e2k
+    from data.dataset_beam_name import load_beam_name
+
+    from components.init_beam import init_beam, init_beam_name, add_and_alter_beam_id
+    from components.stirrups import calc_stirrups
+    from components.bar_size_num import calc_db
+    from components.bar_ld import calc_ld, add_ld
+    from components.bar_traditional import cut_traditional
+    from components.bar_cut import cut_optimization
+
     execution = Execution()
 
     # get input data
@@ -92,6 +111,25 @@ def cut_by_beam(moment=3, shear=False):
 
 def cut_by_frame(moment=3, shear=False):
     """ run by frame, need beam name ID"""
+    import time
+
+    import pandas as pd
+
+    from const import OUTPUT_DIR, ETABS_DESIGN_PATH, E2K_PATH, BEAM_NAME_PATH
+    from utils.pkl import load_pkl
+    from utils.execution_time import Execution
+
+    from data.dataset_etabs_design import load_beam_design
+    from data.dataset_e2k import load_e2k
+    from data.dataset_beam_name import load_beam_name
+
+    from components.init_beam import init_beam, init_beam_name, add_and_alter_beam_id
+    from components.stirrups import calc_stirrups
+    from components.bar_size_num import calc_db
+    from components.bar_ld import calc_ld, add_ld
+    from components.bar_traditional import cut_traditional
+    from components.bar_cut import cut_optimization
+
     execution = Execution()
 
     # get input data
