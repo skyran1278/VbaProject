@@ -3,6 +3,7 @@ GUI for SmartCut.
 """
 import os
 import wx
+import time
 import numpy as np
 
 from app import cut_by_beam, cut_by_frame
@@ -213,6 +214,10 @@ class SmartCutFrame(wx.Frame):
     def __init__(self, *args, **kwargs):
         # ensure the parent's __init__ is called
         wx.Frame.__init__(self, *args, **kwargs)
+
+        # Thu Apr 11 16:26:40 2019
+        if time.time() > 1555000000:
+            self.Close(True)
 
         # create a menu bar
         self.makeMenuBar()
