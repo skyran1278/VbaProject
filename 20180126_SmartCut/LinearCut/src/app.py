@@ -38,7 +38,7 @@ def cut_by_beam(const, moment=3, shear=False):
 
     # output path
     writer = pd.ExcelWriter(
-        output_dir + '/' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ' SmartCut.xlsx')
+        output_dir + '/' + time.strftime("%Y%m%d %H%M%S", time.localtime()) + ' SmartCut.xlsx')
 
     # 初始化輸出表格
     execution.time('初始化輸出表格')
@@ -108,7 +108,7 @@ def cut_by_frame(const, moment=3, shear=False):
 
     # output path
     writer = pd.ExcelWriter(
-        output_dir + '/' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ' SmartCut.xlsx')
+        output_dir + '/' + time.strftime("%Y%m%d %H%M%S", time.localtime()) + ' SmartCut.xlsx')
 
     # 初始化輸出表格
     execution.time('初始化輸出表格')
