@@ -3,12 +3,9 @@ GUI for SmartCut.
 """
 import os
 import wx
+import numpy as np
 
 from app import cut_by_beam, cut_by_frame
-
-
-# def print_path():
-#     print(FRAME.PANEL.etabs_design_path)
 
 
 class SmartCutPanel(wx.Panel):
@@ -81,7 +78,7 @@ class SmartCutPanel(wx.Panel):
                        (self.db_spacing, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
         self.stirrup_rebar = wx.TextCtrl(
-            self, value='#4, 2#4, 2#5, 2#6')
+            self, value='#3, #4, 2#4, 2#5, 2#6')
         fgs_2.AddMany([wx.StaticText(self, label="Stirrup Rebar"),
                        (self.stirrup_rebar, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
@@ -98,10 +95,10 @@ class SmartCutPanel(wx.Panel):
                        self.left, self.leftmid, self.rightmid, self.right])
 
         first_run_btn = wx.Button(self, label="Run by Beam")
-        first_run_btn.Bind(wx.EVT_BUTTON, lambda x: cut_by_beam())
+        first_run_btn.Bind(wx.EVT_BUTTON, self._run_by_beam)
 
         second_run_btn = wx.Button(self, label="Run by Frame")
-        second_run_btn.Bind(wx.EVT_BUTTON, lambda x: cut_by_frame())
+        second_run_btn.Bind(wx.EVT_BUTTON, self._run_by_frame)
 
         fgs_4.AddMany([(first_run_btn, 1, wx.EXPAND),
                        (second_run_btn, 1, wx.EXPAND)])
@@ -119,16 +116,49 @@ class SmartCutPanel(wx.Panel):
 
         self.SetSizer(vbox)
 
-    def GET_BAR(self):
-        """ BAR """
+    def _const(self):
         return {
-            'Top': self.bartop.GetValue(),
-            'Bot': self.barbot.GetValue()
+            'etabs_design_path': self.etabs_design_path,
+            'e2k_path': self.e2k_path,
+            'beam_name_path': self.beam_name_path,
+            'output_dir': self.output_dir,
+
+            'stirrup_rebar': self._get_stirrup_rebar(),
+            'stirrup_spacing': self._get_stirrup_spacing(),
+
+            'rebar': self._get_rebar(),
+
+            'db_spacing': float(self.db_spacing.GetValue()),
+
+            'iteration_gap': self._get_iteration_gap(),
+
+            'cover': 0.04,
         }
 
-    def get_etabs_design_path(self):
-        print(self.etabs_design_path)
-        return self.etabs_design_path
+    def _run_by_beam(self, event):
+        cut_by_beam(self._const())
+
+    def _run_by_frame(self, event):
+        const = self._const()
+        cut_by_frame(const)
+
+    def _get_iteration_gap(self):
+        return {
+            'left': np.array([self.left.GetValue(), self.leftmid.GetValue()]).astype(np.float),
+            'right': np.array([self.rightmid.GetValue(), self.right.GetValue()]).astype(np.float)
+        }
+
+    def _get_stirrup_rebar(self):
+        return np.array(self.stirrup_rebar.GetValue().replace(" ", "").split(','))
+
+    def _get_stirrup_spacing(self):
+        return np.array(self.stirrup_spacing.GetValue().split(',')).astype(np.float)
+
+    def _get_rebar(self):
+        return {
+            'Top': np.array(self.bartop.GetValue().replace(" ", "").split(',')),
+            'Bot': np.array(self.barbot.GetValue().replace(" ", "").split(','))
+        }
 
     def on_click_beam_name_btn(self, event):
         """ Open a file"""

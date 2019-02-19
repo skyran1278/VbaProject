@@ -13,12 +13,12 @@ const = {
 
     'output_dir': SCRIPT_DIR + '/tests',
 
-    'stirrup_rebar': ['#4', '2#4', '2#5', '2#6'],
+    'stirrup_rebar': np.array(['#4', '2#4', '2#5', '2#6']),
     'stirrup_spacing': np.array([10, 12, 15, 18, 20, 22, 25, 30]),
 
     'rebar': {
-        'Top': ['#7', '#8', '#10', '#11', '#14'],
-        'Bot': ['#7', '#8', '#10', '#11', '#14']
+        'Top': np.array(['#7', '#8', '#10', '#11', '#14']),
+        'Bot': np.array(['#7', '#8', '#10', '#11', '#14'])
     },
 
     'db_spacing': 1.5,
