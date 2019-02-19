@@ -114,7 +114,7 @@ def _add_usr_beam_name(beam_name, etabs_design):
     etabs_design = etabs_design.assign(BeamID='', FrameID='')
 
     for (story, bay_id), group in etabs_design.groupby(['Story', 'BayID'], sort=False):
-        beam_id, frame_id = beam_name.loc[(story, bay_id), :]
+        beam_id, frame_id = beam_name.loc[(story, bay_id), :].values[0]
         group = group.assign(BeamID=beam_id, FrameID=frame_id)
         etabs_design.loc[group.index, ['BeamID', 'FrameID']
                          ] = group[['BeamID', 'FrameID']]
@@ -142,13 +142,13 @@ def main():
     """
     test
     """
-    from const import CONST
+    from const import const
     from data.dataset_e2k import load_e2k
     from data.dataset_etabs_design import load_beam_design
     from data.dataset_beam_name import load_beam_name
 
-    e2k_path, etabs_design_path, beam_name_path = CONST[
-        'e2k_path'], CONST['etabs_design_path'], CONST['beam_name_path']
+    e2k_path, etabs_design_path, beam_name_path = const[
+        'e2k_path'], const['etabs_design_path'], const['beam_name_path']
 
     e2k = load_e2k(e2k_path, e2k_path + '.pkl')
     etabs_design = load_beam_design(

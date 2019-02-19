@@ -7,14 +7,6 @@ import re
 import pandas as pd
 import numpy as np
 
-# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
-
-# from const import E2K_DIR, E2K_FILE
-
-# read_file = f'{E2K_DIR}/{E2K_FILE}'
-# save_file = f'{E2K_DIR}/temp/{E2K_FILE}.pkl'
-
 
 def _load_e2k(read_file):
     with open(read_file, encoding='big5') as path:
@@ -150,8 +142,8 @@ def load_e2k(read_file, save_file):
 
 
 if __name__ == '__main__':
-    from const import E2K_PATH
-
+    from const import const
+    E2K_PATH = const['e2k_path']
     READ_FILE = E2K_PATH
     SAVE_FILE = f'{E2K_PATH}.pkl'
 

@@ -5,12 +5,6 @@ import pickle
 
 import pandas as pd
 
-# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
-
-# read_file = f'{SCRIPT_DIR}/../out/first_run.xlsx'
-# save_file = f'{SCRIPT_DIR}/../temp/beam_name.pkl'
-
 
 def _load_name(read_file):
     return pd.read_excel(read_file, sheet_name='梁名編號', index_col=[0, 1], usecols=[1, 2, 3, 4])
@@ -36,7 +30,8 @@ def load_beam_name(read_file, save_file):
 
 
 if __name__ == "__main__":
-    from const import BEAM_NAME_PATH
+    from const import const
+    BEAM_NAME_PATH = const['beam_name_path']
 
     READ_FILE = f'{BEAM_NAME_PATH}'
     SAVE_FILE = f'{BEAM_NAME_PATH}.pkl'

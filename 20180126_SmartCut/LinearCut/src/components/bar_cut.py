@@ -5,7 +5,6 @@ import numpy as np
 
 
 from components.bar_functions import concat_num_size, num_to_1st_2nd
-from const import BAR, ITERATION_GAP
 from data.dataset_rebar import rebar_area
 
 
@@ -37,7 +36,9 @@ def _get_min_cut(group_loc, group_loc_diff, i):
         return group_loc.index[i + 1]
 
 
-def cut_5(etabs_design, beam_5):
+def cut_5(etabs_design, beam_5, const):
+    rebar, iteration_gap = const['rebar'], const['iteration_gap']
+
     output_loc = {
         'Top': {
             'START_LOC': 0,
@@ -49,8 +50,7 @@ def cut_5(etabs_design, beam_5):
         }
     }
 
-    for loc in BAR:
-
+    for loc in rebar:
         i = output_loc[loc]['START_LOC']
         to_2nd = output_loc[loc]['TO_2nd']
 
@@ -71,8 +71,8 @@ def cut_5(etabs_design, beam_5):
 
             # 這裡需要注意
             # left 和 right 的意義不太一樣
-            left = span * ITERATION_GAP['Left'][0] + group_min
-            right = span * (ITERATION_GAP['Right'][1]) + group_min
+            left = span * iteration_gap['left'][0] + group_min
+            right = span * (iteration_gap['right'][1]) + group_min
 
             iteration = group[bar_num_ld][(
                 group['StnLoc'] >= left) & (group['StnLoc'] <= right)]
@@ -222,10 +222,12 @@ def cut_5(etabs_design, beam_5):
     return beam_5
 
 
-def cut_3(group, loc):
+def cut_3(group, loc, const):
     """
-    cut 3, depands on ITERATION_GAP, ex: 0.1~0.45, 0.55~0.9
+    cut 3, depands on iteration_gap, ex: 0.1~0.45, 0.55~0.9
     """
+    rebar, iteration_gap = const['rebar'], const['iteration_gap']
+
     # initial
     min_usage = float('Inf')
 
@@ -234,9 +236,9 @@ def cut_3(group, loc):
     group_max = np.amax(group['StnLoc'])
     group_min = np.amin(group['StnLoc'])
 
-    left = (group_max - group_min) * ITERATION_GAP['Left'] + group_min
+    left = (group_max - group_min) * iteration_gap['left'] + group_min
     right = (group_max - group_min) * (
-        ITERATION_GAP['Right']) + group_min
+        iteration_gap['right']) + group_min
 
     group_left = group[bar_num_ld][(
         group['StnLoc'] >= left[0]) & (group['StnLoc'] <= left[1])]
@@ -270,7 +272,9 @@ def cut_3(group, loc):
     return min_num, min_length, min_usage
 
 
-def output_3(beam, etabs_design):
+def output_3(beam, etabs_design, const):
+    rebar = const['rebar']
+
     output_loc = {
         'Top': {
             'START_LOC': 0,
@@ -282,7 +286,7 @@ def output_3(beam, etabs_design):
         }
     }
 
-    for loc in BAR:
+    for loc in rebar:
         row = output_loc[loc]['START_LOC']
         to_2nd = output_loc[loc]['TO_2nd']
 
@@ -291,7 +295,7 @@ def output_3(beam, etabs_design):
             group_cap = group.at[group.index[0], 'Bar' + loc + 'Cap']
             group_size = group.at[group.index[0], 'Bar' + loc + 'Size']
 
-            num, length, min_usage = cut_3(group, loc)
+            num, length, min_usage = cut_3(group, loc, const)
 
             group_num = {
                 '左': num_to_1st_2nd(num[0], group_cap),
@@ -324,13 +328,13 @@ def output_3(beam, etabs_design):
     return beam
 
 
-def cut_optimization(moment, beam, etabs_design):
+def cut_optimization(moment, beam, etabs_design, const):
     """
     cut 3 or 5, optimization
     """
     if moment == 3:
-        return output_3(beam, etabs_design)
-    return cut_5(beam, etabs_design)
+        return output_3(beam, etabs_design, const)
+    return cut_5(beam, etabs_design, const)
 
 
 def main():
@@ -338,7 +342,7 @@ def main():
     test
     """
     from components.init_beam import init_beam
-    from const import E2K_PATH, ETABS_DESIGN_PATH
+    from const import const
     from data.dataset_etabs_design import load_beam_design
     from data.dataset_e2k import load_e2k
     from utils.execution_time import Execution
@@ -346,22 +350,24 @@ def main():
     from components.bar_size_num import calc_db
     from components.bar_ld import calc_ld, add_ld
 
-    e2k = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    e2k_path, etabs_design_path = const['e2k_path'], const['etabs_design_path']
+
+    e2k = load_e2k(e2k_path, e2k_path + '.pkl')
     etabs_design = load_beam_design(
-        ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
+        etabs_design_path, etabs_design_path + '.pkl')
 
     beam = init_beam(etabs_design, e2k, moment=3, shear=True)
     execution = Execution()
-    beam, dh_design = calc_stirrups(beam, etabs_design)
+    beam, dh_design = calc_stirrups(beam, etabs_design, const)
 
-    db_design = calc_db('BayID', dh_design, e2k)
+    db_design = calc_db('BayID', dh_design, e2k, const)
 
-    ld_design = calc_ld(db_design, e2k)
+    ld_design = calc_ld(db_design, e2k, const)
 
-    ld_design = add_ld(ld_design, 'Ld')
+    ld_design = add_ld(ld_design, 'Ld', const['rebar'])
 
     execution.time('cut 3')
-    beam = output_3(beam, ld_design)
+    beam = output_3(beam, ld_design, const)
     print(beam.head())
     execution.time('cut 3')
 

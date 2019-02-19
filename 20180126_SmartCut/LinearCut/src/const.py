@@ -5,7 +5,7 @@ import numpy as np
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-CONST = {
+const = {
     'etabs_design_path': SCRIPT_DIR + '/tests/20190103 v3.0 3floor for v9.xlsx',
     'e2k_path': SCRIPT_DIR + '/tests/20190103 v3.0 3floor for v9.e2k',
 
@@ -17,8 +17,8 @@ CONST = {
     'stirrup_spacing': np.array([10, 12, 15, 18, 20, 22, 25, 30]),
 
     'rebar': {
-        'top': ['#7', '#8', '#10', '#11', '#14'],
-        'bot': ['#7', '#8', '#10', '#11', '#14']
+        'Top': ['#7', '#8', '#10', '#11', '#14'],
+        'Bot': ['#7', '#8', '#10', '#11', '#14']
     },
 
     'db_spacing': 1.5,

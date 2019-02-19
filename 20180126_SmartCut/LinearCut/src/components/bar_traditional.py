@@ -40,7 +40,7 @@ def _get_loc_length(loc_num, loc_ld, mid_num, span):
     return span * 1/5
 
 
-def cut_traditional(beam, etbas_design, bar):
+def cut_traditional(beam, etbas_design, rebar):
     """
     traditional cut
 
@@ -73,8 +73,7 @@ def cut_traditional(beam, etbas_design, bar):
 
         return num, num_1st, num_2nd
 
-    for loc in bar:
-
+    for loc in rebar:
         row = output_loc[loc]['start_loc']
         to_2nd = output_loc[loc]['to_2nd']
 
@@ -135,7 +134,7 @@ def main():
     test
     """
     from components.init_beam import init_beam
-    from const import CONST
+    from const import const
     from data.dataset_etabs_design import load_beam_design
     from data.dataset_e2k import load_e2k
     from utils.execution_time import Execution
@@ -143,8 +142,8 @@ def main():
     from components.bar_size_num import calc_db
     from components.bar_ld import calc_ld
 
-    e2k_path, etabs_design_path = CONST[
-        'e2k_path'], CONST['etabs_design_path']
+    e2k_path, etabs_design_path = const[
+        'e2k_path'], const['etabs_design_path']
 
     e2k = load_e2k(e2k_path, e2k_path + '.pkl')
     etabs_design = load_beam_design(
@@ -152,14 +151,14 @@ def main():
 
     beam = init_beam(etabs_design, e2k, moment=3, shear=True)
     execution = Execution()
-    beam, dh_design = calc_stirrups(beam, etabs_design, CONST)
+    beam, dh_design = calc_stirrups(beam, etabs_design, const)
 
-    db_design = calc_db('BayID', dh_design, e2k)
+    db_design = calc_db('BayID', dh_design, e2k, const)
 
-    ld_design = calc_ld(db_design, e2k)
+    ld_design = calc_ld(db_design, e2k, const)
 
     execution.time('cut traditional')
-    beam_trational = cut_traditional(beam, ld_design, CONST['bar'])
+    beam_trational = cut_traditional(beam, ld_design, const['rebar'])
     print(beam_trational.head())
     execution.time('cut traditional')
 

@@ -5,13 +5,6 @@ import pickle
 
 import pandas as pd
 
-# SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
-
-
-# read_file = f'{SCRIPT_DIR}/{BEAM_DESIGN}'
-# save_file = f'{SCRIPT_DIR}/../temp/{BEAM_DESIGN}.pkl'
-
 
 def _load_file(read_file):
     dataset = pd.read_excel(
@@ -46,8 +39,8 @@ def load_beam_design(read_file, save_file):
 
 
 if __name__ == '__main__':
-    from const import ETABS_DESIGN_PATH
-
+    from const import const
+    ETABS_DESIGN_PATH = const['etabs_design_path']
     READ_FILE = ETABS_DESIGN_PATH
     SAVE_FILE = f'{ETABS_DESIGN_PATH}.pkl'
 

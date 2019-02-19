@@ -65,7 +65,6 @@ def calc_db(by, etabs_design, e2k, const):
     db_design = etabs_design.copy()
 
     for loc in rebar:
-
         bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(loc)
 
         db_design = db_design.assign(
@@ -88,7 +87,7 @@ def main():
     """ test
     """
     from components.init_beam import init_beam, add_and_alter_beam_id
-    from const import CONST
+    from const import const
 
     from data.dataset_etabs_design import load_beam_design
     from data.dataset_e2k import load_e2k
@@ -96,8 +95,8 @@ def main():
     from utils.execution_time import Execution
     from components.stirrups import calc_stirrups
 
-    e2k_path, etabs_design_path, beam_name_path = CONST[
-        'e2k_path'], CONST['etabs_design_path'], CONST['beam_name_path']
+    e2k_path, etabs_design_path, beam_name_path = const[
+        'e2k_path'], const['etabs_design_path'], const['beam_name_path']
 
     e2k = load_e2k(e2k_path, e2k_path + '.pkl')
     etabs_design = load_beam_design(
@@ -106,17 +105,17 @@ def main():
 
     beam = init_beam(etabs_design, e2k, moment=3, shear=True)
     execution = Execution()
-    beam, dh_design = calc_stirrups(beam, etabs_design, CONST)
+    beam, dh_design = calc_stirrups(beam, etabs_design, const)
 
     execution.time('BayID')
-    db_design = calc_db('BayID', dh_design, e2k, CONST)
+    db_design = calc_db('BayID', dh_design, e2k, const)
     print(db_design.head())
     execution.time('BayID')
 
     execution.time('FrameID')
     beam, dh_design = add_and_alter_beam_id(
         beam, beam_name, dh_design)
-    db_design = calc_db('FrameID', dh_design, e2k, CONST)
+    db_design = calc_db('FrameID', dh_design, e2k, const)
     print(db_design.head())
     execution.time('FrameID')
     # db_design = load_pkl(SCRIPT_DIR + '/db_design.pkl', db_design)

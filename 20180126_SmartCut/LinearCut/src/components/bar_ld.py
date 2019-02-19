@@ -2,7 +2,6 @@
 """
 import numpy as np
 
-from const import BAR, COVER
 from data.dataset_rebar import double_area, rebar_area, rebar_db
 
 
@@ -12,7 +11,7 @@ def _double_size_area(real_v_size):
     return np.where(rebar_num == '2', double_area(real_v_size), rebar_area(real_v_size))
 
 
-def _ld(df, loc, e2k):
+def _ld(df, loc, e2k, cover):
     """
     It is used for nominal concrete in case of phi_e=1.0 & phi_t=1.0.
     Reference:土木401-93
@@ -30,7 +29,7 @@ def _ld(df, loc, e2k):
     fc = material.apply(lambda x: materials[x, 'FC']) / 10
     fy = material.apply(lambda x: materials[x, 'FY']) / 10
     fyh = fy
-    cover = COVER * 100
+    cover = cover * 100
     db = df[bar_size].apply(rebar_db) * 100
     num = df[bar_1st]
     dh = df['RealVSize'].apply(rebar_db) * 100
@@ -91,20 +90,22 @@ def _ld(df, loc, e2k):
     }
 
 
-def calc_ld(etbas_design, e2k):
+def calc_ld(etbas_design, e2k, const):
     """
     It is used for nominal concrete in case of phi_e=1.0 & phi_t=1.0.
     Reference:土木401-93
     PI = 3.1415926
     """
+    rebar, cover = const['rebar'], const['cover']
 
-    for loc in BAR:
-        etbas_design = etbas_design.assign(**_ld(etbas_design, loc, e2k))
+    for loc in rebar:
+        etbas_design = etbas_design.assign(
+            **_ld(etbas_design, loc, e2k, cover))
 
     return etbas_design
 
 
-def add_ld(etbas_design, ld_type):
+def add_ld(etbas_design, ld_type, rebar):
     """
     add ld
     ld_type: 'Ld', 'SimpleLd' I think 'SimpleLd' maybe not necessary
@@ -118,7 +119,7 @@ def add_ld(etbas_design, ld_type):
 
     # 好像可以不用分上下層
     # 分比較方便
-    for loc in BAR:
+    for loc in rebar:
         bar_num = 'Bar' + loc + 'Num'
         ld = loc + ld_type
         bar_num_ld = bar_num + ld_type
@@ -157,35 +158,37 @@ def main():
     test
     """
     from components.init_beam import init_beam
-    from const import E2K_PATH, ETABS_DESIGN_PATH
+    from const import const
     from data.dataset_etabs_design import load_beam_design
     from data.dataset_e2k import load_e2k
     from utils.execution_time import Execution
     from components.stirrups import calc_stirrups
     from components.bar_size_num import calc_db
 
-    e2k = load_e2k(E2K_PATH, E2K_PATH + '.pkl')
+    e2k_path, etabs_design_path = const['e2k_path'], const['etabs_design_path']
+
+    e2k = load_e2k(e2k_path, e2k_path + '.pkl')
     etabs_design = load_beam_design(
-        ETABS_DESIGN_PATH, ETABS_DESIGN_PATH + '.pkl')
+        etabs_design_path, etabs_design_path + '.pkl')
 
     beam = init_beam(etabs_design, e2k, moment=3, shear=True)
     execution = Execution()
-    beam, dh_design = calc_stirrups(beam, etabs_design)
+    beam, dh_design = calc_stirrups(beam, etabs_design, const)
 
-    db_design = calc_db('BayID', dh_design, e2k)
+    db_design = calc_db('BayID', dh_design, e2k, const)
 
     execution.time('ld')
-    ld_design = calc_ld(db_design, e2k)
+    ld_design = calc_ld(db_design, e2k, const)
     print(ld_design.head())
     execution.time('ld')
 
     execution.time('add_ld')
-    ld_design = add_ld(ld_design, 'Ld')
+    ld_design = add_ld(ld_design, 'Ld', const['rebar'])
     print(ld_design.head())
     execution.time('add_ld')
 
     execution.time('add_simple_ld')
-    ld_design = add_ld(ld_design, 'SimpleLd')
+    ld_design = add_ld(ld_design, 'SimpleLd', const['rebar'])
     print(ld_design.head())
     execution.time('add_simple_ld')
 

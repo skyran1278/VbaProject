@@ -118,13 +118,13 @@ def calc_stirrups(beam, etabs_design, const):
 
 
 def _main():
-    from const import CONST
+    from const import const
     from components.init_beam import init_beam
     from data.dataset_e2k import load_e2k
     from data.dataset_etabs_design import load_beam_design
     from utils.execution_time import Execution
 
-    e2k_path, etabs_design_path = CONST['e2k_path'], CONST['etabs_design_path']
+    e2k_path, etabs_design_path = const['e2k_path'], const['etabs_design_path']
 
     e2k = load_e2k(e2k_path, e2k_path + '.pkl')
     etabs_design = load_beam_design(
@@ -133,7 +133,7 @@ def _main():
     beam = init_beam(etabs_design, e2k, moment=3, shear=True)
     execution = Execution()
     execution.time('Stirrup Time')
-    beam, dh_design = calc_stirrups(beam, etabs_design, CONST)
+    beam, dh_design = calc_stirrups(beam, etabs_design, const)
     print(beam.head())
     print(dh_design.head())
     execution.time()
