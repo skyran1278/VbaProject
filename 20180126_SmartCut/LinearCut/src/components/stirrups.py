@@ -90,8 +90,10 @@ def _merge_segments(beam, etabs_design, stirrup_spacing):
             # for next convinience get
             etabs_design.loc[loc_spacing.index,
                              'RealSpacing'] = loc_spacing_max
+
+            # windows: UnicodeEncodeError so add .encode('utf-8', 'ignore').decode('utf-8')
             etabs_design.loc[loc_spacing.index,
-                             'RealVSize'] = loc_size
+                             'RealVSize'] = loc_size.encode('utf-8', 'ignore').decode('utf-8')
 
             beam.loc[row, ('箍筋', loc)
                      ] = f'{loc_size}@{int(loc_spacing_max * 100)}'
