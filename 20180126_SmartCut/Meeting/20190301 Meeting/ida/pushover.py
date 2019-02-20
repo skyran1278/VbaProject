@@ -139,7 +139,8 @@ class Pushover():
             df.loc[:, 'Load Case'], df.loc[:, 'Step'] = df['Load Case/Combo'].str.rsplit(
                 ' ', 1).str
 
-            df.loc[:, 'Accel'] = np.abs(df['FX'] / df['FZ']) / 0.81
+            df.loc[:, 'FX'] = np.abs(df['FX'])
+            df.loc[:, 'Accel'] = df['FX'] / df['FZ'] / 0.81
 
             print("Creating pickle file ...")
             with open(pkl_file, 'wb') as f:

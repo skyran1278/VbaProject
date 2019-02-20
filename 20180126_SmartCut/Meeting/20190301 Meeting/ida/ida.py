@@ -8,23 +8,25 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from plotlib import Plotlib
 
-class IDA():
+
+class IDA(Plotlib):
     """
     IDA data and function
     """
 
-    def __init__(self, base_shear_path, story_drifts_path, story_displacements_path, earthquakes, stories):
-        self.base_shear_path = base_shear_path
-        self.story_drifts_path = story_drifts_path
-        self.story_displacements_path = story_displacements_path
+    def __init__(self, path, earthquakes, stories):
+        super().__init__()
+        self.base_shear_path = path['base_shear_path']
+        self.story_drifts_path = path['story_drifts_path']
+        self.story_displacements_path = path['story_displacements_path']
         self.earthquakes = earthquakes
         self.stories = stories
+
         self.base_shear = None
         self.story_drifts = None
         self.story_displacements = None
-        self.intensity_measure = 'sa'
-        self.damage_measure = 'story_drifts'
 
     def _story2level(self, df):
         for story in self.stories:
@@ -32,15 +34,15 @@ class IDA():
 
         return df
 
-    def _init_damage(self, damage_measure='story_drifts'):
+    def _init_damage(self):
         """
         init time history story drifts or story displacements
         damage_measure='story_drifts' or story_displacements
         """
-        if damage_measure == 'story_drifts':
+        if self.damage_measure == 'story_drifts':
             filepath = self.story_drifts_path
             sheet_name = 'Story Drifts'
-        elif damage_measure == 'story_displacements':
+        elif self.damage_measure == 'story_displacements':
             filepath = self.story_displacements_path
             sheet_name = 'Story Max Avg Displacements'
 
@@ -78,9 +80,9 @@ class IDA():
         with open(pkl_file, 'rb') as f:
             df = pickle.load(f)
 
-        if damage_measure == 'story_drifts':
+        if self.damage_measure == 'story_drifts':
             self.story_drifts = df
-        elif damage_measure == 'story_displacements':
+        elif self.damage_measure == 'story_displacements':
             self.story_displacements = df
 
     def _init_intensity(self):
@@ -107,7 +109,8 @@ class IDA():
             df['Load Case'], df['Scaled Factors'] = df['Load Case/Combo'].str.rsplit(
                 '-', 1).str
 
-            df.loc[:, 'Accel'] = np.abs(df['FX'] / df['FZ']) / 0.81
+            df.loc[:, 'FX'] = np.abs(df['FX'])
+            df.loc[:, 'Accel'] = df['FX'] / df['FZ'] / 0.81
 
             print("Creating pickle file ...")
             with open(pkl_file, 'wb') as f:
@@ -127,40 +130,38 @@ class IDA():
             self._init_intensity()
         return self.base_shear
 
-    def get_story_damage(self, damage_measure='story_drifts'):
+    def get_story_damage(self):
         """
         get every step pushover story drifts or story displacements
         """
-        if damage_measure == 'story_drifts':
+        if self.damage_measure == 'story_drifts':
             if self.story_drifts is None:
-                self._init_damage(damage_measure)
-
+                self._init_damage()
             return self.story_drifts
-        if damage_measure == 'story_displacements':
-            if self.story_displacements is None:
-                self._init_damage(damage_measure)
 
+        if self.damage_measure == 'story_displacements':
+            if self.story_displacements is None:
+                self._init_damage()
             return self.story_displacements
 
         return None
 
-    def _get_damage_measure_column(self, damage_measure='story_drifts'):
+    def _get_damage_measure_column(self):
         """
         return 'Drift' or 'Maximum'
         """
-        if damage_measure == 'story_drifts':
-            damage_measure_column = 'Drift'
-        elif damage_measure == 'story_displacements':
-            damage_measure_column = 'Maximum'
-        return damage_measure_column
+        if self.damage_measure == 'story_drifts':
+            return 'Drift'
+        if self.damage_measure == 'story_displacements':
+            return 'Maximum'
 
-    def get_damage(self, damage_measure='story_drifts'):
+    def get_damage(self):
         """
         condense story drift to max drift
         """
-        column = self._get_damage_measure_column(damage_measure)
+        column = self._get_damage_measure_column()
 
-        story_damage = self.get_story_damage(damage_measure)
+        story_damage = self.get_story_damage()
 
         damage = story_damage[story_damage.groupby(
             'Load Case/Combo')[column].transform(max) == story_damage[column]]
@@ -169,60 +170,82 @@ class IDA():
 
         return damage
 
-    def get_points(self, earthquake, damage_measure='story_drifts', intensity_measure='sa'):
+    def get_points(self, earthquake):
         """
         get damage and intensity by loadcase and damage_measure
         """
+        if self.intensity_measure == 'base_shear':
+            intensity = self.get_intensity()
+            damage = self.get_damage()
+
+            damage = damage.loc[damage['Load Case'] == earthquake, :].copy()
+            damage.loc[:, 'Scaled Factors'] = damage[
+                'Scaled Factors'].astype('float64')
+            damage = damage.sort_values(by=['Scaled Factors'])
+
+            intensity = intensity.loc[
+                intensity['Load Case'] == earthquake, :].copy()
+            intensity.loc[:, 'Scaled Factors'] = intensity.loc[
+                :, 'Scaled Factors'].astype('float64')
+            intensity = intensity.sort_values(by=['Scaled Factors'])
+
+            column = self._get_damage_measure_column()
+
+            return damage[column].values, intensity['FX'].values
+
         # 'Drift' or 'Maximum'
-        column = self._get_damage_measure_column(damage_measure)
-        damage = self.get_damage(damage_measure)
-        intensity = self.earthquakes[earthquake][intensity_measure]
+        column = self._get_damage_measure_column()
+        damage = self.get_damage()
+        intensity_measure = self.earthquakes[earthquake][self.intensity_measure]
 
-        damage = damage.loc[damage['Load Case'] == earthquake, :].copy()
+        damage_intensity = damage.loc[damage['Load Case']
+                                      == earthquake, :].copy()
 
-        damage.loc[:, 'Scaled Factors'] = damage.loc[
-            :, 'Scaled Factors'].astype('float64') * intensity
+        damage_intensity.loc[:, 'Scaled Factors'] = damage_intensity.loc[
+            :, 'Scaled Factors'].astype('float64') * intensity_measure
 
-        damage = damage.sort_values(by=['Scaled Factors'])
+        damage_intensity = damage_intensity.sort_values(by=['Scaled Factors'])
 
-        return damage[column].values, damage['Scaled Factors'].values
+        return damage_intensity[column].values, damage_intensity['Scaled Factors'].values
 
-    def interp(self, damage_measure='story_drifts', intensity_measure='sa', num=1000):
-        x = pd.DataFrame()
-        y = pd.DataFrame()
-        interpolation_x = pd.DataFrame()
+    def interp(self, num=1000):
+        """
+        use to interp intensity
+        """
+        damages = pd.DataFrame()
+        intensities = pd.DataFrame()
+        interp_dm = pd.DataFrame()
 
         for earthquake in self.earthquakes:
-            damage, intensity = self.get_points(
-                earthquake, damage_measure, intensity_measure)
+            damage, intensity = self.get_points(earthquake)
 
             # concat all drift and accel
-            x = pd.concat(
-                [x, pd.DataFrame({earthquake: damage})], axis=1)
-            y = pd.concat(
-                [y, pd.DataFrame({earthquake: intensity})], axis=1)
+            damages = pd.concat(
+                [damages, pd.DataFrame({earthquake: damage})], axis=1)
+            intensities = pd.concat(
+                [intensities, pd.DataFrame({earthquake: intensity})], axis=1)
 
-        # scaled to same y
-        interpolation_y = np.linspace(y.min().max(), y.max().min(), num=num)
+        # scaled to same intensities
+        interp_im = np.linspace(
+            intensities.min().max(), intensities.max().min(), num=num)
 
         # interp nan, to delete nan
-        x = x.interpolate()
-        y = y.interpolate()
+        damages = damages.interpolate()
+        intensities = intensities.interpolate()
 
-        # interpolate to same y to x
-        for column in x:
-            interpolation_x.loc[:, column] = np.interp(
-                interpolation_y, y[column], x[column])
+        # interpolate to same intensities to damages
+        for column in damages:
+            interp_dm.loc[:, column] = np.interp(
+                interp_im, intensities[column], damages[column])
 
-        return interpolation_x, interpolation_y
+        return interp_dm, interp_im
 
-    def plot_all(self, *args, damage_measure='story_drifts', intensity_measure='sa', **kwargs):
+    def plot_all(self, *args, **kwargs):
         """
         plot ida in drift and acceleration by load case
         """
         for earthquake in self.earthquakes:
-            damage, intensity = self.get_points(
-                earthquake, damage_measure, intensity_measure)
+            damage, intensity = self.get_points(earthquake)
 
             if not damage.size == 0:
                 # plt.plot(xnew, f(xnew), label=earthquake, marker='.')
@@ -231,51 +254,20 @@ class IDA():
             else:
                 print(f'{earthquake} is not in data')
 
-        plt.legend(loc='upper left')
-
-    def plot(self, earthquake, *args,
-             damage_measure='story_drifts', intensity_measure='sa', **kwargs):
+    def plot(self, earthquake, *args, **kwargs):
         """
         plot pushover in drift and acceleration by load case
         """
-        damage, intensity = self.get_points(
-            earthquake, damage_measure, intensity_measure)
+        damage, intensity = self.get_points(earthquake)
         plt.plot(damage, intensity, *args, **kwargs)
 
-    def plot_median(self, *args,
-                    damage_measure='story_drifts', intensity_measure='sa', **kwargs):
+    def plot_median(self, *args, **kwargs):
         """
         plot pushover in drift and acceleration by load case
         """
-        damage, intensity = self.interp(
-            damage_measure, intensity_measure, num=1000)
+        damage, intensity = self.interp(num=1000)
         plt.plot(damage.quantile(0.5, axis=1, interpolation='nearest'),
                  intensity, label='median IDA curve', *args, **kwargs)
-
-    def figure(self,
-               ylim_max=4, xlim_max=0.025,
-               damage_measure='story_drifts', intensity_measure='sa',
-               title='IDA versus Static Pushover for a 3-storey moment resisting frame'):
-        """
-        figure
-        """
-        plt.figure()
-        plt.title(title)
-
-        if damage_measure == 'story_drifts':
-            plt.xlabel(r'Maximum interstorey drift ratio, $\theta_{max}$')
-        elif damage_measure == 'story_displacements':
-            plt.xlabel('Maximum displacement(mm)')
-
-        if intensity_measure == 'sa':
-            plt.ylabel(r'"first-mode"spectral acceleration $S_a(T_1$, 5%)(g)')
-        elif intensity_measure == 'pga':
-            plt.ylabel('Peak ground acceleration PGA(g)')
-
-        if xlim_max is not None:
-            plt.xlim(0, xlim_max)
-        if ylim_max is not None:
-            plt.ylim(0, ylim_max)
 
 
 def _main():
@@ -310,19 +302,34 @@ def _main():
 
     file_dir = os.path.dirname(os.path.abspath(__file__))
 
+    path = {
+        'base_shear_path': file_dir+'/20190220 multi ida base shear',
+        'story_drifts_path': file_dir + '/20190214 multi ida story drifts',
+        'story_displacements_path': file_dir + '/20190214 multi ida displacement'
+    }
+
     ida = IDA(
-        base_shear_path=file_dir+'/20190220 multi ida base shear',
-        story_drifts_path=file_dir + '/20190214 multi ida story drifts',
-        story_displacements_path=file_dir + '/20190214 multi ida displacement',
+        path=path,
         earthquakes=earthquakes,
         stories=stories
     )
 
-    print(ida.get_intensity())
+    # print(ida.get_intensity())
 
-    ida.figure(xlim_max=300, ylim_max=None,
-               damage_measure='story_displacements')
-    ida.plot_median(damage_measure='story_displacements')
+    ida.figure(xlim_max=0.025, intensity_measure='pga')
+    ida.plot_all()
+    ida.plot_median()
+    plt.legend(loc='upper left')
+
+    ida.figure(xlim_max=0.025, intensity_measure='sa')
+    ida.plot_all()
+    ida.plot_median()
+    plt.legend(loc='upper left')
+
+    ida.figure(xlim_max=0.025, intensity_measure='base_shear')
+    ida.plot_all()
+    ida.plot_median()
+    plt.legend(loc='upper left')
 
     plt.show()
 
