@@ -9,6 +9,8 @@ import numpy as np
 
 from app import cut_by_beam, cut_by_frame
 
+print('Loading interface, please waiting...')
+
 
 class SmartCutPanel(wx.Panel):
     """This Panel hold two simple buttons, but doesn't really do anything."""
@@ -151,15 +153,15 @@ class SmartCutPanel(wx.Panel):
         }
 
     def _get_stirrup_rebar(self):
-        return np.array(self.stirrup_rebar.GetValue().replace(" ", "").split(','))
+        return self.stirrup_rebar.GetValue().replace(" ", "").split(',')
 
     def _get_stirrup_spacing(self):
         return np.array(self.stirrup_spacing.GetValue().split(',')).astype(np.float)
 
     def _get_rebar(self):
         return {
-            'Top': np.array(self.bartop.GetValue().replace(" ", "").split(',')),
-            'Bot': np.array(self.barbot.GetValue().replace(" ", "").split(','))
+            'Top': self.bartop.GetValue().replace(" ", "").split(','),
+            'Bot': self.barbot.GetValue().replace(" ", "").split(',')
         }
 
     def on_click_beam_name_btn(self, event):  # pylint: disable=unused-argument
@@ -277,6 +279,6 @@ class SmartCutFrame(wx.Frame):
 
 
 APP = wx.App()
-FRAME = SmartCutFrame(None, title='Smart Cut', size=(800, 700))
+FRAME = SmartCutFrame(None, title='Smart Cut', size=(900, 700))
 FRAME.Show()
 APP.MainLoop()
