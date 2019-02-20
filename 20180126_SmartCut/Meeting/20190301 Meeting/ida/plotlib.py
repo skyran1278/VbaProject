@@ -1,6 +1,7 @@
 """
 Plotlib
 """
+# TODO: 看看怎麼寫比較好，我覺得應該不是繼承
 import matplotlib.pyplot as plt
 
 
@@ -10,12 +11,11 @@ class Plotlib():
     intensity_measure
     damage_measure
     """
+    intensity_measure = None
+    damage_measure = None
 
-    def __init__(self):
-        self.intensity_measure = None
-        self.damage_measure = None
-
-    def figure(self, ylim_max=None, xlim_max=None,
+    @classmethod
+    def figure(cls, ylim_max=None, xlim_max=None,
                damage_measure='story_drifts', intensity_measure='sa',
                title='IDA versus Static Pushover for a 3-storey moment resisting frame'):
         """
@@ -24,8 +24,8 @@ class Plotlib():
         plt.figure()
         plt.title(title)
 
-        self.intensity_measure = intensity_measure
-        self.damage_measure = damage_measure
+        Plotlib.intensity_measure = intensity_measure
+        Plotlib.damage_measure = damage_measure
 
         if damage_measure == 'story_drifts':
             plt.xlabel(r'Maximum interstorey drift ratio, $\theta_{max}$')

@@ -20,10 +20,12 @@ from pushover import Pushover
 from ida import IDA
 
 # 建議 scaled 到差不多的大小，因為會取最小的來做 median。
-# TODO: 把圖拆開
 
 
 def main():
+    """
+    test
+    """
     stories = {
         'RF': 4,
         '3F': 3,
@@ -55,7 +57,7 @@ def main():
 
     # loadcases = [
     #     'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2', 'PUSHX-3',
-    #  'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
+    #     'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
     # ]
 
     # loadcases = [
@@ -64,68 +66,103 @@ def main():
 
     file_dir = os.path.dirname(os.path.abspath(__file__))
 
-    multi_pushover = Pushover(
-        base_shear_path=file_dir + '/20190214 multi pushover base shear',
-        story_drifts_path=file_dir + '/20190214 multi pushover story drifts',
-        story_displacements_path=file_dir + '/20190214 multi pushover displacement',
-        stories=stories
-    )
+    pushover_path = {
+        'base_shear_path': file_dir + '/20190214 multi pushover base shear',
+        'story_drifts_path': file_dir + '/20190214 multi pushover story drifts',
+        'story_displacements_path': file_dir + '/20190214 multi pushover displacement'
+    }
+
+    ida_path = {
+        'base_shear_path': file_dir + '/20190220 multi ida base shear',
+        'story_drifts_path': file_dir + '/20190214 multi ida story drifts',
+        'story_displacements_path': file_dir + '/20190214 multi ida displacement'
+    }
+
+    multi_pushover = Pushover(path=pushover_path, stories=stories)
 
     ida = IDA(
-        story_drifts_path=file_dir + '/20190214 multi ida story drifts',
-        story_displacements_path=file_dir + '/20190214 multi ida displacement',
+        path=ida_path,
         earthquakes=earthquakes,
         stories=stories
     )
 
-    ida.figure(xlim_max=0.02, ylim_max=3.5)
+    ida.figure(xlim_max=0.025, intensity_measure='pga')
     ida.plot_all()
-
-    multi_pushover.plot([
-        'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2', 'PUSHX-3',
-        'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-    ], marker='.')
-
-    ida.figure(xlim_max=0.02, ylim_max=2.5)
     ida.plot_median()
+    plt.legend(loc='upper left')
 
+    ida.figure(xlim_max=0.025, intensity_measure='sa')
+    # multi_pushover.figure(xlim_max=0.025, intensity_measure='sa')
+    ida.plot_all()
+    ida.plot_median()
+    multi_pushover.plot('PUSHX-T', label='Static Pushover Curve')
+    plt.legend(loc='upper left')
+
+    ida.figure(xlim_max=0.025, intensity_measure='base_shear')
+    # multi_pushover.figure(xlim_max=0.025, intensity_measure='base_shear')
+    ida.plot_median()
     multi_pushover.plot([
         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
-    ], marker='.')
-
-    ida.figure(xlim_max=0.02, ylim_max=2.5)
+    ])
+    plt.legend(loc='upper left')
+    ida.figure(xlim_max=0.025, intensity_measure='base_shear')
+    # multi_pushover.figure(xlim_max=0.025, intensity_measure='base_shear')
     ida.plot_median()
-
     multi_pushover.plot([
         'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-    ], marker='.')
-
-    ida.figure(xlim_max=150, ylim_max=3.5,
-               damage_measure='story_displacements')
-    ida.plot_all(damage_measure='story_displacements')
-
-    multi_pushover.plot([
-        'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2', 'PUSHX-3',
-        'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-    ], marker='.', damage_measure='story_displacements')
-
-    ida.figure(xlim_max=150, ylim_max=2.5,
-               damage_measure='story_displacements')
-    ida.plot_median(damage_measure='story_displacements')
-
-    multi_pushover.plot([
-        'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
-    ], marker='.', damage_measure='story_displacements')
-
-    ida.figure(xlim_max=150, ylim_max=2.5,
-               damage_measure='story_displacements')
-    ida.plot_median(damage_measure='story_displacements')
-
-    multi_pushover.plot([
-        'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
-    ], marker='.', damage_measure='story_displacements')
+    ])
+    plt.legend(loc='upper left')
 
     plt.show()
+
+    # ida.figure(xlim_max=0.02, ylim_max=3.5)
+    # ida.plot_all()
+
+    # multi_pushover.plot([
+    #     'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2', 'PUSHX-3',
+    #     'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
+    # ], marker='.')
+
+    # ida.figure(xlim_max=0.02, ylim_max=2.5)
+    # ida.plot_median()
+
+    # multi_pushover.plot([
+    #     'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
+    # ], marker='.')
+
+    # ida.figure(xlim_max=0.02, ylim_max=2.5)
+    # ida.plot_median()
+
+    # multi_pushover.plot([
+    #     'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
+    # ], marker='.')
+
+    # ida.figure(xlim_max=150, ylim_max=3.5,
+    #            damage_measure='story_displacements')
+    # ida.plot_all(damage_measure='story_displacements')
+
+    # multi_pushover.plot([
+    #     'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-1', 'PUSHX-2', 'PUSHX-3',
+    #     'PUSHX-MMC', 'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
+    # ], marker='.', damage_measure='story_displacements')
+
+    # ida.figure(xlim_max=150, ylim_max=2.5,
+    #            damage_measure='story_displacements')
+    # ida.plot_median(damage_measure='story_displacements')
+
+    # multi_pushover.plot([
+    #     'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
+    # ], marker='.', damage_measure='story_displacements')
+
+    # ida.figure(xlim_max=150, ylim_max=2.5,
+    #            damage_measure='story_displacements')
+    # ida.plot_median(damage_measure='story_displacements')
+
+    # multi_pushover.plot([
+    #     'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
+    # ], marker='.', damage_measure='story_displacements')
+
+    # plt.show()
 
 
 if __name__ == "__main__":

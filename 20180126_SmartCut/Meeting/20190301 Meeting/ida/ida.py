@@ -39,14 +39,14 @@ class IDA(Plotlib):
         init time history story drifts or story displacements
         damage_measure='story_drifts' or story_displacements
         """
-        if self.damage_measure == 'story_drifts':
+        if Plotlib.damage_measure == 'story_drifts':
             filepath = self.story_drifts_path
             sheet_name = 'Story Drifts'
-        elif self.damage_measure == 'story_displacements':
+        elif Plotlib.damage_measure == 'story_displacements':
             filepath = self.story_displacements_path
             sheet_name = 'Story Max Avg Displacements'
 
-        pkl_file = f'{filepath} for IDA.pkl'
+        pkl_file = f'{filepath} for ida.pkl'
 
         if not os.path.exists(pkl_file):
             print("Reading excel...")
@@ -80,16 +80,16 @@ class IDA(Plotlib):
         with open(pkl_file, 'rb') as f:
             df = pickle.load(f)
 
-        if self.damage_measure == 'story_drifts':
+        if Plotlib.damage_measure == 'story_drifts':
             self.story_drifts = df
-        elif self.damage_measure == 'story_displacements':
+        elif Plotlib.damage_measure == 'story_displacements':
             self.story_displacements = df
 
     def _init_intensity(self):
         """
         get pushover base shear and acceleration
         """
-        pkl_file = f'{self.base_shear_path} for pushover.pkl'
+        pkl_file = f'{self.base_shear_path} for ida.pkl'
 
         if not os.path.exists(pkl_file):
             print("Reading excel...")
@@ -134,32 +134,32 @@ class IDA(Plotlib):
         """
         get every step pushover story drifts or story displacements
         """
-        if self.damage_measure == 'story_drifts':
+        if Plotlib.damage_measure == 'story_drifts':
             if self.story_drifts is None:
                 self._init_damage()
             return self.story_drifts
 
-        if self.damage_measure == 'story_displacements':
+        if Plotlib.damage_measure == 'story_displacements':
             if self.story_displacements is None:
                 self._init_damage()
             return self.story_displacements
 
         return None
 
-    def _get_damage_measure_column(self):
+    def _get_dm_col(self):
         """
         return 'Drift' or 'Maximum'
         """
-        if self.damage_measure == 'story_drifts':
+        if Plotlib.damage_measure == 'story_drifts':
             return 'Drift'
-        if self.damage_measure == 'story_displacements':
+        if Plotlib.damage_measure == 'story_displacements':
             return 'Maximum'
 
     def get_damage(self):
         """
         condense story drift to max drift
         """
-        column = self._get_damage_measure_column()
+        column = self._get_dm_col()
 
         story_damage = self.get_story_damage()
 
@@ -174,7 +174,7 @@ class IDA(Plotlib):
         """
         get damage and intensity by loadcase and damage_measure
         """
-        if self.intensity_measure == 'base_shear':
+        if Plotlib.intensity_measure == 'base_shear':
             intensity = self.get_intensity()
             damage = self.get_damage()
 
@@ -189,14 +189,14 @@ class IDA(Plotlib):
                 :, 'Scaled Factors'].astype('float64')
             intensity = intensity.sort_values(by=['Scaled Factors'])
 
-            column = self._get_damage_measure_column()
+            return (
+                damage[self._get_dm_col()].values,
+                intensity['FX'].values
+            )
 
-            return damage[column].values, intensity['FX'].values
-
-        # 'Drift' or 'Maximum'
-        column = self._get_damage_measure_column()
         damage = self.get_damage()
-        intensity_measure = self.earthquakes[earthquake][self.intensity_measure]
+        intensity_measure = self.earthquakes[
+            earthquake][Plotlib.intensity_measure]
 
         damage_intensity = damage.loc[damage['Load Case']
                                       == earthquake, :].copy()
@@ -206,7 +206,10 @@ class IDA(Plotlib):
 
         damage_intensity = damage_intensity.sort_values(by=['Scaled Factors'])
 
-        return damage_intensity[column].values, damage_intensity['Scaled Factors'].values
+        return (
+            damage_intensity[self._get_dm_col()].values,
+            damage_intensity['Scaled Factors'].values
+        )
 
     def interp(self, num=1000):
         """
@@ -303,7 +306,7 @@ def _main():
     file_dir = os.path.dirname(os.path.abspath(__file__))
 
     path = {
-        'base_shear_path': file_dir+'/20190220 multi ida base shear',
+        'base_shear_path': file_dir + '/20190220 multi ida base shear',
         'story_drifts_path': file_dir + '/20190214 multi ida story drifts',
         'story_displacements_path': file_dir + '/20190214 multi ida displacement'
     }
