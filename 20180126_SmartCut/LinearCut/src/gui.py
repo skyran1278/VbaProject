@@ -277,6 +277,6 @@ class SmartCutFrame(wx.Frame):
 
 
 APP = wx.App()
-FRAME = SmartCutFrame(None, title='Smart Cut', size=(800, 600))
+FRAME = SmartCutFrame(None, title='Smart Cut', size=(800, 700))
 FRAME.Show()
 APP.MainLoop()

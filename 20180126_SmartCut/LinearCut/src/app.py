@@ -40,14 +40,14 @@ def cut_by_beam(const, moment=3, shear=False):
         output_dir + '/' + time.strftime("%Y%m%d %H%M%S", time.localtime()) + ' SmartCut.xlsx')
 
     # 初始化輸出表格
-    execution.time('初始化輸出表格')
+    execution.time('Initialize Output Table')
     beam_name_empty = init_beam_name(etabs_design)
     beam_traditional = init_beam(etabs_design, e2k)
     beam = init_beam(etabs_design, e2k, moment=moment, shear=shear)
     execution.time()
 
     # 計算箍筋
-    execution.time('計算箍筋')
+    execution.time('Calculate Stirrup Size and Spacing')
     beam, dh_design = calc_stirrups(beam, etabs_design, const)
     beam_traditional, _ = calc_stirrups(beam_traditional, etabs_design, const)
     (beam, beam_traditional, dh_design) = load_pkl(
@@ -55,35 +55,35 @@ def cut_by_beam(const, moment=3, shear=False):
     execution.time()
 
     # 以一根梁為單位 計算主筋
-    execution.time('以一根梁為單位 計算主筋')
+    execution.time('Calculate Rebar Size and Number by Beam')
     db_design = calc_db('BayID', dh_design, e2k, const)
     db_design = load_pkl(output_dir + '/db_design.pkl', db_design)
     execution.time()
 
     # 計算延伸長度
-    execution.time('計算延伸長度')
+    execution.time('Calculate Ld')
     ld_design = calc_ld(db_design, e2k, const)
     execution.time()
 
     # 加上延伸長度
-    execution.time('加上延伸長度')
+    execution.time('Add Ld')
     ld_design = add_ld(ld_design, 'Ld', const['rebar'])
     ld_design = load_pkl(output_dir + '/ld_design.pkl', ld_design)
     execution.time()
 
     # 傳統斷筋
-    execution.time('傳統斷筋')
+    execution.time('Traditional Cut')
     beam_traditional = cut_traditional(
         beam_traditional, ld_design, const['rebar'])
     execution.time()
 
     # 多點斷筋
-    execution.time('多點斷筋')
+    execution.time('Multi Smart Cut')
     beam = cut_optimization(moment, beam, ld_design, const)
     execution.time()
 
     # 輸出成表格
-    execution.time('輸出成表格')
+    execution.time('Output Result')
     beam_name_empty.to_excel(writer, '梁名編號')
     beam.to_excel(writer, '多點斷筋')
     beam_traditional.to_excel(writer, '傳統斷筋')
@@ -110,7 +110,7 @@ def cut_by_frame(const, moment=3, shear=False):
         output_dir + '/' + time.strftime("%Y%m%d %H%M%S", time.localtime()) + ' SmartCut.xlsx')
 
     # 初始化輸出表格
-    execution.time('初始化輸出表格')
+    execution.time('Initialize Output Table')
     beam_traditional = init_beam(etabs_design, e2k)
     beam = init_beam(etabs_design, e2k, moment=moment, shear=shear)
     # no change tradition beam id
@@ -119,7 +119,7 @@ def cut_by_frame(const, moment=3, shear=False):
     execution.time()
 
     # 計算箍筋
-    execution.time('計算箍筋')
+    execution.time('Calculate Stirrup Size and Spacing')
     beam, dh_design = calc_stirrups(beam, etabs_design, const)
     beam_traditional, _ = calc_stirrups(beam_traditional, etabs_design, const)
     (beam, beam_traditional, dh_design) = load_pkl(
@@ -127,35 +127,35 @@ def cut_by_frame(const, moment=3, shear=False):
     execution.time()
 
     # 以一台梁為單位 計算主筋
-    execution.time('以一台梁為單位 計算主筋')
+    execution.time('Calculate Rebar Size and Number by Frame')
     db_design = calc_db('FrameID', dh_design, e2k, const)
     db_design = load_pkl(output_dir + '/db_design.pkl', db_design)
     execution.time()
 
     # 計算延伸長度
-    execution.time('計算延伸長度')
+    execution.time('Calculate Ld')
     ld_design = calc_ld(db_design, e2k, const)
     execution.time()
 
     # 加上延伸長度
-    execution.time('加上延伸長度')
+    execution.time('Add Ld')
     ld_design = add_ld(ld_design, 'Ld', const['rebar'])
     ld_design = load_pkl(output_dir + '/ld_design.pkl', ld_design)
     execution.time()
 
     # 傳統斷筋
-    execution.time('傳統斷筋')
+    execution.time('Traditional Cut')
     beam_traditional = cut_traditional(
         beam_traditional, ld_design, const['rebar'])
     execution.time()
 
     # 多點斷筋
-    execution.time('多點斷筋')
+    execution.time('Multi Smart Cut')
     beam = cut_optimization(moment, beam, ld_design, const)
     execution.time()
 
     # 輸出成表格
-    execution.time('輸出成表格')
+    execution.time('Output Result')
     beam.to_excel(writer, '多點斷筋')
     beam_traditional.to_excel(writer, '傳統斷筋')
     ld_design.to_excel(writer, 'etabs_design')
