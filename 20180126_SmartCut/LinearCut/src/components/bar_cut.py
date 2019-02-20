@@ -29,14 +29,17 @@ def _make_1st_last_diff(group_diff):
     return group_diff
 
 
-def _get_min_cut(group_loc, group_loc_diff, i):
-    if group_loc_diff[i] > 0:
-        return group_loc.index[i]
+def _get_min_cut(group_loc, group_loc_diff, loc):
+    if group_loc_diff[loc] > 0:
+        return group_loc.index[loc]
     else:
-        return group_loc.index[i + 1]
+        return group_loc.index[loc + 1]
 
 
 def cut_5(etabs_design, beam_5, const):
+    """
+    5 cut
+    """
     rebar, iteration_gap = const['rebar'], const['iteration_gap']
 
     output_loc = {
@@ -51,7 +54,7 @@ def cut_5(etabs_design, beam_5, const):
     }
 
     for loc in rebar:
-        i = output_loc[loc]['START_LOC']
+        row = output_loc[loc]['START_LOC']
         to_2nd = output_loc[loc]['TO_2nd']
 
         bar_cap = 'Bar' + loc + 'Cap'
@@ -173,14 +176,15 @@ def cut_5(etabs_design, beam_5, const):
                                     min_usage = rebar_usage
                                     min_num = num
                                     min_length = length
-            # for i in nonzero_index:
-            #     split_left = _get_min_cut(iteration, iteration_diff, i)
+            # for row in nonzero_index:
+            #     split_left = _get_min_cut(iteration, iteration_diff, row)
 
             #     for j in np.flatnonzero(group_right_diff):
             #         split_right = _get_min_cut(
             #             group_right, group_right_diff, j)
             #         split_3p_array = [
-            #             group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
+            #             group.loc[:split_left, bar_num_ld], group.loc[split_left:
+            # split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
             #         num, length = _calc_num_length(group, split_3p_array)
 
                     # rebar_usage = np.sum(num * length)
@@ -208,16 +212,16 @@ def cut_5(etabs_design, beam_5, const):
             for bar_loc in group_num:
                 loc_1st, loc_2nd = group_num[bar_loc]
                 loc_length = group_length[bar_loc]
-                beam_5.at[i, ('主筋', bar_loc)] = concat_num_size(
+                beam_5.at[row, ('主筋', bar_loc)] = concat_num_size(
                     loc_1st, group_size)
-                beam_5.at[i, ('長度', bar_loc)] = loc_length * 100
-                beam_5.at[i + to_2nd, ('主筋', bar_loc)
+                beam_5.at[row, ('長度', bar_loc)] = loc_length * 100
+                beam_5.at[row + to_2nd, ('主筋', bar_loc)
                           ] = concat_num_size(loc_2nd, group_size)
 
-            beam_5.at[i, ('NOTE', '')] = min_usage * rebar_area(
+            beam_5.at[row, ('NOTE', '')] = min_usage * rebar_area(
                 group_size) * 1000000
 
-            i += 4
+            row += 4
 
     return beam_5
 
@@ -226,7 +230,7 @@ def cut_3(group, loc, const):
     """
     cut 3, depands on iteration_gap, ex: 0.1~0.45, 0.55~0.9
     """
-    rebar, iteration_gap = const['rebar'], const['iteration_gap']
+    iteration_gap = const['iteration_gap']
 
     # initial
     min_usage = float('Inf')
@@ -251,15 +255,18 @@ def cut_3(group, loc, const):
     group_left_diff = _make_1st_last_diff(group_left_diff)
     group_right_diff = _make_1st_last_diff(group_right_diff)
 
-    for i in np.flatnonzero(group_left_diff):
+    for i in np.flatnonzero(group_left_diff):  # pylint: disable=invalid-name
         split_left = _get_min_cut(group_left, group_left_diff, i)
 
-        for j in np.flatnonzero(group_right_diff):
+        for j in np.flatnonzero(group_right_diff):  # pylint: disable=invalid-name
 
             split_right = _get_min_cut(
                 group_right, group_right_diff, j)
             split_3p_array = [
-                group.loc[:split_left, bar_num_ld], group.loc[split_left: split_right, bar_num_ld], group.loc[split_right:, bar_num_ld]]
+                group.loc[:split_left, bar_num_ld],
+                group.loc[split_left: split_right, bar_num_ld],
+                group.loc[split_right:, bar_num_ld]
+            ]
             num, length = _calc_num_length(group, split_3p_array)
 
             rebar_usage = np.sum(num * length)
@@ -273,6 +280,9 @@ def cut_3(group, loc, const):
 
 
 def output_3(beam, etabs_design, const):
+    """
+    format 3 cut
+    """
     rebar = const['rebar']
 
     output_loc = {
@@ -307,8 +317,8 @@ def output_3(beam, etabs_design, const):
                 '左': length[0],
                 # '左': length[0] if num[0] != num[1] else '',
                 '中': length[1],
-                '右': length[2]
                 # '右': length[2] if num[2] != num[1] else ''
+                '右': length[2]
             }
 
             for bar_loc in group_num:

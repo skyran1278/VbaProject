@@ -8,7 +8,7 @@ from components.bar_functions import concat_num_size, num_to_1st_2nd
 from data.dataset_rebar import rebar_area
 
 
-def _get_group_length(group_num, group, ld):
+def _get_group_length(group_num, group, ld):  # pylint: disable=invalid-name
     span = np.amax(group['StnLoc']) - np.amin(group['StnLoc'])
 
     left_num = group_num['左'][0]
@@ -47,7 +47,8 @@ def cut_traditional(beam, etbas_design, rebar):
     algorithm:
         cut in 0~1/3, 1/4~3/4, 2/3~1 to get max bar number
         cut in 1/3, 1/5 depends on bar number, but don't have 1/7
-        end length depends on simple ld and 1/3, if ld too long, then get max rebar and length is 1/3
+        end length depends on simple ld and 1/3,
+        if ld too long, then get max rebar and length is 1/3
     """
     beam = beam.copy()
 
@@ -80,7 +81,7 @@ def cut_traditional(beam, etbas_design, rebar):
         bar_cap = 'Bar' + loc + 'Cap'
         bar_size = 'Bar' + loc + 'Size'
         bar_num = 'Bar' + loc + 'Num'
-        ld = loc + 'SimpleLd'
+        ld = loc + 'SimpleLd'  # pylint: disable=invalid-name
 
         for _, group in etbas_design.groupby(['Story', 'BayID'], sort=False):
             num_usage = 0

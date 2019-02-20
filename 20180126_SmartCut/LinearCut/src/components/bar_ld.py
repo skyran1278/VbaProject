@@ -24,15 +24,18 @@ def _ld(df, loc, e2k, cover):
 
     # 延伸長度比較熟悉 cm 操作
     # m => cm
+    # pylint: disable=invalid-name
     B = df['SecID'].apply(lambda x: sections[x, 'B']) * 100
     material = df['SecID'].apply(lambda x: sections[x, 'MATERIAL'])
+    # pylint: disable=invalid-name
     fc = material.apply(lambda x: materials[x, 'FC']) / 10
+    # pylint: disable=invalid-name
     fy = material.apply(lambda x: materials[x, 'FY']) / 10
     fyh = fy
     cover = cover * 100
-    db = df[bar_size].apply(rebar_db) * 100
+    db = df[bar_size].apply(rebar_db) * 100  # pylint: disable=invalid-name
     num = df[bar_1st]
-    dh = df['RealVSize'].apply(rebar_db) * 100
+    dh = df['RealVSize'].apply(rebar_db) * 100  # pylint: disable=invalid-name
     avh = df['RealVSize'].apply(_double_size_area) * 10000
     spacing = df['RealSpacing'] * 100
 
@@ -40,13 +43,14 @@ def _ld(df, loc, e2k, cover):
     fc[np.sqrt(fc) > 26.5] = 700
 
     # R5.3.4.1.1
-    cc = dh + cover
+    cc = dh + cover  # pylint: disable=invalid-name
 
     # R5.3.4.1.1
-    cs = (B - db * num - dh * 2 - cover * 2) / (num - 1) / 2
+    cs = (B - db * num - dh * 2 - cover * 2) / \
+        (num - 1) / 2  # pylint: disable=invalid-name
 
     # Vertical splitting failure / Horizontal splitting failure
-    cb = np.where(cc <= cs, cc, cs) + db / 2
+    cb = np.where(cc <= cs, cc, cs) + db / 2  # pylint: disable=invalid-name
 
     # R5.3.4.1.2
     ktr = np.where(cc <= cs, 1, 2 / num) * avh * fyh / 105 / spacing
@@ -63,7 +67,8 @@ def _ld(df, loc, e2k, cover):
     #     ktr = 2 * (PI * dh ** 2 / 4) * fyh / 105 / spacing / num
 
     # 5.3.4.1
-    ld = 0.28 * fy / np.sqrt(fc) * db / np.minimum((cb + ktr) / db, 2.5)
+    ld = 0.28 * fy / np.sqrt(fc) * db / np.minimum((cb + ktr) /
+                                                   db, 2.5)  # pylint: disable=invalid-name
 
     # 5.3.4.1
     simple_ld = 0.19 * fy / np.sqrt(fc) * db
@@ -74,7 +79,7 @@ def _ld(df, loc, e2k, cover):
 
     # phi_t factor
     if loc == 'Top':
-        ld = 1.3 * ld
+        ld = 1.3 * ld  # pylint: disable=invalid-name
         simple_ld = 1.3 * simple_ld
 
     ld[ld > simple_ld] = simple_ld
@@ -121,7 +126,7 @@ def add_ld(etbas_design, ld_type, rebar):
     # 分比較方便
     for loc in rebar:
         bar_num = 'Bar' + loc + 'Num'
-        ld = loc + ld_type
+        ld = loc + ld_type  # pylint: disable=invalid-name
         bar_num_ld = bar_num + ld_type
 
         ld_design = ld_design.assign(**init_ld(ld_design))

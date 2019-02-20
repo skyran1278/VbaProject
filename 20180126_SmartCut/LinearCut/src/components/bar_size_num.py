@@ -15,7 +15,7 @@ def _bar_name(loc):
     return (bar_size, bar_num, bar_cap, bar_1st, bar_2nd)
 
 
-def _calc_bar_size_num(i, loc, e2k, const):
+def _calc_bar_size_num(rebar_i, loc, e2k, const):
     sections = e2k['sections']
     rebar, db_spacing, cover = const['rebar'], const['db_spacing'], const['cover']
 
@@ -26,8 +26,10 @@ def _calc_bar_size_num(i, loc, e2k, const):
         # 應該可以用 apply 來改良，晚點再來做
         # 這裡應該拿最後配的來算，但是因為號數整支梁都會相同，所以沒差
         # 後來查了一下 發現好像差不多
+        # pylint: disable=invalid-name
         dh = df['VSize'].apply(lambda x: rebar_db('#' + x.split('#')[1]))
-        db = rebar_db(rebar[loc][i])
+        # pylint: disable=invalid-name
+        db = rebar_db(rebar[loc][rebar_i])
         width = df['SecID'].apply(lambda x: sections[(x, 'B')])
 
         return np.floor((width - 2 * cover - 2 * dh - db) / (db_spacing * db + db)) + 1
@@ -48,16 +50,18 @@ def _calc_bar_size_num(i, loc, e2k, const):
         return bar_2nd
 
     return {
-        bar_size: rebar[loc][i],
+        bar_size: rebar[loc][rebar_i],
         bar_cap: _calc_capacity,
         # 增加扣 0.05 的容量
-        bar_num: lambda x: np.maximum(np.ceil(x['As' + loc] / rebar_area(rebar[loc][i]) - 0.05), 2),
+        bar_num: lambda x: np.maximum(
+            np.ceil(x['As' + loc] / rebar_area(rebar[loc][rebar_i]) - 0.05), 2
+        ),
         bar_1st: _calc_1st,
         bar_2nd: _calc_2nd
     }
 
 
-def calc_db(by, etabs_design, e2k, const):
+def calc_db(by, etabs_design, e2k, const):  # pylint: disable=invalid-name
     """ calculate db by beam or usr defined frame, should first calculate stirrups
     """
     rebar = const['rebar']
@@ -71,11 +75,12 @@ def calc_db(by, etabs_design, e2k, const):
             **_calc_bar_size_num(0, loc, e2k, const))
 
         for _, group in db_design.groupby(['Story', by], sort=False):
-            i = 0
+            rebar_i = 0
 
             while np.any(group[bar_num] > 2 * group[bar_cap]):
-                i += 1
-                group = group.assign(**_calc_bar_size_num(i, loc, e2k, const))
+                rebar_i += 1
+                group = group.assign(
+                    **_calc_bar_size_num(rebar_i, loc, e2k, const))
 
             db_design.loc[group.index, [bar_size, bar_num, bar_cap, bar_1st, bar_2nd]
                           ] = group[[bar_size, bar_num, bar_cap, bar_1st, bar_2nd]]

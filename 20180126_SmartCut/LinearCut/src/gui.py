@@ -2,8 +2,9 @@
 GUI for SmartCut.
 """
 import os
-import wx
 import time
+
+import wx
 import numpy as np
 
 from app import cut_by_beam, cut_by_frame
@@ -136,10 +137,10 @@ class SmartCutPanel(wx.Panel):
             'cover': 0.04,
         }
 
-    def _run_by_beam(self, event):
+    def _run_by_beam(self, event):  # pylint: disable=unused-argument
         cut_by_beam(self._const())
 
-    def _run_by_frame(self, event):
+    def _run_by_frame(self, event):  # pylint: disable=unused-argument
         const = self._const()
         cut_by_frame(const)
 
@@ -161,7 +162,7 @@ class SmartCutPanel(wx.Panel):
             'Bot': np.array(self.barbot.GetValue().replace(" ", "").split(','))
         }
 
-    def on_click_beam_name_btn(self, event):
+    def on_click_beam_name_btn(self, event):  # pylint: disable=unused-argument
         """ Open a file"""
         dlg = wx.FileDialog(self, message="Choose a file",
                             wildcard="*.xlsx", style=wx.FD_OPEN)
@@ -172,7 +173,7 @@ class SmartCutPanel(wx.Panel):
 
         dlg.Destroy()
 
-    def on_click_output_btn(self, event):
+    def on_click_output_btn(self, event):  # pylint: disable=unused-argument
         """ Open a file"""
         dlg = wx.DirDialog(self, message="Choose output directory",
                            style=wx.DD_DEFAULT_STYLE | wx.DD_DIR_MUST_EXIST)
@@ -182,7 +183,7 @@ class SmartCutPanel(wx.Panel):
 
         dlg.Destroy()
 
-    def on_click_etabs_dsign_btn(self, event):
+    def on_click_etabs_dsign_btn(self, event):  # pylint: disable=unused-argument
         """ Open a file"""
         dlg = wx.FileDialog(self, message="Choose a file",
                             wildcard="*.xlsx", style=wx.FD_OPEN)
@@ -197,7 +198,7 @@ class SmartCutPanel(wx.Panel):
 
         dlg.Destroy()
 
-    def on_click_e2k_btn(self, event):
+    def on_click_e2k_btn(self, event):  # pylint: disable=unused-argument
         """ Open a file"""
         dlg = wx.FileDialog(self, message="Choose a file",
                             wildcard="*.e2k", style=wx.FD_OPEN)
@@ -220,16 +221,16 @@ class SmartCutFrame(wx.Frame):
             self.Close(True)
 
         # create a menu bar
-        self.makeMenuBar()
+        self.make_menu_bar()
 
         # and a status bar
         self.CreateStatusBar()
         self.SetStatusText("Welcome to SmartCut!")
 
         # create a panel in the frame
-        self.PANEL = SmartCutPanel(self)
+        self.panel = SmartCutPanel(self)
 
-    def makeMenuBar(self):
+    def make_menu_bar(self):
         """
         A menu bar is composed of menus, which are composed of menu items.
         This method builds a set of menus and binds handlers to be called
@@ -237,38 +238,38 @@ class SmartCutFrame(wx.Frame):
         """
 
         # Setting up the menu.
-        fileMenu = wx.Menu()
+        file_menu = wx.Menu()
 
         # When using a stock ID we don't need to specify the menu item's
         # label
-        exitItem = fileMenu.Append(wx.ID_EXIT)
+        exit_item = file_menu.Append(wx.ID_EXIT)
 
         # Now a help menu for the about item
-        helpMenu = wx.Menu()
-        aboutItem = helpMenu.Append(wx.ID_ABOUT)
+        help_menu = wx.Menu()
+        about_item = help_menu.Append(wx.ID_ABOUT)
 
         # Make the menu bar and add the two menus to it. The '&' defines
         # that the next letter is the "mnemonic" for the menu item. On the
         # platforms that support it those letters are underlined and can be
         # triggered from the keyboard.
-        menuBar = wx.MenuBar()
-        menuBar.Append(fileMenu, "&File")
-        menuBar.Append(helpMenu, "&Help")
+        menu_bar = wx.MenuBar()
+        menu_bar.Append(file_menu, "&File")
+        menu_bar.Append(help_menu, "&Help")
 
         # Give the menu bar to the frame
-        self.SetMenuBar(menuBar)
+        self.SetMenuBar(menu_bar)
 
         # Finally, associate a handler function with the EVT_MENU event for
         # each of the menu items. That means that when that menu item is
         # activated then the associated handler function will be called.
-        self.Bind(wx.EVT_MENU, self.OnExit, exitItem)
-        self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
+        self.Bind(wx.EVT_MENU, self.on_exit, exit_item)
+        self.Bind(wx.EVT_MENU, self.on_about, about_item)
 
-    def OnExit(self, event):
+    def on_exit(self, event):  # pylint: disable=unused-argument
         """Close the frame, terminating the application."""
         self.Close(True)
 
-    def OnAbout(self, event):
+    def on_about(self, event):  # pylint: disable=unused-argument
         """Display an About Dialog"""
         wx.MessageBox("Copyright 2019 RCBIMX Team. Powered by Paul.",
                       "About Smart Cut",

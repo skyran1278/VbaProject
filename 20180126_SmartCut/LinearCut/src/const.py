@@ -5,7 +5,7 @@ import numpy as np
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-const = {
+const = {  # pylint: disable=invalid-name
     'etabs_design_path': SCRIPT_DIR + '/tests/20190103 v3.0 3floor for v9.xlsx',
     'e2k_path': SCRIPT_DIR + '/tests/20190103 v3.0 3floor for v9.e2k',
 

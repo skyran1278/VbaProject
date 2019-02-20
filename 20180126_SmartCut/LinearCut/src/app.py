@@ -25,8 +25,8 @@ from components.bar_cut import cut_optimization
 
 def cut_by_beam(const, moment=3, shear=False):
     """ run by beam, no need beam name ID"""
-    e2k_path, etabs_design_path, beam_name_path, output_dir = const[
-        'e2k_path'], const['etabs_design_path'], const['beam_name_path'], const['output_dir']
+    e2k_path, etabs_design_path, output_dir = const[
+        'e2k_path'], const['etabs_design_path'], const['output_dir']
 
     execution = Execution()
 
@@ -34,7 +34,6 @@ def cut_by_beam(const, moment=3, shear=False):
     e2k = load_e2k(e2k_path, e2k_path + '.pkl')
     etabs_design = load_beam_design(
         etabs_design_path, etabs_design_path + '.pkl')
-    beam_name = load_beam_name(beam_name_path, beam_name_path + '.pkl')
 
     # output path
     writer = pd.ExcelWriter(
@@ -166,7 +165,7 @@ def cut_by_frame(const, moment=3, shear=False):
 
 
 if __name__ == "__main__":
-    from const import const
+    from const import const as constants
 
-    cut_by_frame(const)
-    cut_by_beam(const)
+    cut_by_frame(constants)
+    cut_by_beam(constants)
