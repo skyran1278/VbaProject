@@ -92,21 +92,29 @@ def main():
     plt.legend(loc='upper left')
 
     ida.figure(xlim_max=0.025, intensity_measure='sa')
-    # multi_pushover.figure(xlim_max=0.025, intensity_measure='sa')
-    ida.plot_all()
+    # ida.plot_all()
     ida.plot_median()
-    multi_pushover.plot('PUSHX-T', label='Static Pushover Curve')
+    multi_pushover.plot([
+        'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
+    ])
+    plt.legend(loc='upper left')
+
+    ida.figure(xlim_max=0.025, intensity_measure='sa')
+    # ida.plot_all()
+    ida.plot_median()
+    multi_pushover.plot([
+        'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
+    ])
     plt.legend(loc='upper left')
 
     ida.figure(xlim_max=0.025, intensity_measure='base_shear')
-    # multi_pushover.figure(xlim_max=0.025, intensity_measure='base_shear')
+    ida.plot_all()
     ida.plot_median()
     multi_pushover.plot([
         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
     ])
     plt.legend(loc='upper left')
     ida.figure(xlim_max=0.025, intensity_measure='base_shear')
-    # multi_pushover.figure(xlim_max=0.025, intensity_measure='base_shear')
     ida.plot_median()
     multi_pushover.plot([
         'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'

@@ -110,7 +110,7 @@ class IDA(Plotlib):
                 '-', 1).str
 
             df.loc[:, 'FX'] = np.abs(df['FX'])
-            df.loc[:, 'Accel'] = df['FX'] / df['FZ'] / 0.81
+            df.loc[:, 'Accel'] = df['FX'] / 299.5941 / 0.81
 
             print("Creating pickle file ...")
             with open(pkl_file, 'wb') as f:
