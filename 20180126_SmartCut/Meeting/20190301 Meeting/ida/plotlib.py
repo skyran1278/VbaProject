@@ -1,11 +1,10 @@
 """
 Plotlib
 """
-# TODO: 看看怎麼寫比較好，我覺得應該不是繼承
 import matplotlib.pyplot as plt
 
 
-class Plotlib():
+class EnhancePlotlib():
     """
     Plotlib
     intensity_measure
@@ -24,8 +23,8 @@ class Plotlib():
         plt.figure()
         plt.title(title)
 
-        Plotlib.intensity_measure = intensity_measure
-        Plotlib.damage_measure = damage_measure
+        cls.intensity_measure = intensity_measure
+        cls.damage_measure = damage_measure
 
         if damage_measure == 'story_drifts':
             plt.xlabel(r'Maximum interstorey drift ratio, $\theta_{max}$')
@@ -43,6 +42,3 @@ class Plotlib():
             plt.xlim(0, xlim_max)
         if ylim_max is not None:
             plt.ylim(0, ylim_max)
-
-    def show(self):
-        pass

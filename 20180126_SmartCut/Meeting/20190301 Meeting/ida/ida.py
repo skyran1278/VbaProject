@@ -8,16 +8,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from plotlib import Plotlib
+from plotlib import EnhancePlotlib
 
 
-class IDA(Plotlib):
+class IDA():
     """
     IDA data and function
     """
 
     def __init__(self, path, earthquakes, stories):
-        super().__init__()
         self.base_shear_path = path['base_shear_path']
         self.story_drifts_path = path['story_drifts_path']
         self.story_displacements_path = path['story_displacements_path']
@@ -27,6 +26,11 @@ class IDA(Plotlib):
         self.base_shear = None
         self.story_drifts = None
         self.story_displacements = None
+
+        self.plotlib = EnhancePlotlib()
+
+    def __getattr__(self, attr):
+        return getattr(self.plotlib, attr)
 
     def _story2level(self, df):
         for story in self.stories:
@@ -39,10 +43,10 @@ class IDA(Plotlib):
         init time history story drifts or story displacements
         damage_measure='story_drifts' or story_displacements
         """
-        if Plotlib.damage_measure == 'story_drifts':
+        if self.plotlib.damage_measure == 'story_drifts':
             filepath = self.story_drifts_path
             sheet_name = 'Story Drifts'
-        elif Plotlib.damage_measure == 'story_displacements':
+        elif self.plotlib.damage_measure == 'story_displacements':
             filepath = self.story_displacements_path
             sheet_name = 'Story Max Avg Displacements'
 
@@ -80,9 +84,9 @@ class IDA(Plotlib):
         with open(pkl_file, 'rb') as f:
             df = pickle.load(f)
 
-        if Plotlib.damage_measure == 'story_drifts':
+        if self.plotlib.damage_measure == 'story_drifts':
             self.story_drifts = df
-        elif Plotlib.damage_measure == 'story_displacements':
+        elif self.plotlib.damage_measure == 'story_displacements':
             self.story_displacements = df
 
     def _init_intensity(self):
@@ -134,12 +138,12 @@ class IDA(Plotlib):
         """
         get every step pushover story drifts or story displacements
         """
-        if Plotlib.damage_measure == 'story_drifts':
+        if self.plotlib.damage_measure == 'story_drifts':
             if self.story_drifts is None:
                 self._init_damage()
             return self.story_drifts
 
-        if Plotlib.damage_measure == 'story_displacements':
+        if self.plotlib.damage_measure == 'story_displacements':
             if self.story_displacements is None:
                 self._init_damage()
             return self.story_displacements
@@ -150,9 +154,9 @@ class IDA(Plotlib):
         """
         return 'Drift' or 'Maximum'
         """
-        if Plotlib.damage_measure == 'story_drifts':
+        if self.plotlib.damage_measure == 'story_drifts':
             return 'Drift'
-        if Plotlib.damage_measure == 'story_displacements':
+        if self.plotlib.damage_measure == 'story_displacements':
             return 'Maximum'
 
     def get_damage(self):
@@ -174,7 +178,7 @@ class IDA(Plotlib):
         """
         get damage and intensity by loadcase and damage_measure
         """
-        if Plotlib.intensity_measure == 'base_shear':
+        if self.plotlib.intensity_measure == 'base_shear':
             intensity = self.get_intensity()
             damage = self.get_damage()
 
@@ -196,7 +200,7 @@ class IDA(Plotlib):
 
         damage = self.get_damage()
         intensity_measure = self.earthquakes[
-            earthquake][Plotlib.intensity_measure]
+            earthquake][self.plotlib.intensity_measure]
 
         damage_intensity = damage.loc[damage['Load Case']
                                       == earthquake, :].copy()

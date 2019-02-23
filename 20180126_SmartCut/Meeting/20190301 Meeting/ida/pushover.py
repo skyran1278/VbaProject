@@ -8,10 +8,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-from plotlib import Plotlib
+from plotlib import EnhancePlotlib
 
 
-class Pushover(Plotlib):
+class Pushover():
     """
     pushover data and function
     """
@@ -27,6 +27,11 @@ class Pushover(Plotlib):
         self.story_displacements = None
         self.base_shear = None
 
+        self.plotlib = EnhancePlotlib()
+
+    def __getattr__(self, attr):
+        return getattr(self.plotlib, attr)
+
     def _story2level(self, df):
         for story in self.stories:
             df.loc[df['Story'] == story, 'StoryLevel'] = self.stories[story]
@@ -37,12 +42,12 @@ class Pushover(Plotlib):
         """
         get every step pushover story drifts or story displacements
         """
-        if Plotlib.damage_measure == 'story_drifts':
+        if self.plotlib.damage_measure == 'story_drifts':
             if self.story_drifts is None:
                 self._init_damage()
             return self.story_drifts
 
-        if Plotlib.damage_measure == 'story_displacements':
+        if self.plotlib.damage_measure == 'story_displacements':
             if self.story_displacements is None:
                 self._init_damage()
             return self.story_displacements
@@ -54,10 +59,10 @@ class Pushover(Plotlib):
         init every step pushover story drifts or story displacements
         damage_measure='story_drifts' or story_displacements
         """
-        if Plotlib.damage_measure == 'story_drifts':
+        if self.plotlib.damage_measure == 'story_drifts':
             filepath = self.story_drifts_path
             sheet_name = 'Story Drifts'
-        elif Plotlib.damage_measure == 'story_displacements':
+        elif self.plotlib.damage_measure == 'story_displacements':
             filepath = self.story_displacements_path
             sheet_name = 'Story Max Avg Displacements'
 
@@ -90,18 +95,18 @@ class Pushover(Plotlib):
         with open(pkl_file, 'rb') as f:
             df = pickle.load(f)
 
-        if Plotlib.damage_measure == 'story_drifts':
+        if self.plotlib.damage_measure == 'story_drifts':
             self.story_drifts = df
-        elif Plotlib.damage_measure == 'story_displacements':
+        elif self.plotlib.damage_measure == 'story_displacements':
             self.story_displacements = df
 
     def _get_dm_col(self):
         """
         return 'Drift' or 'Maximum'
         """
-        if Plotlib.damage_measure == 'story_drifts':
+        if self.plotlib.damage_measure == 'story_drifts':
             return 'Drift'
-        if Plotlib.damage_measure == 'story_displacements':
+        if self.plotlib.damage_measure == 'story_displacements':
             return 'Maximum'
 
     def get_damage(self):
@@ -162,9 +167,9 @@ class Pushover(Plotlib):
         """
         return 'Drift' or 'Maximum'
         """
-        if Plotlib.intensity_measure == 'sa':
+        if self.plotlib.intensity_measure == 'sa':
             return 'Accel'
-        if Plotlib.intensity_measure == 'base_shear':
+        if self.plotlib.intensity_measure == 'base_shear':
             return 'FX'
 
     def get_points(self, loadcase):

@@ -114,6 +114,7 @@ def main():
         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
     ])
     plt.legend(loc='upper left')
+
     ida.figure(xlim_max=0.025, intensity_measure='base_shear')
     ida.plot_median()
     multi_pushover.plot([
