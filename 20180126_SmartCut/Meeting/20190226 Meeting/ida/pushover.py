@@ -200,12 +200,13 @@ class Pushover():
         if isinstance(loadcases, str):
             loadcase = loadcases
             damage, intensity = self.get_points(loadcase)
-            plt.plot(damage, intensity, *args, **kwargs)
+            plt.plot(damage, intensity, marker='.', *args, **kwargs)
 
         else:
             for loadcase in loadcases:
                 damage, intensity = self.get_points(loadcase)
-                plt.plot(damage, intensity, label=loadcase, *args, **kwargs)
+                plt.plot(damage, intensity, marker='.',
+                         label=loadcase, *args, **kwargs)
 
         plt.legend(loc='upper left')
 

@@ -86,12 +86,12 @@ def main():
         stories=stories
     )
 
-    ida.figure(xlim_max=0.025, intensity_measure='pga')
+    ida.figure(xlim_max=0.02, intensity_measure='pga')
     ida.plot_all()
     ida.plot_median()
     plt.legend(loc='upper left')
 
-    ida.figure(xlim_max=0.025, intensity_measure='sa')
+    ida.figure(xlim_max=0.02, intensity_measure='sa')
     # ida.plot_all()
     ida.plot_median()
     multi_pushover.plot([
@@ -99,7 +99,7 @@ def main():
     ])
     plt.legend(loc='upper left')
 
-    ida.figure(xlim_max=0.025, intensity_measure='sa')
+    ida.figure(xlim_max=0.02, intensity_measure='sa')
     # ida.plot_all()
     ida.plot_median()
     multi_pushover.plot([
@@ -107,7 +107,7 @@ def main():
     ])
     plt.legend(loc='upper left')
 
-    ida.figure(xlim_max=0.025, intensity_measure='base_shear')
+    ida.figure(xlim_max=0.02, intensity_measure='base_shear')
     # ida.plot('TCU067', label='TCU067')
     ida.plot_all()
     # ida.plot_median()
@@ -116,7 +116,7 @@ def main():
     ])
     plt.legend(loc='upper left')
 
-    ida.figure(xlim_max=0.025, intensity_measure='base_shear')
+    ida.figure(xlim_max=0.02, intensity_measure='base_shear')
     # ida.plot('TCU067', label='TCU067')
     ida.plot_all()
     # ida.plot_median()
@@ -189,7 +189,7 @@ if __name__ == "__main__":
 # # plot_multi_IDAS(earthquakes, multi_story_drifts,
 # #                 ylim_max=None, xlim_max=None, accel_unit='pga')
 # # plot_multi_IDAS(earthquakes, multi_story_drifts,
-# #                 ylim_max=None, xlim_max=0.025, accel_unit='sa')
+# #                 ylim_max=None, xlim_max=0.02, accel_unit='sa')
 
 # # pushover.plot_all_loadcases()
 
