@@ -275,6 +275,7 @@ class IDA():
         damage, intensity = self.interp(num=1000)
         plt.plot(damage.quantile(0.5, axis=1, interpolation='nearest'),
                  intensity, label='median IDA curve', *args, **kwargs)
+        # plt.plot(damage, intensity, *args, **kwargs)
 
 
 def _main():
@@ -323,18 +324,22 @@ def _main():
 
     # print(ida.get_intensity())
 
-    ida.figure(xlim_max=0.025, intensity_measure='pga')
-    ida.plot_all()
-    ida.plot_median()
-    plt.legend(loc='upper left')
+    # ida.figure(xlim_max=0.025, intensity_measure='pga')
+    # ida.plot_all()
+    # ida.plot_median()
+    # plt.legend(loc='upper left')
 
-    ida.figure(xlim_max=0.025, intensity_measure='sa')
-    ida.plot_all()
-    ida.plot_median()
-    plt.legend(loc='upper left')
+    # ida.figure(intensity_measure='sa')
+    # ida.plot_all()
+    # plt.legend(loc='upper left')
+    # ida.figure(intensity_measure='sa')
+    # ida.plot_median()
+    # plt.legend(loc='upper left')
 
-    ida.figure(xlim_max=0.025, intensity_measure='base_shear')
+    ida.figure(xlim_max=0.025, ylim_max=500, intensity_measure='base_shear')
     ida.plot_all()
+    plt.legend(loc='upper left')
+    ida.figure(xlim_max=0.025, ylim_max=500, intensity_measure='base_shear')
     ida.plot_median()
     plt.legend(loc='upper left')
 

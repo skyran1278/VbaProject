@@ -108,15 +108,18 @@ def main():
     plt.legend(loc='upper left')
 
     ida.figure(xlim_max=0.025, intensity_measure='base_shear')
+    # ida.plot('TCU067', label='TCU067')
     ida.plot_all()
-    ida.plot_median()
+    # ida.plot_median()
     multi_pushover.plot([
         'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
     ])
     plt.legend(loc='upper left')
 
     ida.figure(xlim_max=0.025, intensity_measure='base_shear')
-    ida.plot_median()
+    # ida.plot('TCU067', label='TCU067')
+    ida.plot_all()
+    # ida.plot_median()
     multi_pushover.plot([
         'PUSHX-1USER', 'PUSHX-2USER', 'PUSHX-3USER', 'PUSHX-MMCUSER'
     ])
