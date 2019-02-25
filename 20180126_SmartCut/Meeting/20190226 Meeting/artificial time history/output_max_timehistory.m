@@ -11,8 +11,8 @@ NSEW = [3 4];
 % only pick x y max
 [max_PGA, argmax] = max(max(abs(PGA(:, NSEW))), [], 2);
 
-% gal scale to mm/s2
-PGA(:, [2 3 4]) = PGA(:, [2 3 4]) * 10;
+% gal scale to gal, without change unit
+PGA(:, [2 3 4]) = PGA(:, [2 3 4]) * 1;
 
 % write to file
 % .3f
