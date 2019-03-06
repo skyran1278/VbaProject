@@ -1,19 +1,19 @@
-function [sd, sa, tn] = spectrum(time_history_filename, damping_ratio, scaled_factor)
+function [sd, sa, tn] = spectrum(time_history_filename, scaled_factor, damping_ratio)
 
     narginchk(1, 3);
 
     if nargin <= 2
-        scaled_factor = 1.0;
+        damping_ratio = 0.05;
     end
 
     if nargin == 1
-        damping_ratio = 0.05;
+        scaled_factor = 1.0;
     end
 
     period = filename_to_array(time_history_filename, 2, 1); % s
     ag = filename_to_array(time_history_filename, 2, 2) * scaled_factor; % g
 
-    tn = 0.01 : 0.01 : 5;
+    tn = 0.1 : 0.1 : 3;
 
     tn_length = length(tn);
     sd = zeros(1, tn_length);

@@ -1,0 +1,5 @@
+clc; clear; close all;
+
+config = Config;
+
+[sd, sa] = procedure_b(config, 'Triangle', 1.0)
