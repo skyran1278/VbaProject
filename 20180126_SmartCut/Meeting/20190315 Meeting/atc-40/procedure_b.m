@@ -25,14 +25,14 @@ function [sd, sa] = procedure_b(config, load_pattern, scaled_factor)
     if isnan(d_star)
         figure;
         hold on;
-        plot(elastic_sd, elastic_sa, 'DisplayName', 'Elastic', 'Color', gray, 'LineWidth', 1.5);
-        plot(capacity_sd, capacity_sa, 'DisplayName', 'Capacity', 'Color', green, 'LineWidth', 1.5);
-        plot(demand_sd, demand_sa, 'DisplayName', 'Demand', 'Color', blue, 'LineWidth', 1.5);
-        legend
         title('ADRS');
         xlabel('sd(mm)');
         ylabel('sa(g)');
         axis([0 inf 0 2]);
+        plot(elastic_sd, elastic_sa, 'DisplayName', 'Elastic', 'Color', gray, 'LineWidth', 1.5);
+        plot(capacity_sd, capacity_sa, 'DisplayName', 'Capacity', 'Color', green, 'LineWidth', 1.5);
+        plot(demand_sd, demand_sa, 'DisplayName', 'Demand', 'Color', blue, 'LineWidth', 1.5);
+        legend
         return
     end
 
@@ -53,6 +53,10 @@ function [sd, sa] = procedure_b(config, load_pattern, scaled_factor)
 
     figure;
     hold on;
+    title('ADRS');
+    xlabel('sd(mm)');
+    ylabel('sa(g)');
+    axis([0 max(demand_sd) 0 max(demand_sa)]);
     plot(elastic_sd, elastic_sa, 'DisplayName', 'Elastic', 'Color', gray, 'LineWidth', 1.5);
     plot(bilinear_sd, bilinear_sa, 'DisplayName', 'Bilinear', 'Color', gray, 'LineWidth', 1.5);
     plot(capacity_sd, capacity_sa, 'DisplayName', 'Capacity', 'Color', green, 'LineWidth', 1.5);
@@ -63,10 +67,6 @@ function [sd, sa] = procedure_b(config, load_pattern, scaled_factor)
     plot(sd, sa, 'o', 'DisplayName', 'Performance Point', 'Color', red);
     text(sd * 1.2, sa, ['(', num2str(sd), ', ', num2str(sa), ')'], 'Color', red)
     legend
-    title('ADRS');
-    xlabel('sd(mm)');
-    ylabel('sa(g)');
-    axis([0 max(demand_sd) 0 max(demand_sa)]);
 
 end
 
@@ -194,8 +194,10 @@ function [sd, sa] = get_performance_point(single_demand_sd, single_demand_sa, bi
     if size(point_temp, 2) == 1
         sd = point_temp(1, :);
         sa = point_temp(2, :);
+
     elseif isempty(point_temp)
         fprintf('Without Performance Point.\n');
+
     else
         fprintf('Performance Point not only 1 intersection.\n');
         sd = point_temp(1, :);
