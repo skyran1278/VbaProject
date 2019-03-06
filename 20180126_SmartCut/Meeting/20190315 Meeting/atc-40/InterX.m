@@ -70,8 +70,11 @@ function P = InterX(L1,varargin)
     i = i(L~=0); j=j(L~=0); L=L(L~=0);  %...Avoid divisions by 0
 
     %...Solve system of eqs to get the common points
-    P = unique([dx2(j).*S1(i) - dx1(i).*S2(j), ...
-                dy2(j).*S1(i) - dy1(i).*S2(j)]./[L L],'rows')';
+    % use tol to improve
+    P = uniquetol([dx2(j).*S1(i) - dx1(i).*S2(j), ...
+                dy2(j).*S1(i) - dy1(i).*S2(j)]./[L L], 'ByRows', true)';
+    % P = unique([dx2(j).*S1(i) - dx1(i).*S2(j), ...
+    %             dy2(j).*S1(i) - dy1(i).*S2(j)]./[L L],'rows')';
 
     function u = D(x,y)
         u = bsxfun(@minus,x(:,1:end-1),y).*bsxfun(@minus,x(:,2:end),y);
