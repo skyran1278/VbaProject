@@ -54,13 +54,13 @@ classdef Config
 
     methods
         function [sd, sa] = load_pattern(obj, name)
-            if name == "Triangle"
+            if name == "triangle"
                 sd = obj.triangle(:, 1).';
                 sa = obj.triangle(:, 2).';
-            elseif name == "Uniform"
+            elseif name == "uniform"
                 sd = obj.uniform(:, 1).';
                 sa = obj.uniform(:, 2).';
-            elseif name == "Power"
+            elseif name == "power"
                 sd = obj.power(:, 1).';
                 sa = obj.power(:, 2).';
             end

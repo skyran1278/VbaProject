@@ -1,4 +1,16 @@
 function [sd, sa] = procedure_b(config, load_pattern, scaled_factor)
+%
+% Procedure B assumes ay, dy and the post-yield slope remains constant that is not made in the other two procedures.
+% Procedure A have to judge equal-acceleration or equal-velocity, so not applicable to real time history.
+% Procedure C most convenient for hand analysis.
+%
+% @since 1.0.0
+% @param {object} [config] description.
+% @return {type} [load_pattern] description.
+% @return {type} [scaled_factor] description.
+% @see dependencies
+%
+
     sd = NaN;
     sa = NaN;
 
@@ -28,7 +40,7 @@ function [sd, sa] = procedure_b(config, load_pattern, scaled_factor)
         title('ADRS');
         xlabel('sd(mm)');
         ylabel('sa(g)');
-        axis([0 inf 0 2]);
+        axis([0 max(demand_sd) 0 max(demand_sa)]);
         plot(elastic_sd, elastic_sa, 'DisplayName', 'Elastic', 'Color', gray, 'LineWidth', 1.5);
         plot(capacity_sd, capacity_sa, 'DisplayName', 'Capacity', 'Color', green, 'LineWidth', 1.5);
         plot(demand_sd, demand_sa, 'DisplayName', 'Demand', 'Color', blue, 'LineWidth', 1.5);
