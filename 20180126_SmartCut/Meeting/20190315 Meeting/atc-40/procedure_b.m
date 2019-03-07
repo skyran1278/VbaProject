@@ -77,7 +77,7 @@ function [sd, sa] = procedure_b(config, load_pattern, scaled_factor)
     plot(d_star, a_star, 'o', 'DisplayName', '(d*, a*)', 'Color', green);
     plot(dy, ay, 'o', 'DisplayName', '(dy, ay)', 'Color', gray);
     plot(sd, sa, 'o', 'DisplayName', 'Performance Point', 'Color', red);
-    text(sd * 1.2, sa, ['(', num2str(sd), ', ', num2str(sa), ')'], 'Color', red)
+    text(sd * 1.1, sa, ['(', num2str(sd), ', ', num2str(sa), ')'], 'Color', red)
     legend
 
 end
