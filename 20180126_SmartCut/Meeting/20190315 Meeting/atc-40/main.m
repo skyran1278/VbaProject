@@ -2,7 +2,7 @@ clc; clear; close all;
 
 config = Config;
 
-scaled_factor = 0.5 : 0.5 : 15;
+scaled_factor = 0.5 : 0.5 : 10;
 
 scaled_factor_length = length(scaled_factor);
 
@@ -33,6 +33,7 @@ gray = [0.5 0.5 0.5];
 background = [247 247 247] / 256;
 
 PF1_phi = 1.278413;
+sa = 0.171;
 
 figure;
 hold on;
@@ -42,15 +43,17 @@ ylabel('sa(g)');
 plot(sd_triangle, sa_triangle, 'DisplayName', 'Elastic', 'Color', green, 'LineWidth', 1.5);
 plot(sd_uniform, sa_uniform, 'DisplayName', 'Elastic', 'Color', blue, 'LineWidth', 1.5);
 plot(sd_power, sa_power, 'DisplayName', 'Elastic', 'Color', red, 'LineWidth', 1.5);
-plot(sd_triangle, scaled_factor * 0.171, 'DisplayName', 'Elastic', 'Color', green, 'LineWidth', 1.5);
-plot(sd_uniform, scaled_factor * 0.171, 'DisplayName', 'Elastic', 'Color', blue, 'LineWidth', 1.5);
-plot(sd_power, scaled_factor * 0.171, 'DisplayName', 'Elastic', 'Color', red, 'LineWidth', 1.5);
+plot(sd_triangle, scaled_factor * sa, 'DisplayName', 'Elastic', 'Color', green, 'LineWidth', 1.5);
+plot(sd_uniform, scaled_factor * sa, 'DisplayName', 'Elastic', 'Color', blue, 'LineWidth', 1.5);
+plot(sd_power, scaled_factor * sa, 'DisplayName', 'Elastic', 'Color', red, 'LineWidth', 1.5);
 
 figure;
 hold on;
 title('ADRS');
 xlabel('Roof Displacement(mm)');
 ylabel('sa(g)');
-plot(sd_triangle * PF1_phi, scaled_factor * 0.171, 'DisplayName', 'Elastic', 'Color', green, 'LineWidth', 1.5);
-plot(sd_uniform * PF1_phi, scaled_factor * 0.171, 'DisplayName', 'Elastic', 'Color', blue, 'LineWidth', 1.5);
-plot(sd_power * PF1_phi, scaled_factor * 0.171, 'DisplayName', 'Elastic', 'Color', red, 'LineWidth', 1.5);
+plot(sd_triangle * PF1_phi, scaled_factor * sa, 'DisplayName', 'Elastic', 'Color', green, 'LineWidth', 1.5);
+plot(sd_uniform * PF1_phi, scaled_factor * sa, 'DisplayName', 'Elastic', 'Color', blue, 'LineWidth', 1.5);
+plot(sd_power * PF1_phi, scaled_factor * sa, 'DisplayName', 'Elastic', 'Color', red, 'LineWidth', 1.5);
+
+save('pushover_v2.mat')
