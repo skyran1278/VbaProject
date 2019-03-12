@@ -30,9 +30,9 @@ if not os.path.exists(f'{SCRIPT_DIR}/{INPUT_FILE}.pkl'):
     DATASET = pd.read_excel(SCRIPT_DIR + f'/{INPUT_FILE}.xlsx',
                             sheet_name='beam_ld_added')
     BEAM_3 = pd.read_excel(SCRIPT_DIR + f'/{INPUT_FILE}.xlsx',
-                           sheet_name='三點斷筋', header=[0, 1])
+                           sheet_name='三點斷筋', header=[0, 1], usecols=18)
     BEAM_CON = pd.read_excel(SCRIPT_DIR + f'/{INPUT_FILE}.xlsx',
-                             sheet_name='傳統斷筋', header=[0, 1])
+                             sheet_name='傳統斷筋', header=[0, 1], usecols=18)
 
     print("Creating pickle file ...")
     with open(f'{SCRIPT_DIR}/{INPUT_FILE}.pkl', 'wb') as f:
@@ -362,8 +362,8 @@ def ld():
     conservative_cut(green)
 
 
-# conservative_flow()
-# linearcut_flow()
+conservative_flow()
+linearcut_flow()
 # compare_real_to_conservative()
 # smallbeam()
 # ld()

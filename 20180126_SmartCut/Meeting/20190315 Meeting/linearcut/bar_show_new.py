@@ -11,7 +11,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 
-INPUT_FILE = 'first_run IDA #8 v1.0'
+INPUT_FILE = '20190312 235751 SmartCut'
 # INDEX = random.randrange(0, 14144, 4)
 INDEX = 0
 print(INDEX)
@@ -30,9 +30,9 @@ if not os.path.exists(f'{SCRIPT_DIR}/{INPUT_FILE}.pkl'):
     DATASET = pd.read_excel(SCRIPT_DIR + f'/{INPUT_FILE}.xlsx',
                             sheet_name='etabs_design')
     BEAM_3 = pd.read_excel(SCRIPT_DIR + f'/{INPUT_FILE}.xlsx',
-                           sheet_name='多點斷筋', header=[0, 1])
+                           sheet_name='多點斷筋', header=[0, 1], usecols=19)
     BEAM_CON = pd.read_excel(SCRIPT_DIR + f'/{INPUT_FILE}.xlsx',
-                             sheet_name='傳統斷筋', header=[0, 1])
+                             sheet_name='傳統斷筋', header=[0, 1], usecols=19)
 
     print("Creating pickle file ...")
     with open(f'{SCRIPT_DIR}/{INPUT_FILE}.pkl', 'wb') as f:
@@ -95,9 +95,9 @@ def conservative_cut(color):
         sum_rebar(BEAM_CON, TOP_INDEX, TOP_INDEX_2, '右')
     ]) * TOP_SIZE
 
-    top_length = np.array([BEAM_CON.at[TOP_INDEX, ('長度', '左')],
-                           BEAM_CON.at[TOP_INDEX, ('長度', '中')],
-                           BEAM_CON.at[TOP_INDEX, ('長度', '右')]])
+    top_length = np.array([BEAM_CON.at[TOP_INDEX, ('主筋長度', '左')],
+                           BEAM_CON.at[TOP_INDEX, ('主筋長度', '中')],
+                           BEAM_CON.at[TOP_INDEX, ('主筋長度', '右')]])
 
     bot_rebar = np.array([
         sum_rebar(BEAM_CON, BOT_INDEX, BOT_INDEX_2, '左'),
@@ -105,9 +105,9 @@ def conservative_cut(color):
         sum_rebar(BEAM_CON, BOT_INDEX, BOT_INDEX_2, '右')
     ]) * BOT_SIZE
 
-    bot_length = np.array([BEAM_CON.at[BOT_INDEX, ('長度', '左')],
-                           BEAM_CON.at[BOT_INDEX, ('長度', '中')],
-                           BEAM_CON.at[BOT_INDEX, ('長度', '右')]])
+    bot_length = np.array([BEAM_CON.at[BOT_INDEX, ('主筋長度', '左')],
+                           BEAM_CON.at[BOT_INDEX, ('主筋長度', '中')],
+                           BEAM_CON.at[BOT_INDEX, ('主筋長度', '右')]])
 
     plot_bar_length(top_rebar, top_length, bot_rebar, bot_length, color=color)
 
@@ -135,9 +135,9 @@ def linearcut(color):
         sum_rebar(BEAM_3, TOP_INDEX, TOP_INDEX_2, '右')
     ]) * TOP_SIZE
 
-    top_length = np.array([BEAM_3.at[TOP_INDEX, ('長度', '左')],
-                           BEAM_3.at[TOP_INDEX, ('長度', '中')],
-                           BEAM_3.at[TOP_INDEX, ('長度', '右')]])
+    top_length = np.array([BEAM_3.at[TOP_INDEX, ('主筋長度', '左')],
+                           BEAM_3.at[TOP_INDEX, ('主筋長度', '中')],
+                           BEAM_3.at[TOP_INDEX, ('主筋長度', '右')]])
 
     bot_rebar = np.array([
         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '左'),
@@ -145,9 +145,9 @@ def linearcut(color):
         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '右')
     ]) * BOT_SIZE
 
-    bot_length = np.array([BEAM_3.at[BOT_INDEX, ('長度', '左')],
-                           BEAM_3.at[BOT_INDEX, ('長度', '中')],
-                           BEAM_3.at[BOT_INDEX, ('長度', '右')]])
+    bot_length = np.array([BEAM_3.at[BOT_INDEX, ('主筋長度', '左')],
+                           BEAM_3.at[BOT_INDEX, ('主筋長度', '中')],
+                           BEAM_3.at[BOT_INDEX, ('主筋長度', '右')]])
 
     plot_bar_length(top_rebar, top_length, bot_rebar, bot_length, color=color)
 
@@ -160,17 +160,17 @@ def linearcut(color):
     #         sum_rebar(BEAM_3, TOP_INDEX, TOP_INDEX_2, '中'),
     #         sum_rebar(BEAM_3, TOP_INDEX, TOP_INDEX_2, '右')
     #     ]) * TOP_SIZE,
-    #     [BEAM_3.at[TOP_INDEX, ('長度', '左')],
-    #      BEAM_3.at[TOP_INDEX, ('長度', '中')],
-    #      BEAM_3.at[TOP_INDEX, ('長度', '右')]],
+    #     [BEAM_3.at[TOP_INDEX, ('主筋長度', '左')],
+    #      BEAM_3.at[TOP_INDEX, ('主筋長度', '中')],
+    #      BEAM_3.at[TOP_INDEX, ('主筋長度', '右')]],
     #     np.array([
     #         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '左'),
     #         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '中'),
     #         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '右')
     #     ]) * BOT_SIZE,
-    #     [BEAM_3.at[BOT_INDEX, ('長度', '左')],
-    #      BEAM_3.at[BOT_INDEX, ('長度', '中')],
-    #      BEAM_3.at[BOT_INDEX, ('長度', '右')]],
+    #     [BEAM_3.at[BOT_INDEX, ('主筋長度', '左')],
+    #      BEAM_3.at[BOT_INDEX, ('主筋長度', '中')],
+    #      BEAM_3.at[BOT_INDEX, ('主筋長度', '右')]],
     #     color=color)
 
 # =====================
@@ -363,15 +363,15 @@ def ld():
 
 
 # conservative_flow()
-# linearcut_flow()
+linearcut_flow()
 # compare_real_to_conservative()
 # smallbeam()
 # ld()
-v_demand()
-# etabs_to_addedld_sol()
+# v_demand()
+etabs_to_addedld_sol()
 # compare_RCAD()
 # no_etabs_enough_conservative()
-compare_linear_cut()
+# compare_linear_cut()
 
 
 plt.show()
