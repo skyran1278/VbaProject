@@ -82,7 +82,7 @@ def main():
     # ida.plot_all()
     # ida.plot_median()
     # plt.legend(loc='upper left')
-    matlab = Matlab(file_dir + '/pushover.mat')
+    matlab = Matlab(file_dir + '/pushover_v2.mat')
 
     ida.figure(
         xlim_max=200,

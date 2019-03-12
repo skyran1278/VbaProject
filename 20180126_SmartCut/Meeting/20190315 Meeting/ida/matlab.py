@@ -44,9 +44,9 @@ class Matlab():
         """
         plot all pushover in displacement and acceleration
         """
-        plt.plot(self.triangle_displacement, self.sa,
+        plt.plot(self.triangle_displacement, self.triangle_sa,
                  label='Pushover Triangle', *args, **kwargs)
-        plt.plot(self.uniform_displacement, self.sa,
+        plt.plot(self.uniform_displacement, self.uniform_sa,
                  label='Pushover Uniform', *args, **kwargs)
-        plt.plot(self.power_displacement, self.sa,
+        plt.plot(self.power_displacement, self.power_sa,
                  label='Pushover Power', *args, **kwargs)
