@@ -214,7 +214,7 @@ def cut_5(etabs_design, beam_5, const):
                 loc_length = group_length[bar_loc]
                 beam_5.at[row, ('主筋', bar_loc)] = concat_num_size(
                     loc_1st, group_size)
-                beam_5.at[row, ('長度', bar_loc)] = loc_length * 100
+                beam_5.at[row, ('主筋長度', bar_loc)] = loc_length * 100
                 beam_5.at[row + to_2nd, ('主筋', bar_loc)
                           ] = concat_num_size(loc_2nd, group_size)
 
@@ -326,7 +326,7 @@ def output_3(beam, etabs_design, const):
                 loc_length = group_length[bar_loc]
                 beam.at[row, ('主筋', bar_loc)] = concat_num_size(
                     loc_1st, group_size)
-                beam.at[row, ('長度', bar_loc)] = loc_length * 100
+                beam.at[row, ('主筋長度', bar_loc)] = loc_length * 100
                 beam.at[row + to_2nd, ('主筋', bar_loc)
                         ] = concat_num_size(loc_2nd, group_size)
 

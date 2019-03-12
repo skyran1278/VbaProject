@@ -117,7 +117,7 @@ def cut_traditional(beam, etbas_design, rebar):
                 beam.at[row + to_2nd, ('主筋', bar_loc)
                         ] = concat_num_size(loc_2nd, group_size)
 
-                beam.at[row, ('長度', bar_loc)] = loc_length * 100
+                beam.at[row, ('主筋長度', bar_loc)] = loc_length * 100
 
                 num_usage = num_usage + loc_num * loc_length
 
