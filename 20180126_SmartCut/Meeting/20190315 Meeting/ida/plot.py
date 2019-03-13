@@ -85,17 +85,16 @@ def main():
     matlab = Matlab(file_dir + '/pushover_v2.mat')
 
     ida.figure(
-        xlim_max=200,
-        intensity_measure='sa',
+        intensity_measure='base_shear',
         damage_measure='story_displacements'
     )
     # matlab.plot('triangle', label='Pushover Triangle')
     # ida.plot_all()
-    ida.plot_median()
-    matlab.plot_all()
-    # multi_pushover.plot([
-    #     'PUSHX-T', 'PUSHX-U', 'PUSHX-P', 'PUSHX-MMCUSER'
-    # ])
+    # ida.plot_median()
+    # matlab.plot_all()
+    multi_pushover.plot([
+        'PUSHX-T', 'PUSHX-U', 'PUSHX-P'
+    ])
     plt.legend(loc='upper left')
 
     # ida.figure(xlim_max=0.02, intensity_measure='sa')

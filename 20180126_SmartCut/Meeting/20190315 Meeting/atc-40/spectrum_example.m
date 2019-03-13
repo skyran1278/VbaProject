@@ -1,5 +1,19 @@
 clc; clear; close all;
 
+figure;
+hold on;
+title('ADRS');
+xlabel('sd(mm)');
+ylabel('sa(g)');
+
+for scaled_factor = 0.5 : 0.5 : 10
+
+    [sd, sa, tn] = spectrum('TAP010 unit_g', scaled_factor);
+    plot(sd, sa);
+
+end
+
+
 filename = 'TAP010 unit_g';
 
 period = filename_to_array(filename, 2, 1);
