@@ -10,7 +10,7 @@
       "request": "launch",
       "program": "${file}",
       "env": {
-        "PYTHONPATH": "${workspaceRoot}/src"
+        "PYTHONPATH": "${workspaceRoot}"
       },
       "console": "integratedTerminal"
     },
