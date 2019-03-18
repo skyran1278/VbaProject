@@ -1,5 +1,3 @@
-import pytest
-
 from app.models.e2k import E2k
 
 
