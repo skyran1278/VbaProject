@@ -16,10 +16,17 @@ class E2k:
 
     def __init__(self, path):
         self.content = load_file(path)
+
         self.title = ''
         self.words = np.array()
 
-        self.stories, self.point_coordinates, self.lines, self.materials, self.sections = self._init_e2k()
+        self.stories = {}
+        self.point_coordinates = {}
+        self.lines = {}
+        self.materials = {}
+        self.sections = {}
+
+        self._init_e2k()
 
     def _check_version(self):
         words = self.words
@@ -37,15 +44,9 @@ class E2k:
         if self.title == '$ STORIES - IN SEQUENCE FROM TOP' and self.words[0] == 'STORY':
             story_name = self.words[1].strip('"')
             height = float(self.words[3])
-            stories[story_name] = height
+            self.stories[story_name] = height
 
     def _init_e2k(self):
-        stories = {}
-        point_coordinates = {}
-        lines = {}
-        materials = {}
-        sections = {}
-
         for line in self.content:
             # 正規表達式，轉換多個空格變成一個空格，因為 ETABS 自己好像也不管
             line = re.sub(' +', ' ', line)
@@ -58,7 +59,7 @@ class E2k:
 
             self._check_version()
             self._check_unit()
-            self._set_story(stories)
+            self._set_story()
 
             if title == '$ MATERIAL PROPERTIES' and (
                     words[0] == 'MATERIAL' and words[3] == '"CONCRETE"'):
