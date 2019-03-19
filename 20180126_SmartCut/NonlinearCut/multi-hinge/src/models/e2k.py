@@ -5,7 +5,7 @@ import shlex
 
 from collections import defaultdict
 
-from app.utils.load_file import load_file
+from src.utils.load_file import load_file
 
 
 class E2k:

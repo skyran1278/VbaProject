@@ -1,7 +1,7 @@
 """
 test
 """
-from app.models.e2k import E2k
+from src.models.e2k import E2k
 
 
 def test_e2k():
