@@ -1,13 +1,9 @@
 """
 e2k model
 """
-import re
 import shlex
 
 from collections import defaultdict
-
-import numpy as np
-import pandas as pd
 
 from app.utils.load_file import load_file
 
@@ -24,10 +20,12 @@ class E2k:
         self.words = ''
 
         self.stories = {}
-        self.point_coordinates = {}
-        self.lines = {}
         self.materials = {}
         self.sections = defaultdict(dict)
+        self.point_coordinates = {}
+        self.lines = {}
+        # self.point_assigns = {}
+        self.line_assigns = {}
 
         self._init_e2k()
 
@@ -58,25 +56,19 @@ class E2k:
             self.sections[section_name]['MATERIAL'] = words[3]
             self.sections[section_name]['D'] = float(words[7])
             self.sections[section_name]['B'] = float(words[9])
-            # self.sections[(section_name, 'MATERIAL')] = words[3]
-            # self.sections[(section_name, 'D')] = float(words[7])
-            # self.sections[(section_name, 'B')] = float(words[9])
+
         if self.title == '$ FRAME SECTIONS' and words[-2] == 'I3MOD':
             section_name = words[1]
             count = 2
             while count < len(words):
                 self.sections[section_name][words[count]
                                             ] = float(words[count + 1])
-                # self.sections[(section_name, words[count])
-                #               ] = float(words[count + 1])
                 count += 2
 
         if self.title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
             section_name = words[1]
             self.sections[section_name]['FY'] = words[3]
             self.sections[section_name]['FYT'] = words[5]
-            # self.sections[(section_name, 'FY')] = words[3]
-            # self.sections[(section_name, 'FYT')] = words[5]
 
     def _set_point_coordinate(self):
         words = self.words
@@ -84,13 +76,21 @@ class E2k:
             self.point_coordinates[words[1]] = [
                 float(words[2]), float(words[3])]
 
+    # def _set_point_assign(self):
+    #     words = self.words
+    #     if self.title == '$ POINT ASSIGNS':
+    #         self.point_assigns[(words[1], words[2])] = [
+    #             float(words[2]), float(words[3])]
+
     def _set_line(self):
         words = self.words
-        if self.title == '$ LINE CONNECTIVITIES' and words[0] == 'LINE':
-            line_name = words[1].strip('"')
-            line_type = words[2]
-            self.lines[(line_name, line_type, 'START')] = words[3].strip('"')
-            self.lines[(line_name, line_type, 'END')] = words[4].strip('"')
+        if self.title == '$ LINE CONNECTIVITIES' and words[2] == 'BEAM':
+            self.lines[words[1]] = [words[3], words[4]]
+
+    def _set_line_assign(self):
+        words = self.words
+        if self.title == '$ LINE ASSIGNS':
+            self.line_assigns[(words[1], words[2])] = words[4]
 
     def _init_e2k(self):
         for line in self.content:
@@ -114,20 +114,16 @@ class E2k:
             self._set_material()
             self._set_section()
             self._set_point_coordinate()
-            # self._set_line()
+            self._set_line()
+            self._set_line_assign()
 
-            # if title == '$ LINE ASSIGNS' and words[0] == 'LINEASSIGN' and words[3] == 'SECTION':
-            #     # ANG 沒處理
-            #     # CARDINALPT 沒處理
-            #     line_name = words[1].strip('"')
-            #     story = words[2].strip('"')
-            #     lines[(line_name, story, 'SECTION')] = words[4].strip('"')
         self.sections = dict(self.sections)
-        # point_coordinates = np.array(point_coordinates)
-        # point_coordinates = np.array(
-        #     point_coordinates, [('name', '<U16'), ('X', '<f8'), ('Y', '<f8')])
-        # self.point_coordinates = pd.DataFrame.from_dict(
-        #     self.point_coordinates, orient='index', columns=['X', 'Y'])
+
+    # def get(self, title):
+    #     """
+    #     get what you want
+    #     """
+    #     pass
 
 
 def main():
@@ -142,6 +138,8 @@ def main():
     print(e2k.materials)
     print(e2k.sections)
     print(e2k.point_coordinates)
+    print(e2k.lines)
+    print(e2k.line_assigns)
 
 
 if __name__ == "__main__":
