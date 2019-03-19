@@ -40,16 +40,16 @@ class E2k:
             if words[1] != 'TON' and words[2] != 'M' and words[3] != 'C':
                 print('UNITS should be "TON"  "M"  "C"')
 
-    def _set_story(self):
+    def _post_story(self):
         if self.title == '$ STORIES - IN SEQUENCE FROM TOP':
             self.stories[self.words[1]] = float(self.words[3])
 
-    def _set_material(self):
+    def _post_material(self):
         words = self.words
         if self.title == '$ MATERIAL PROPERTIES' and (words[2] == 'FC' or words[2] == 'FY'):
             self.materials[(words[1], words[2])] = float(words[3])
 
-    def _set_section(self):
+    def _post_section(self):
         words = self.words
         if self.title == '$ FRAME SECTIONS' and words[5] == 'Concrete Rectangular':
             section_name = words[1]
@@ -70,24 +70,24 @@ class E2k:
             self.sections[section_name]['FY'] = words[3]
             self.sections[section_name]['FYT'] = words[5]
 
-    def _set_point_coordinate(self):
+    def _post_point_coordinate(self):
         words = self.words
         if self.title == '$ POINT COORDINATES':
             self.point_coordinates[words[1]] = [
                 float(words[2]), float(words[3])]
 
-    # def _set_point_assign(self):
+    # def _post_point_assign(self):
     #     words = self.words
     #     if self.title == '$ POINT ASSIGNS':
     #         self.point_assigns[(words[1], words[2])] = [
     #             float(words[2]), float(words[3])]
 
-    def _set_line(self):
+    def _post_line(self):
         words = self.words
         if self.title == '$ LINE CONNECTIVITIES' and words[2] == 'BEAM':
             self.lines[words[1]] = [words[3], words[4]]
 
-    def _set_line_assign(self):
+    def _post_line_assign(self):
         words = self.words
         if self.title == '$ LINE ASSIGNS':
             self.line_assigns[(words[2], words[1])] = words[4]
@@ -104,18 +104,18 @@ class E2k:
             self.words = shlex.split(line)
 
             if self.words[0] == '$':
-                # set title
+                # post title
                 self.title = line
                 continue
 
             self._check_version()
             self._check_unit()
-            self._set_story()
-            self._set_material()
-            self._set_section()
-            self._set_point_coordinate()
-            self._set_line()
-            self._set_line_assign()
+            self._post_story()
+            self._post_material()
+            self._post_section()
+            self._post_point_coordinate()
+            self._post_line()
+            self._post_line_assign()
 
         self.sections = dict(self.sections)
 
