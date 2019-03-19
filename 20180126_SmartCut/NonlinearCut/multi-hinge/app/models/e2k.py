@@ -6,7 +6,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from utils.load_file import load_file
+from app.utils.load_file import load_file
 
 
 class E2k:
