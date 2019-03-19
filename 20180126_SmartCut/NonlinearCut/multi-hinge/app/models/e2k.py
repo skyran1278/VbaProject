@@ -2,6 +2,9 @@
 e2k model
 """
 import re
+import shlex
+
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -24,59 +27,62 @@ class E2k:
         self.point_coordinates = {}
         self.lines = {}
         self.materials = {}
-        self.sections = {}
+        self.sections = defaultdict(dict)
 
         self._init_e2k()
 
     def _check_version(self):
-        words = self.words
-        if self.title == '$ PROGRAM INFORMATION' and words[0] == 'PROGRAM':
-            if (words[1] + words[2]) != '"ETABS2016"':
+        if self.title == '$ PROGRAM INFORMATION':
+            if self.words[1] != 'ETABS 2016':
                 print('PROGRAM should be "ETABS 2016"')
 
     def _check_unit(self):
         words = self.words
         if self.title == '$ CONTROLS' and words[0] == 'UNITS':
-            if words[1] != '"TON"' and words[2] != '"M"' and words[3] != '"C"':
+            if words[1] != 'TON' and words[2] != 'M' and words[3] != 'C':
                 print('UNITS should be "TON"  "M"  "C"')
 
     def _set_story(self):
-        if self.title == '$ STORIES - IN SEQUENCE FROM TOP' and self.words[0] == 'STORY':
-            story_name = self.words[1].strip('"')
-            height = float(self.words[3])
-            self.stories[story_name] = height
+        if self.title == '$ STORIES - IN SEQUENCE FROM TOP':
+            self.stories[self.words[1]] = float(self.words[3])
 
     def _set_material(self):
         words = self.words
         if self.title == '$ MATERIAL PROPERTIES' and (words[2] == 'FC' or words[2] == 'FY'):
-            material_name = words[1].strip('"')
-            self.materials[(material_name, words[2])] = float(words[3])
+            self.materials[(words[1], words[2])] = float(words[3])
 
     def _set_section(self):
         words = self.words
-        if self.title == '$ FRAME SECTIONS' and (
-                words[0] == 'FRAMESECTION' and words[5] == '"Rectangular"'):
-            section_name = words[1].strip('"')
-            self.sections[(section_name, 'MATERIAL')] = words[3].strip('"')
-            self.sections[(section_name, 'D')] = float(words[7])
-            self.sections[(section_name, 'B')] = float(words[9])
+        if self.title == '$ FRAME SECTIONS' and words[5] == 'Concrete Rectangular':
+            section_name = words[1]
+            self.sections[section_name]['MATERIAL'] = words[3]
+            self.sections[section_name]['D'] = float(words[7])
+            self.sections[section_name]['B'] = float(words[9])
+            # self.sections[(section_name, 'MATERIAL')] = words[3]
+            # self.sections[(section_name, 'D')] = float(words[7])
+            # self.sections[(section_name, 'B')] = float(words[9])
+        if self.title == '$ FRAME SECTIONS' and words[-2] == 'I3MOD':
+            section_name = words[1]
+            count = 2
+            while count < len(words):
+                self.sections[section_name][words[count]
+                                            ] = float(words[count + 1])
+                # self.sections[(section_name, words[count])
+                #               ] = float(words[count + 1])
+                count += 2
 
-        if self.title == '$ CONCRETE SECTIONS' and (
-                words[0] == 'CONCRETESECTION' and words[3] == '"BEAM"'):
-            section_name = words[1].strip('"')
-            self.sections[(section_name, 'COVERTOP')] = float(words[5])
-            self.sections[(section_name, 'COVERBOT')] = float(words[7])
+        if self.title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
+            section_name = words[1]
+            self.sections[section_name]['FY'] = words[3]
+            self.sections[section_name]['FYT'] = words[5]
+            # self.sections[(section_name, 'FY')] = words[3]
+            # self.sections[(section_name, 'FYT')] = words[5]
 
     def _set_point_coordinate(self):
         words = self.words
-        if self.title == '$ POINT COORDINATES' and words[0] == 'POINT':
-            # point_coordinates.append(
-            #     (words[1].strip('"'), float(words[2]), float(words[3])))
-            point_name = words[1].strip('"')
-            self.point_coordinates[point_name] = [
+        if self.title == '$ POINT COORDINATES':
+            self.point_coordinates[words[1]] = [
                 float(words[2]), float(words[3])]
-            # point_coordinates[(point_name, 'X')] = float(words[2])
-            # point_coordinates[(point_name, 'Y')] = float(words[3])
 
     def _set_line(self):
         words = self.words
@@ -88,14 +94,17 @@ class E2k:
 
     def _init_e2k(self):
         for line in self.content:
-            # 正規表達式，轉換多個空格變成一個空格，因為 ETABS 自己好像也不管
-            line = re.sub(' +', ' ', line)
+            # skip space line
             if line == '':
                 continue
-            self.words = np.array(line.split(' '))
 
-            # title 是不容易變的
+            # split by space, but ignore space in quotes
+            # also adress too many space
+            # convenience method
+            self.words = shlex.split(line)
+
             if self.words[0] == '$':
+                # set title
                 self.title = line
                 continue
 
@@ -103,8 +112,8 @@ class E2k:
             self._check_unit()
             self._set_story()
             self._set_material()
-            # self._set_section()
-            # self._set_point_coordinate()
+            self._set_section()
+            self._set_point_coordinate()
             # self._set_line()
 
             # if title == '$ LINE ASSIGNS' and words[0] == 'LINEASSIGN' and words[3] == 'SECTION':
@@ -113,7 +122,7 @@ class E2k:
             #     line_name = words[1].strip('"')
             #     story = words[2].strip('"')
             #     lines[(line_name, story, 'SECTION')] = words[4].strip('"')
-
+        self.sections = dict(self.sections)
         # point_coordinates = np.array(point_coordinates)
         # point_coordinates = np.array(
         #     point_coordinates, [('name', '<U16'), ('X', '<f8'), ('Y', '<f8')])
@@ -129,7 +138,10 @@ def main():
     path = 'D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190103 v3.0 3floor v16.e2k'
 
     e2k = E2k(path)
+    print(e2k.stories)
     print(e2k.materials)
+    print(e2k.sections)
+    print(e2k.point_coordinates)
 
 
 if __name__ == "__main__":
