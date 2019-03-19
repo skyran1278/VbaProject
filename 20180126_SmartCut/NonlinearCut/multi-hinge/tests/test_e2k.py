@@ -22,7 +22,7 @@ def test_e2k():
 
     point_coordinates = {'1': [0.0, 0.0], '2': [8.0, 0.0]}
     lines = {'B1': ['1', '2']}
-    line_assigns = {('B1', '2F'): 'B60X80C28', ('C1', '2F'): 'C90X90C28', ('C2', '2F'): 'C90X90C28', ('B1', 'RF'): 'B60X80C28', ('C1', 'RF'): 'C90X90C28', ('C2', 'RF'): 'C90X90C28', ('B1', '3F'): 'B60X80C28', ('C1', '3F'): 'C90X90C28', ('C2', '3F'): 'C90X90C28'}
+    line_assigns = {('2F', 'B1'): 'B60X80C28', ('2F', 'C1'): 'C90X90C28', ('2F', 'C2'): 'C90X90C28', ('RF', 'B1'): 'B60X80C28', ('RF', 'C1'): 'C90X90C28', ('RF', 'C2'): 'C90X90C28', ('3F', 'B1'): 'B60X80C28', ('3F', 'C1'): 'C90X90C28', ('3F', 'C2'): 'C90X90C28'}
 
     assert e2k.stories == stories
     assert e2k.materials == materials

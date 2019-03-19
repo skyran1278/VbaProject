@@ -90,7 +90,7 @@ class E2k:
     def _set_line_assign(self):
         words = self.words
         if self.title == '$ LINE ASSIGNS':
-            self.line_assigns[(words[1], words[2])] = words[4]
+            self.line_assigns[(words[2], words[1])] = words[4]
 
     def _init_e2k(self):
         for line in self.content:
@@ -119,11 +119,17 @@ class E2k:
 
         self.sections = dict(self.sections)
 
-    # def get(self, title):
-    #     """
-    #     get what you want
-    #     """
-    #     pass
+    def get(self, story, bay_id, fy=False):
+        """
+        get what you want
+        """
+        if fy:
+            section = self.line_assigns[(story, bay_id)]
+            material = self.sections[section]['FY']
+
+            return self.materials[(material, 'FY')]
+
+        return None
 
 
 def main():
