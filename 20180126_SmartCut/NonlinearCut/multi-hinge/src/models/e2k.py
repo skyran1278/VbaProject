@@ -53,7 +53,7 @@ class E2k:
         words = self.words
         if self.title == '$ FRAME SECTIONS' and words[5] == 'Concrete Rectangular':
             section_name = words[1]
-            self.sections[section_name]['MATERIAL'] = words[3]
+            self.sections[section_name]['FC'] = words[3]
             self.sections[section_name]['D'] = float(words[7])
             self.sections[section_name]['B'] = float(words[9])
 
@@ -68,7 +68,7 @@ class E2k:
         if self.title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
             section_name = words[1]
             self.sections[section_name]['FY'] = words[3]
-            self.sections[section_name]['FYT'] = words[5]
+            self.sections[section_name]['FYH'] = words[5]
 
     def _post_point_coordinate(self):
         words = self.words
@@ -119,7 +119,7 @@ class E2k:
 
         self.sections = dict(self.sections)
 
-    def get(self, story, bay_id, fy=False):
+    def get(self, story, bay_id, fy=False, fyh=False, fc=False):
         """
         get what you want
         """
@@ -128,6 +128,18 @@ class E2k:
             material = self.sections[section]['FY']
 
             return self.materials[(material, 'FY')]
+
+        if fyh:
+            section = self.line_assigns[(story, bay_id)]
+            material = self.sections[section]['FYH']
+
+            return self.materials[(material, 'FY')]
+
+        if fc:
+            section = self.line_assigns[(story, bay_id)]
+            material = self.sections[section]['FC']
+
+            return self.materials[(material, 'FC')]
 
         return None
 
