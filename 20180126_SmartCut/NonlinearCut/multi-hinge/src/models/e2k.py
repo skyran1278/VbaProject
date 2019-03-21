@@ -7,8 +7,6 @@ from collections import defaultdict
 
 from src.utils.load_file import load_file
 
-# TODO: composition class
-
 
 class E2k:
     """
@@ -49,7 +47,7 @@ class E2k:
     def _post_material(self):
         words = self.words
         if self.title == '$ MATERIAL PROPERTIES' and (words[2] == 'FC' or words[2] == 'FY'):
-            self.materials[(words[1], words[2])] = float(words[3])
+            self.materials[words[1]] = float(words[3])
 
     def _post_section(self):
         words = self.words
@@ -129,19 +127,19 @@ class E2k:
             section = self.line_assigns[(story, bay_id)]
             material = self.sections[section]['FY']
 
-            return self.materials[(material, 'FY')]
+            return self.materials[material]
 
         if fyh:
             section = self.line_assigns[(story, bay_id)]
             material = self.sections[section]['FYH']
 
-            return self.materials[(material, 'FY')]
+            return self.materials[material]
 
         if fc:
             section = self.line_assigns[(story, bay_id)]
             material = self.sections[section]['FC']
 
-            return self.materials[(material, 'FC')]
+            return self.materials[material]
 
         return None
 
