@@ -7,6 +7,8 @@ from collections import defaultdict
 
 from src.utils.load_file import load_file
 
+# TODO: composition class
+
 
 class E2k:
     """
