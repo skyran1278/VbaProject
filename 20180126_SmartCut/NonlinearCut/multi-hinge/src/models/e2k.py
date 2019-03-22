@@ -119,29 +119,37 @@ class E2k:
 
         self.sections = dict(self.sections)
 
-    def get(self, story, bay_id, fy=False, fyh=False, fc=False):
+    def get_fc(self, story, bay_id):
         """
-        get what you want
+        get fc
         """
-        if fy:
-            section = self.line_assigns[(story, bay_id)]
-            material = self.sections[section]['FY']
+        section = self.line_assigns[(story, bay_id)]
+        material = self.sections[section]['FC']
 
-            return self.materials[material]
+        return self.materials[material]
 
-        if fyh:
-            section = self.line_assigns[(story, bay_id)]
-            material = self.sections[section]['FYH']
+    def get_fy(self, story, bay_id):
+        """
+        get fy
+        """
+        section = self.line_assigns[(story, bay_id)]
+        material = self.sections[section]['FY']
 
-            return self.materials[material]
+        return self.materials[material]
 
-        if fc:
-            section = self.line_assigns[(story, bay_id)]
-            material = self.sections[section]['FC']
+    def get_fyh(self, story, bay_id):
+        """
+        get fyh
+        """
+        section = self.line_assigns[(story, bay_id)]
+        material = self.sections[section]['FYH']
 
-            return self.materials[material]
+        return self.materials[material]
 
-        return None
+    def get_width(self, story, bay_id):
+        section = self.line_assigns[(story, bay_id)]
+
+        return self.sections[section]['B']
 
 
 def main():

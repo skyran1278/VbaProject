@@ -43,15 +43,15 @@ def get_area(size):
     if size[0] == '2':
         return REBARS[(size[1:], 'AREA')] * 2
 
-    return REBARS[(size, 'AREA')] * 2
+    return REBARS[(size, 'AREA')]
 
 
-def get_db(size):
+def get_diameter(size):
     """
     get rebar db\n
     size: string, rebar No. (ex: '#4')
     """
     if size[0] == '2':
-        return REBARS[(size[1:], 'DB')]
+        size = size[1:]
 
     return REBARS[(size, 'DB')]
