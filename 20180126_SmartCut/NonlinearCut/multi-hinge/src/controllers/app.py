@@ -10,7 +10,7 @@ from src.controllers.get_ld import get_ld
 # path = '/Users/skyran/Documents/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190103 v3.0 3floor v16.e2k'
 
 design = Design(
-    'D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190312 235751 SmartCut.xlsx')
+    'D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190323 203316 SmartCut.xlsx')
 
 e2k = E2k('D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190103 v3.0 3floor v16.e2k')
 
@@ -21,23 +21,39 @@ positions = [
 ]
 
 for index in range(0, design.get_len(), 4):
-    story = design.get_story(index)
-    bay_id = design.get_id(index)
+    story = design.get(index, ('樓層', ''))
+    bay_id = design.get(index, ('編號', ''))
+    num = design.get_num(index, ('主筋', '左'))
+    db = design.get_diameter(index, ('主筋', '左'))
+    spacing = design.get_spacing(index, ('箍筋', '左'))
 
     fc = e2k.get_fc(story, bay_id)
     fy = e2k.get_fy(story, bay_id)
     fyh = e2k.get_fyh(story, bay_id)
     B = e2k.get_width(story, bay_id)
 
-    num = design.get_num(index, ('主筋', '左'))
-    db = design.get_diameter(index, ('主筋', '左'))
+    top = True
 
-    span = design.get_span(index)
+    cover = 0.04
 
-    if span / 4 > :
-        pass
+    if design.get(index, ('主筋長度', '左')) <= design.get(index, ('箍筋長度', '左')):
+        dh = design.get_diameter(index, ('箍筋', '左'))
+        ah = design.get_area(index, ('箍筋', '左'))
+        spacing = design.get_spacing(index, ('箍筋', '左'))
 
-    dh = design.get_diameter(index, ('箍筋', '左'))
-    ah = design.get_diameter(index, ('箍筋', '左'))
+    else:
+        shear = design.get_shear(index, ('箍筋', '左'))
+        shear_mid = design.get_shear(index, ('箍筋', '中'))
 
-    get_ld(B, num, db, dh, ah, spacing, top, fc, fy, fyh, cover)
+        if shear < shear_mid:
+            dh = design.get_diameter(index, ('箍筋', '左'))
+            ah = design.get_area(index, ('箍筋', '左'))
+            spacing = design.get_spacing(index, ('箍筋', '左'))
+
+        else:
+            dh = design.get_diameter(index, ('箍筋', '中'))
+            ah = design.get_area(index, ('箍筋', '中'))
+            spacing = design.get_spacing(index, ('箍筋', '中'))
+
+    a = get_ld(B, num, db, dh, ah, spacing, top, fc, fy, fyh, cover)
+    print(a)
