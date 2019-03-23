@@ -74,6 +74,12 @@ def _merge_segments(beam, etabs_design, stirrup_spacing):
             '右': _get_spacing(group, right, group_max)
         }
 
+        group_length = {
+            '左': (group_max - group_min) * 1/4,
+            '中': (group_max - group_min) * 2/4,
+            '右': (group_max - group_min) * 1/4
+        }
+
         for loc in ('左', '中', '右'):
             loc_size = rebar_size
             loc_spacing = group_spacing[loc]
@@ -99,6 +105,8 @@ def _merge_segments(beam, etabs_design, stirrup_spacing):
             beam.loc[row, ('箍筋', loc)] = (
                 f'{loc_size}@{int(loc_spacing_max * 100)}'
             )
+
+            beam.loc[row, ('箍筋長度', loc)] = group_length[loc] * 100
 
         row = row + 4
 
