@@ -40,7 +40,7 @@ def _basic_information(header, etabs_design, e2k):
     return beam
 
 
-def init_beam(etabs_design, e2k, moment=3, shear=False):
+def init_beam(etabs_design, e2k, moment=3):
     """
     init output beam table return beam
     """
@@ -55,29 +55,18 @@ def init_beam(etabs_design, e2k, moment=3, shear=False):
 
     header_sidebar = [('腰筋', '')]
 
-    header_stirrup = [('箍筋', '左'), ('箍筋', '中'), ('箍筋', '右')]
-    header_stirrup_3 = [('箍筋', '左'), ('箍筋', '中'), ('箍筋', '右'),
-                        ('箍筋長度', '左'), ('箍筋長度', '中'), ('箍筋長度', '右')]
+    header_stirrup = [('箍筋', '左'), ('箍筋', '中'), ('箍筋', '右'),
+                      ('箍筋長度', '左'), ('箍筋長度', '中'), ('箍筋長度', '右')]
 
     header_info_2 = [('梁長', ''), ('支承寬', '左'), ('支承寬', '右'), ('NOTE', '')]
 
     if moment == 3:
-        if shear:
-            header = pd.MultiIndex.from_tuples(
-                header_info_1 + header_rebar_3 + header_sidebar + header_stirrup_3 + header_info_2)
-
-        else:
-            header = pd.MultiIndex.from_tuples(
-                header_info_1 + header_rebar_3 + header_sidebar + header_stirrup + header_info_2)
+        header = pd.MultiIndex.from_tuples(
+            header_info_1 + header_rebar_3 + header_sidebar + header_stirrup + header_info_2)
 
     elif moment == 5:
-        if shear:
-            header = pd.MultiIndex.from_tuples(
-                header_info_1 + header_rebar_5 + header_sidebar + header_stirrup_3 + header_info_2)
-
-        else:
-            header = pd.MultiIndex.from_tuples(
-                header_info_1 + header_rebar_5 + header_sidebar + header_stirrup + header_info_2)
+        header = pd.MultiIndex.from_tuples(
+            header_info_1 + header_rebar_5 + header_sidebar + header_stirrup + header_info_2)
 
     return _basic_information(header, etabs_design, e2k)
 
@@ -155,7 +144,7 @@ def main():
         etabs_design_path, etabs_design_path + '.pkl')
     beam_name = load_beam_name(beam_name_path, beam_name_path + '.pkl')
 
-    beam = init_beam(etabs_design, e2k, moment=3, shear=True)
+    beam = init_beam(etabs_design, e2k, moment=3)
     print(beam.head())
 
     beam_name_empty = init_beam_name(etabs_design)
