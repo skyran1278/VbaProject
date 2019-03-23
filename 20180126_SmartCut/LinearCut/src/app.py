@@ -23,7 +23,7 @@ from components.bar_cut import cut_optimization
 # 函數式編程是對於資料更好的操控
 
 
-def cut_by_beam(const, moment=3, shear=False):
+def cut_by_beam(const, moment=3):
     """ run by beam, no need beam name ID"""
     e2k_path, etabs_design_path, output_dir = const[
         'e2k_path'], const['etabs_design_path'], const['output_dir']
@@ -43,7 +43,7 @@ def cut_by_beam(const, moment=3, shear=False):
     execution.time('Initialize Output Table')
     beam_name_empty = init_beam_name(etabs_design)
     beam_traditional = init_beam(etabs_design, e2k)
-    beam = init_beam(etabs_design, e2k, moment=moment, shear=shear)
+    beam = init_beam(etabs_design, e2k, moment=moment)
     execution.time()
 
     # 計算箍筋
@@ -112,7 +112,7 @@ def cut_by_frame(const, moment=3, shear=False):
     # 初始化輸出表格
     execution.time('Initialize Output Table')
     beam_traditional = init_beam(etabs_design, e2k)
-    beam = init_beam(etabs_design, e2k, moment=moment, shear=shear)
+    beam = init_beam(etabs_design, e2k, moment=moment)
     # no change tradition beam id
     beam, etabs_design = add_and_alter_beam_id(
         beam, beam_name, etabs_design)

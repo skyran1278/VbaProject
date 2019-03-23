@@ -366,7 +366,7 @@ def main():
     etabs_design = load_beam_design(
         etabs_design_path, etabs_design_path + '.pkl')
 
-    beam = init_beam(etabs_design, e2k, moment=3, shear=True)
+    beam = init_beam(etabs_design, e2k, moment=3)
     execution = Execution()
     beam, dh_design = calc_stirrups(beam, etabs_design, const)
 
