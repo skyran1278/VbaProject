@@ -47,6 +47,8 @@ class E2k:
     def _post_material(self):
         words = self.words
         if self.title == '$ MATERIAL PROPERTIES' and (words[2] == 'FC' or words[2] == 'FY'):
+            if words[1] in self.materials:
+                raise Exception('Material name duplicate!', words[1])
             self.materials[words[1]] = float(words[3])
 
     def _post_section(self):
