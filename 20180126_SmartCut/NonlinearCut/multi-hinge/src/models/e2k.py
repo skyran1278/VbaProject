@@ -149,6 +149,9 @@ class E2k:
         return self.materials[material]
 
     def get_width(self, story, bay_id):
+        """
+        get width
+        """
         section = self.line_assigns[(story, bay_id)]
 
         return self.sections[section]['B']

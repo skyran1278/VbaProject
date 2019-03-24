@@ -65,31 +65,19 @@ class Design:
         index = index // 4 * 4
         return self.df.loc[index, column]
 
-    # def get_story(self, index):
-    #     """
-    #     get story
-    #     """
-    #     index = index // 4 * 4
-    #     return self.df.loc[index, ('樓層', '')]
-
-    # def get_id(self, index):
-    #     """
-    #     get bay id
-    #     """
-    #     index = index // 4 * 4
-    #     return self.df.loc[index, ('編號', '')]
-
-    # def get_span(self, index):
-    #     index = index // 4 * 4
-    #     return self.df.loc[index, ('梁長', '')]
-
     def get_num(self, index, column):
+        """
+        get '主筋' num
+        """
         num_and_size = self.get(index, column)
         if num_and_size == 0:
             return 0
         return int(num_and_size.split('-')[0])
 
     def get_diameter(self, index, column):
+        """
+        get diameter
+        """
         size = self.get(index, column)
 
         # 主筋
@@ -103,6 +91,9 @@ class Design:
         return get_diameter(size)
 
     def get_area(self, index, column):
+        """
+        get area
+        """
         size = self.get(index, column)
 
         # 主筋
@@ -116,6 +107,9 @@ class Design:
         return get_area(size)
 
     def get_spacing(self, index, column):
+        """
+        get spacing
+        """
         stirrup = self.get(index, column)
 
         if '@' not in stirrup:
@@ -124,6 +118,9 @@ class Design:
         return float(stirrup.split('@')[1])
 
     def get_shear(self, index, column):
+        """
+        get shear design
+        """
         area = self.get_area(index, column)
         spacing = self.get_spacing(index, column)
         return area / spacing
