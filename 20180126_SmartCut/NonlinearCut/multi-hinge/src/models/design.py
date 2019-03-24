@@ -37,19 +37,32 @@ class Design:
         """
         return len(self.df.index)
 
-    def get(self, index, column):
-        # for others to normalize to first row
-        if '主筋' not in column:
+    def get(self, index, column=None):
+        """
+        get by index or column
+        """
+        if column is None:
             index = index // 4 * 4
-
-        # for 主筋長度 to get first and last row
-        elif '主筋長度' in column:
-            if index % 4 == 1:
-                index -= 1
-            if index % 4 == 2:
-                index += 1
+            df = self.df.loc[index].to_dict()
+            for col in list(df):
+                if '主筋' in col or '主筋長度' in col or '腰筋' in col:
+                    del df[col]
+            return df
 
         # for 主筋 to get its row
+        if '主筋' in column:
+            return self.df.loc[index, column]
+
+        # for 主筋長度 to get first and last row
+        if '主筋長度' in column:
+            if index % 4 == 1:
+                index -= 1
+            elif index % 4 == 2:
+                index += 1
+            return self.df.loc[index, column]
+
+        # for others to normalize to first row
+        index = index // 4 * 4
         return self.df.loc[index, column]
 
     # def get_story(self, index):
@@ -72,6 +85,8 @@ class Design:
 
     def get_num(self, index, column):
         num_and_size = self.get(index, column)
+        if num_and_size == 0:
+            return 0
         return int(num_and_size.split('-')[0])
 
     def get_diameter(self, index, column):
@@ -124,9 +139,9 @@ def main():
 
     design = Design(path)
 
-    print(design.df[('樓層', '')])
-    print(design.df[('主筋', '左')])
-    print(design.df.head())
+    print(design.get(1))
+    print(design.get(3, ('主筋', '左')))
+    print(design.get(2, ('主筋長度', '左')))
     # print(design.get_story(5))
 
     # design = get_design(path)
