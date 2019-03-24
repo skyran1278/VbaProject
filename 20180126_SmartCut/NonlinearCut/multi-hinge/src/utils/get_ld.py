@@ -1,7 +1,6 @@
 """
 It is used for nominal concrete in case of phi_e=1.0 & phi_t=1.0.
 Reference:土木401-93
-PI = 3.1415926
 """
 from math import sqrt
 
@@ -10,7 +9,6 @@ def get_ld(B, num, db, dh, ah, spacing, top, fc, fy, fyh, cover):
     """
     It is used for nominal concrete in case of phi_e=1.0 & phi_t=1.0.
     Reference:土木401-93
-    PI = 3.1415926
 
     prams:
         'B: Girder/Beam Width (m)
@@ -32,7 +30,6 @@ def get_ld(B, num, db, dh, ah, spacing, top, fc, fy, fyh, cover):
         #
     """
     # pylint: disable=invalid-name
-    PI = 3.1415926
 
     # change unit m to cm, familiar adress in cm
     # m => cm
@@ -60,12 +57,12 @@ def get_ld(B, num, db, dh, ah, spacing, top, fc, fy, fyh, cover):
         # Vertical splitting failure
         cb = db / 2 + cc
         # R5.3.4.1.2
-        ktr = (PI * dh ** 2 / 4) * fyh / 105 / spacing
+        ktr = ah * fyh / 105 / spacing
     else:
         # Horizontal splitting failure
         cb = db / 2 + cs
         # R5.3.4.1.2
-        ktr = 2 * (PI * dh ** 2 / 4) * fyh / 105 / spacing / num
+        ktr = 2 * ah * fyh / 105 / spacing / num
 
     # 5.3.4.1
     ld = 0.28 * fy / sqrt(fc) * db / min((cb + ktr) / db, 2.5)
@@ -88,4 +85,4 @@ def get_ld(B, num, db, dh, ah, spacing, top, fc, fy, fyh, cover):
     if ld < 30:
         ld = 30
 
-    return ld
+    return ld / 100
