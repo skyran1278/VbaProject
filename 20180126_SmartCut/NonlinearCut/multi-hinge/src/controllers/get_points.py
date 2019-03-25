@@ -83,7 +83,7 @@ def get_points(section_index, design, e2k):
         if not np.allclose(local_coordinate, points, atol=0.1):
             points.append(local_coordinate)
 
-    points.sort()
+    points = np.sort(points)
 
     rel_points = points / points[-1]
 
@@ -103,7 +103,7 @@ def main():
     e2k = E2k(config['e2k_path'])
 
     points = get_points(0, design, e2k)
-    print(points[1])
+    print(points)
 
 
 if __name__ == "__main__":

@@ -5,6 +5,8 @@ import shlex
 
 from collections import defaultdict
 
+import numpy as np
+
 from src.utils.load_file import load_file
 
 
@@ -75,8 +77,9 @@ class E2k:
     def _post_point_coordinate(self):
         words = self.words
         if self.title == '$ POINT COORDINATES':
-            self.point_coordinates[words[1]] = [
-                float(words[2]), float(words[3])]
+            self.point_coordinates[words[1]] = np.array(
+                [float(words[2]), float(words[3])]
+            )
 
     # def _post_point_assign(self):
     #     words = self.words
@@ -121,6 +124,9 @@ class E2k:
 
         self.sections = dict(self.sections)
 
+    def get_section(self, story, bay_id):
+        return self.line_assigns[(story, bay_id)]
+
     def get_fc(self, story, bay_id):
         """
         get fc
@@ -155,6 +161,16 @@ class E2k:
         section = self.line_assigns[(story, bay_id)]
 
         return self.sections[section]['B']
+
+    def get_coordinate(self, bay_id=None, point_id=None):
+        """
+        get coordinate
+        """
+        if bay_id is not None:
+            point_id_start, point_id_end = self.lines[bay_id]
+            return self.point_coordinates[point_id_start], self.point_coordinates[point_id_end]
+
+        return self.point_coordinates[point_id]
 
 
 def main():
