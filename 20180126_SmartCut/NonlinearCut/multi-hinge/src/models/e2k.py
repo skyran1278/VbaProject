@@ -161,10 +161,10 @@ def main():
     """
     test
     """
-    # pylint: disable=line-too-long
-    path = 'D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190103 v3.0 3floor v16.e2k'
+    from tests.config import config
 
-    e2k = E2k(path)
+    e2k = E2k(config['e2k_path'])
+
     print(e2k.stories)
     print(e2k.materials)
     print(e2k.sections)

@@ -130,11 +130,9 @@ def main():
     """
     test
     """
-    # pylint: disable=line-too-long
-    path = 'D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190323 203316 SmartCut.xlsx'
-    # path = '/Users/skyran/Documents/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190323 203316 SmartCut.xlsx'
+    from tests.config import config
 
-    design = Design(path)
+    design = Design(config['design_path'])
 
     print(design.get(1))
     print(design.get(3, ('主筋', '左')))

@@ -2,6 +2,7 @@
 test
 """
 from src.models.e2k import E2k
+from tests.config import config
 
 
 def test_e2k():
@@ -12,7 +13,7 @@ def test_e2k():
     path = 'D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190103 v3.0 3floor v16.e2k'
     # path = '/Users/skyran/Documents/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190103 v3.0 3floor v16.e2k'
 
-    e2k = E2k(path)
+    e2k = E2k(config['e2k_path'])
 
     stories = {'RF': 3.0, '3F': 3.0, '2F': 3.0, '1F': 3.0, 'BASE': 0.0}
     materials = {'STEEL': 35153.48, 'CONC': 2800.0, 'C350': 3500.0, 'C280': 2800.0, 'C245': 2450.0,

@@ -94,21 +94,16 @@ def main():
     """
     test
     """
+    from tests.config import config
     from src.models.e2k import E2k
     from src.models.design import Design
-    # pylint: disable=line-too-long
 
-    # path = 'D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190103 v3.0 3floor v16.e2k'
-    # path = '/Users/skyran/Documents/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190103 v3.0 3floor v16.e2k'
+    design = Design(config['design_path'])
 
-    design = Design(
-        'D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190323 203316 SmartCut.xlsx')
-
-    e2k = E2k(
-        'D:/GitHub/VbaProject/20180126_SmartCut/NonlinearCut/multi-hinge/tests/20190103 v3.0 3floor v16.e2k')
+    e2k = E2k(config['e2k_path'])
 
     points = get_points(0, design, e2k)
-    print(points)
+    print(points[1])
 
 
 if __name__ == "__main__":
