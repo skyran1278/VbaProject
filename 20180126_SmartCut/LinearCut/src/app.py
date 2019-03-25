@@ -92,7 +92,7 @@ def cut_by_beam(const, moment=3):
     execution.time()
 
 
-def cut_by_frame(const, moment=3, shear=False):
+def cut_by_frame(const, moment=3):
     """ run by frame, need beam name ID"""
     e2k_path, etabs_design_path, beam_name_path, output_dir = const[
         'e2k_path'], const['etabs_design_path'], const['beam_name_path'], const['output_dir']
