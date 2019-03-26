@@ -17,6 +17,7 @@ class E2k:
     """
 
     def __init__(self, path):
+        self.path = path
         self.content = load_file(path)
 
         self.title = ''

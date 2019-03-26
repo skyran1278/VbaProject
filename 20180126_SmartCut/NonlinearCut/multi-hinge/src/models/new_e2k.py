@@ -1,6 +1,7 @@
 """
 write to new e2k
 """
+import shlex
 from src.models.e2k import E2k
 
 
@@ -15,14 +16,27 @@ class NewE2k(E2k):
         """
         for coor in coordinates:
             self.point_coordinates.post(value=coor)
-            # print(np.isin(coor, self.point_coordinates.values()))
-            # if not np.any(np.isin(coor, self.point_coordinates.values())):
-            #     i = 1
-            #     x = str(i)
-            #     while x in self.point_coordinates:
-            #         i += 1
-            #         x = str(i)
-            #     self.point_coordinates[x] = coor
+
+    def to_e2k(self):
+        """
+        only call once, write to e2k
+        """
+        with open(self.path + ' new.e2k', mode='w', encoding='big5') as f:
+            title = None
+            for line in self.content:
+                if line == '$ POINT COORDINATES':
+                    f.write(line)
+                    f.write('\n')
+                    a = self.point_coordinates.get()
+                    print(a)
+
+                if not title == '$ POINT COORDINATES':
+                    f.write(line)
+                    f.write('\n')
+
+                if not line == '' and line[0] == '$':
+                    # post title
+                    title = line
 
 
 def main():
@@ -54,6 +68,7 @@ def main():
 
     new_e2k.post_point_coordinates(coordinates)
     print(new_e2k.point_coordinates.get())
+    new_e2k.to_e2k()
 
 
 if __name__ == "__main__":
