@@ -8,6 +8,7 @@ from collections import defaultdict
 import numpy as np
 
 from src.utils.load_file import load_file
+from src.models.point_coordinates import PointCoordinates
 
 
 class E2k:
@@ -24,7 +25,7 @@ class E2k:
         self.stories = {}
         self.materials = {}
         self.sections = defaultdict(dict)
-        self.point_coordinates = {}
+        self.point_coordinates = PointCoordinates()
         self.lines = {}
         # self.point_assigns = {}
         self.line_assigns = {}
@@ -77,9 +78,8 @@ class E2k:
     def _post_point_coordinate(self):
         words = self.words
         if self.title == '$ POINT COORDINATES':
-            self.point_coordinates[words[1]] = np.array(
-                [float(words[2]), float(words[3])]
-            )
+            self.point_coordinates.post(
+                words[1], [float(words[2]), float(words[3])])
 
     # def _post_point_assign(self):
     #     words = self.words
@@ -168,9 +168,10 @@ class E2k:
         """
         if bay_id is not None:
             point_id_start, point_id_end = self.lines[bay_id]
-            return self.point_coordinates[point_id_start], self.point_coordinates[point_id_end]
+            return self.point_coordinates.get(
+                point_id_start), self.point_coordinates.get(point_id_end)
 
-        return self.point_coordinates[point_id]
+        return self.point_coordinates.get(point_id)
 
 
 def main():
@@ -184,7 +185,7 @@ def main():
     print(e2k.stories)
     print(e2k.materials)
     print(e2k.sections)
-    print(e2k.point_coordinates)
+    print(e2k.point_coordinates.get())
     print(e2k.lines)
     print(e2k.line_assigns)
 
