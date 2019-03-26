@@ -31,5 +31,5 @@ def test_e2k():
     assert e2k.sections == sections
     np.testing.assert_equal(
         e2k.point_coordinates.get(), point_coordinates)
-    assert e2k.lines == lines
+    assert e2k.lines.get() == lines
     assert e2k.line_assigns == line_assigns

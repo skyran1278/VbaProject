@@ -9,6 +9,7 @@ import numpy as np
 
 from src.utils.load_file import load_file
 from src.models.point_coordinates import PointCoordinates
+from src.models.lines import Lines
 
 
 class E2k:
@@ -27,7 +28,7 @@ class E2k:
         self.materials = {}
         self.sections = defaultdict(dict)
         self.point_coordinates = PointCoordinates()
-        self.lines = {}
+        self.lines = Lines()
         # self.point_assigns = {}
         self.line_assigns = {}
 
@@ -91,7 +92,7 @@ class E2k:
     def _post_line(self):
         words = self.words
         if self.title == '$ LINE CONNECTIVITIES' and words[2] == 'BEAM':
-            self.lines[words[1]] = [words[3], words[4]]
+            self.lines.post(words[1], [words[3], words[4]])
 
     def _post_line_assign(self):
         words = self.words
@@ -168,7 +169,7 @@ class E2k:
         get coordinate
         """
         if bay_id is not None:
-            point_id_start, point_id_end = self.lines[bay_id]
+            point_id_start, point_id_end = self.lines.get(bay_id)
             return self.point_coordinates.get(
                 point_id_start), self.point_coordinates.get(point_id_end)
 
@@ -187,7 +188,7 @@ def main():
     print(e2k.materials)
     print(e2k.sections)
     print(e2k.point_coordinates.get())
-    print(e2k.lines)
+    print(e2k.lines.get())
     print(e2k.line_assigns)
 
 
