@@ -22,21 +22,31 @@ class NewE2k(E2k):
         only call once, write to e2k
         """
         with open(self.path + ' new.e2k', mode='w', encoding='big5') as f:
-            title = None
             for line in self.content:
-                if line == '$ POINT COORDINATES':
+                # skip space line
+                if line == '':
                     f.write(line)
                     f.write('\n')
+                    continue
+
+                if line[0] == '$':
+                    # post title
+                    title = line
+
+                if line == '$ POINT COORDINATES':
+                    f.write('$ POINT COORDINATES')
+                    f.write('\n')
                     a = self.point_coordinates.get()
-                    print(a)
+                    for point in a:
+                        f.write(
+                            f'POINT "{point}"  {a[point][0]} {a[point][1]}')
+                        f.write('\n')
+
+                        print(f'POINT "{point}"  {a[point][0]} {a[point][1]}')
 
                 if not title == '$ POINT COORDINATES':
                     f.write(line)
                     f.write('\n')
-
-                if not line == '' and line[0] == '$':
-                    # post title
-                    title = line
 
 
 def main():
