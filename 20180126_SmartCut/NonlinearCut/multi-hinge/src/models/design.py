@@ -37,11 +37,11 @@ class Design:
         """
         return len(self.df.index)
 
-    def get(self, index, column=None):
+    def get(self, index, col=None):
         """
-        get by index or column
+        get by index or col
         """
-        if column is None:
+        if col is None:
             index = index // 4 * 4
             df = self.df.loc[index].to_dict()
             for col in list(df):
@@ -50,35 +50,54 @@ class Design:
             return df
 
         # for 主筋 to get its row
-        if '主筋' in column:
-            return self.df.loc[index, column]
+        if '主筋' in col:
+            return self.df.loc[index, col]
 
         # for 主筋長度 to get first and last row
-        if '主筋長度' in column:
+        if '主筋長度' in col:
             if index % 4 == 1:
                 index -= 1
             elif index % 4 == 2:
                 index += 1
-            return self.df.loc[index, column]
+            return self.df.loc[index, col]
 
         # for others to normalize to first row
         index = index // 4 * 4
-        return self.df.loc[index, column]
+        return self.df.loc[index, col]
 
-    def get_num(self, index, column):
+    def get_total_area(self, index, col):
+        """
+        get total rebar area
+        """
+        if index % 4 <= 1:
+            index = index // 4 * 4
+        else:
+            index = index // 4 * 4 + 2
+
+        row1 = self.get_num(index, col) * self.get_area(index, col)
+        row2 = self.get_num(index + 1, col) * self.get_area(index + 1, col)
+
+        return row1 + row2
+
+    def get_num(self, index, col):
         """
         get '主筋' num
         """
-        num_and_size = self.get(index, column)
+        num_and_size = self.get(index, col)
+
         if num_and_size == 0:
             return 0
+
         return int(num_and_size.split('-')[0])
 
-    def get_diameter(self, index, column):
+    def get_diameter(self, index, col):
         """
         get diameter
         """
-        size = self.get(index, column)
+        size = self.get(index, col)
+
+        if size == 0:
+            return 0
 
         # 主筋
         if '-' in size:
@@ -90,11 +109,14 @@ class Design:
 
         return get_diameter(size)
 
-    def get_area(self, index, column):
+    def get_area(self, index, col):
         """
         get area
         """
-        size = self.get(index, column)
+        size = self.get(index, col)
+
+        if size == 0:
+            return 0
 
         # 主筋
         if '-' in size:
@@ -106,23 +128,23 @@ class Design:
 
         return get_area(size)
 
-    def get_spacing(self, index, column):
+    def get_spacing(self, index, col):
         """
         get spacing
         """
-        stirrup = self.get(index, column)
+        stirrup = self.get(index, col)
 
         if '@' not in stirrup:
-            raise Exception("Invalid index!", (index, column))
+            raise Exception("Invalid index!", (index, col))
 
         return float(stirrup.split('@')[1])
 
-    def get_shear(self, index, column):
+    def get_shear(self, index, col):
         """
         get shear design
         """
-        area = self.get_area(index, column)
-        spacing = self.get_spacing(index, column)
+        area = self.get_area(index, col)
+        spacing = self.get_spacing(index, col)
         return area / spacing
 
 
