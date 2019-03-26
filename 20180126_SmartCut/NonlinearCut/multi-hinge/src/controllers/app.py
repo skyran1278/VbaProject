@@ -9,6 +9,11 @@ from src.models.new_e2k import NewE2k
 from src.controllers.get_points import get_points
 
 
+def get_points_coordinates(bay_id, rel_points, e2k):
+    coor_start, coor_end = e2k.get_coordinate(bay_id=bay_id)
+    return rel_points.reshape(-1, 1) * (coor_end - coor_start) + coor_start
+
+
 def main():
     """
     test
@@ -29,12 +34,9 @@ def main():
         # story = section[('樓層', '')]
         bay_id = section[('編號', '')]
 
-        coordinate_start, coordinate_end = e2k.get_coordinate(bay_id=bay_id)
-        dif = rel_points.reshape(-1, 1) * (
-            coordinate_end - coordinate_start) + coordinate_start
+        coordinates = get_points_coordinates(bay_id, rel_points, e2k)
 
-        new_e2k.post_point_coordinates(dif)
-        print(dif)
+        new_e2k.post_point_coordinates(coordinates)
 
 
 if __name__ == "__main__":

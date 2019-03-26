@@ -17,6 +17,16 @@ class NewE2k(E2k):
         for coor in coordinates:
             self.point_coordinates.post(value=coor)
 
+    def _point_coordinates_to_e2k(self, f):
+        f.write('$ POINT COORDINATES')
+        f.write('\n')
+        coor = self.point_coordinates.get()
+        for point in coor:
+            start = coor[point][0]
+            end = coor[point][1]
+            f.write(f'POINT "{point}"  {start} {end}')
+            f.write('\n')
+
     def to_e2k(self):
         """
         only call once, write to e2k
@@ -25,7 +35,6 @@ class NewE2k(E2k):
             for line in self.content:
                 # skip space line
                 if line == '':
-                    f.write(line)
                     f.write('\n')
                     continue
 
@@ -33,16 +42,9 @@ class NewE2k(E2k):
                     # post title
                     title = line
 
+                # write once
                 if line == '$ POINT COORDINATES':
-                    f.write('$ POINT COORDINATES')
-                    f.write('\n')
-                    a = self.point_coordinates.get()
-                    for point in a:
-                        f.write(
-                            f'POINT "{point}"  {a[point][0]} {a[point][1]}')
-                        f.write('\n')
-
-                        print(f'POINT "{point}"  {a[point][0]} {a[point][1]}')
+                    self._point_coordinates_to_e2k(f)
 
                 if not title == '$ POINT COORDINATES':
                     f.write(line)

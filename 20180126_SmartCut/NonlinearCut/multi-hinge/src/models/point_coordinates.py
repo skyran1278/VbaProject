@@ -10,8 +10,14 @@ class PointCoordinates:
     """
 
     def __init__(self):
-        self.data = {}
+        self.__data = {}
+
+        # key is str(int), so bulid __keys to store pure int.
+        # convenient to use int plus
         self.__keys = []
+
+        # because numpy is difficult to check
+        # __values easy to check if exist
         self.__values = []
 
     def get(self, key=None):
@@ -19,9 +25,9 @@ class PointCoordinates:
         get by str key, haven't support int key
         """
         if key is None:
-            return self.data
+            return self.__data
 
-        return self.data[key]
+        return self.__data[key]
 
     def post(self, key=None, value=None):
         """
@@ -37,7 +43,7 @@ class PointCoordinates:
             raise Exception('no give value')
 
         if array in self.__values:
-            return 0
+            return
 
         if key is None:
             int_key = 1
@@ -49,7 +55,7 @@ class PointCoordinates:
         if not isinstance(key, str):
             raise Exception('key error')
 
-        self.data[key] = np_array
+        self.__data[key] = np_array
         self.__keys.append(int(key))
         self.__values.append(array)
 
