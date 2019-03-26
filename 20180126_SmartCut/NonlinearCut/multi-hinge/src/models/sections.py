@@ -5,17 +5,14 @@ from collections import defaultdict
 
 
 class Sections:
-    def __init__(self, init_data=None):
-        self.data = defaultdict(dict)
-
-        if init_data is not None:
-            self.data = init_data
+    def __init__(self):
+        self.__data = defaultdict(dict)
 
     def post(self, section, key, value):
-        self.data[section][key] = value
+        self.__data[section][key] = value
 
     def get(self, section, key):
-        return self.data[section][key]
+        return self.__data[section][key]
 
 
 def main():

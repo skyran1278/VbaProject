@@ -24,7 +24,12 @@ class NewE2k(E2k):
         for coor in coordinates:
             coor_id.append(self.point_coordinates.get(value=coor))
             # self.lines.post(value=coor)
-        print(coor_id)
+
+        length = len(coor_id) - 1
+        index = 0
+        while index < length:
+            self.lines.post(value=[coor_id[index], coor_id[index + 1]])
+            index += 1
 
     def _point_coordinates_to_e2k(self, f):
         f.write('$ POINT COORDINATES')
