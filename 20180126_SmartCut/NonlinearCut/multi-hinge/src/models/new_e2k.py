@@ -11,10 +11,20 @@ class NewE2k(E2k):
 
     def post_point_coordinates(self, coordinates):
         """
-        post list of coordinates
+        post list of coordinates to point_coordinates
         """
         for coor in coordinates:
             self.point_coordinates.post(value=coor)
+
+    def post_lines(self, coordinates):
+        """
+        post list of coordinates to lines
+        """
+        coor_id = []
+        for coor in coordinates:
+            coor_id.append(self.point_coordinates.get(value=coor))
+            # self.lines.post(value=coor)
+        print(coor_id)
 
     def _point_coordinates_to_e2k(self, f):
         f.write('$ POINT COORDINATES')
@@ -80,6 +90,7 @@ def main():
     new_e2k.post_point_coordinates(coordinates)
     print(new_e2k.point_coordinates.get())
     new_e2k.to_e2k()
+    new_e2k.post_lines(coordinates)
 
 
 if __name__ == "__main__":

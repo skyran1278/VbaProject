@@ -38,6 +38,10 @@ def main():
 
         new_e2k.post_point_coordinates(coordinates)
 
+        print(new_e2k.point_coordinates.get())
+
+    new_e2k.to_e2k()
+
 
 if __name__ == "__main__":
     main()
