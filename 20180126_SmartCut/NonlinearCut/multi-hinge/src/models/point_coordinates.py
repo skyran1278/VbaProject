@@ -4,6 +4,22 @@ point coordinates
 import numpy as np
 
 
+def _get_tuple_nparray(value):
+    if isinstance(value, np.ndarray):
+        array = tuple(value.tolist())
+        np_array = value
+    elif isinstance(value, tuple):
+        array = value
+        np_array = np.array(value)
+    elif isinstance(value, list):
+        array = tuple(value)
+        np_array = np.array(value)
+    else:
+        raise Exception('no give value')
+
+    return array, np_array
+
+
 class PointCoordinates:
     """
     use in e2k
@@ -17,15 +33,19 @@ class PointCoordinates:
         self.__keys = []
 
         # because numpy is difficult to check
-        # __values easy to check if exist
-        self.__values = []
+        # __reverse_data easy to check if value exist
+        self.__reverse_data = {}
 
-    def get(self, key=None):
+    def get(self, key=None, value=None):
         """
         get by str key, haven't support int key
         """
-        if key is None:
+        if key is None and value is None:
             return self.__data
+
+        if key is None:
+            array, _ = _get_tuple_nparray(value)
+            return self.__reverse_data[array]
 
         return self.__data[key]
 
@@ -33,16 +53,9 @@ class PointCoordinates:
         """
         I will use this method in e2k and new e2k
         """
-        if isinstance(value, list):
-            array = value
-            np_array = np.array(value)
-        elif isinstance(value, np.ndarray):
-            array = value.tolist()
-            np_array = value
-        else:
-            raise Exception('no give value')
+        array, np_array = _get_tuple_nparray(value)
 
-        if array in self.__values:
+        if array in self.__reverse_data:
             return
 
         if key is None:
@@ -56,8 +69,8 @@ class PointCoordinates:
             raise Exception('key error')
 
         self.__data[key] = np_array
+        self.__reverse_data[array] = key
         self.__keys.append(int(key))
-        self.__values.append(array)
 
 
 def main():
@@ -71,6 +84,7 @@ def main():
     point_coordinates.post(value=[0, 1])
     print(point_coordinates.get())
     print(point_coordinates.get('1'))
+    print(point_coordinates.get(value=np.array([0, 1])))
 
 
 if __name__ == "__main__":

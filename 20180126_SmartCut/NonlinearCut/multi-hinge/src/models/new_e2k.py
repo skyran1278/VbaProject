@@ -1,7 +1,6 @@
 """
 write to new e2k
 """
-import shlex
 from src.models.e2k import E2k
 
 

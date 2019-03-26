@@ -5,8 +5,6 @@ import shlex
 
 from collections import defaultdict
 
-import numpy as np
-
 from src.utils.load_file import load_file
 from src.models.point_coordinates import PointCoordinates
 from src.models.lines import Lines
@@ -81,7 +79,7 @@ class E2k:
         words = self.words
         if self.title == '$ POINT COORDINATES':
             self.point_coordinates.post(
-                words[1], [float(words[2]), float(words[3])])
+                words[1], (float(words[2]), float(words[3])))
 
     # def _post_point_assign(self):
     #     words = self.words
