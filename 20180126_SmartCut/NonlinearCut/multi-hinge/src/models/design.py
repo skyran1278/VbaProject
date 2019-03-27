@@ -6,18 +6,6 @@ import pandas as pd
 from src.utils.rebar import get_diameter, get_area
 
 
-# def get_design(path):
-#     """
-#     get excel
-#     """
-#     df = pd.read_excel(
-#         path, sheet_name='多點斷筋', header=[0, 1], usecols=23)
-
-#     df = df.rename(columns=lambda x: x if 'Unnamed' not in str(x) else '')
-
-#     return df
-
-
 class Design:
     """
     excel beam design
@@ -44,9 +32,9 @@ class Design:
         if col is None:
             index = index // 4 * 4
             df = self.df.loc[index].to_dict()
-            for col in list(df):
-                if '主筋' in col or '主筋長度' in col or '腰筋' in col:
-                    del df[col]
+            for column in list(df):
+                if '主筋' in column or '主筋長度' in column or '腰筋' in column:
+                    del df[column]
             return df
 
         # for 主筋 to get its row
@@ -78,6 +66,31 @@ class Design:
         row2 = self.get_num(index + 1, col) * self.get_area(index + 1, col)
 
         return row1 + row2
+
+    def get_length_area(self, index, abs_length):
+        """
+        get absolute length correspond rebar area
+        """
+        left_boundary = (
+            self.get(index, ('主筋長度', '左')) + self.get(index, ('支承寬', '左'))
+        ) / 100
+        right_boundary = (
+            self.get(index, ('梁長', '')) -
+            self.get(index, ('主筋長度', '右')) +
+            self.get(index, ('支承寬', '右'))
+        ) / 100
+
+        if abs_length < left_boundary:
+            col = ('主筋', '左')
+        elif abs_length > right_boundary:
+            col = ('主筋', '右')
+        else:
+            col = ('主筋', '中')
+
+        top = self.get_total_area(index, col)
+        bot = self.get_total_area(index + 2, col)
+
+        return top, bot
 
     def get_num(self, index, col):
         """
