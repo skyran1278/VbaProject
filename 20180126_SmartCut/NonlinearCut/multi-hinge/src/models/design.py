@@ -65,12 +65,14 @@ class Design:
         row1 = self.get_num(index, col) * self.get_area(index, col)
         row2 = self.get_num(index + 1, col) * self.get_area(index + 1, col)
 
-        return row1 + row2
+        return round(row1 + row2, 8)
 
     def get_length_area(self, index, abs_length):
         """
         get absolute length correspond rebar area
         """
+        index = index // 4 * 4
+
         left_boundary = (
             self.get(index, ('主筋長度', '左')) + self.get(index, ('支承寬', '左'))
         ) / 100
@@ -150,7 +152,7 @@ class Design:
         if '@' not in stirrup:
             raise Exception("Invalid index!", (index, col))
 
-        return float(stirrup.split('@')[1])
+        return float(stirrup.split('@')[1]) / 100
 
     def get_shear(self, index, col):
         """
@@ -169,16 +171,20 @@ def main():
 
     design = Design(config['design_path'])
 
+    print(design.get_len())
     print(design.get(1))
     print(design.get(3, ('主筋', '左')))
     print(design.get(2, ('主筋長度', '左')))
-    # print(design.get_story(5))
-
-    # design = get_design(path)
-
-    # print(design[('樓層', '')])
-    # print(design[('主筋', '左')])
-    # print(design.head())
+    print(design.get_total_area(11, ('主筋', '左')))
+    print(design.get_length_area(11, 0.24))
+    print(design.get_num(6, ('主筋', '右')))
+    print(design.get_diameter(6, ('箍筋', '右')))
+    print(design.get_diameter(6, ('主筋', '右')))
+    print(design.get_area(6, ('主筋', '右')))
+    print(design.get_area(6, ('箍筋', '右')))
+    print(design.get_spacing(10, ('箍筋', '右')))
+    print(design.get_shear(10, ('箍筋', '右')))
+    print(design.get_shear(10, ('箍筋', '中')))
 
 
 if __name__ == "__main__":
