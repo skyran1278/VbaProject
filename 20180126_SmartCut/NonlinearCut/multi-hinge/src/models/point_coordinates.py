@@ -81,7 +81,8 @@ def main():
 
     point_coordinates.post(key='1', value=np.array([0, 0]))
     point_coordinates.post(value=[0, 1])
-    point_coordinates.post(value=[0, 1])
+    point_coordinates.post(value=[1 / 3, 1])
+    point_coordinates.post(value=[1 / 3, 1])
     print(point_coordinates.get())
     print(point_coordinates.get('1'))
     print(point_coordinates.get(value=np.array([0, 1])))
