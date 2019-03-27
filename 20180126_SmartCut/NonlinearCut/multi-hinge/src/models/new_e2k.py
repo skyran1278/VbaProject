@@ -23,12 +23,32 @@ class NewE2k(E2k):
         coor_id = []
         for coor in coordinates:
             coor_id.append(self.point_coordinates.get(value=coor))
-            # self.lines.post(value=coor)
 
         length = len(coor_id) - 1
         index = 0
         while index < length:
             self.lines.post(value=[coor_id[index], coor_id[index + 1]])
+            index += 1
+
+    def post_sections(self, section, rebars):
+        """
+        post list of coordinates to lines
+        """
+        length = len(rebars) - 1
+        index = 0
+        while index < length:
+            ati = rebars[index][0]
+            abi = rebars[index][1]
+            atj = rebars[index + 1][0]
+            abj = rebars[index + 1][1]
+
+            new_section = f'{section} {ati} {abi} {atj} {abj}'
+
+            self.sections.post(
+                section=new_section,
+                key=('ATI', 'ABI', 'ATJ', 'ABJ'),
+                value=(ati, abi, atj, abj)
+            )
             index += 1
 
     def _point_coordinates_to_e2k(self, f):

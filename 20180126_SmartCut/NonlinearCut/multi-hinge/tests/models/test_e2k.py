@@ -1,19 +1,28 @@
 """
 test
 """
+# pylint: disable=redefined-outer-name
 import numpy as np
 
-from src.models.e2k import E2k
-from tests.config import config
+import pytest
 
 
-def test_e2k():
+@pytest.fixture(scope='module')
+def e2k():
+    """
+    design config
+    """
+    from tests.config import config
+    from src.models.e2k import E2k
+
+    return E2k(config['e2k_path'])
+
+
+def test_properties(e2k):
     """
     material
     """
     # pylint: disable=line-too-long
-
-    e2k = E2k(config['e2k_path'])
 
     stories = {
         'RF': 3.0, '3F': 3.0, '2F': 3.0, '1F': 3.0, 'BASE': 0.0
@@ -64,6 +73,27 @@ def test_e2k():
     assert e2k.materials == materials
     assert e2k.sections.get() == sections
     np.testing.assert_equal(
-        e2k.point_coordinates.get(), point_coordinates)
+        e2k.point_coordinates.get(), point_coordinates
+    )
     assert e2k.lines.get() == lines
     assert e2k.line_assigns == line_assigns
+
+
+def test_method(e2k):
+    """
+    test method
+    """
+
+    assert e2k.get_section('3F', 'B1') == 'B60X80C28'
+    assert e2k.get_fc('3F', 'B1') == 2800
+    assert e2k.get_fy('3F', 'B1') == 42000
+    assert e2k.get_fyh('3F', 'B1') == 42000
+    assert e2k.get_width('3F', 'B1') == 0.6
+    np.testing.assert_equal(
+        e2k.get_coordinate(bay_id='B1'),
+        (np.array([0., 0.]), np.array([8., 0.]))
+    )
+    np.testing.assert_equal(
+        e2k.get_coordinate(point_id='1'),
+        np.array([0., 0.])
+    )
