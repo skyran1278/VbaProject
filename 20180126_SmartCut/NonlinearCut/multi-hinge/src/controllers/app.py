@@ -19,14 +19,14 @@ def get_points_rebar_area(index, abs_points, design):
     """
     get length point rebar area
     """
-    rebar_points = []
+    point_rebars = []
 
     for abs_length in abs_points:
         top, bot = design.get_length_area(index, abs_length)
 
-        rebar_points.append((top, bot))
+        point_rebars.append((top, bot))
 
-    return rebar_points
+    return point_rebars
 
 
 def main():
@@ -45,9 +45,9 @@ def main():
     for index in range(0, design.get_len(), 4):
         abs_points, rel_points = get_points(index, design, e2k)
 
-        section = design.get(index)
-        story = section[('樓層', '')]
-        bay_id = section[('編號', '')]
+        beam = design.get(index)
+        story = beam[('樓層', '')]
+        bay_id = beam[('編號', '')]
 
         coordinates = get_points_coordinates(bay_id, rel_points, e2k)
 
@@ -56,13 +56,16 @@ def main():
 
         section = e2k.get_section(story, bay_id)
 
-        rebar_points = get_points_rebar_area(index, abs_points, design)
+        point_rebars = get_points_rebar_area(index, abs_points, design)
+
+        new_e2k.post_sections(section, point_rebars)
 
         print(abs_points)
-        print(rebar_points)
+        print(point_rebars)
 
-        print(new_e2k.point_coordinates.get())
-        print(new_e2k.lines.get())
+    print(new_e2k.point_coordinates.get())
+    print(new_e2k.lines.get())
+    print(new_e2k.sections.get())
 
     new_e2k.to_e2k()
 

@@ -60,11 +60,39 @@ def test_length_area(design):
     test length_area
     """
     assert design.get_length_area(11, 0.24) == (0.0050323, 0.0027097)
+
+
+def test_num(design):
+    """
+    test num
+    """
     assert design.get_num(6, ('主筋', '右')) == 0
+    assert design.get_num(8, ('主筋', '右')) == 9
+
+
+def test_dia(design):
+    """
+    test dia
+    """
+
     assert design.get_diameter(6, ('箍筋', '右')) == 0.0127
     assert design.get_diameter(6, ('主筋', '右')) == 0
+
+
+def test_area(design):
+    """
+    test area
+    """
+
     assert design.get_area(6, ('主筋', '右')) == 0
     assert design.get_area(6, ('箍筋', '右')) == 0.0002534
+
+
+def test_spacing(design):
+    """
+    test spacing
+    """
+
     assert design.get_spacing(10, ('箍筋', '右')) == 0.15
     assert isclose(design.get_shear(10, ('箍筋', '右')), 0.0016893333333333333)
     assert design.get_shear(10, ('箍筋', '中')) == 0.001267

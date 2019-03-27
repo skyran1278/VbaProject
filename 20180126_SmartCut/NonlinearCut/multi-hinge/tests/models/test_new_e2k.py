@@ -99,3 +99,7 @@ def test_post_sections(new_e2k):
             'ATI': 0.0046452, 'ABI': 0.0027097, 'ATJ': 0.0046452, 'ABJ': 0.0027097
         }
     }
+
+    new_e2k.post_sections('B60X80C28', point_rebars)
+
+    assert new_e2k.sections.get() == data

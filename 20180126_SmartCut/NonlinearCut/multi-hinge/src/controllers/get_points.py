@@ -6,26 +6,20 @@ import numpy as np
 from src.utils.get_ld import get_ld
 
 
-def _get_conservative_stirrup(index, left_or_right, design):
+def _get_conservative_stirrup(index, side, design):
     # pylint: disable=invalid-name
-    if design.get(index, ('主筋長度', left_or_right)) <= design.get(index, ('箍筋長度', left_or_right)):
-        dh = design.get_diameter(index, ('箍筋', left_or_right))
-        ah = design.get_area(index, ('箍筋', left_or_right))
-        spacing = design.get_spacing(index, ('箍筋', left_or_right))
+    control_position = side
 
-    else:
-        shear = design.get_shear(index, ('箍筋', left_or_right))
+    if design.get(index, ('主筋長度', side)) > design.get(index, ('箍筋長度', side)):
+        shear_side = design.get_shear(index, ('箍筋', side))
         shear_mid = design.get_shear(index, ('箍筋', '中'))
 
-        if shear < shear_mid:
-            dh = design.get_diameter(index, ('箍筋', left_or_right))
-            ah = design.get_area(index, ('箍筋', left_or_right))
-            spacing = design.get_spacing(index, ('箍筋', left_or_right))
+        if shear_mid > shear_side:
+            control_position = '中'
 
-        else:
-            dh = design.get_diameter(index, ('箍筋', '中'))
-            ah = design.get_area(index, ('箍筋', '中'))
-            spacing = design.get_spacing(index, ('箍筋', '中'))
+    dh = design.get_diameter(index, ('箍筋', control_position))
+    ah = design.get_area(index, ('箍筋', control_position))
+    spacing = design.get_spacing(index, ('箍筋', control_position))
 
     return dh, ah, spacing
 
@@ -52,7 +46,6 @@ def get_points(section_index, design, e2k):
         bay_id = section[('編號', '')]
         num = design.get_num(index, ('主筋', left_or_right))
         db = design.get_diameter(index, ('主筋', left_or_right))
-        spacing = design.get_spacing(index, ('箍筋', left_or_right))
 
         fc = e2k.get_fc(story, bay_id)
         fy = e2k.get_fy(story, bay_id)
