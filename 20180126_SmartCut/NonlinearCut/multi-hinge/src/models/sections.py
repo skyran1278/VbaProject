@@ -12,7 +12,7 @@ class Sections:
     def __init__(self):
         self.__data = defaultdict(dict)
 
-    def post(self, section, data, copy_from=None):
+    def post(self, section, data=None, copy_from=None):
         """
         post
         """
@@ -23,13 +23,6 @@ class Sections:
             self.__data[section] = {
                 **self.__data[section], **data
             }
-
-        # elif isinstance(keys, (list, tuple)):
-        #     for (key, value) in zip(keys, values):
-        #         self.__data[section][key] = value
-
-        # else:
-        #     self.__data[section][keys] = values
 
     def get(self, section=None, key=None):
         """
