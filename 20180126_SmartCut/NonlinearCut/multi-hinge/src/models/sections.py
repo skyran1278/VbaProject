@@ -5,13 +5,25 @@ from collections import defaultdict
 
 
 class Sections:
+    """
+    sections
+    """
+
     def __init__(self):
         self.__data = defaultdict(dict)
 
-    def post(self, section, key, value):
+    def post(self, section=None, key=None, value=None):
+        """
+        post
+        """
         self.__data[section][key] = value
 
-    def get(self, section, key):
+    def get(self, section=None, key=None):
+        """
+        get
+        """
+        if section is None:
+            return self.__data
         return self.__data[section][key]
 
 

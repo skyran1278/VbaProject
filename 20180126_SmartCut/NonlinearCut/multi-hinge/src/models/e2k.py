@@ -8,6 +8,7 @@ from collections import defaultdict
 from src.utils.load_file import load_file
 from src.models.point_coordinates import PointCoordinates
 from src.models.lines import Lines
+from src.models.sections import Sections
 
 
 class E2k:
@@ -24,7 +25,7 @@ class E2k:
 
         self.stories = {}
         self.materials = {}
-        self.sections = defaultdict(dict)
+        self.sections = Sections()
         self.point_coordinates = PointCoordinates()
         self.lines = Lines()
         # self.point_assigns = {}
@@ -57,23 +58,23 @@ class E2k:
     def _post_section(self):
         words = self.words
         if self.title == '$ FRAME SECTIONS' and words[5] == 'Concrete Rectangular':
-            section_name = words[1]
-            self.sections[section_name]['FC'] = words[3]
-            self.sections[section_name]['D'] = float(words[7])
-            self.sections[section_name]['B'] = float(words[9])
+            section = words[1]
+            self.sections.post(section, 'FC', words[3])
+            self.sections.post(section, 'D', float(words[7]))
+            self.sections.post(section, 'B', float(words[9]))
 
         if self.title == '$ FRAME SECTIONS' and words[-2] == 'I3MOD':
-            section_name = words[1]
+            section = words[1]
             count = 2
             while count < len(words):
-                self.sections[section_name][words[count]
-                                            ] = float(words[count + 1])
+                self.sections.post(
+                    section, words[count], float(words[count + 1]))
                 count += 2
 
         if self.title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
-            section_name = words[1]
-            self.sections[section_name]['FY'] = words[3]
-            self.sections[section_name]['FYH'] = words[5]
+            section = words[1]
+            self.sections.post(section, 'FY', words[3])
+            self.sections.post(section, 'FYH', words[5])
 
     def _post_point_coordinate(self):
         words = self.words
@@ -122,8 +123,6 @@ class E2k:
             self._post_line()
             self._post_line_assign()
 
-        self.sections = dict(self.sections)
-
     def get_section(self, story, bay_id):
         return self.line_assigns[(story, bay_id)]
 
@@ -132,7 +131,7 @@ class E2k:
         get fc
         """
         section = self.line_assigns[(story, bay_id)]
-        material = self.sections[section]['FC']
+        material = self.sections.get(section, 'FC')
 
         return self.materials[material]
 
@@ -141,7 +140,7 @@ class E2k:
         get fy
         """
         section = self.line_assigns[(story, bay_id)]
-        material = self.sections[section]['FY']
+        material = self.sections.get(section, 'FY')
 
         return self.materials[material]
 
@@ -150,7 +149,7 @@ class E2k:
         get fyh
         """
         section = self.line_assigns[(story, bay_id)]
-        material = self.sections[section]['FYH']
+        material = self.sections.get(section, 'FYH')
 
         return self.materials[material]
 
@@ -160,7 +159,7 @@ class E2k:
         """
         section = self.line_assigns[(story, bay_id)]
 
-        return self.sections[section]['B']
+        return self.sections.get(section, 'B')
 
     def get_coordinate(self, bay_id=None, point_id=None):
         """
@@ -184,7 +183,7 @@ def main():
 
     print(e2k.stories)
     print(e2k.materials)
-    print(e2k.sections)
+    print(e2k.sections.get())
     print(e2k.point_coordinates.get())
     print(e2k.lines.get())
     print(e2k.line_assigns)
