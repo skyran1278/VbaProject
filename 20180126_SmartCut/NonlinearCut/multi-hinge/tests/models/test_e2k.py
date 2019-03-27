@@ -15,7 +15,7 @@ def e2k():
     from tests.config import config
     from src.models.e2k import E2k
 
-    return E2k(config['e2k_path'])
+    return E2k(config['e2k_path_test_v1'])
 
 
 def test_properties(e2k):

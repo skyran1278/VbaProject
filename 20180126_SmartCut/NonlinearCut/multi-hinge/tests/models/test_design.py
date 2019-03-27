@@ -15,7 +15,7 @@ def design():
     from tests.config import config
     from src.models.design import Design
 
-    return Design(config['design_path'])
+    return Design(config['design_path_test_v1'])
 
 
 def test_get(design):

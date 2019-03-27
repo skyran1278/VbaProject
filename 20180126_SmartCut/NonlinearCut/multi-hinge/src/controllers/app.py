@@ -36,17 +36,17 @@ def main():
 
     from tests.config import config
 
-    design = Design(config['design_path'])
+    design = Design(config['design_path_test_v2'])
 
-    e2k = E2k(config['e2k_path'])
+    e2k = E2k(config['e2k_path_test_v2'])
 
-    new_e2k = NewE2k(config['e2k_path'])
+    new_e2k = NewE2k(config['e2k_path_test_v2'])
 
     for index in range(0, design.get_len(), 4):
         abs_points, rel_points = get_points(index, design, e2k)
 
         section = design.get(index)
-        # story = section[('樓層', '')]
+        story = section[('樓層', '')]
         bay_id = section[('編號', '')]
 
         coordinates = get_points_coordinates(bay_id, rel_points, e2k)
@@ -54,8 +54,11 @@ def main():
         new_e2k.post_point_coordinates(coordinates)
         new_e2k.post_lines(coordinates)
 
+        section = e2k.get_section(story, bay_id)
+
         rebar_points = get_points_rebar_area(index, abs_points, design)
 
+        print(abs_points)
         print(rebar_points)
 
         print(new_e2k.point_coordinates.get())
