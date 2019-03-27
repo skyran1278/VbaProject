@@ -34,7 +34,7 @@ def test_e2k():
 
     sections = {
         'B60X80C28': {
-            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'JMOD': 0.0001, 'I2MOD': 0.7, 'I3MOD': 0.7, 'FY': 'RMAT', 'FYH': 'RMAT'
+            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'JMOD': 0.0001, 'I2MOD': 0.7, 'I3MOD': 0.7, 'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': 0.08, 'COVERBOTTOM': 0.08, 'ATI': 0, 'ABI': 0, 'ATJ': 0, 'ABJ': 0
         },
         'C90X90C28': {
             'FC': 'C280', 'D': 0.9, 'B': 0.9, 'JMOD': 0.0001, 'I2MOD': 0.7, 'I3MOD': 0.7

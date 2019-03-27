@@ -3,7 +3,7 @@ e2k model
 """
 import shlex
 
-from collections import defaultdict
+# from collections import defaultdict
 
 from src.utils.load_file import load_file
 from src.models.point_coordinates import PointCoordinates
@@ -20,9 +20,6 @@ class E2k:
         self.path = path
         self.content = load_file(path)
 
-        self.title = ''
-        self.words = ''
-
         self.stories = {}
         self.materials = {}
         self.sections = Sections()
@@ -33,72 +30,7 @@ class E2k:
 
         self._init_e2k()
 
-    def _check_version(self):
-        if self.title == '$ PROGRAM INFORMATION':
-            if self.words[1] != 'ETABS 2016':
-                print('PROGRAM should be "ETABS 2016"')
-
-    def _check_unit(self):
-        words = self.words
-        if self.title == '$ CONTROLS' and words[0] == 'UNITS':
-            if words[1] != 'TON' and words[2] != 'M' and words[3] != 'C':
-                print('UNITS should be "TON"  "M"  "C"')
-
-    def _post_story(self):
-        if self.title == '$ STORIES - IN SEQUENCE FROM TOP':
-            self.stories[self.words[1]] = float(self.words[3])
-
-    def _post_material(self):
-        words = self.words
-        if self.title == '$ MATERIAL PROPERTIES' and (words[2] == 'FC' or words[2] == 'FY'):
-            if words[1] in self.materials:
-                raise Exception('Material name duplicate!', words[1])
-            self.materials[words[1]] = float(words[3])
-
-    def _post_section(self):
-        words = self.words
-        if self.title == '$ FRAME SECTIONS' and words[5] == 'Concrete Rectangular':
-            section = words[1]
-            self.sections.post(section, 'FC', words[3])
-            self.sections.post(section, 'D', float(words[7]))
-            self.sections.post(section, 'B', float(words[9]))
-
-        if self.title == '$ FRAME SECTIONS' and words[-2] == 'I3MOD':
-            section = words[1]
-            count = 2
-            while count < len(words):
-                self.sections.post(
-                    section, words[count], float(words[count + 1]))
-                count += 2
-
-        if self.title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
-            section = words[1]
-            self.sections.post(section, 'FY', words[3])
-            self.sections.post(section, 'FYH', words[5])
-
-    def _post_point_coordinate(self):
-        words = self.words
-        if self.title == '$ POINT COORDINATES':
-            self.point_coordinates.post(
-                words[1], (float(words[2]), float(words[3])))
-
-    # def _post_point_assign(self):
-    #     words = self.words
-    #     if self.title == '$ POINT ASSIGNS':
-    #         self.point_assigns[(words[1], words[2])] = [
-    #             float(words[2]), float(words[3])]
-
-    def _post_line(self):
-        words = self.words
-        if self.title == '$ LINE CONNECTIVITIES' and words[2] == 'BEAM':
-            self.lines.post(words[1], [words[3], words[4]])
-
-    def _post_line_assign(self):
-        words = self.words
-        if self.title == '$ LINE ASSIGNS':
-            self.line_assigns[(words[2], words[1])] = words[4]
-
-    def _init_e2k(self):
+    def _init_e2k(self):  # pylint: disable=too-many-branches
         for line in self.content:
             # skip space line
             if line == '':
@@ -107,23 +39,72 @@ class E2k:
             # split by space, but ignore space in quotes
             # also adress too many space
             # convenience method
-            self.words = shlex.split(line)
+            words = shlex.split(line)
 
-            if self.words[0] == '$':
+            if words[0] == '$':
                 # post title
-                self.title = line
+                title = line
                 continue
 
-            self._check_version()
-            self._check_unit()
-            self._post_story()
-            self._post_material()
-            self._post_section()
-            self._post_point_coordinate()
-            self._post_line()
-            self._post_line_assign()
+            if title == '$ PROGRAM INFORMATION':
+                if words[1] != 'ETABS 2016':
+                    print('PROGRAM should be "ETABS 2016"')
+
+            elif title == '$ CONTROLS' and words[0] == 'UNITS':
+                if words[1] != 'TON' and words[2] != 'M' and words[3] != 'C':
+                    print('UNITS should be "TON"  "M"  "C"')
+
+            elif title == '$ STORIES - IN SEQUENCE FROM TOP':
+                self.stories[words[1]] = float(words[3])
+
+            elif title == '$ MATERIAL PROPERTIES' and (words[2] == 'FC' or words[2] == 'FY'):
+                if words[1] in self.materials:
+                    raise Exception('Material name duplicate!', words[1])
+                self.materials[words[1]] = float(words[3])
+
+            elif title == '$ FRAME SECTIONS' and words[5] == 'Concrete Rectangular':
+                section = words[1]
+                self.sections.post(section, 'FC', words[3])
+                self.sections.post(section, 'D', float(words[7]))
+                self.sections.post(section, 'B', float(words[9]))
+
+            elif title == '$ FRAME SECTIONS' and words[2] != 'MATERIAL':
+                section = words[1]
+                count = 2
+                while count < len(words):
+                    self.sections.post(
+                        section, words[count], float(words[count + 1]))
+                    count += 2
+
+            elif title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
+                section = words[1]
+                self.sections.post(section, 'FY', words[3])
+                self.sections.post(section, 'FYH', words[5])
+                self.sections.post(section, 'COVERTOP', float(words[9]))
+                self.sections.post(section, 'COVERBOTTOM', float(words[11]))
+                self.sections.post(section, 'ATI', float(words[13]))
+                self.sections.post(section, 'ABI', float(words[15]))
+                self.sections.post(section, 'ATJ', float(words[17]))
+                self.sections.post(section, 'ABJ', float(words[19]))
+
+            elif title == '$ POINT COORDINATES':
+                self.point_coordinates.post(
+                    words[1], (float(words[2]), float(words[3])))
+
+            elif title == '$ LINE CONNECTIVITIES' and words[2] == 'BEAM':
+                self.lines.post(words[1], [words[3], words[4]])
+
+            # elif title == '$ POINT ASSIGNS':
+            #     self.point_assigns[(words[1], words[2])] = [
+            #         float(words[2]), float(words[3])]
+
+            elif title == '$ LINE ASSIGNS':
+                self.line_assigns[(words[2], words[1])] = words[4]
 
     def get_section(self, story, bay_id):
+        """
+        sections
+        """
         return self.line_assigns[(story, bay_id)]
 
     def get_fc(self, story, bay_id):
