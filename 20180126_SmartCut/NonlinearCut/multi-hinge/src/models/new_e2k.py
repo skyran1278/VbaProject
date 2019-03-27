@@ -46,12 +46,12 @@ class NewE2k(E2k):
 
             self.sections.post(
                 section=new_section,
-                key=('ATI', 'ABI', 'ATJ', 'ABJ'),
-                value=(ati, abi, atj, abj)
+                keys=('ATI', 'ABI', 'ATJ', 'ABJ'),
+                values=(ati, abi, atj, abj)
             )
             index += 1
 
-    def _point_coordinates_to_e2k(self, f):
+    def __point_coordinates_to_e2k(self, f):
         f.write('$ POINT COORDINATES')
         f.write('\n')
         coor = self.point_coordinates.get()
@@ -78,7 +78,7 @@ class NewE2k(E2k):
 
                 # write once
                 if line == '$ POINT COORDINATES':
-                    self._point_coordinates_to_e2k(f)
+                    self.__point_coordinates_to_e2k(f)
 
                 if not title == '$ POINT COORDINATES':
                     f.write(line)
@@ -102,20 +102,22 @@ def main():
         [8., 0.]
     ]
 
-    # a = {
-    #     '1': [1, 2],
-    #     '2': 2
-    # }
-
-    # print(a.values())
-
-    # if [1, 2] in a.values():
-    #     print('ok')
+    point_rebars = [
+        (0.0046452, 0.0027097),
+        (0.0046452, 0.0027097),
+        (0.0046452, 0.0027097),
+        (0.0046452, 0.0027097),
+        (0.0046452, 0.0027097),
+        (0.0046452, 0.0027097)
+    ]
 
     new_e2k.post_point_coordinates(coordinates)
-    print(new_e2k.point_coordinates.get())
-    new_e2k.to_e2k()
     new_e2k.post_lines(coordinates)
+    new_e2k.post_sections('B60X80C28', point_rebars)
+    print(new_e2k.point_coordinates.get())
+    print(new_e2k.lines.get())
+    print(new_e2k.sections.get())
+    new_e2k.to_e2k()
 
 
 if __name__ == "__main__":

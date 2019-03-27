@@ -1,11 +1,10 @@
 """
 test
 """
+# pylint: disable=redefined-outer-name
 from math import isclose
 
 import pytest
-
-# pylint: disable=redefined-outer-name
 
 
 @pytest.fixture(scope='module')
@@ -49,11 +48,17 @@ def test_len(design):
     assert design.get_len() == 12
 
 
-def test_simple_function(design):
+def test_total_area(design):
     """
-    test simple_function
+    test total_area
     """
     assert design.get_total_area(11, ('主筋', '左')) == 0.0027097
+
+
+def test_length_area(design):
+    """
+    test length_area
+    """
     assert design.get_length_area(11, 0.24) == (0.0050323, 0.0027097)
     assert design.get_num(6, ('主筋', '右')) == 0
     assert design.get_diameter(6, ('箍筋', '右')) == 0.0127

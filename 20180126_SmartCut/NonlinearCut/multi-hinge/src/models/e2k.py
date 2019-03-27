@@ -168,6 +168,13 @@ def main():
     print(e2k.point_coordinates.get())
     print(e2k.lines.get())
     print(e2k.line_assigns)
+    print(e2k.get_section('3F', 'B1'))
+    print(e2k.get_fc('3F', 'B1'))
+    print(e2k.get_fy('3F', 'B1'))
+    print(e2k.get_fyh('3F', 'B1'))
+    print(e2k.get_width('3F', 'B1'))
+    print(e2k.get_coordinate(bay_id='B1'))
+    print(e2k.get_coordinate(point_id='1'))
 
 
 if __name__ == "__main__":
