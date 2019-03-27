@@ -64,28 +64,41 @@ class E2k:
 
             elif title == '$ FRAME SECTIONS' and words[5] == 'Concrete Rectangular':
                 section = words[1]
-                self.sections.post(section, 'FC', words[3])
-                self.sections.post(section, 'D', float(words[7]))
-                self.sections.post(section, 'B', float(words[9]))
+
+                self.sections.post(
+                    section,
+                    {
+                        'FC': words[3],
+                        'D': float(words[7]),
+                        'B': float(words[9])
+                    }
+                )
 
             elif title == '$ FRAME SECTIONS' and words[2] != 'MATERIAL':
                 section = words[1]
                 count = 2
                 while count < len(words):
                     self.sections.post(
-                        section, words[count], float(words[count + 1]))
+                        section, {
+                            words[count]: float(words[count + 1])
+                        })
                     count += 2
 
             elif title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
                 section = words[1]
-                self.sections.post(section, 'FY', words[3])
-                self.sections.post(section, 'FYH', words[5])
-                self.sections.post(section, 'COVERTOP', float(words[9]))
-                self.sections.post(section, 'COVERBOTTOM', float(words[11]))
-                self.sections.post(section, 'ATI', float(words[13]))
-                self.sections.post(section, 'ABI', float(words[15]))
-                self.sections.post(section, 'ATJ', float(words[17]))
-                self.sections.post(section, 'ABJ', float(words[19]))
+                self.sections.post(
+                    section,
+                    {
+                        'FY': words[3],
+                        'FYH': words[5],
+                        'COVERTOP': float(words[9]),
+                        'COVERBOTTOM': float(words[11]),
+                        'ATI': float(words[13]),
+                        'ABI': float(words[15]),
+                        'ATJ': float(words[17]),
+                        'ABJ': float(words[19])
+                    }
+                )
 
             elif title == '$ POINT COORDINATES':
                 self.point_coordinates.post(

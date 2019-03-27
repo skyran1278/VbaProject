@@ -12,7 +12,7 @@ class Sections:
     def __init__(self):
         self.__data = defaultdict(dict)
 
-    def post(self, section=None, keys=None, values=None, data=None, copy_from=None):
+    def post(self, section, data, copy_from=None):
         """
         post
         """
@@ -24,23 +24,12 @@ class Sections:
                 **self.__data[section], **data
             }
 
-        elif isinstance(keys, (list, tuple)):
-            for (key, value) in zip(keys, values):
-                self.__data[section][key] = value
+        # elif isinstance(keys, (list, tuple)):
+        #     for (key, value) in zip(keys, values):
+        #         self.__data[section][key] = value
 
-        else:
-            self.__data[section][keys] = values
-
-    def copy(self, new_section, copy_from, data=None):
-        """
-        add a copy section
-        """
-        if data is None:
-            data = {}
-
-        self.__data[new_section] = {
-            **self.get(section=copy_from), **data
-        }
+        # else:
+        #     self.__data[section][keys] = values
 
     def get(self, section=None, key=None):
         """
@@ -67,16 +56,9 @@ def main():
         'FC': 2800
     }
 
-    sections.post(section='B60', keys='FYH', values=28000)
-    sections.post(
-        section='B60',
-        keys=('FY', 'FC', 'B'),
-        values=(42000, 2800, 0.6)
-    )
+    sections.post('B60', {'FYH': 28000})
     sections.post(section='B60', data=data)
-    sections.copy(new_section='B601', copy_from='B60', data={'FY': 42000})
-    print(sections.get('B60'))
-    print(sections.get('B60', 'FC'))
+    sections.post(section='B601', copy_from='B60', data={'FY': 42000})
     print(sections.get())
 
     # sections.get('B60', 'FQ')

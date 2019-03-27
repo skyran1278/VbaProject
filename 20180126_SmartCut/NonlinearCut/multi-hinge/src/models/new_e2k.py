@@ -44,11 +44,15 @@ class NewE2k(E2k):
 
             new_section = f'{section} {ati} {abi} {atj} {abj}'
 
-            self.sections.post(
-                section=new_section,
-                keys=('ATI', 'ABI', 'ATJ', 'ABJ'),
-                values=(ati, abi, atj, abj)
-            )
+            data = {
+                'ATI': ati,
+                'ABI': abi,
+                'ATJ': atj,
+                'ABJ': abj
+            }
+
+            self.sections.post(new_section, data, copy_from=section)
+
             index += 1
 
     def __point_coordinates_to_e2k(self, f):
