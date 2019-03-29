@@ -58,15 +58,15 @@ def test_properties(e2k):
     lines = {'B1': ['1', '2']}
 
     line_assigns = {
-        ('2F', 'B1'): 'B60X80C28',
-        ('2F', 'C1'): 'C90X90C28',
-        ('2F', 'C2'): 'C90X90C28',
-        ('RF', 'B1'): 'B60X80C28',
-        ('RF', 'C1'): 'C90X90C28',
-        ('RF', 'C2'): 'C90X90C28',
-        ('3F', 'B1'): 'B60X80C28',
-        ('3F', 'C1'): 'C90X90C28',
-        ('3F', 'C2'): 'C90X90C28'
+        ('2F', 'B1'): {'SECTION': 'B60X80C28', 'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'},
+        ('2F', 'C1'): {'SECTION': 'C90X90C28', 'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'},
+        ('2F', 'C2'): {'SECTION': 'C90X90C28', 'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'},
+        ('RF', 'B1'): {'SECTION': 'B60X80C28', 'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'},
+        ('RF', 'C1'): {'SECTION': 'C90X90C28', 'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'},
+        ('RF', 'C2'): {'SECTION': 'C90X90C28', 'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'},
+        ('3F', 'B1'): {'SECTION': 'B60X80C28', 'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'},
+        ('3F', 'C1'): {'SECTION': 'C90X90C28', 'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'},
+        ('3F', 'C2'): {'SECTION': 'C90X90C28', 'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'}
     }
 
     assert e2k.stories == stories
@@ -76,7 +76,7 @@ def test_properties(e2k):
         e2k.point_coordinates.get(), point_coordinates
     )
     assert e2k.lines.get() == lines
-    assert e2k.line_assigns == line_assigns
+    assert e2k.line_assigns.get() == line_assigns
 
 
 def test_method(e2k):

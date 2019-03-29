@@ -52,20 +52,23 @@ def main():
         coordinates = get_points_coordinates(bay_id, rel_points, e2k)
 
         new_e2k.post_point_coordinates(coordinates)
-        new_e2k.post_lines(coordinates)
+        bay_ids = new_e2k.post_lines(coordinates)
 
         section = e2k.get_section(story, bay_id)
 
         point_rebars = get_points_rebar_area(index, abs_points, design)
 
-        new_e2k.post_sections(section, point_rebars)
+        sections = new_e2k.post_sections(section, point_rebars)
 
-        print(abs_points)
-        print(point_rebars)
+        new_e2k.post_line_assigns(bay_ids, sections, copy_from=(story, bay_id))
+
+        # print(abs_points)
+        # print(point_rebars)
 
     print(new_e2k.point_coordinates.get())
     print(new_e2k.lines.get())
-    print(new_e2k.sections.get())
+    # print(new_e2k.sections.get())
+    print(new_e2k.line_assigns.get())
 
     new_e2k.to_e2k()
 

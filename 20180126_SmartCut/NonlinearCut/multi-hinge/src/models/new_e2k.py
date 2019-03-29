@@ -20,6 +20,7 @@ class NewE2k(E2k):
         """
         post list of coordinates to lines
         """
+        line_keys = []
         coor_id = []
         for coor in coordinates:
             coor_id.append(self.point_coordinates.get(value=coor))
@@ -27,13 +28,19 @@ class NewE2k(E2k):
         length = len(coor_id) - 1
         index = 0
         while index < length:
-            self.lines.post(value=[coor_id[index], coor_id[index + 1]])
+            line_keys.append(
+                self.lines.post(value=[coor_id[index], coor_id[index + 1]])
+            )
             index += 1
+
+        return line_keys
 
     def post_sections(self, section, rebars):
         """
         post list of coordinates to lines
         """
+        new_sections = []
+
         length = len(rebars) - 1
         index = 0
         while index < length:
@@ -54,6 +61,25 @@ class NewE2k(E2k):
             self.sections.post(new_section, data, copy_from=section)
 
             index += 1
+
+            new_sections.append(new_section)
+
+        return new_sections
+
+    def post_line_assigns(self, lines, sections, copy_from):
+        """
+        combine line and section
+        """
+        story, _ = copy_from
+
+        for line, section in zip(lines, sections):
+            self.line_assigns.post(
+                key=(story, line),
+                data={
+                    'SECTION': section
+                },
+                copy_from=copy_from
+            )
 
     def __point_coordinates_to_e2k(self, f):
         f.write('$ POINT COORDINATES')

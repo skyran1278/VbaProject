@@ -29,7 +29,8 @@ class Lines:
             raise Exception("value isn't list")
 
         if value in self.__data.values():
-            return
+            # FIXME: will return None
+            return key
 
         if key is None:
             int_key = 1
@@ -43,6 +44,8 @@ class Lines:
 
         self.__data[key] = value
         self.__keys.append(int(key[1:]))
+
+        return key
 
 
 def main():

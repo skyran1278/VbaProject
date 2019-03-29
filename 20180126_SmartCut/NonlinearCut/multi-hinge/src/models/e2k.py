@@ -9,6 +9,7 @@ from src.utils.load_file import load_file
 from src.models.point_coordinates import PointCoordinates
 from src.models.lines import Lines
 from src.models.sections import Sections
+from src.models.line_assigns import LineAssigns
 
 
 class E2k:
@@ -26,7 +27,7 @@ class E2k:
         self.point_coordinates = PointCoordinates()
         self.lines = Lines()
         # self.point_assigns = {}
-        self.line_assigns = {}
+        self.line_assigns = LineAssigns()
 
         self._init_e2k()
 
@@ -112,19 +113,25 @@ class E2k:
             #         float(words[2]), float(words[3])]
 
             elif title == '$ LINE ASSIGNS':
-                self.line_assigns[(words[2], words[1])] = words[4]
+                count = 3
+                while count < len(words):
+                    self.line_assigns.post(
+                        (words[2], words[1]), {
+                            words[count]: words[count + 1]
+                        })
+                    count += 2
 
     def get_section(self, story, bay_id):
         """
         sections
         """
-        return self.line_assigns[(story, bay_id)]
+        return self.line_assigns.get((story, bay_id))
 
     def get_fc(self, story, bay_id):
         """
         get fc
         """
-        section = self.line_assigns[(story, bay_id)]
+        section = self.line_assigns.get((story, bay_id))
         material = self.sections.get(section, 'FC')
 
         return self.materials[material]
@@ -133,7 +140,7 @@ class E2k:
         """
         get fy
         """
-        section = self.line_assigns[(story, bay_id)]
+        section = self.line_assigns.get((story, bay_id))
         material = self.sections.get(section, 'FY')
 
         return self.materials[material]
@@ -142,7 +149,7 @@ class E2k:
         """
         get fyh
         """
-        section = self.line_assigns[(story, bay_id)]
+        section = self.line_assigns.get((story, bay_id))
         material = self.sections.get(section, 'FYH')
 
         return self.materials[material]
@@ -151,7 +158,7 @@ class E2k:
         """
         get width
         """
-        section = self.line_assigns[(story, bay_id)]
+        section = self.line_assigns.get((story, bay_id))
 
         return self.sections.get(section, 'B')
 
@@ -173,14 +180,14 @@ def main():
     """
     from tests.config import config
 
-    e2k = E2k(config['e2k_path'])
+    e2k = E2k(config['e2k_path_test_v1'])
 
     print(e2k.stories)
     print(e2k.materials)
     print(e2k.sections.get())
     print(e2k.point_coordinates.get())
     print(e2k.lines.get())
-    print(e2k.line_assigns)
+    print(e2k.line_assigns.get())
     print(e2k.get_section('3F', 'B1'))
     print(e2k.get_fc('3F', 'B1'))
     print(e2k.get_fy('3F', 'B1'))
