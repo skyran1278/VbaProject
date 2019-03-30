@@ -58,15 +58,15 @@ def test_post_lines(new_e2k):
         [8., 0.]
     ]
 
-    new_e2k.post_lines(coordinates)
+    assert new_e2k.post_lines(coordinates) == ['B2', 'B3', 'B4', 'B5', 'B6']
 
     lines = {
-        'B1': ['1', '2'],
-        'B2': ['1', '3'],
-        'B3': ['3', '4'],
-        'B4': ['4', '5'],
-        'B5': ['5', '6'],
-        'B6': ['6', '2']
+        'B1': ('1', '2'),
+        'B2': ('1', '3'),
+        'B3': ('3', '4'),
+        'B4': ('4', '5'),
+        'B5': ('5', '6'),
+        'B6': ('6', '2')
     }
 
     assert new_e2k.lines.get() == lines

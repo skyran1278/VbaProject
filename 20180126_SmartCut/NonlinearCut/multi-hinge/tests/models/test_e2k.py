@@ -55,7 +55,7 @@ def test_properties(e2k):
         '2': np.array([8.0, 0.0])
     }
 
-    lines = {'B1': ['1', '2']}
+    lines = {'B1': ('1', '2')}
 
     line_assigns = {
         ('2F', 'B1'): {'SECTION': 'B60X80C28', 'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'},

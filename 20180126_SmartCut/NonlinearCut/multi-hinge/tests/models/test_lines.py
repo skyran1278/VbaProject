@@ -10,9 +10,9 @@ def test_lines():
     """
     lines = Lines()
 
-    lines.post(key='B1', value=['1', '2'])
-    lines.post(value=['2', '3'])
-    lines.post(value=['1', '2'])
+    assert lines.post(key='B1', value=['1', '2']) == 'B1'
+    assert lines.post(value=['2', '3']) == 'B2'
+    assert lines.post(value=['1', '2']) == 'B1'
 
-    assert lines.get() == {'B1': ['1', '2'], 'B2': ['2', '3']}
-    assert lines.get('B1') == ['1', '2']
+    assert lines.get() == {'B1': ('1', '2'), 'B2': ('2', '3')}
+    assert lines.get('B1') == ('1', '2')

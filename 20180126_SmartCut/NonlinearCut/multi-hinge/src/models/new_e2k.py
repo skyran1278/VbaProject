@@ -121,7 +121,7 @@ def main():
     """
     from tests.config import config
 
-    new_e2k = NewE2k(config['e2k_path'])
+    new_e2k = NewE2k(config['e2k_path_test_v1'])
 
     coordinates = [
         [0., 0.],
@@ -142,7 +142,7 @@ def main():
     ]
 
     new_e2k.post_point_coordinates(coordinates)
-    new_e2k.post_lines(coordinates)
+    print(new_e2k.post_lines(coordinates))
     new_e2k.post_sections('B60X80C28', point_rebars)
     print(new_e2k.point_coordinates.get())
     print(new_e2k.lines.get())
