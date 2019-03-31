@@ -82,13 +82,12 @@ def test_post_sections(new_e2k):
 
     data = {
         'B60X80C28': {
-            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'JMOD': 0.0001, 'I2MOD': 0.7, 'I3MOD': 0.7,
+            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'Property Modifiers': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7',
             'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': 0.08, 'COVERBOTTOM': 0.08,
             'ATI': 0.0, 'ABI': 0.0, 'ATJ': 0.0, 'ABJ': 0.0
         },
-        'C90X90C28': {'FC': 'C280', 'D': 0.9, 'B': 0.9, 'JMOD': 0.0001, 'I2MOD': 0.7, 'I3MOD': 0.7},
         'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097': {
-            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'JMOD': 0.0001, 'I2MOD': 0.7, 'I3MOD': 0.7,
+            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'Property Modifiers': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7',
             'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': 0.08, 'COVERBOTTOM': 0.08,
             'ATI': 0.0046452, 'ABI': 0.0027097, 'ATJ': 0.0046452, 'ABJ': 0.0027097
         }

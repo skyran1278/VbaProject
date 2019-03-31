@@ -83,7 +83,7 @@ class E2k:
                 while count < len(words):
                     self.sections.post(
                         section, {
-                            words[count]: float(words[count + 1])
+                            'Property Modifiers': ' '.join(words[2:])
                         })
                     count += 2
 
@@ -102,6 +102,10 @@ class E2k:
                         'ABJ': float(words[19])
                     }
                 )
+
+            elif title == '$ CONCRETE SECTIONS' and words[7] == 'Column':
+                section = words[1]
+                self.sections.delete(section)
 
             elif title == '$ POINT COORDINATES':
                 self.point_coordinates.post(
@@ -219,6 +223,8 @@ def main():
     print(e2k.get_width('3F', 'B1'))
     print(e2k.get_coordinate(bay_id='B1'))
     print(e2k.get_coordinate(point_id='1'))
+
+    print(e2k.sections.get())
 
 
 if __name__ == "__main__":
