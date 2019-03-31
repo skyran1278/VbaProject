@@ -2,12 +2,18 @@
 write to new e2k
 """
 from src.models.e2k import E2k
+from src.models.lines import Lines
 
 
 class NewE2k(E2k):
     """
     use to write new e2k
     """
+
+    def __init__(self, *args, **kwargs):
+        self.f = None
+        self.new_lines = Lines()
+        super(NewE2k, self).__init__(*args, **kwargs)
 
     def post_point_coordinates(self, coordinates):
         """
@@ -31,7 +37,7 @@ class NewE2k(E2k):
         length = len(point_keys) - 1
         index = 0
         while index < length:
-            line_keys.append(self.lines.post(
+            line_keys.append(self.new_lines.post(
                 value=[point_keys[index], point_keys[index + 1]]
             ))
             index += 1
@@ -135,38 +141,88 @@ class NewE2k(E2k):
 
         self.line_loads.delete(copy_from)
 
-    def __point_coordinates_to_e2k(self, f):
-        f.write('$ POINT COORDINATES')
-        f.write('\n')
+    def __frame_sections(self):
+        # pylint: disable=invalid-name
+        sections = self.sections.get()
+        for section in sections:
+            fc = sections[section]['FC']
+            D = sections[section]['D']
+            B = sections[section]['B']
+            modifiers = sections[section]['Property Modifiers']
+            self.f.write(
+                f'FRAMESECTION  "{section}"  MATERIAL "{fc}"  '
+                f'SHAPE "Concrete Rectangular"  D {D} B {B} '
+                f'INCLUDEAUTORIGIDZONEAREA "No"\n'
+            )
+            self.f.write(
+                f'FRAMESECTION  "{section}"  {modifiers}\n')
+
+    def __concrete_sections(self):
+        sections = self.sections.get()
+        for section in sections:
+            fy = sections[section]['FY']
+            fyh = sections[section]['FYH']
+            cover_top = sections[section]['COVERTOP']
+            cover_bot = sections[section]['COVERBOTTOM']
+            ati = sections[section]['ATI']
+            abi = sections[section]['ABI']
+            atj = sections[section]['ATJ']
+            abj = sections[section]['ABJ']
+            self.f.write(
+                f'CONCRETESECTION  "{section}"  LONGBARMATERIAL "{fy}"  '
+                f'CONFINEBARMATERIAL "{fyh}"  TYPE "Beam"  COVERTOP {cover_top} '
+                f'COVERBOTTOM {cover_bot} ATI {ati} ABI {abi} ATJ {atj} ABJ {abj}\n'
+            )
+
+    def __point_coordinates(self):
         coor = self.point_coordinates.get()
         for point in coor:
             start = coor[point][0]
             end = coor[point][1]
-            f.write(f'POINT "{point}"  {start} {end}')
-            f.write('\n')
+            self.f.write(f'POINT "{point}"  {start} {end}\n')
+
+    def __line_connectivities(self):
+        columns = self.columns.get()
+        beams = self.new_lines.get()
+        for column in columns:
+            start, end = columns[column]
+            self.f.write(f'LINE  "{column}"  COLUMN  "{start}"  "{end}"  1\n')
+        for beam in beams:
+            start, end = beams[beam]
+            self.f.write(f'LINE  "{beam}"  BEAM  "{start}"  "{end}"  0\n')
 
     def to_e2k(self):
         """
         only call once, write to e2k
         """
-        with open(self.path + ' new.e2k', mode='w', encoding='big5') as f:
+        with open(self.path + ' new.e2k', mode='w', encoding='big5') as self.f:
             for line in self.content:
                 # skip space line
                 if line == '':
-                    f.write('\n')
+                    self.f.write('\n')
                     continue
 
                 if line[0] == '$':
-                    # post title
-                    title = line
+                    # write permission
+                    write = True
 
-                # write once
-                if line == '$ POINT COORDINATES':
-                    self.__point_coordinates_to_e2k(f)
+                if write:
+                    self.f.write(line)
+                    self.f.write('\n')
 
-                if not title == '$ POINT COORDINATES':
-                    f.write(line)
-                    f.write('\n')
+                if line == '$ FRAME SECTIONS':
+                    self.__frame_sections()
+
+                elif line == '$ CONCRETE SECTIONS':
+                    self.__concrete_sections()
+
+                elif line == '$ POINT COORDINATES':
+                    write = False
+                    self.__point_coordinates()
+
+                elif line == '$ LINE CONNECTIVITIES':
+                    write = False
+                    self.__line_connectivities()
 
 
 def main():
@@ -221,7 +277,8 @@ def main():
     print(new_e2k.line_hinges)
     print(new_e2k.line_loads.get())
 
-    # new_e2k.to_e2k()
+    new_e2k.to_e2k()
+    print(new_e2k.sections.get())
 
 
 if __name__ == "__main__":

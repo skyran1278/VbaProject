@@ -52,18 +52,17 @@ def test_post_lines(new_e2k):
     """
     point_keys = ['1', '3', '4', '5', '6', '2']
 
-    assert new_e2k.post_lines(point_keys) == ['B2', 'B3', 'B4', 'B5', 'B6']
+    assert new_e2k.post_lines(point_keys) == ['B1', 'B2', 'B3', 'B4', 'B5']
 
-    lines = {
-        'B1': ('1', '2'),
-        'B2': ('1', '3'),
-        'B3': ('3', '4'),
-        'B4': ('4', '5'),
-        'B5': ('5', '6'),
-        'B6': ('6', '2')
+    new_lines = {
+        'B1': ('1', '3'),
+        'B2': ('3', '4'),
+        'B3': ('4', '5'),
+        'B4': ('5', '6'),
+        'B5': ('6', '2')
     }
 
-    assert new_e2k.lines.get() == lines
+    assert new_e2k.new_lines.get() == new_lines
 
 
 def test_post_sections(new_e2k):

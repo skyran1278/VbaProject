@@ -25,6 +25,7 @@ class E2k:
         self.sections = DefaultdictEnhance()
         self.point_coordinates = PointCoordinates()
         self.lines = Lines()
+        self.columns = Lines()
         self.point_assigns = DefaultdictEnhance()
         self.line_assigns = DefaultdictEnhance()
         self.line_hinges = []
@@ -113,6 +114,9 @@ class E2k:
 
             elif title == '$ LINE CONNECTIVITIES' and words[2] == 'BEAM':
                 self.lines.post(words[1], [words[3], words[4]])
+
+            elif title == '$ LINE CONNECTIVITIES' and words[2] == 'COLUMN':
+                self.columns.post(words[1], [words[3], words[4]])
 
             elif title == '$ POINT ASSIGNS':
                 count = 3
