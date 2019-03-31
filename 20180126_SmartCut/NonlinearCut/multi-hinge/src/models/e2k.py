@@ -27,8 +27,9 @@ class E2k:
         self.lines = Lines()
         self.point_assigns = DefaultdictEnhance()
         self.line_assigns = DefaultdictEnhance()
-        self.frame_hinges = []
+        self.line_hinges = []
         self.dead_load_name = None
+        self.line_loads = DefaultdictEnhance()
 
         self._init_e2k()
 
@@ -131,6 +132,15 @@ class E2k:
                 if words[3] == 'Dead':
                     self.dead_load_name = words[1]
 
+            elif title == '$ FRAME OBJECT LOADS':
+                self.line_loads.post((words[2], words[1]), {
+                    words[8]: {
+                        'TYPE': words[4],
+                        'DIR': words[6],
+                        'FVAL': words[10],
+                    }
+                })
+
     def get_section(self, story, bay_id):
         """
         sections
@@ -200,6 +210,7 @@ def main():
     print(e2k.point_assigns.get())
     print(e2k.line_assigns.get())
     print(e2k.dead_load_name)
+    print(e2k.line_loads.get())
 
     print(e2k.get_section('3F', 'B1'))
     print(e2k.get_fc('3F', 'B1'))

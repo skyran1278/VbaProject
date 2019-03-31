@@ -80,6 +80,21 @@ def test_properties(e2k):
         ('3F', 'C2'): {'SECTION': 'C90X90C28', 'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'}
     }
 
+    line_loads = {
+        ('2F', 'B1'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        },
+        ('RF', 'B1'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        },
+        ('3F', 'B1'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        }
+    }
+
     assert e2k.stories == stories
     assert e2k.materials == materials
     assert e2k.sections.get() == sections
@@ -89,6 +104,7 @@ def test_properties(e2k):
     assert e2k.lines.get() == lines
     assert e2k.point_assigns.get() == point_assigns
     assert e2k.line_assigns.get() == line_assigns
+    assert e2k.line_loads.get() == line_loads
 
 
 def test_method(e2k):

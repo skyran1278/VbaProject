@@ -209,9 +209,9 @@ def test_line_assigns(new_e2k):
     assert new_e2k.line_assigns.get() == data
 
 
-def test_frame_hinges(new_e2k):
+def test_line_hinges(new_e2k):
     """
-    test frame_hinges
+    test line_hinges
     """
     data = [
         ('RF', 'B2', 'M3', 0),
@@ -224,6 +224,48 @@ def test_frame_hinges(new_e2k):
 
     line_keys = ['B2', 'B3', 'B4', 'B5', 'B6']
 
-    new_e2k.post_frame_hinges(line_keys, story='RF')
+    new_e2k.post_line_hinges(line_keys, story='RF')
 
-    assert new_e2k.frame_hinges == data
+    assert new_e2k.line_hinges == data
+
+
+def test_line_loads(new_e2k):
+    """
+    test line_loads
+    """
+    data = {
+        ('2F', 'B1'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        },
+        ('3F', 'B1'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        },
+        ('RF', 'B2'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        },
+        ('RF', 'B3'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        },
+        ('RF', 'B4'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        },
+        ('RF', 'B5'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        },
+        ('RF', 'B6'): {
+            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
+            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
+        }
+    }
+
+    line_keys = ['B2', 'B3', 'B4', 'B5', 'B6']
+
+    new_e2k.post_line_loads(line_keys, ('RF', 'B1'))
+
+    assert new_e2k.line_loads.get() == data

@@ -44,6 +44,12 @@ class DefaultdictEnhance:
 
         return self.__data[key][key2]
 
+    def delete(self, key):
+        """
+        delete
+        """
+        del self.__data[key]
+
 
 def main():
     """

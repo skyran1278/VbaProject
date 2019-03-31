@@ -47,15 +47,15 @@ def main():
 
         beam = design.get(index)
         story = beam[('樓層', '')]
-        bay_id = beam[('編號', '')]
+        line_key = beam[('編號', '')]
 
-        coordinates = get_points_coordinates(bay_id, rel_points, e2k)
+        coordinates = get_points_coordinates(line_key, rel_points, e2k)
 
         point_keys = new_e2k.post_point_coordinates(coordinates)
 
         line_keys = new_e2k.post_lines(point_keys)
 
-        section = e2k.get_section(story, bay_id)
+        section = e2k.get_section(story, line_key)
 
         point_rebars = get_points_rebar_area(index, abs_points, design)
 
@@ -64,9 +64,11 @@ def main():
         new_e2k.post_point_assigns(point_keys, story)
 
         new_e2k.post_line_assigns(
-            line_keys, section_keys, copy_from=(story, bay_id))
+            line_keys, section_keys, copy_from=(story, line_key))
 
-        new_e2k.post_frame_hinges(line_keys, story)
+        new_e2k.post_line_hinges(line_keys, story)
+
+        new_e2k.post_line_loads(line_keys, (story, line_key))
 
         # print(abs_points)
         # print(point_rebars)
