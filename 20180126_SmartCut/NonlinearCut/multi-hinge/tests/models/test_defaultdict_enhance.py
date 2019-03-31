@@ -1,7 +1,7 @@
 """
 test
 """
-from src.models.sections import DefaultdictEnhance
+from src.models.defaultdict_enhance import DefaultdictEnhance
 
 
 def test_sections():
@@ -20,11 +20,11 @@ def test_sections():
 
     assert sections.get('B60', 'FYH') == 28000
 
-    sections.post(section='B60', data=data)
+    sections.post(key='B60', data=data)
 
     assert sections.get('B60', 'FYH') == 42000
 
-    sections.post(section='B601', data={'D': 0.8}, copy_from='B60')
+    sections.post(key='B601', data={'D': 0.8}, copy_from='B60')
 
     assert sections.get('B601', 'FYH') == 42000
     assert sections.get('B601', 'D') == 0.8

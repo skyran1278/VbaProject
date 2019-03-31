@@ -20,36 +20,36 @@ class DefaultdictEnhance:
     def __init__(self):
         self.__data = defaultdict(dict)
 
-    def post(self, section, data=None, copy_from=None):
+    def post(self, key, data=None, copy_from=None):
         """
         post
         """
         if copy_from is not None:
-            self.__data[section] = self.get(section=copy_from)
+            self.__data[key] = self.get(copy_from)
 
         if data is not None:
-            self.__data[section] = {
-                **self.__data[section], **data
+            self.__data[key] = {
+                **self.__data[key], **data
             }
 
-    def get(self, section=None, key=None):
+    def get(self, key=None, key2=None):
         """
         get
         """
-        if section is None:
+        if key is None:
             return self.__data
 
-        if key is None:
-            return self.__data[section]
+        if key2 is None:
+            return self.__data[key]
 
-        return self.__data[section][key]
+        return self.__data[key][key2]
 
 
 def main():
     """
     test
     """
-    sections = Sections()
+    sections = DefaultdictEnhance()
 
     data = {
         'FY': 42000,
@@ -58,8 +58,8 @@ def main():
     }
 
     sections.post('B60', {'FYH': 28000})
-    sections.post(section='B60', data=data)
-    sections.post(section='B601', copy_from='B60', data={'FY': 42000})
+    sections.post('B60', data=data)
+    sections.post('B601', copy_from='B60', data={'FY': 42000})
     print(sections.get())
 
     # sections.get('B60', 'FQ')
