@@ -66,6 +66,8 @@ def main():
         new_e2k.post_line_assigns(
             line_keys, section_keys, copy_from=(story, bay_id))
 
+        new_e2k.post_frame_hinges(line_keys, story)
+
         # print(abs_points)
         # print(point_rebars)
 

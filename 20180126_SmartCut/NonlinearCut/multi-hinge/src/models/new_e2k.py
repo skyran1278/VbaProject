@@ -99,6 +99,32 @@ class NewE2k(E2k):
                 copy_from=copy_from
             )
 
+    def post_frame_hinges(self, lines, story):
+        """
+        post hinge
+        """
+        # for line in lines:
+        #     self.frame_hinges.post((story, line, 0), {
+        #         'AUTOHINGETYPE': 'ASCE41-13',
+        #         'TABLEITEM': 'Concrete Beams',
+        #         'DOF': 'M3',
+        #         'CASECOMBO': self.dead_load_name,
+        #         'AUTOSUBDIVIDERELLENGTH': '0.02',
+        #     })
+
+        # self.frame_hinges.post((story, lines[-1], 1), {
+        #     'AUTOHINGETYPE': 'ASCE41-13',
+        #     'TABLEITEM': 'Concrete Beams',
+        #     'DOF': 'M3',
+        #     'CASECOMBO': self.dead_load_name,
+        #     'AUTOSUBDIVIDERELLENGTH': '0.02',
+        # })
+
+        for line in lines:
+            self.frame_hinges.append((story, line, 'M3', 0))
+
+        self.frame_hinges.append((story, lines[-1], 'M3', 1))
+
     def __point_coordinates_to_e2k(self, f):
         f.write('$ POINT COORDINATES')
         f.write('\n')
@@ -173,13 +199,16 @@ def main():
     new_e2k.post_line_assigns(
         line_keys, section_keys, copy_from=('RF', 'B1'))
 
+    new_e2k.post_frame_hinges(line_keys, story='RF')
+
     print(new_e2k.point_coordinates.get())
     print(new_e2k.lines.get())
     print(new_e2k.sections.get())
     print(new_e2k.point_assigns.get())
     print(new_e2k.line_assigns.get())
+    print(new_e2k.frame_hinges)
 
-    new_e2k.to_e2k()
+    # new_e2k.to_e2k()
 
 
 if __name__ == "__main__":

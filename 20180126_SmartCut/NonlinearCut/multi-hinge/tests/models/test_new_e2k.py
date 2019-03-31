@@ -205,3 +205,25 @@ def test_line_assigns(new_e2k):
 
     new_e2k.post_line_assigns(
         line_keys, section_keys, copy_from=('RF', 'B1'))
+
+    assert new_e2k.line_assigns.get() == data
+
+
+def test_frame_hinges(new_e2k):
+    """
+    test frame_hinges
+    """
+    data = [
+        ('RF', 'B2', 'M3', 0),
+        ('RF', 'B3', 'M3', 0),
+        ('RF', 'B4', 'M3', 0),
+        ('RF', 'B5', 'M3', 0),
+        ('RF', 'B6', 'M3', 0),
+        ('RF', 'B6', 'M3', 1)
+    ]
+
+    line_keys = ['B2', 'B3', 'B4', 'B5', 'B6']
+
+    new_e2k.post_frame_hinges(line_keys, story='RF')
+
+    assert new_e2k.frame_hinges == data

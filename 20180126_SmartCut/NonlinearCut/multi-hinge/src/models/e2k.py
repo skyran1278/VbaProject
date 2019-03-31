@@ -27,6 +27,7 @@ class E2k:
         self.lines = Lines()
         self.point_assigns = DefaultdictEnhance()
         self.line_assigns = DefaultdictEnhance()
+        self.frame_hinges = []
         self.dead_load_name = None
 
         self._init_e2k()
