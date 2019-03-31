@@ -57,6 +57,17 @@ def test_properties(e2k):
 
     lines = {'B1': ('1', '2')}
 
+    point_assigns = {
+        ('2F', '1'): {'DIAPH': 'D1'},
+        ('2F', '2'): {'DIAPH': 'D1'},
+        ('1F', '1'): {'RESTRAINT': 'UX UY UZ RX RY RZ', 'DIAPH': 'D1'},
+        ('1F', '2'): {'RESTRAINT': 'UX UY UZ RX RY RZ', 'DIAPH': 'D1'},
+        ('RF', '1'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
+        ('RF', '2'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
+        ('3F', '1'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
+        ('3F', '2'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'}
+    }
+
     line_assigns = {
         ('2F', 'B1'): {'SECTION': 'B60X80C28', 'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'},
         ('2F', 'C1'): {'SECTION': 'C90X90C28', 'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'},
@@ -76,6 +87,7 @@ def test_properties(e2k):
         e2k.point_coordinates.get(), point_coordinates
     )
     assert e2k.lines.get() == lines
+    assert e2k.point_assigns.get() == point_assigns
     assert e2k.line_assigns.get() == line_assigns
 
 

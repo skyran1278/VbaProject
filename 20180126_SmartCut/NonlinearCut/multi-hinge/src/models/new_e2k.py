@@ -13,24 +13,27 @@ class NewE2k(E2k):
         """
         post list of coordinates to point_coordinates
         """
+        point_keys = []
         for coor in coordinates:
-            self.point_coordinates.post(value=coor)
+            point_keys.append(self.point_coordinates.post(value=coor))
 
-    def post_lines(self, coordinates):
+        return point_keys
+
+    def post_lines(self, point_keys):
         """
         post list of coordinates to lines
         """
         line_keys = []
-        coor_id = []
-        for coor in coordinates:
-            coor_id.append(self.point_coordinates.get(value=coor))
+        # coor_id = []
+        # for coor in coordinates:
+        #     coor_id.append(self.point_coordinates.get(value=coor))
 
-        length = len(coor_id) - 1
+        length = len(point_keys) - 1
         index = 0
         while index < length:
-            line_keys.append(
-                self.lines.post(value=[coor_id[index], coor_id[index + 1]])
-            )
+            line_keys.append(self.lines.post(
+                value=[point_keys[index], point_keys[index + 1]]
+            ))
             index += 1
 
         return line_keys
@@ -65,6 +68,21 @@ class NewE2k(E2k):
             new_sections.append(new_section)
 
         return new_sections
+
+    def post_point_assigns(self, points, story):
+        """
+        combine line and section
+        """
+        start = self.point_assigns.get(key=(story, points[0]))
+        end = self.point_assigns.get(key=(story, points[-1]))
+
+        if start != end:
+            print('Warning start key != end key')
+
+        for point in points:
+            self.point_assigns.post(
+                key=(story, point), copy_from=(story, points[0])
+            )
 
     def post_line_assigns(self, lines, sections, copy_from):
         """
@@ -141,12 +159,26 @@ def main():
         (0.0046452, 0.0027097)
     ]
 
-    new_e2k.post_point_coordinates(coordinates)
-    print(new_e2k.post_lines(coordinates))
-    new_e2k.post_sections('B60X80C28', point_rebars)
+    point_keys = new_e2k.post_point_coordinates(coordinates)
+    print(point_keys)
+
+    line_keys = new_e2k.post_lines(point_keys)
+    print(line_keys)
+
+    section_keys = new_e2k.post_sections('B60X80C28', point_rebars)
+    print(section_keys)
+
+    new_e2k.post_point_assigns(point_keys, story='RF')
+
+    new_e2k.post_line_assigns(
+        line_keys, section_keys, copy_from=('RF', 'B1'))
+
     print(new_e2k.point_coordinates.get())
     print(new_e2k.lines.get())
     print(new_e2k.sections.get())
+    print(new_e2k.point_assigns.get())
+    print(new_e2k.line_assigns.get())
+
     new_e2k.to_e2k()
 
 

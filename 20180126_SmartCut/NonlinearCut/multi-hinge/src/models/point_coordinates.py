@@ -56,7 +56,7 @@ class PointCoordinates:
         array, np_array = _get_tuple_nparray(value)
 
         if array in self.__reverse_data:
-            return
+            return self.__reverse_data[array]
 
         if key is None:
             while self.key in self.__keys:
@@ -70,6 +70,8 @@ class PointCoordinates:
         self.__data[key] = np_array
         self.__reverse_data[array] = key
         self.__keys.append(int(key))
+
+        return key
 
 
 def main():

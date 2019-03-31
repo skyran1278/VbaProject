@@ -94,5 +94,12 @@ def test_spacing(design):
     """
 
     assert design.get_spacing(10, ('箍筋', '右')) == 0.15
+
+
+def test_shear(design):
+    """
+    test shear
+    """
+
     assert isclose(design.get_shear(10, ('箍筋', '右')), 0.0016893333333333333)
     assert design.get_shear(10, ('箍筋', '中')) == 0.001267
