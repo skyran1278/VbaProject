@@ -27,6 +27,7 @@ class E2k:
         self.lines = Lines()
         self.point_assigns = DefaultdictEnhance()
         self.line_assigns = DefaultdictEnhance()
+        self.dead_load_name = None
 
         self._init_e2k()
 
@@ -125,6 +126,10 @@ class E2k:
                         })
                     count += 2
 
+            elif title == '$ LOAD PATTERNS' and words[2] == 'TYPE':
+                if words[3] == 'Dead':
+                    self.dead_load_name = words[1]
+
     def get_section(self, story, bay_id):
         """
         sections
@@ -193,6 +198,8 @@ def main():
     print(e2k.lines.get())
     print(e2k.point_assigns.get())
     print(e2k.line_assigns.get())
+    print(e2k.dead_load_name)
+
     print(e2k.get_section('3F', 'B1'))
     print(e2k.get_fc('3F', 'B1'))
     print(e2k.get_fy('3F', 'B1'))
