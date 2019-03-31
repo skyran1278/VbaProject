@@ -1,14 +1,14 @@
 """
 test
 """
-from src.models.sections import Sections
+from src.models.sections import DefaultdictEnhance
 
 
 def test_sections():
     """
     test post
     """
-    sections = Sections()
+    sections = DefaultdictEnhance()
 
     data = {
         'FY': 42000,

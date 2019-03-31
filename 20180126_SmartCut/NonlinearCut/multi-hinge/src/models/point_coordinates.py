@@ -8,10 +8,7 @@ def _get_tuple_nparray(value):
     if isinstance(value, np.ndarray):
         array = tuple(value.tolist())
         np_array = value
-    elif isinstance(value, tuple):
-        array = value
-        np_array = np.array(value)
-    elif isinstance(value, list):
+    elif isinstance(value, (tuple, list)):
         array = tuple(value)
         np_array = np.array(value)
     else:
@@ -31,6 +28,9 @@ class PointCoordinates:
         # key is str(int), so bulid __keys to store pure int.
         # convenient to use int plus
         self.__keys = []
+
+        # remember key to do next loop
+        self.key = 1
 
         # because numpy is difficult to check
         # __reverse_data easy to check if value exist
@@ -59,11 +59,10 @@ class PointCoordinates:
             return
 
         if key is None:
-            int_key = 1
-            while int_key in self.__keys:
-                int_key += 1
+            while self.key in self.__keys:
+                self.key += 1
 
-            key = str(int_key)
+            key = str(self.key)
 
         if not isinstance(key, str):
             raise Exception('key error')

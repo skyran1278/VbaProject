@@ -4,9 +4,17 @@ sections post get put delete
 from collections import defaultdict
 
 
-class Sections:
+class DefaultdictEnhance:
     """
-    sections
+    for
+        line assigns
+        sections
+        point assigns
+    method
+        get
+        post
+    feature
+        can copy from exist data
     """
 
     def __init__(self):

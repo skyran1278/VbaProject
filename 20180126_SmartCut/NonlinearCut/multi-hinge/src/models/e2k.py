@@ -8,7 +8,7 @@ import shlex
 from src.utils.load_file import load_file
 from src.models.point_coordinates import PointCoordinates
 from src.models.lines import Lines
-from src.models.sections import Sections
+from src.models.sections import DefaultdictEnhance
 from src.models.line_assigns import LineAssigns
 
 
@@ -23,10 +23,10 @@ class E2k:
 
         self.stories = {}
         self.materials = {}
-        self.sections = Sections()
+        self.sections = DefaultdictEnhance()
         self.point_coordinates = PointCoordinates()
         self.lines = Lines()
-        # self.point_assigns = {}
+        self.point_assigns = {}
         self.line_assigns = LineAssigns()
 
         self._init_e2k()
