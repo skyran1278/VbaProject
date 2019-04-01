@@ -128,7 +128,7 @@ class NewE2k(E2k):
 
         self.line_loads.delete(copy_from)
 
-    def __frame_sections(self):
+    def _frame_sections(self):
         # pylint: disable=invalid-name
         sections = self.sections.get()
         for section in sections:
@@ -144,7 +144,7 @@ class NewE2k(E2k):
             self.f.write(
                 f'FRAMESECTION  "{section}"  {propertys}\n')
 
-    def __concrete_sections(self):
+    def _concrete_sections(self):
         # pylint: disable=invalid-name
         sections = self.sections.get()
         for section in sections:
@@ -162,14 +162,14 @@ class NewE2k(E2k):
                 f'COVERBOTTOM {cover_bot} ATI {ati} ABI {abi} ATJ {atj} ABJ {abj}\n'
             )
 
-    def __point_coordinates(self):
+    def _point_coordinates(self):
         coor = self.point_coordinates.get()
         for point in coor:
             start = coor[point][0]
             end = coor[point][1]
             self.f.write(f'POINT "{point}"  {start} {end}\n')
 
-    def __line_connectivities(self):
+    def _line_connectivities(self):
         columns = self.columns.get()
         beams = self.lines.get()
         for column in columns:
@@ -179,7 +179,7 @@ class NewE2k(E2k):
             start, end = beams[beam]
             self.f.write(f'LINE  "{beam}"  BEAM  "{start}"  "{end}"  0\n')
 
-    def __point_assigns(self):
+    def _point_assigns(self):
         point_assigns = self.point_assigns.get()
         for story, key in point_assigns:
             point_property = point_assigns[(story, key)][0]
@@ -187,7 +187,7 @@ class NewE2k(E2k):
                 f'POINTASSIGN  "{key}"  "{story}"  {point_property}\n'
             )
 
-    def __line_assigns(self):
+    def _line_assigns(self):
         line_assigns = self.line_assigns.get()
         for story, key in line_assigns:
             section = line_assigns[(story, key)]['SECTION']
@@ -196,7 +196,7 @@ class NewE2k(E2k):
                 f'LINEASSIGN  "{key}"  "{story}"  SECTION "{section}"  {properties}\n'
             )
 
-    def __frame_hinge_assignments(self):
+    def _frame_hinge_assignments(self):
         self.f.write(f'\n$ FRAME HINGE ASSIGNMENTS\n')
 
         load = self.dead_load_name
@@ -213,7 +213,7 @@ class NewE2k(E2k):
                     f'CASECOMBO "{load}"  RDISTANCE {rdistance}\n'
                 )
 
-    def __frame_hinge_overwrites(self):
+    def _frame_hinge_overwrites(self):
         self.f.write(f'\n$ FRAME HINGE OVERWRITES\n')
 
         lines_hinges = self.line_hinges.get()
@@ -224,7 +224,7 @@ class NewE2k(E2k):
                 f'HINGEOVERWRITE "{line}"  "{story}"  AUTOSUBDIVIDERELLENGTH 0.02\n'
             )
 
-    def __frame_object_loads(self):
+    def _frame_object_loads(self):
         lines_loads = self.line_loads.get()
         for line_load in lines_loads:
             loads = lines_loads[line_load]
@@ -254,32 +254,32 @@ class NewE2k(E2k):
                     self.f.write('\n')
 
                 if line == '$ FRAME SECTIONS':
-                    self.__frame_sections()
+                    self._frame_sections()
 
                 elif line == '$ CONCRETE SECTIONS':
-                    self.__concrete_sections()
+                    self._concrete_sections()
 
                 elif line == '$ POINT COORDINATES':
                     write = False
-                    self.__point_coordinates()
+                    self._point_coordinates()
 
                 elif line == '$ LINE CONNECTIVITIES':
                     write = False
-                    self.__line_connectivities()
+                    self._line_connectivities()
 
                 elif line == '$ POINT ASSIGNS':
                     write = False
-                    self.__point_assigns()
+                    self._point_assigns()
 
                 elif line == '$ LINE ASSIGNS':
                     write = False
-                    self.__line_assigns()
-                    self.__frame_hinge_assignments()
-                    self.__frame_hinge_overwrites()
+                    self._line_assigns()
+                    self._frame_hinge_assignments()
+                    self._frame_hinge_overwrites()
 
                 elif line == '$ FRAME OBJECT LOADS':
                     write = False
-                    self.__frame_object_loads()
+                    self._frame_object_loads()
 
 
 def main():
@@ -331,10 +331,12 @@ def main():
     print(new_e2k.sections.get())
     print(new_e2k.point_assigns.get())
     print(new_e2k.line_assigns.get())
-    print(new_e2k.line_hinges)
+    print(new_e2k.line_hinges.get())
     print(new_e2k.line_loads.get())
 
     new_e2k.to_e2k()
+
+    print(new_e2k.line_assigns.get())
 
 
 if __name__ == "__main__":

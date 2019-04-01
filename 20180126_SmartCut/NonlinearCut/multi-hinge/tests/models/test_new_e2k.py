@@ -52,17 +52,18 @@ def test_post_lines(new_e2k):
     """
     point_keys = ['1', '3', '4', '5', '6', '2']
 
-    assert new_e2k.post_lines(point_keys) == ['B1', 'B2', 'B3', 'B4', 'B5']
+    assert new_e2k.post_lines(point_keys) == ['B2', 'B3', 'B4', 'B5', 'B6']
 
-    new_lines = {
-        'B1': ('1', '3'),
-        'B2': ('3', '4'),
-        'B3': ('4', '5'),
-        'B4': ('5', '6'),
-        'B5': ('6', '2')
+    lines = {
+        'B1': ('1', '2'),
+        'B2': ('1', '3'),
+        'B3': ('3', '4'),
+        'B4': ('4', '5'),
+        'B5': ('5', '6'),
+        'B6': ('6', '2')
     }
 
-    assert new_e2k.new_lines.get() == new_lines
+    assert new_e2k.lines.get() == lines
 
 
 def test_post_sections(new_e2k):
@@ -135,7 +136,7 @@ def test_line_assigns(new_e2k):
     """
     test line_assigns
     """
-    line_keys = ['B1', 'B2', 'B3', 'B4', 'B5']
+    line_keys = ['B2', 'B3', 'B4', 'B5', 'B6']
     section_keys = [
         'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
         'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
@@ -155,10 +156,6 @@ def test_line_assigns(new_e2k):
         ('2F', 'C2'): {
             'SECTION': 'C90X90C28',
             'PROPERTIES': 'RIGIDZONE 0.75 MINNUMSTA 3 MESH "POINTSANDLINES"'
-        },
-        ('RF', 'B1'): {
-            'SECTION': 'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
-            'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
         },
         ('RF', 'C1'): {
             'SECTION': 'C90X90C28',
@@ -195,6 +192,10 @@ def test_line_assigns(new_e2k):
         ('RF', 'B5'): {
             'SECTION': 'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
             'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
+        },
+        ('RF', 'B6'): {
+            'SECTION': 'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
+            'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
         }
     }
 
@@ -208,20 +209,19 @@ def test_line_hinges(new_e2k):
     """
     test line_hinges
     """
-    data = [
-        ('RF', 'B2', 'M3', 0),
-        ('RF', 'B3', 'M3', 0),
-        ('RF', 'B4', 'M3', 0),
-        ('RF', 'B5', 'M3', 0),
-        ('RF', 'B6', 'M3', 0),
-        ('RF', 'B6', 'M3', 1)
-    ]
+    data = {
+        ('RF', 'B2'): (('M3', 0),),
+        ('RF', 'B3'): (('M3', 0),),
+        ('RF', 'B4'): (('M3', 0),),
+        ('RF', 'B5'): (('M3', 0),),
+        ('RF', 'B6'): (('M3', 0), ('M3', 1))
+    }
 
     line_keys = ['B2', 'B3', 'B4', 'B5', 'B6']
 
     new_e2k.post_line_hinges(line_keys, story='RF')
 
-    assert new_e2k.line_hinges == data
+    assert new_e2k.line_hinges.get() == data
 
 
 def test_line_loads(new_e2k):
