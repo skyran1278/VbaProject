@@ -196,7 +196,7 @@ class NewE2k(E2k):
     def __point_assigns(self):
         point_assigns = self.point_assigns.get()
         for story, key in point_assigns:
-            point_property = point_assigns[(story, key)]
+            point_property = point_assigns[(story, key)][0]
             self.f.write(
                 f'POINTASSIGN  "{key}"  "{story}"  {point_property}\n'
             )
@@ -228,6 +228,16 @@ class NewE2k(E2k):
             self.f.write(
                 f'HINGEOVERWRITE "{line}"  "{story}"  AUTOSUBDIVIDERELLENGTH 0.02\n'
             )
+
+    def __frame_object_loads(self):
+        lines_loads = self.line_loads.get()
+        for line_load in lines_loads:
+            loads = lines_loads[line_load]
+            story, line = line_load
+            for load in loads:
+                self.f.write(
+                    f'LINELOAD  "{line}"  "{story}"  {load}\n'
+                )
 
     def to_e2k(self):
         """
@@ -271,6 +281,10 @@ class NewE2k(E2k):
                     self.__line_assigns()
                     self.__frame_hinge_assignments()
                     self.__frame_hinge_overwrites()
+
+                elif line == '$ FRAME OBJECT LOADS':
+                    write = False
+                    self.__frame_object_loads()
 
 
 def main():
@@ -326,9 +340,6 @@ def main():
     print(new_e2k.line_loads.get())
 
     new_e2k.to_e2k()
-    print(new_e2k.point_assigns.get())
-
-    print(new_e2k.line_assigns.get())
 
 
 if __name__ == "__main__":

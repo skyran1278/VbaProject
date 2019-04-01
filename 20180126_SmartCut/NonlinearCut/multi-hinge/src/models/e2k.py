@@ -135,13 +135,9 @@ class E2k:
                     self.dead_load_name = words[1]
 
             elif title == '$ FRAME OBJECT LOADS':
-                self.line_loads.post((words[2], words[1]), {
-                    words[8]: {
-                        'TYPE': words[4],
-                        'DIR': words[6],
-                        'FVAL': words[10],
-                    }
-                })
+                self.line_loads.post(
+                    (words[2], words[1]), ' '.join(words_with_quote[3:])
+                )
 
     def get_section(self, story, bay_id):
         """
@@ -221,6 +217,7 @@ def main():
     print(e2k.get_width('3F', 'B1'))
     print(e2k.get_coordinate(bay_id='B1'))
     print(e2k.get_coordinate(point_id='1'))
+    print(e2k.line_loads.get())
 
 
 if __name__ == "__main__":

@@ -22,14 +22,14 @@ class DefaultdictEnhance:
         """
         post
         """
-        # if value is str, then just post value
-        if isinstance(value, str):
-            self.__data[key] = value
-
         if copy_from is not None:
             self.__data[key] = self.get(copy_from)
 
-        if isinstance(value, dict):
+        # if value is str, then just post value
+        if isinstance(value, str):
+            self.__data[key] = (*self.__data[key], value)
+
+        elif isinstance(value, dict):
             self.__data[key] = {
                 **self.__data[key], **value
             }

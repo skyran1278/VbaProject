@@ -112,18 +112,18 @@ def test_point_assigns(new_e2k):
     point_keys = ['1', '3', '4', '5', '6', '2']
 
     data = {
-        ('2F', '1'): 'DIAPH "D1"',
-        ('2F', '2'): 'DIAPH "D1"',
-        ('1F', '1'): 'RESTRAINT "UX UY UZ RX RY RZ" DIAPH "D1"',
-        ('1F', '2'): 'RESTRAINT "UX UY UZ RX RY RZ" DIAPH "D1"',
-        ('RF', '1'): 'DIAPH "D1" USERJOINT "Yes"',
-        ('RF', '2'): 'DIAPH "D1" USERJOINT "Yes"',
-        ('3F', '1'): 'DIAPH "D1" USERJOINT "Yes"',
-        ('3F', '2'): 'DIAPH "D1" USERJOINT "Yes"',
-        ('RF', '3'): 'DIAPH "D1" USERJOINT "Yes"',
-        ('RF', '4'): 'DIAPH "D1" USERJOINT "Yes"',
-        ('RF', '5'): 'DIAPH "D1" USERJOINT "Yes"',
-        ('RF', '6'): 'DIAPH "D1" USERJOINT "Yes"'
+        ('2F', '1'): ('DIAPH "D1"',),
+        ('2F', '2'): ('DIAPH "D1"',),
+        ('1F', '1'): ('RESTRAINT "UX UY UZ RX RY RZ" DIAPH "D1"',),
+        ('1F', '2'): ('RESTRAINT "UX UY UZ RX RY RZ" DIAPH "D1"',),
+        ('RF', '1'): ('DIAPH "D1" USERJOINT "Yes"',),
+        ('RF', '2'): ('DIAPH "D1" USERJOINT "Yes"',),
+        ('3F', '1'): ('DIAPH "D1" USERJOINT "Yes"',),
+        ('3F', '2'): ('DIAPH "D1" USERJOINT "Yes"',),
+        ('RF', '3'): ('DIAPH "D1" USERJOINT "Yes"',),
+        ('RF', '4'): ('DIAPH "D1" USERJOINT "Yes"',),
+        ('RF', '5'): ('DIAPH "D1" USERJOINT "Yes"',),
+        ('RF', '6'): ('DIAPH "D1" USERJOINT "Yes"',)
     }
 
     new_e2k.post_point_assigns(point_keys, story='RF')
@@ -229,37 +229,27 @@ def test_line_loads(new_e2k):
     test line_loads
     """
     data = {
-        ('2F', 'B1'): {
-            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
-            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
-        },
-        ('3F', 'B1'): {
-            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
-            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
-        },
-        ('RF', 'B2'): {
-            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
-            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
-        },
-        ('RF', 'B3'): {
-            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
-            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
-        },
-        ('RF', 'B4'): {
-            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
-            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
-        },
-        ('RF', 'B5'): {
-            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
-            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
-        },
-        ('RF', 'B6'): {
-            'DL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'},
-            'LL': {'TYPE': 'UNIFF', 'DIR': 'GRAV', 'FVAL': '10'}
-        }
+        ('2F', 'B1'): (
+            'TYPE "UNIFF" DIR "GRAV" LC "DL" FVAL 10', 'TYPE "UNIFF" DIR "GRAV" LC "LL" FVAL 10'
+        ),
+        ('3F', 'B1'): (
+            'TYPE "UNIFF" DIR "GRAV" LC "DL" FVAL 10', 'TYPE "UNIFF" DIR "GRAV" LC "LL" FVAL 10'
+        ),
+        ('RF', 'B2'): (
+            'TYPE "UNIFF" DIR "GRAV" LC "DL" FVAL 10', 'TYPE "UNIFF" DIR "GRAV" LC "LL" FVAL 10'
+        ),
+        ('RF', 'B3'): (
+            'TYPE "UNIFF" DIR "GRAV" LC "DL" FVAL 10', 'TYPE "UNIFF" DIR "GRAV" LC "LL" FVAL 10'
+        ),
+        ('RF', 'B4'): (
+            'TYPE "UNIFF" DIR "GRAV" LC "DL" FVAL 10', 'TYPE "UNIFF" DIR "GRAV" LC "LL" FVAL 10'
+        ),
+        ('RF', 'B5'): (
+            'TYPE "UNIFF" DIR "GRAV" LC "DL" FVAL 10', 'TYPE "UNIFF" DIR "GRAV" LC "LL" FVAL 10'
+        )
     }
 
-    line_keys = ['B2', 'B3', 'B4', 'B5', 'B6']
+    line_keys = ['B1', 'B2', 'B3', 'B4', 'B5']
 
     new_e2k.post_line_loads(line_keys, ('RF', 'B1'))
 
