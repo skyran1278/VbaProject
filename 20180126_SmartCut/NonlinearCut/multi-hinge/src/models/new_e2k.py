@@ -12,6 +12,7 @@ class NewE2k(E2k):
 
     def __init__(self, *args, **kwargs):
         self.f = None
+        self.line_hinges = []
         self.new_lines = Lines()
         super(NewE2k, self).__init__(*args, **kwargs)
 
@@ -209,6 +210,25 @@ class NewE2k(E2k):
                 f'LINEASSIGN  "{key}"  "{story}"  SECTION "{section}"  {properties}\n'
             )
 
+    def __frame_hinge_assignments(self):
+        self.f.write(f'\n$ FRAME HINGE ASSIGNMENTS\n')
+        load = self.dead_load_name
+        for hinge in self.line_hinges:
+            story, line, dof, rdistance = hinge
+            self.f.write(
+                f'HINGEASSIGN "{line}"  "{story}"  AUTOHINGETYPE "ASCE41-13"  '
+                f'TABLEITEM "Concrete Beams"  DOF "{dof}"  '
+                f'CASECOMBO "{load}"  RDISTANCE {rdistance}\n'
+            )
+
+    def __frame_hinge_overwrites(self):
+        self.f.write(f'\n$ FRAME HINGE OVERWRITES\n')
+        for hinge in self.line_hinges:
+            story, line, _, _ = hinge
+            self.f.write(
+                f'HINGEOVERWRITE "{line}"  "{story}"  AUTOSUBDIVIDERELLENGTH 0.02\n'
+            )
+
     def to_e2k(self):
         """
         only call once, write to e2k
@@ -249,6 +269,8 @@ class NewE2k(E2k):
                 elif line == '$ LINE ASSIGNS':
                     write = False
                     self.__line_assigns()
+                    self.__frame_hinge_assignments()
+                    self.__frame_hinge_overwrites()
 
 
 def main():

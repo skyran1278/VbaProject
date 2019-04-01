@@ -28,7 +28,6 @@ class E2k:
         self.columns = Lines()
         self.point_assigns = DefaultdictEnhance()
         self.line_assigns = DefaultdictEnhance()
-        self.line_hinges = []
         self.dead_load_name = None
         self.line_loads = DefaultdictEnhance()
 
