@@ -8,9 +8,12 @@ class DefaultdictEnhance:
     """
     for
         sections
+        line assigns
+        point assigns
     method
         get
         post
+        delete
     feature
         can copy from exist data
     """
@@ -69,10 +72,6 @@ def main():
     sections.post('B60', value=data)
     sections.post('B601', copy_from='B60', value={'FY': 42000})
     print(sections.get())
-
-    # sections.get('B60', 'FQ')
-
-    # sections.post(section_name, words[count], float(words[count + 1]))
 
 
 if __name__ == "__main__":

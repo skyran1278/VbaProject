@@ -70,14 +70,6 @@ def main():
 
         new_e2k.post_line_loads(line_keys, (story, line_key))
 
-        # print(abs_points)
-        # print(point_rebars)
-
-    print(new_e2k.point_coordinates.get())
-    print(new_e2k.lines.get())
-    # print(new_e2k.sections.get())
-    print(new_e2k.line_assigns.get())
-
     new_e2k.to_e2k()
 
 

@@ -13,7 +13,7 @@ class NewE2k(E2k):
     def __init__(self, *args, **kwargs):
         self.f = None
         self.line_hinges = []
-        self.new_lines = Lines()
+        # self.new_lines = Lines()
         super(NewE2k, self).__init__(*args, **kwargs)
 
     def post_point_coordinates(self, coordinates):
@@ -38,7 +38,7 @@ class NewE2k(E2k):
         length = len(point_keys) - 1
         index = 0
         while index < length:
-            line_keys.append(self.new_lines.post(
+            line_keys.append(self.lines.post(
                 value=[point_keys[index], point_keys[index + 1]]
             ))
             index += 1
@@ -110,23 +110,6 @@ class NewE2k(E2k):
         """
         post hinge
         """
-        # for line in lines:
-        #     self.line_hinges.post((story, line, 0), {
-        #         'AUTOHINGETYPE': 'ASCE41-13',
-        #         'TABLEITEM': 'Concrete Beams',
-        #         'DOF': 'M3',
-        #         'CASECOMBO': self.dead_load_name,
-        #         'AUTOSUBDIVIDERELLENGTH': '0.02',
-        #     })
-
-        # self.line_hinges.post((story, lines[-1], 1), {
-        #     'AUTOHINGETYPE': 'ASCE41-13',
-        #     'TABLEITEM': 'Concrete Beams',
-        #     'DOF': 'M3',
-        #     'CASECOMBO': self.dead_load_name,
-        #     'AUTOSUBDIVIDERELLENGTH': '0.02',
-        # })
-
         for line in lines:
             self.line_hinges.append((story, line, 'M3', 0))
 
@@ -185,7 +168,7 @@ class NewE2k(E2k):
 
     def __line_connectivities(self):
         columns = self.columns.get()
-        beams = self.new_lines.get()
+        beams = self.lines.get()
         for column in columns:
             start, end = columns[column]
             self.f.write(f'LINE  "{column}"  COLUMN  "{start}"  "{end}"  1\n')
