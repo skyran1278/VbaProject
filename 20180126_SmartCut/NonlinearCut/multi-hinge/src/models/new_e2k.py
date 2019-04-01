@@ -106,6 +106,8 @@ class NewE2k(E2k):
                 copy_from=copy_from
             )
 
+        self.line_assigns.delete(copy_from)
+
     def post_line_hinges(self, lines, story):
         """
         post hinge
