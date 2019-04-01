@@ -9,7 +9,6 @@ from src.utils.load_file import load_file
 from src.models.point_coordinates import PointCoordinates
 from src.models.lines import Lines
 from src.models.defaultdict_enhance import DefaultdictEnhance
-from src.models.dict_enhance import DictEnhance
 
 
 class E2k:
@@ -27,7 +26,7 @@ class E2k:
         self.point_coordinates = PointCoordinates()
         self.lines = Lines()
         self.columns = Lines()
-        self.point_assigns = DictEnhance()
+        self.point_assigns = DefaultdictEnhance()
         self.line_assigns = DefaultdictEnhance()
         self.line_hinges = []
         self.dead_load_name = None

@@ -8,9 +8,6 @@ class DefaultdictEnhance:
     """
     for
         sections
-        point assigns
-        line assigns
-        line_loads
     method
         get
         post
@@ -21,16 +18,20 @@ class DefaultdictEnhance:
     def __init__(self):
         self.__data = defaultdict(dict)
 
-    def post(self, key, data=None, copy_from=None):
+    def post(self, key, value=None, copy_from=None):
         """
         post
         """
+        # if value is str, then just post value
+        if isinstance(value, str):
+            self.__data[key] = value
+
         if copy_from is not None:
             self.__data[key] = self.get(copy_from)
 
-        if data is not None:
+        if isinstance(value, dict):
             self.__data[key] = {
-                **self.__data[key], **data
+                **self.__data[key], **value
             }
 
     def get(self, key=None, key2=None):
@@ -65,8 +66,8 @@ def main():
     }
 
     sections.post('B60', {'FYH': 28000})
-    sections.post('B60', data=data)
-    sections.post('B601', copy_from='B60', data={'FY': 42000})
+    sections.post('B60', value=data)
+    sections.post('B601', copy_from='B60', value={'FY': 42000})
     print(sections.get())
 
     # sections.get('B60', 'FQ')

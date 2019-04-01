@@ -99,7 +99,7 @@ class NewE2k(E2k):
         for line, section in zip(lines, sections):
             self.line_assigns.post(
                 key=(story, line),
-                data={
+                value={
                     'SECTION': section
                 },
                 copy_from=copy_from
