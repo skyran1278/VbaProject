@@ -86,7 +86,7 @@ class E2k:
                 section = words[1]
                 self.sections.post(
                     section, {
-                        'Property Modifiers': ' '.join(words[2:])
+                        'PROPERTIES': ' '.join(words[2:])
                     })
 
             elif title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
@@ -125,13 +125,11 @@ class E2k:
                 )
 
             elif title == '$ LINE ASSIGNS':
-                count = 3
-                while count < len(words):
-                    self.line_assigns.post(
-                        (words[2], words[1]), {
-                            words[count]: words[count + 1]
-                        })
-                    count += 2
+                self.line_assigns.post(
+                    (words[2], words[1]), {
+                        'SECTION': words[4],
+                        'PROPERTIES': ' '.join(words_with_quote[5:])
+                    })
 
             elif title == '$ LOAD PATTERNS' and words[2] == 'TYPE':
                 if words[3] == 'Dead':
@@ -224,9 +222,6 @@ def main():
     print(e2k.get_width('3F', 'B1'))
     print(e2k.get_coordinate(bay_id='B1'))
     print(e2k.get_coordinate(point_id='1'))
-
-    print(e2k.sections.get())
-    print(e2k.point_assigns.get())
 
 
 if __name__ == "__main__":

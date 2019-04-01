@@ -81,12 +81,12 @@ def test_post_sections(new_e2k):
 
     data = {
         'B60X80C28': {
-            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'Property Modifiers': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7',
+            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'PROPERTIES': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7',
             'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': 0.08, 'COVERBOTTOM': 0.08,
             'ATI': 0.0, 'ABI': 0.0, 'ATJ': 0.0, 'ABJ': 0.0
         },
         'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097': {
-            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'Property Modifiers': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7',
+            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'PROPERTIES': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7',
             'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': 0.08, 'COVERBOTTOM': 0.08,
             'ATI': 0.0046452, 'ABI': 0.0027097, 'ATJ': 0.0046452, 'ABJ': 0.0027097
         }
@@ -135,7 +135,7 @@ def test_line_assigns(new_e2k):
     """
     test line_assigns
     """
-    line_keys = ['B2', 'B3', 'B4', 'B5', 'B6']
+    line_keys = ['B1', 'B2', 'B3', 'B4', 'B5']
     section_keys = [
         'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
         'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
@@ -146,58 +146,55 @@ def test_line_assigns(new_e2k):
     data = {
         ('2F', 'B1'): {
             'SECTION': 'B60X80C28',
-            'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'},
+            'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
+        },
         ('2F', 'C1'): {
             'SECTION': 'C90X90C28',
-            'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 MINNUMSTA 3 MESH "POINTSANDLINES"'
         },
         ('2F', 'C2'): {
             'SECTION': 'C90X90C28',
-            'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 MINNUMSTA 3 MESH "POINTSANDLINES"'
         },
         ('RF', 'B1'): {
-            'SECTION': 'B60X80C28',
-            'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'
+            'SECTION': 'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
+            'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
         },
         ('RF', 'C1'): {
             'SECTION': 'C90X90C28',
-            'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 MINNUMSTA 3 MESH "POINTSANDLINES"'
         },
         ('RF', 'C2'): {
             'SECTION': 'C90X90C28',
-            'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 MINNUMSTA 3 MESH "POINTSANDLINES"'
         },
         ('3F', 'B1'): {
             'SECTION': 'B60X80C28',
-            'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
         },
         ('3F', 'C1'): {
             'SECTION': 'C90X90C28',
-            'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 MINNUMSTA 3 MESH "POINTSANDLINES"'
         },
         ('3F', 'C2'): {
             'SECTION': 'C90X90C28',
-            'RIGIDZONE': '0.75', 'MINNUMSTA': '3', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 MINNUMSTA 3 MESH "POINTSANDLINES"'
         },
         ('RF', 'B2'): {
             'SECTION': 'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
-            'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
         },
         ('RF', 'B3'): {
             'SECTION': 'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
-            'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
         },
         ('RF', 'B4'): {
             'SECTION': 'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
-            'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
         },
         ('RF', 'B5'): {
             'SECTION': 'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
-            'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'
-        },
-        ('RF', 'B6'): {
-            'SECTION': 'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097',
-            'RIGIDZONE': '0.75', 'CARDINALPT': '8', 'MAXSTASPC': '0.1', 'MESH': 'POINTSANDLINES'
+            'PROPERTIES': 'RIGIDZONE 0.75 CARDINALPT 8 MAXSTASPC 0.1 MESH "POINTSANDLINES"'
         }
     }
 

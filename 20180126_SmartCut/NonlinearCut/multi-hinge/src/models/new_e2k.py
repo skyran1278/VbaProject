@@ -148,14 +148,14 @@ class NewE2k(E2k):
             fc = sections[section]['FC']
             D = sections[section]['D']
             B = sections[section]['B']
-            modifiers = sections[section]['Property Modifiers']
+            propertys = sections[section]['PROPERTIES']
             self.f.write(
                 f'FRAMESECTION  "{section}"  MATERIAL "{fc}"  '
                 f'SHAPE "Concrete Rectangular"  D {D} B {B} '
                 f'INCLUDEAUTORIGIDZONEAREA "No"\n'
             )
             self.f.write(
-                f'FRAMESECTION  "{section}"  {modifiers}\n')
+                f'FRAMESECTION  "{section}"  {propertys}\n')
 
     def __concrete_sections(self):
         # pylint: disable=invalid-name
@@ -200,6 +200,15 @@ class NewE2k(E2k):
                 f'POINTASSIGN  "{key}"  "{story}"  {point_property}\n'
             )
 
+    def __line_assigns(self):
+        line_assigns = self.line_assigns.get()
+        for story, key in line_assigns:
+            section = line_assigns[(story, key)]['SECTION']
+            properties = line_assigns[(story, key)]['PROPERTIES']
+            self.f.write(
+                f'LINEASSIGN  "{key}"  "{story}"  SECTION "{section}"  {properties}\n'
+            )
+
     def to_e2k(self):
         """
         only call once, write to e2k
@@ -236,6 +245,10 @@ class NewE2k(E2k):
                 elif line == '$ POINT ASSIGNS':
                     write = False
                     self.__point_assigns()
+
+                elif line == '$ LINE ASSIGNS':
+                    write = False
+                    self.__line_assigns()
 
 
 def main():
@@ -292,6 +305,8 @@ def main():
 
     new_e2k.to_e2k()
     print(new_e2k.point_assigns.get())
+
+    print(new_e2k.line_assigns.get())
 
 
 if __name__ == "__main__":
