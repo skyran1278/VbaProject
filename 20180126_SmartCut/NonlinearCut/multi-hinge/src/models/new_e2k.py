@@ -3,6 +3,7 @@ write to new e2k
 """
 from src.models.e2k import E2k
 from src.models.lines import Lines
+from src.models.defaultdict_enhance import DefaultdictEnhance
 
 
 class NewE2k(E2k):
@@ -12,7 +13,7 @@ class NewE2k(E2k):
 
     def __init__(self, *args, **kwargs):
         self.f = None
-        self.line_hinges = []
+        self.line_hinges = DefaultdictEnhance()
         # self.new_lines = Lines()
         super(NewE2k, self).__init__(*args, **kwargs)
 
@@ -113,9 +114,9 @@ class NewE2k(E2k):
         post hinge
         """
         for line in lines:
-            self.line_hinges.append((story, line, 'M3', 0))
+            self.line_hinges.post((story, line), ('M3', 0))
 
-        self.line_hinges.append((story, lines[-1], 'M3', 1))
+        self.line_hinges.post((story, lines[-1]), ('M3', 1))
 
     def post_line_loads(self, lines, copy_from):
         """
@@ -197,19 +198,28 @@ class NewE2k(E2k):
 
     def __frame_hinge_assignments(self):
         self.f.write(f'\n$ FRAME HINGE ASSIGNMENTS\n')
+
         load = self.dead_load_name
-        for hinge in self.line_hinges:
-            story, line, dof, rdistance = hinge
-            self.f.write(
-                f'HINGEASSIGN "{line}"  "{story}"  AUTOHINGETYPE "ASCE41-13"  '
-                f'TABLEITEM "Concrete Beams"  DOF "{dof}"  '
-                f'CASECOMBO "{load}"  RDISTANCE {rdistance}\n'
-            )
+        lines_hinges = self.line_hinges.get()
+
+        for line_hinges in lines_hinges:
+            story, line = line_hinges
+            hinges = lines_hinges[line_hinges]
+
+            for dof, rdistance in hinges:
+                self.f.write(
+                    f'HINGEASSIGN "{line}"  "{story}"  AUTOHINGETYPE "ASCE41-13"  '
+                    f'TABLEITEM "Concrete Beams"  DOF "{dof}"  '
+                    f'CASECOMBO "{load}"  RDISTANCE {rdistance}\n'
+                )
 
     def __frame_hinge_overwrites(self):
         self.f.write(f'\n$ FRAME HINGE OVERWRITES\n')
-        for hinge in self.line_hinges:
-            story, line, _, _ = hinge
+
+        lines_hinges = self.line_hinges.get()
+
+        for line_hinges in lines_hinges:
+            story, line = line_hinges
             self.f.write(
                 f'HINGEOVERWRITE "{line}"  "{story}"  AUTOSUBDIVIDERELLENGTH 0.02\n'
             )

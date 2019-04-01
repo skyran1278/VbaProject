@@ -29,7 +29,7 @@ class DefaultdictEnhance:
             self.__data[key] = self.get(copy_from)
 
         # if value is str, then just post value
-        if isinstance(value, str):
+        if isinstance(value, (str, list, tuple)):
             self.__data[key] = (*self.__data[key], value)
 
         elif isinstance(value, dict):
