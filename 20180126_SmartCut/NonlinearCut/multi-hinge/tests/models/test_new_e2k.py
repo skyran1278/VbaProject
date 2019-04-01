@@ -112,18 +112,18 @@ def test_point_assigns(new_e2k):
     point_keys = ['1', '3', '4', '5', '6', '2']
 
     data = {
-        ('2F', '1'): {'DIAPH': 'D1'},
-        ('2F', '2'): {'DIAPH': 'D1'},
-        ('1F', '1'): {'RESTRAINT': 'UX UY UZ RX RY RZ', 'DIAPH': 'D1'},
-        ('1F', '2'): {'RESTRAINT': 'UX UY UZ RX RY RZ', 'DIAPH': 'D1'},
-        ('RF', '1'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
-        ('RF', '2'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
-        ('3F', '1'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
-        ('3F', '2'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
-        ('RF', '3'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
-        ('RF', '4'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
-        ('RF', '5'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'},
-        ('RF', '6'): {'DIAPH': 'D1', 'USERJOINT': 'Yes'}
+        ('2F', '1'): 'DIAPH D1',
+        ('2F', '2'): 'DIAPH D1',
+        ('1F', '1'): 'RESTRAINT UX UY UZ RX RY RZ DIAPH D1',
+        ('1F', '2'): 'RESTRAINT UX UY UZ RX RY RZ DIAPH D1',
+        ('RF', '1'): 'DIAPH D1 USERJOINT Yes',
+        ('RF', '2'): 'DIAPH D1 USERJOINT Yes',
+        ('3F', '1'): 'DIAPH D1 USERJOINT Yes',
+        ('3F', '2'): 'DIAPH D1 USERJOINT Yes',
+        ('RF', '3'): 'DIAPH D1 USERJOINT Yes',
+        ('RF', '4'): 'DIAPH D1 USERJOINT Yes',
+        ('RF', '5'): 'DIAPH D1 USERJOINT Yes',
+        ('RF', '6'): 'DIAPH D1 USERJOINT Yes'
     }
 
     new_e2k.post_point_assigns(point_keys, story='RF')

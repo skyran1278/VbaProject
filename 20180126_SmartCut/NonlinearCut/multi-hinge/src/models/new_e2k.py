@@ -158,6 +158,7 @@ class NewE2k(E2k):
                 f'FRAMESECTION  "{section}"  {modifiers}\n')
 
     def __concrete_sections(self):
+        # pylint: disable=invalid-name
         sections = self.sections.get()
         for section in sections:
             fy = sections[section]['FY']
@@ -190,6 +191,12 @@ class NewE2k(E2k):
         for beam in beams:
             start, end = beams[beam]
             self.f.write(f'LINE  "{beam}"  BEAM  "{start}"  "{end}"  0\n')
+
+    def __point_assigns(self):
+        point_assigns = self.point_assigns.get()
+        for point_assign in point_assigns:
+            point_assigns[point_assign]
+            self.f.write(f'POINTASSIGN  "1"  "2F"  DIAPH "D1"  \n')
 
     def to_e2k(self):
         """
@@ -278,7 +285,7 @@ def main():
     print(new_e2k.line_loads.get())
 
     new_e2k.to_e2k()
-    print(new_e2k.sections.get())
+    print(new_e2k.point_assigns.get())
 
 
 if __name__ == "__main__":

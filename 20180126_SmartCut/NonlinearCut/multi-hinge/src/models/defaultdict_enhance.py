@@ -7,9 +7,10 @@ from collections import defaultdict
 class DefaultdictEnhance:
     """
     for
-        line assigns
         sections
         point assigns
+        line assigns
+        line_loads
     method
         get
         post

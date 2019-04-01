@@ -9,6 +9,7 @@ from src.utils.load_file import load_file
 from src.models.point_coordinates import PointCoordinates
 from src.models.lines import Lines
 from src.models.defaultdict_enhance import DefaultdictEnhance
+from src.models.dict_enhance import DictEnhance
 
 
 class E2k:
@@ -26,7 +27,7 @@ class E2k:
         self.point_coordinates = PointCoordinates()
         self.lines = Lines()
         self.columns = Lines()
-        self.point_assigns = DefaultdictEnhance()
+        self.point_assigns = DictEnhance()
         self.line_assigns = DefaultdictEnhance()
         self.line_hinges = []
         self.dead_load_name = None
@@ -119,13 +120,9 @@ class E2k:
                 self.columns.post(words[1], [words[3], words[4]])
 
             elif title == '$ POINT ASSIGNS':
-                count = 3
-                while count < len(words):
-                    self.point_assigns.post(
-                        (words[2], words[1]), {
-                            words[count]: words[count + 1]
-                        })
-                    count += 2
+                self.point_assigns.post(
+                    (words[2], words[1]), ' '.join(words[3:])
+                )
 
             elif title == '$ LINE ASSIGNS':
                 count = 3
@@ -229,6 +226,7 @@ def main():
     print(e2k.get_coordinate(point_id='1'))
 
     print(e2k.sections.get())
+    print(e2k.point_assigns.get())
 
 
 if __name__ == "__main__":
