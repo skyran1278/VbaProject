@@ -198,7 +198,7 @@ def main():
     """
     from tests.config import config
 
-    e2k = E2k(config['e2k_path_test_v1'])
+    e2k = E2k(config['e2k_path_test_v2'])
 
     print(e2k.stories)
     print(e2k.materials)

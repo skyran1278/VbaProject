@@ -7,7 +7,7 @@ from src.models.new_e2k import NewE2k
 from src.controllers.get_points import get_points
 
 
-def get_points_coordinates(bay_id, rel_points, e2k):
+def get_global_coordinates(bay_id, rel_points, e2k):
     """
     get global coordinates
     """
@@ -36,38 +36,44 @@ def main():
 
     from tests.config import config
 
-    design = Design(config['design_path_test_v2'])
+    design = Design(config['design_path_test_v3'])
 
-    e2k = E2k(config['e2k_path_test_v2'])
+    e2k = E2k(config['e2k_path_test_v3'])
 
-    new_e2k = NewE2k(config['e2k_path_test_v2'])
+    new_e2k = NewE2k(config['e2k_path_test_v3'])
 
     for index in range(0, design.get_len(), 4):
-        abs_points, rel_points = get_points(index, design, e2k)
+        abs_coors, rel_coors = get_points(index, design, e2k)
 
-        beam = design.get(index)
-        story = beam[('樓層', '')]
-        line_key = beam[('編號', '')]
+        story = design.get(index, ('樓層', ''))
+        line_key = design.get(index, ('編號', ''))
 
-        coordinates = get_points_coordinates(line_key, rel_points, e2k)
+        # get point keys
+        point_keys = new_e2k.post_point_coordinates(
+            get_global_coordinates(line_key, rel_coors, e2k)
+        )
 
-        point_keys = new_e2k.post_point_coordinates(coordinates)
-
-        line_keys = new_e2k.post_lines(point_keys)
-
-        section = e2k.get_section(story, line_key)
-
-        point_rebars = get_points_rebar_area(index, abs_points, design)
-
-        section_keys = new_e2k.post_sections(section, point_rebars)
-
+        # after post point keys, then post point assigns
         new_e2k.post_point_assigns(point_keys, story)
 
+        # get points rebar
+        point_rebars = get_points_rebar_area(index, abs_coors, design)
+
+        # get line keys, by use point keys
+        line_keys = new_e2k.post_lines(point_keys)
+
+        # get section
+        section_keys = new_e2k.post_sections(
+            point_rebars, copy_from=e2k.get_section(story, line_key))
+
+        # then post line assigns
         new_e2k.post_line_assigns(
             line_keys, section_keys, copy_from=(story, line_key))
 
+        # then post hinges
         new_e2k.post_line_hinges(line_keys, story)
 
+        # then post line load
         new_e2k.post_line_loads(line_keys, (story, line_key))
 
     new_e2k.to_e2k()

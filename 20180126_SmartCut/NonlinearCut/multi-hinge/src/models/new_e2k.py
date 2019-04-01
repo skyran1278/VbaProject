@@ -2,7 +2,6 @@
 write to new e2k
 """
 from src.models.e2k import E2k
-from src.models.lines import Lines
 from src.models.defaultdict_enhance import DefaultdictEnhance
 
 
@@ -46,7 +45,7 @@ class NewE2k(E2k):
 
         return line_keys
 
-    def post_sections(self, section, rebars):
+    def post_sections(self, rebars, copy_from):
         """
         post list of coordinates to lines
         """
@@ -60,7 +59,7 @@ class NewE2k(E2k):
             atj = rebars[index + 1][0]
             abj = rebars[index + 1][1]
 
-            new_section = f'{section} {ati} {abi} {atj} {abj}'
+            new_section = f'{copy_from} {ati} {abi} {atj} {abj}'
 
             data = {
                 'ATI': ati,
@@ -69,7 +68,7 @@ class NewE2k(E2k):
                 'ABJ': abj
             }
 
-            self.sections.post(new_section, data, copy_from=section)
+            self.sections.post(new_section, data, copy_from=copy_from)
 
             index += 1
 
@@ -81,6 +80,7 @@ class NewE2k(E2k):
         """
         combine line and section
         """
+        # FIXME: if {}, then what to do?
         start = self.point_assigns.get(key=(story, points[0]))
         end = self.point_assigns.get(key=(story, points[-1]))
 
