@@ -45,6 +45,10 @@ class E2k:
             # convenience method
             words = shlex.split(line)
 
+            # use to print
+            # could be move to if block
+            words_with_quote = shlex.split(line, posix=False)
+
             if words[0] == '$':
                 # post title
                 title = line
@@ -80,13 +84,10 @@ class E2k:
 
             elif title == '$ FRAME SECTIONS' and words[2] != 'MATERIAL':
                 section = words[1]
-                count = 2
-                while count < len(words):
-                    self.sections.post(
-                        section, {
-                            'Property Modifiers': ' '.join(words[2:])
-                        })
-                    count += 2
+                self.sections.post(
+                    section, {
+                        'Property Modifiers': ' '.join(words[2:])
+                    })
 
             elif title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
                 section = words[1]
@@ -120,7 +121,7 @@ class E2k:
 
             elif title == '$ POINT ASSIGNS':
                 self.point_assigns.post(
-                    (words[2], words[1]), ' '.join(words[3:])
+                    (words[2], words[1]), ' '.join(words_with_quote[3:])
                 )
 
             elif title == '$ LINE ASSIGNS':

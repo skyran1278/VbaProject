@@ -194,9 +194,11 @@ class NewE2k(E2k):
 
     def __point_assigns(self):
         point_assigns = self.point_assigns.get()
-        for point_assign in point_assigns:
-            point_assigns[point_assign]
-            self.f.write(f'POINTASSIGN  "1"  "2F"  DIAPH "D1"  \n')
+        for story, key in point_assigns:
+            point_property = point_assigns[(story, key)]
+            self.f.write(
+                f'POINTASSIGN  "{key}"  "{story}"  {point_property}\n'
+            )
 
     def to_e2k(self):
         """
@@ -230,6 +232,10 @@ class NewE2k(E2k):
                 elif line == '$ LINE CONNECTIVITIES':
                     write = False
                     self.__line_connectivities()
+
+                elif line == '$ POINT ASSIGNS':
+                    write = False
+                    self.__point_assigns()
 
 
 def main():

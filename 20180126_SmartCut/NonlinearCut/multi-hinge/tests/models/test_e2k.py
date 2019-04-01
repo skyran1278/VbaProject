@@ -55,14 +55,14 @@ def test_properties(e2k):
     lines = {'B1': ('1', '2')}
 
     point_assigns = {
-        ('2F', '1'): 'DIAPH D1',
-        ('2F', '2'): 'DIAPH D1',
-        ('1F', '1'): 'RESTRAINT UX UY UZ RX RY RZ DIAPH D1',
-        ('1F', '2'): 'RESTRAINT UX UY UZ RX RY RZ DIAPH D1',
-        ('RF', '1'): 'DIAPH D1 USERJOINT Yes',
-        ('RF', '2'): 'DIAPH D1 USERJOINT Yes',
-        ('3F', '1'): 'DIAPH D1 USERJOINT Yes',
-        ('3F', '2'): 'DIAPH D1 USERJOINT Yes'
+        ('2F', '1'): 'DIAPH "D1"',
+        ('2F', '2'): 'DIAPH "D1"',
+        ('1F', '1'): 'RESTRAINT "UX UY UZ RX RY RZ" DIAPH "D1"',
+        ('1F', '2'): 'RESTRAINT "UX UY UZ RX RY RZ" DIAPH "D1"',
+        ('RF', '1'): 'DIAPH "D1" USERJOINT "Yes"',
+        ('RF', '2'): 'DIAPH "D1" USERJOINT "Yes"',
+        ('3F', '1'): 'DIAPH "D1" USERJOINT "Yes"',
+        ('3F', '2'): 'DIAPH "D1" USERJOINT "Yes"'
     }
 
     line_assigns = {
