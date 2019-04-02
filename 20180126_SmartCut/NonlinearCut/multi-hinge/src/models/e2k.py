@@ -77,7 +77,8 @@ class E2k:
                     {
                         'FC': words[3],
                         'D': float(words[7]),
-                        'B': float(words[9])
+                        'B': float(words[9]),
+                        'PROPERTIES': ' '.join(words_with_quote[10:])
                     }
                 )
 
@@ -85,7 +86,7 @@ class E2k:
                 section = words[1]
                 self.sections.post(
                     section, {
-                        'PROPERTIES': ' '.join(words[2:])
+                        'MODIFICATION PROPERTIES': ' '.join(words_with_quote[2:])
                     })
 
             elif title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':

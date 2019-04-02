@@ -1,6 +1,7 @@
 """
 write to new e2k
 """
+import shlex
 import warnings
 
 from src.models.e2k import E2k
@@ -148,14 +149,14 @@ class NewE2k(E2k):
             fc = sections[section]['FC']
             D = sections[section]['D']
             B = sections[section]['B']
+            propertys = sections[section]['PROPERTIES']
             self.f.write(
                 f'FRAMESECTION  "{section}"  MATERIAL "{fc}"  '
-                f'SHAPE "Concrete Rectangular"  D {D} B {B} '
-                f'INCLUDEAUTORIGIDZONEAREA "No"\n'
+                f'SHAPE "Concrete Rectangular"  D {D} B {B} {propertys} \n'
             )
 
         for section in sections:
-            propertys = sections[section]['PROPERTIES']
+            propertys = sections[section]['MODIFICATION PROPERTIES']
             self.f.write(
                 f'FRAMESECTION  "{section}"  {propertys}\n')
 
@@ -263,6 +264,16 @@ class NewE2k(E2k):
                 if line[0] == '$':
                     # write permission
                     write = True
+                    title = line
+
+                if title == '$ FRAME SECTIONS':
+                    words = shlex.split(line)
+                    section = words[1]
+                    if section in self.sections.get():
+                        continue
+
+                elif title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
+                    continue
 
                 if write:
                     self.f.write(line)
