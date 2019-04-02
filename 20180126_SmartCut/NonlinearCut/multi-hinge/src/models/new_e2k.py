@@ -1,6 +1,8 @@
 """
 write to new e2k
 """
+import warnings
+
 from src.models.e2k import E2k
 from src.models.defaultdict_enhance import DefaultdictEnhance
 
@@ -68,7 +70,7 @@ class NewE2k(E2k):
                 'ABJ': abj
             }
 
-            self.sections.post(new_section, data, copy_from=copy_from)
+            self.sections.post(new_section, data, copy_from)
 
             index += 1
 
@@ -79,13 +81,18 @@ class NewE2k(E2k):
     def post_point_assigns(self, points, story):
         """
         combine line and section
+
         """
-        # FIXME: if {}, then what to do?
         start = self.point_assigns.get(key=(story, points[0]))
         end = self.point_assigns.get(key=(story, points[-1]))
 
         if start != end:
-            print('Warning start key != end key')
+            warnings.warn(f'Warning start key {start} != end key {end}')
+
+        # points maybe have no assigns
+        # if start is {}, then return
+        if start is None:
+            return
 
         for point in points:
             self.point_assigns.post(
@@ -95,6 +102,8 @@ class NewE2k(E2k):
     def post_line_assigns(self, lines, sections, copy_from):
         """
         combine line and section
+        v9 to v16 may change line name
+            if error occur, check it and modify excel to match new line name
         """
         story, _ = copy_from
 
@@ -122,7 +131,11 @@ class NewE2k(E2k):
         """
         post and delete line loads
         """
+        if self.line_loads.get(copy_from) is None:
+            return
+
         story, _ = copy_from
+
         for line in lines:
             self.line_loads.post((story, line), copy_from=copy_from)
 
@@ -135,12 +148,14 @@ class NewE2k(E2k):
             fc = sections[section]['FC']
             D = sections[section]['D']
             B = sections[section]['B']
-            propertys = sections[section]['PROPERTIES']
             self.f.write(
                 f'FRAMESECTION  "{section}"  MATERIAL "{fc}"  '
                 f'SHAPE "Concrete Rectangular"  D {D} B {B} '
                 f'INCLUDEAUTORIGIDZONEAREA "No"\n'
             )
+
+        for section in sections:
+            propertys = sections[section]['PROPERTIES']
             self.f.write(
                 f'FRAMESECTION  "{section}"  {propertys}\n')
 
