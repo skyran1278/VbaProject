@@ -31,7 +31,7 @@ class DefaultdictEnhance:
     """
 
     def __init__(self):
-        self.__data = nest_defaultdict()
+        self.__data = {}
 
     def post(self, key, value=None, copy_from=None):
         """
@@ -42,11 +42,11 @@ class DefaultdictEnhance:
 
         # if value is str, then just post value
         if isinstance(value, (str, list, tuple)):
-            self.__data[key] = (*self.__data[key], value)
+            self.__data[key] = (*self.__data.setdefault(key, ()), value)
 
         elif isinstance(value, dict):
             self.__data[key] = {
-                **self.__data[key], **value
+                **self.__data.setdefault(key, {}), **value
             }
 
     def get(self, key=None, key2=None):
@@ -54,16 +54,16 @@ class DefaultdictEnhance:
         get
         """
         if key2 is not None:
-            if key not in self.__data:
-                return None
-            if key2 not in self.__data[key]:
-                return None
+            # if key not in self.__data:
+            #     return None
+            # if key2 not in self.__data[key]:
+            #     return None
             return self.__data[key][key2]
 
         if key is not None:
-            if key not in self.__data:
-                return None
-            return self.__data[key]
+            # if key not in self.__data:
+            #     return None
+            return self.__data.get(key, None)
 
         return self.__data
 
