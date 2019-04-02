@@ -43,7 +43,7 @@ def test_properties(e2k):
 
     sections = {
         'B60X80C28': {
-            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': 0.08, 'COVERBOTTOM': 0.08, 'ATI': 0, 'ABI': 0, 'ATJ': 0, 'ABJ': 0, 'PROPERTIES': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7'
+            'FC': 'C280', 'D': 0.8, 'B': 0.6, 'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': '0.08', 'COVERBOTTOM': '0.08', 'ATI': '0', 'ABI': '0', 'ATJ': '0', 'ABJ': '0', 'PROPERTIES': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7'
         }
     }
 

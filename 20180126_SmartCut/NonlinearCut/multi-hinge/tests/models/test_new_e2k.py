@@ -83,12 +83,12 @@ def test_post_sections(new_e2k):
     data = {
         'B60X80C28': {
             'FC': 'C280', 'D': 0.8, 'B': 0.6, 'PROPERTIES': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7',
-            'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': 0.08, 'COVERBOTTOM': 0.08,
-            'ATI': 0.0, 'ABI': 0.0, 'ATJ': 0.0, 'ABJ': 0.0
+            'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': '0.08', 'COVERBOTTOM': '0.08',
+            'ATI': '0', 'ABI': '0', 'ATJ': '0', 'ABJ': '0'
         },
         'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097': {
             'FC': 'C280', 'D': 0.8, 'B': 0.6, 'PROPERTIES': 'JMOD 0.0001 I2MOD 0.7 I3MOD 0.7',
-            'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': 0.08, 'COVERBOTTOM': 0.08,
+            'FY': 'RMAT', 'FYH': 'RMAT', 'COVERTOP': '0.08', 'COVERBOTTOM': '0.08',
             'ATI': 0.0046452, 'ABI': 0.0027097, 'ATJ': 0.0046452, 'ABJ': 0.0027097
         }
     }
@@ -101,7 +101,9 @@ def test_post_sections(new_e2k):
         'B60X80C28 0.0046452 0.0027097 0.0046452 0.0027097'
     ]
 
-    assert new_e2k.post_sections('B60X80C28', point_rebars) == section_keys
+    assert new_e2k.post_sections(point_rebars, 'B60X80C28') == section_keys
+
+    print(new_e2k.sections.get())
 
     assert new_e2k.sections.get() == data
 

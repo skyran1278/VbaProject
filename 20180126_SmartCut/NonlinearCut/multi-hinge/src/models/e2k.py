@@ -95,12 +95,12 @@ class E2k:
                     {
                         'FY': words[3],
                         'FYH': words[5],
-                        'COVERTOP': float(words[9]),
-                        'COVERBOTTOM': float(words[11]),
-                        'ATI': float(words[13]),
-                        'ABI': float(words[15]),
-                        'ATJ': float(words[17]),
-                        'ABJ': float(words[19])
+                        'COVERTOP': words[9],
+                        'COVERBOTTOM': words[11],
+                        'ATI': words[13],
+                        'ABI': words[15],
+                        'ATJ': words[17],
+                        'ABJ': words[19]
                     }
                 )
 
