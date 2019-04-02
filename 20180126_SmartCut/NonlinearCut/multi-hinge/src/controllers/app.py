@@ -48,6 +48,9 @@ def main():
         story = design.get(index, ('樓層', ''))
         line_key = design.get(index, ('編號', ''))
 
+        if line_key == 'B264' and story == '2F':
+            a = 1
+
         # get point keys
         point_keys = new_e2k.post_point_coordinates(
             get_global_coordinates(line_key, rel_coors, e2k)

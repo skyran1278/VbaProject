@@ -107,7 +107,7 @@ class NewE2k(E2k):
             if error occur, check it and modify excel to match new line name
         """
         story, _ = copy_from
-
+        # FIXME: if one no delete
         for line, section in zip(lines, sections):
             self.line_assigns.post(
                 key=(story, line),
@@ -254,6 +254,8 @@ class NewE2k(E2k):
         """
         only call once, write to e2k
         """
+        sections = self.sections.get()
+
         with open(self.path + ' new.e2k', mode='w', encoding='big5') as self.f:
             for line in self.content:
                 # skip space line
@@ -269,11 +271,13 @@ class NewE2k(E2k):
                 if title == '$ FRAME SECTIONS':
                     words = shlex.split(line)
                     section = words[1]
-                    if section in self.sections.get():
+                    if section in sections:
                         continue
 
-                elif title == '$ CONCRETE SECTIONS' and words[7] == 'Beam':
-                    continue
+                elif title == '$ CONCRETE SECTIONS':
+                    words = shlex.split(line)
+                    if len(words) > 7 and words[7] == 'Beam':
+                        continue
 
                 if write:
                     self.f.write(line)

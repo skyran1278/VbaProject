@@ -12,6 +12,6 @@ config = {  # pylint: disable=invalid-name
     # 'design_path': SCRIPT_DIR + '/20190323 203316 SmartCut.xlsx',
     'design_path_test_v1': SCRIPT_DIR + '/20190323 203316 SmartCut #7.xlsx',
     'design_path_test_v2': SCRIPT_DIR + '/20190327 164355 SmartCut #8.xlsx',
-    'design_path_test_v3': SCRIPT_DIR + '/20190327 173536 SmartCut 欣銓福祥.xlsx',
+    'design_path_test_v3': SCRIPT_DIR + '/20190327 173536 SmartCut 欣銓福祥 for assign hinge.xlsx',
     'design_path_test_v4': SCRIPT_DIR + '/20190327 180501 SmartCut 高雄物流.xlsx',
 }
