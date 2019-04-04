@@ -37,8 +37,6 @@ class DefaultdictEnhance:
         """
         post
         """
-        if key in self.__data:
-            warnings.warn(f'{key} in data')
         if copy_from is not None:
             self.__data[key] = self.get(copy_from)
 

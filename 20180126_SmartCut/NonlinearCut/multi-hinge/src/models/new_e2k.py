@@ -107,7 +107,6 @@ class NewE2k(E2k):
             if error occur, check it and modify excel to match new line name
         """
         story, _ = copy_from
-        # FIXME: if one no delete
         for line, section in zip(lines, sections):
             self.line_assigns.post(
                 key=(story, line),
@@ -117,7 +116,10 @@ class NewE2k(E2k):
                 copy_from=copy_from
             )
 
-        self.line_assigns.delete(copy_from)
+        # lines more than one
+        # then can delete origin line
+        if not len(lines) == 1:
+            self.line_assigns.delete(copy_from)
 
     def post_line_hinges(self, lines, story):
         """
@@ -140,7 +142,10 @@ class NewE2k(E2k):
         for line in lines:
             self.line_loads.post((story, line), copy_from=copy_from)
 
-        self.line_loads.delete(copy_from)
+        # lines more than one
+        # then can delete origin line
+        if not len(lines) == 1:
+            self.line_loads.delete(copy_from)
 
     def _frame_sections(self):
         # pylint: disable=invalid-name
