@@ -95,7 +95,7 @@ class NewE2k(E2k):
         if start is None:
             return
 
-        for point in points:
+        for point in points[1: -1]:
             self.point_assigns.post(
                 key=(story, point), copy_from=(story, points[0])
             )

@@ -133,6 +133,8 @@ def test_point_assigns(new_e2k):
 
     new_e2k.post_point_assigns(point_keys, story='RF')
 
+    print(new_e2k.point_assigns.get())
+
     assert new_e2k.point_assigns.get() == data
 
 
