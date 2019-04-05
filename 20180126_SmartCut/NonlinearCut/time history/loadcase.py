@@ -38,7 +38,7 @@ def post_functions(time_historys, peernga_folder):
 
         functions.append(
             f'FUNCTION "{time_history}"  FUNCTYPE "HISTORY"  '
-            f'{peernga_folder}\\{time_history}.AT2"  '
+            f'FILE "{peernga_folder}\\{time_history}.AT2"  '
             f'DATATYPE "EQUAL"  DT {delta_t}\n'
         )
 
@@ -75,10 +75,10 @@ def post_loadcases(time_historys, period, initial_condition, direction):
         delta_t = time_historys[time_history]['DT']
 
         for factor in factors:
+            name = f'{time_history}-{factor}'
+
             # G to m/s2
             factor = factor * 9.81
-
-            name = f'{time_history}-{factor}'
 
             loadcases.append(
                 f'LOADCASE "{name}"  TYPE  "Nonlinear Direct Integration History"  '
