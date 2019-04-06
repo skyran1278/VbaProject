@@ -11,9 +11,9 @@ class Design:
     excel beam design
     """
 
-    def __init__(self, path):
+    def __init__(self, path, sheet_name='多點斷筋'):
         df = pd.read_excel(
-            path, sheet_name='多點斷筋', header=[0, 1], usecols=22)
+            path, sheet_name=sheet_name, header=[0, 1], usecols=22)
 
         df = df.rename(columns=lambda x: x if 'Unnamed' not in str(x) else '')
 
