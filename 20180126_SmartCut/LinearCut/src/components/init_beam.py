@@ -103,7 +103,7 @@ def _add_usr_beam_name(beam_name, etabs_design):
     etabs_design = etabs_design.assign(BeamID='', FrameID='')
 
     for (story, bay_id), group in etabs_design.groupby(['Story', 'BayID'], sort=False):
-        beam_id, frame_id = beam_name.loc[(story, bay_id), :].values[0]
+        beam_id, frame_id = beam_name.loc[(story, bay_id), :].values
         group = group.assign(BeamID=beam_id, FrameID=frame_id)
         etabs_design.loc[group.index, ['BeamID', 'FrameID']
                          ] = group[['BeamID', 'FrameID']]
