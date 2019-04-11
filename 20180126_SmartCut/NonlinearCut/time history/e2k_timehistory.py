@@ -63,7 +63,8 @@ def post_loadcases(time_historys, period, initial_condition, direction):
 
     LOADCASE "timehistory"  PRODAMPTYPE  "Period"  T1  0.344 DAMP1  0.05 T2  0.088 DAMP2  0.05
 
-    LOADCASE "timehistory"  MODALDAMPTYPE  "None"
+    LOADCASE "timehistory"  MODALDAMPTYPE  "Constant"  CONSTDAMP  0.05
+    CONSIDERMAXMODALFREQ  "Yes"  MAXCONSIDEREDMODALFREQ  100
 
     LOADCASE "timehistory"  USEEVENTSTEPPING  "No"
     """
@@ -97,7 +98,10 @@ def post_loadcases(time_historys, period, initial_condition, direction):
                 f'LOADCASE "{name}"  PRODAMPTYPE  "Period"  T1  {period[0]} DAMP1  0.05 '
                 f'T2  {period[1]} DAMP2  0.05\n'
             )
-            loadcases.append(f'LOADCASE "{name}"  MODALDAMPTYPE  "None"\n')
+            loadcases.append(
+                f'LOADCASE "{name}"  MODALDAMPTYPE  "Constant"  CONSTDAMP  0.05 '
+                f'CONSIDERMAXMODALFREQ  "Yes"  MAXCONSIDEREDMODALFREQ  100 \n'
+            )
             loadcases.append(f'LOADCASE "{name}"  USEEVENTSTEPPING  "No"\n')
 
     return loadcases
@@ -136,7 +140,7 @@ def main():
         time_historys, period, initial_condition, direction
     )
 
-    with open(script_folder + '/loadcase.e2k', mode='w', encoding='big5') as f:
+    with open(script_folder + '/e2k_timehistory.e2k', mode='w', encoding='big5') as f:
         f.writelines(functions)
         f.write('\n\n\n')
         f.writelines(loadcases)
