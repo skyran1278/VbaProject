@@ -11,7 +11,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 
-INPUT_FILE = 'first_run IDA #7 v1.1'
+INPUT_FILE = '20190327 173536 SmartCut'
 # INDEX = random.randrange(0, 14144, 4)
 INDEX = 0
 print(INDEX)
@@ -28,11 +28,15 @@ linewidth = 2.0
 if not os.path.exists(f'{SCRIPT_DIR}/{INPUT_FILE}.pkl'):
     print("Reading excel...")
     DATASET = pd.read_excel(SCRIPT_DIR + f'/{INPUT_FILE}.xlsx',
-                            sheet_name='beam_ld_added')
+                            sheet_name='etabs_design')
     BEAM_3 = pd.read_excel(SCRIPT_DIR + f'/{INPUT_FILE}.xlsx',
-                           sheet_name='三點斷筋', header=[0, 1], usecols=20)
+                           sheet_name='多點斷筋', header=[0, 1], usecols=22)
+    BEAM_3 = BEAM_3.rename(
+        columns=lambda x: x if 'Unnamed' not in str(x) else '')
     BEAM_CON = pd.read_excel(SCRIPT_DIR + f'/{INPUT_FILE}.xlsx',
-                             sheet_name='傳統斷筋', header=[0, 1], usecols=20)
+                             sheet_name='傳統斷筋', header=[0, 1], usecols=22)
+    BEAM_CON = BEAM_CON.rename(
+        columns=lambda x: x if 'Unnamed' not in str(x) else '')
 
     print("Creating pickle file ...")
     with open(f'{SCRIPT_DIR}/{INPUT_FILE}.pkl', 'wb') as f:
@@ -42,8 +46,10 @@ if not os.path.exists(f'{SCRIPT_DIR}/{INPUT_FILE}.pkl'):
 with open(f'{SCRIPT_DIR}/{INPUT_FILE}.pkl', 'rb') as f:
     DATASET, BEAM_3, BEAM_CON = pickle.load(f)
 
-DATASET = DATASET.loc[(DATASET['Story'] == BEAM_3.at[INDEX, ('樓層', 'Unnamed: 0_level_1')]) & (
-    DATASET['BayID'] == BEAM_3.at[INDEX, ('編號', 'Unnamed: 1_level_1')])]
+DATASET = DATASET.loc[
+    (DATASET['Story'] == BEAM_3.at[INDEX, ('樓層', '')]) &
+    (DATASET['BayID'] == BEAM_3.at[INDEX, ('編號', '')])
+]
 
 REBARS = {
     "#2": 3.2258E-05 * 10000,
@@ -75,8 +81,7 @@ X_NUM = 1200
 X_NUM_3 = 400
 
 START = BEAM_3.at[INDEX, ('支承寬', '左')]
-END = BEAM_3.at[INDEX, ('梁長', 'Unnamed: 15_level_1')] - \
-    BEAM_3.at[INDEX, ('支承寬', '右')]
+END = BEAM_3.at[INDEX, ('梁長', '')] - BEAM_3.at[INDEX, ('支承寬', '右')]
 
 SPAN = END - START
 SPAN_3 = SPAN / 3
@@ -95,9 +100,9 @@ def conservative_cut(color):
         sum_rebar(BEAM_CON, TOP_INDEX, TOP_INDEX_2, '右')
     ]) * TOP_SIZE
 
-    top_length = np.array([BEAM_CON.at[TOP_INDEX, ('長度', '左')],
-                           BEAM_CON.at[TOP_INDEX, ('長度', '中')],
-                           BEAM_CON.at[TOP_INDEX, ('長度', '右')]])
+    top_length = np.array([BEAM_CON.at[TOP_INDEX, ('主筋長度', '左')],
+                           BEAM_CON.at[TOP_INDEX, ('主筋長度', '中')],
+                           BEAM_CON.at[TOP_INDEX, ('主筋長度', '右')]])
 
     bot_rebar = np.array([
         sum_rebar(BEAM_CON, BOT_INDEX, BOT_INDEX_2, '左'),
@@ -105,25 +110,25 @@ def conservative_cut(color):
         sum_rebar(BEAM_CON, BOT_INDEX, BOT_INDEX_2, '右')
     ]) * BOT_SIZE
 
-    bot_length = np.array([BEAM_CON.at[BOT_INDEX, ('長度', '左')],
-                           BEAM_CON.at[BOT_INDEX, ('長度', '中')],
-                           BEAM_CON.at[BOT_INDEX, ('長度', '右')]])
+    bot_length = np.array([BEAM_CON.at[BOT_INDEX, ('主筋長度', '左')],
+                           BEAM_CON.at[BOT_INDEX, ('主筋長度', '中')],
+                           BEAM_CON.at[BOT_INDEX, ('主筋長度', '右')]])
 
     plot_bar_length(top_rebar, top_length, bot_rebar, bot_length, color=color)
 
     return np.sum(top_rebar * top_length), np.sum(bot_rebar * bot_length)
 
 
-def no_etabs(color):
-    # No ETABS
-    plot_bar_length(np.array([9, 5, 9]) * TOP_SIZE, [229.125, 599.25, 229.125],
-                    np.array([5, 4, 4]) * BOT_SIZE, [317.25, 564, 176.25], color=color)
+# def no_etabs(color):
+#     # No ETABS
+#     plot_bar_length(np.array([9, 5, 9]) * TOP_SIZE, [229.125, 599.25, 229.125],
+#                     np.array([5, 4, 4]) * BOT_SIZE, [317.25, 564, 176.25], color=color)
 
 
-def rcad(color):
-    # RCAD
-    plot_bar(np.array([7, 7, 8]) * TOP_SIZE, np.array([11, 10, 10])
-             * BOT_SIZE, color=color, linewidth=4.0)
+# def rcad(color):
+#     # RCAD
+#     plot_bar(np.array([7, 7, 8]) * TOP_SIZE, np.array([11, 10, 10])
+#              * BOT_SIZE, color=color, linewidth=4.0)
 
 
 def linearcut(color):
@@ -135,9 +140,9 @@ def linearcut(color):
         sum_rebar(BEAM_3, TOP_INDEX, TOP_INDEX_2, '右')
     ]) * TOP_SIZE
 
-    top_length = np.array([BEAM_3.at[TOP_INDEX, ('長度', '左')],
-                           BEAM_3.at[TOP_INDEX, ('長度', '中')],
-                           BEAM_3.at[TOP_INDEX, ('長度', '右')]])
+    top_length = np.array([BEAM_3.at[TOP_INDEX, ('主筋長度', '左')],
+                           BEAM_3.at[TOP_INDEX, ('主筋長度', '中')],
+                           BEAM_3.at[TOP_INDEX, ('主筋長度', '右')]])
 
     bot_rebar = np.array([
         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '左'),
@@ -145,9 +150,9 @@ def linearcut(color):
         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '右')
     ]) * BOT_SIZE
 
-    bot_length = np.array([BEAM_3.at[BOT_INDEX, ('長度', '左')],
-                           BEAM_3.at[BOT_INDEX, ('長度', '中')],
-                           BEAM_3.at[BOT_INDEX, ('長度', '右')]])
+    bot_length = np.array([BEAM_3.at[BOT_INDEX, ('主筋長度', '左')],
+                           BEAM_3.at[BOT_INDEX, ('主筋長度', '中')],
+                           BEAM_3.at[BOT_INDEX, ('主筋長度', '右')]])
 
     plot_bar_length(top_rebar, top_length, bot_rebar, bot_length, color=color)
 
@@ -160,17 +165,17 @@ def linearcut(color):
     #         sum_rebar(BEAM_3, TOP_INDEX, TOP_INDEX_2, '中'),
     #         sum_rebar(BEAM_3, TOP_INDEX, TOP_INDEX_2, '右')
     #     ]) * TOP_SIZE,
-    #     [BEAM_3.at[TOP_INDEX, ('長度', '左')],
-    #      BEAM_3.at[TOP_INDEX, ('長度', '中')],
-    #      BEAM_3.at[TOP_INDEX, ('長度', '右')]],
+    #     [BEAM_3.at[TOP_INDEX, ('主筋長度', '左')],
+    #      BEAM_3.at[TOP_INDEX, ('主筋長度', '中')],
+    #      BEAM_3.at[TOP_INDEX, ('主筋長度', '右')]],
     #     np.array([
     #         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '左'),
     #         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '中'),
     #         sum_rebar(BEAM_3, BOT_INDEX, BOT_INDEX_2, '右')
     #     ]) * BOT_SIZE,
-    #     [BEAM_3.at[BOT_INDEX, ('長度', '左')],
-    #      BEAM_3.at[BOT_INDEX, ('長度', '中')],
-    #      BEAM_3.at[BOT_INDEX, ('長度', '右')]],
+    #     [BEAM_3.at[BOT_INDEX, ('主筋長度', '左')],
+    #      BEAM_3.at[BOT_INDEX, ('主筋長度', '中')],
+    #      BEAM_3.at[BOT_INDEX, ('主筋長度', '右')]],
     #     color=color)
 
 # =====================
@@ -208,9 +213,9 @@ def real_sol(color):
 def conservative_sol(color):
     # Conservative Solution
     plt.plot(DATASET['StnLoc'] * 100,
-             DATASET['BarTopNumSimpleLd'] * TOP_SIZE, color=color, linewidth=linewidth)
+             DATASET['BarTopNumLd'] * TOP_SIZE, color=color, linewidth=linewidth)
     plt.plot(DATASET['StnLoc'] * 100, -
-             DATASET['BarBotNumSimpleLd'] * BOT_SIZE, color=color, linewidth=linewidth)
+             DATASET['BarBotNumLd'] * BOT_SIZE, color=color, linewidth=linewidth)
 
 
 def etabs_demand(color):
@@ -243,28 +248,28 @@ def etabs_to_addedld_sol():
     real_sol(green)
 
 
-def compare_RCAD():
-    plt.figure()
-    zero_line()
+# def compare_RCAD():
+#     plt.figure()
+#     zero_line()
 
-    etabs_demand(blue)
-    real_sol(blue)
+#     etabs_demand(blue)
+#     real_sol(blue)
 
-    # RCAD
-    rcad(red)
+#     # RCAD
+#     rcad(red)
 
-    conservative_cut(green)
+#     conservative_cut(green)
 
 
-def no_etabs_enough_conservative():
-    plt.figure()
-    zero_line()
+# def no_etabs_enough_conservative():
+#     plt.figure()
+#     zero_line()
 
-    real_sol(blue)
+#     real_sol(blue)
 
-    conservative_cut(red)
+#     conservative_cut(red)
 
-    no_etabs(green)
+#     no_etabs(green)
 
 
 def compare_linear_cut():
@@ -363,11 +368,11 @@ def ld():
 
 
 # conservative_flow()
-# linearcut_flow()
+linearcut_flow()
 # compare_real_to_conservative()
 # smallbeam()
 # ld()
-v_demand()
+# v_demand()
 # etabs_to_addedld_sol()
 # compare_RCAD()
 # no_etabs_enough_conservative()
