@@ -11,8 +11,8 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, os.path.pardir))
 
 
-INPUT_FILE = '20190327 180501 SmartCut'
-# INPUT_FILE = '20190327 173536 SmartCut'
+# INPUT_FILE = '20190327 180501 SmartCut'
+INPUT_FILE = '20190327 173536 SmartCut'
 # INDEX = random.randrange(0, 14144, 4)
 # INDEX = 4
 # INDEX = INDEX // 4 * 4
@@ -26,7 +26,7 @@ background = np.array([247, 247, 247]) / 256
 
 linewidth = 2.0
 
-for INDEX in range(0, 701, 700):
+for INDEX in range(0, 701, 100):
     INDEX = INDEX // 4 * 4
     print(INDEX)
 
@@ -353,8 +353,8 @@ for INDEX in range(0, 701, 700):
         conservative_sol(blue)
         conservative_cut(green)
 
-    conservative_flow()
-    linearcut_flow()
+    # conservative_flow()
+    # linearcut_flow()
     compare_linearcut_to_conservative()
     # smallbeam()
     # ld()
