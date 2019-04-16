@@ -68,12 +68,12 @@ class SmartCutPanel(wx.Panel):
                        (self.output, 1, wx.EXPAND), self.output_btn])
 
         self.bartop = wx.TextCtrl(
-            self, value='#7, #8, #10, #11, #14', size=(250, -1))
+            self, value='#8, #10, #11, #14', size=(250, -1))
         fgs_2.AddMany([wx.StaticText(self, label="Top Rebar"),
                        (self.bartop, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
         self.barbot = wx.TextCtrl(
-            self, value='#7, #8, #10, #11, #14')
+            self, value='#8, #10, #11, #14')
         fgs_2.AddMany([wx.StaticText(self, label="Bot Rebar"),
                        (self.barbot, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
@@ -82,7 +82,7 @@ class SmartCutPanel(wx.Panel):
                        (self.db_spacing, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
         self.stirrup_rebar = wx.TextCtrl(
-            self, value='#3, #4, 2#4, 2#5, 2#6')
+            self, value='#4, 2#4, 2#5, 2#6')
         fgs_2.AddMany([wx.StaticText(self, label="Stirrup Rebar"),
                        (self.stirrup_rebar, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
@@ -219,8 +219,8 @@ class SmartCutFrame(wx.Frame):
         wx.Frame.__init__(self, *args, **kwargs)
 
         # Thu Apr 11 16:26:40 2019
-        if time.time() > 1555000000:
-            self.Close(True)
+        # if time.time() > 1555000000:
+        #     self.Close(True)
 
         # create a menu bar
         self.make_menu_bar()
