@@ -117,8 +117,13 @@ def main():
     """
     test
     """
+    import cProfile
+    import pstats
 
-    multi()
+    cProfile.run('multi()', 'restats')
+    p = pstats.Stats('restats')
+    p.strip_dirs().sort_stats('cumtime').print_stats(100)
+    # multi()
     # normal()
 
 
