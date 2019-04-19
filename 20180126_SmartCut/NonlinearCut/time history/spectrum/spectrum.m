@@ -1,15 +1,17 @@
 clc; clear; close all;
 
-filename = 'elcentro_EW';
+filename = 'RSN68_SFERN_PEL090';
 
-period = filename_to_array(filename, 2, 1);
-ag = filename_to_array(filename, 2, 2);
+[ag, time_interval, NPTS, errCode] = parseAT2('../PEERNGARecords_Unscaled/RSN68_SFERN_PEL090.AT2');
 
-tn = 0.001 : 0.001 : 2;
+period = 0 : time_interval : (NPTS - 1) * time_interval;
+% ag = Acc;
+
+tn = 0.001 : 0.01 : 1;
 tn_length = length(tn);
 acceleration = zeros(1, tn_length);
 
-time_interval = period(2) - period(1);
+% time_interval = record_dt;
 
 for index = 1 : tn_length
 
@@ -19,9 +21,9 @@ for index = 1 : tn_length
 
 end
 
-tol = eps(0.5);
+% tol = eps(0.5);
 
-fprintf('PGA: %.3f, PGA: %.3f, Sa: %.3f\n', max(abs(ag)), acceleration(1), acceleration(abs(tn - 0.344) < tol));
+fprintf('Records: %s, PGA: %.3f, PGA: %.3f\n', max(abs(ag)), acceleration(1));
 
 figure;
 plot(tn, acceleration);
