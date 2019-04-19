@@ -15,11 +15,6 @@ def put_timehistorys(time_historys, peernga_folder):
             time_historys[time_history]['DT'] = float(words[3])
 
 
-# with open(peernga_folder + '/loadcase.e2k', mode='w', encoding='big5') as f:
-#     for name in time_historys:
-#         post_function(f, name)
-
-
 def post_functions(time_historys, peernga_folder):
     """
     path folder same as time history
@@ -123,7 +118,7 @@ def main():
     initial_condition = 'PUSHDLLL'
 
     # different by model
-    period = [0.344, 0.088]
+    period = [0.039, 0.039 / 10]
 
     time_historys = {
         'RSN169_IMPVALL.H_H-DLT262': {
