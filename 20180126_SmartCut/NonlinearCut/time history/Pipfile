@@ -1,0 +1,16 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pytest = "*"
+autopep8 = "*"
+pylint = "*"
+
+[packages]
+pandas = "==0.23.4"
+numpy = "==1.15.4"
+xlrd = "*"
+
+[requires]
