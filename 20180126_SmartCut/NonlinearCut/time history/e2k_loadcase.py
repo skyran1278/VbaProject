@@ -3,13 +3,15 @@ generate function and loadcase e2k with peernga data
 """
 import shlex
 
+import numpy as np
+
 
 def put_timehistorys(time_historys, peernga_folder):
     """
     put NPTS, DT
     """
     for time_history in time_historys:
-        with open(f'{peernga_folder}//{time_history}.AT2', encoding='big5') as f:
+        with open(f'{peernga_folder}/{time_history}.AT2') as f:
             words = shlex.split(f.readlines()[3])
             time_historys[time_history]['NPTS'] = int(words[1][:-1])
             time_historys[time_history]['DT'] = float(words[3])
@@ -239,14 +241,38 @@ def main():
     # different by model
     period = [0.039, 0.039 / 10]
 
-    fectors = [1, 2, 3]
+    fectors = np.array([1, 2, 3])
 
     time_historys = {
-        'RSN169_IMPVALL.H_H-DLT262': {
-            'FACTORS': fectors
+        'RSN125_FRIULI.A_A-TMZ000': {
+            'FACTORS': fectors * 1.737
         },
-        'RSN953_NORTHR_MUL009':  {
-            'FACTORS': fectors
+        'RSN767_LOMAP_G03000':  {
+            'FACTORS': fectors * 1.093
+        },
+        'RSN1148_KOCAELI_ARE000':  {
+            'FACTORS': fectors * 2.845
+        },
+        'RSN1602_DUZCE_BOL000':  {
+            'FACTORS': fectors * 0.710
+        },
+        'RSN1111_KOBE_NIS090':  {
+            'FACTORS': fectors * 1.037
+        },
+        'RSN1633_MANJIL_ABBAR--L':  {
+            'FACTORS': fectors * 0.935
+        },
+        'RSN725_SUPER.B_B-POE270':  {
+            'FACTORS': fectors * 0.964
+        },
+        'RSN68_SFERN_PEL180':  {
+            'FACTORS': fectors * 2.343
+        },
+        'RSN960_NORTHR_LOS270':  {
+            'FACTORS': fectors * 0.965
+        },
+        'RSN1485_CHICHI_TCU045-N':  {
+            'FACTORS': fectors * 0.856
         },
     }
 
