@@ -43,7 +43,7 @@ def main():
 
         with open(f'{normalized_folder}/{time_history}.AT2', mode='w', encoding='big5') as f:
             f.writelines(contents[:4])
-            f.write('\n'.join([f'{i:.7E}' for i in normalized_data]))
+            f.writelines([f'{i:.7E}\n' for i in normalized_data])
 
 
 if __name__ == "__main__":
