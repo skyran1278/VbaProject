@@ -3,8 +3,6 @@ generate function and loadcase e2k with peernga data
 """
 import shlex
 
-import numpy as np
-
 
 def put_timehistorys(time_historys, peernga_folder):
     """
@@ -40,7 +38,7 @@ def post_functions(time_historys, peernga_folder):
         )
 
         functions.append(
-            f'FUNCTION "{time_history}"  HEADERLINES 4  POINTSPERLINE 5  FORMAT "FREE"\n'
+            f'FUNCTION "{time_history}"  HEADERLINES 4  POINTSPERLINE 1  FORMAT "FREE"\n'
         )
 
     return functions
@@ -77,7 +75,7 @@ def post_previous_loadcases(initial_condition, dead_load, live_load):
     )
 
 
-def post_pushover_loadcases(displacement, mode_shapes, initial_condition):
+def post_pushover_loadcases(displacement, mode_shapes, initial_condition, direction):
     """
     LOADCASE "pushover x"  TYPE  "Nonlinear Static"  INITCOND  "1.0DL + 0.5LL"
     MODALCASE  "Modal"  MASSSOURCE  "Previous"
@@ -134,7 +132,8 @@ def post_pushover_loadcases(displacement, mode_shapes, initial_condition):
             f'LOADCASE "{name}"  NLGEOMTYPE  "PDelta"\n',
             (
                 f'LOADCASE "{name}"  LOADCONTROL  "Displacement"  DISPLTYPE  "Conjugate"  '
-                f'MONITOREDDISPL  "Joint"  DISPLMAG  {displacement} DOF  "U1"  JOINT  "1"  "RF"\n'
+                f'MONITOREDDISPL  "Joint"  DISPLMAG  {displacement} '
+                f'DOF  "{direction}"  JOINT  "1"  "RF"\n'
             ),
             f'LOADCASE "{name}"  RESULTSSAVED  "Multiple"  MINSAVED  10 MAXSAVED  200\n',
             f'LOADCASE "{name}"  USEEVENTSTEPPING  "Yes"  MAXITERCS  4 MAXITERNR  10\n',
@@ -147,7 +146,10 @@ def post_pushover_loadcases(displacement, mode_shapes, initial_condition):
 
     loadcases.extend(load(
         'MMC',
-        *[f'LOADCASE "MMC"  MODE  {mode} SF  {factor}\n' for mode, factor in enumerate(mode_shapes, 1)]
+        *[
+            f'LOADCASE "MMC"  MODE  {mode} SF  {factor}\n'
+            for mode, factor in enumerate(mode_shapes, 1)
+        ]
     ))
 
     for mode, factor in enumerate(mode_shapes, 1):
@@ -226,7 +228,7 @@ def main():
     # global
     script_folder = os.path.dirname(os.path.abspath(__file__))
 
-    peernga_folder = script_folder + '\\PEERNGARecords_Unscaled'
+    peernga_folder = script_folder + '/PEERNGARecords_Normalized'
 
     direction = 'U1'
 
@@ -234,46 +236,26 @@ def main():
     dead_load = 'DL'
     live_load = 'LL'
 
-    mode_shapes = [0.8, 0.1, 0.1]
-
+    # different by model
     displacement = 1
 
-    # different by model
+    mode_shapes = [0.8, 0.1, 0.1]
+
     period = [0.039, 0.039 / 10]
 
-    fectors = np.array([1, 2, 3])
+    fectors = [1, 2, 3]
 
     time_historys = {
-        'RSN125_FRIULI.A_A-TMZ000': {
-            'FACTORS': fectors * 1.737
-        },
-        'RSN767_LOMAP_G03000':  {
-            'FACTORS': fectors * 1.093
-        },
-        'RSN1148_KOCAELI_ARE000':  {
-            'FACTORS': fectors * 2.845
-        },
-        'RSN1602_DUZCE_BOL000':  {
-            'FACTORS': fectors * 0.710
-        },
-        'RSN1111_KOBE_NIS090':  {
-            'FACTORS': fectors * 1.037
-        },
-        'RSN1633_MANJIL_ABBAR--L':  {
-            'FACTORS': fectors * 0.935
-        },
-        'RSN725_SUPER.B_B-POE270':  {
-            'FACTORS': fectors * 0.964
-        },
-        'RSN68_SFERN_PEL180':  {
-            'FACTORS': fectors * 2.343
-        },
-        'RSN960_NORTHR_LOS270':  {
-            'FACTORS': fectors * 0.965
-        },
-        'RSN1485_CHICHI_TCU045-N':  {
-            'FACTORS': fectors * 0.856
-        },
+        'RSN125_FRIULI.A_A-TMZ000': {'FACTORS': fectors},
+        'RSN767_LOMAP_G03000': {'FACTORS': fectors},
+        'RSN1148_KOCAELI_ARE000': {'FACTORS': fectors},
+        'RSN1602_DUZCE_BOL000': {'FACTORS': fectors},
+        'RSN1111_KOBE_NIS090': {'FACTORS': fectors},
+        'RSN1633_MANJIL_ABBAR--L': {'FACTORS': fectors},
+        'RSN725_SUPER.B_B-POE270': {'FACTORS': fectors},
+        'RSN68_SFERN_PEL180': {'FACTORS': fectors},
+        'RSN960_NORTHR_LOS270': {'FACTORS': fectors},
+        'RSN1485_CHICHI_TCU045-N': {'FACTORS': fectors},
     }
 
     put_timehistorys(time_historys, peernga_folder)
@@ -285,7 +267,7 @@ def main():
         f.writelines(post_previous_loadcases(
             initial_condition, dead_load, live_load))
         f.writelines(post_pushover_loadcases(
-            displacement, mode_shapes, initial_condition))
+            displacement, mode_shapes, initial_condition, direction))
 
         f.writelines(post_timehistorys_loadcases(
             time_historys, period, initial_condition, direction))
