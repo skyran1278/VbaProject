@@ -3,6 +3,14 @@ generate function and loadcase e2k with peernga data
 """
 import shlex
 
+CONFIG = {
+    # different by model
+    'factors': [1, 2, 3],
+    'modal_participating_mass': [0.8211, 0.1252, 0.0432, 0.0105],
+    'period': [0.073, 0.073 / 10],
+    'displacement': 0.3,
+}
+
 
 def put_timehistorys(time_historys, peernga_folder):
     """
@@ -75,7 +83,7 @@ def post_previous_loadcases(initial_condition, dead_load, live_load):
     )
 
 
-def post_pushover_loadcases(displacement, mode_shapes, initial_condition, direction):
+def post_pushover_loadcases(displacement, modal_participating_mass, initial_condition, direction):
     """
     LOADCASE "pushover x"  TYPE  "Nonlinear Static"  INITCOND  "1.0DL + 0.5LL"
     MODALCASE  "Modal"  MASSSOURCE  "Previous"
@@ -148,11 +156,11 @@ def post_pushover_loadcases(displacement, mode_shapes, initial_condition, direct
         'MMC',
         *[
             f'LOADCASE "MMC"  MODE  {mode} SF  {factor}\n'
-            for mode, factor in enumerate(mode_shapes, 1)
+            for mode, factor in enumerate(modal_participating_mass, 1)
         ]
     ))
 
-    for mode, factor in enumerate(mode_shapes, 1):
+    for mode, factor in enumerate(modal_participating_mass, 1):
         loadcases.extend(load(
             f'pushover x {mode}',
             f'LOADCASE "pushover x {mode}"  MODE  {mode} SF  {factor}\n'
@@ -237,25 +245,25 @@ def main():
     live_load = 'LL'
 
     # different by model
-    displacement = 1
+    displacement = CONFIG['displacement']
 
-    mode_shapes = [0.8, 0.1, 0.1]
+    modal_participating_mass = CONFIG['modal_participating_mass']
 
-    period = [0.039, 0.039 / 10]
+    period = CONFIG['period']
 
-    fectors = [1, 2, 3]
+    factors = CONFIG['factors']
 
     time_historys = {
-        'RSN125_FRIULI.A_A-TMZ000': {'FACTORS': fectors},
-        'RSN767_LOMAP_G03000': {'FACTORS': fectors},
-        'RSN1148_KOCAELI_ARE000': {'FACTORS': fectors},
-        'RSN1602_DUZCE_BOL000': {'FACTORS': fectors},
-        'RSN1111_KOBE_NIS090': {'FACTORS': fectors},
-        'RSN1633_MANJIL_ABBAR--L': {'FACTORS': fectors},
-        'RSN725_SUPER.B_B-POE270': {'FACTORS': fectors},
-        'RSN68_SFERN_PEL180': {'FACTORS': fectors},
-        'RSN960_NORTHR_LOS270': {'FACTORS': fectors},
-        'RSN1485_CHICHI_TCU045-N': {'FACTORS': fectors},
+        'RSN125_FRIULI.A_A-TMZ000': {'FACTORS': factors},
+        'RSN767_LOMAP_G03000': {'FACTORS': factors},
+        'RSN1148_KOCAELI_ARE000': {'FACTORS': factors},
+        'RSN1602_DUZCE_BOL000': {'FACTORS': factors},
+        'RSN1111_KOBE_NIS090': {'FACTORS': factors},
+        'RSN1633_MANJIL_ABBAR--L': {'FACTORS': factors},
+        'RSN725_SUPER.B_B-POE270': {'FACTORS': factors},
+        'RSN68_SFERN_PEL180': {'FACTORS': factors},
+        'RSN960_NORTHR_LOS270': {'FACTORS': factors},
+        'RSN1485_CHICHI_TCU045-N': {'FACTORS': factors},
     }
 
     put_timehistorys(time_historys, peernga_folder)
@@ -267,7 +275,7 @@ def main():
         f.writelines(post_previous_loadcases(
             initial_condition, dead_load, live_load))
         f.writelines(post_pushover_loadcases(
-            displacement, mode_shapes, initial_condition, direction))
+            displacement, modal_participating_mass, initial_condition, direction))
 
         f.writelines(post_timehistorys_loadcases(
             time_historys, period, initial_condition, direction))
