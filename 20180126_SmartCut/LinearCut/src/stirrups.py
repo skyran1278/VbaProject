@@ -5,15 +5,32 @@ import numpy as np
 from src.dataset_rebar import double_area
 
 
-def _calc_vc(beam, etabs_design):
+def _calc_vc(beam, df, e2k):
 
-    row = 0
-    for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
-        height = beam.at[row, 'RC 梁深']
-        group_max = np.amax(group['StnLoc'])
-        group_min = np.amin(group['StnLoc'])
+    materials, sections = e2k['materials'], e2k['sections']
 
-        row += 4
+    # 延伸長度比較熟悉 cm 操作
+    # m => cm
+    # pylint: disable=invalid-name
+    B = df['SecID'].apply(lambda x: sections[x, 'B']) * 100
+    D = df['SecID'].apply(lambda x: sections[x, 'D']) * 100 - 6.5
+    material = df['SecID'].apply(lambda x: sections[x, 'MATERIAL'])
+    fc = material.apply(lambda x: materials[x, 'FC']) / 10
+
+    vc = 0.53 * np.sqrt(fc) * B * D
+
+    # row = 0
+    # for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
+    #     height = beam.at[row, 'RC 梁深']
+    #     group_max = np.amax(group['StnLoc'])
+    #     group_min = np.amin(group['StnLoc'])
+
+    #     # x < 1/4
+    #     left = (group_max - group_min) * 1/4 + group_min
+    #     # x > 3/4
+    #     right = (group_max - group_min) * 3/4 + group_min
+
+    # row += 4
 
 
 def _first_calc_dbt_spacing(etabs_design, stirrup_rebar):
