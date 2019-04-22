@@ -131,10 +131,10 @@ def main():
     """
     test
     """
-    from const import const
-    from data.dataset_e2k import load_e2k
-    from data.dataset_etabs_design import load_beam_design
-    from data.dataset_beam_name import load_beam_name
+    from src.const import const
+    from src.dataset_e2k import load_e2k
+    from src.dataset_etabs_design import load_beam_design
+    from src.dataset_beam_name import load_beam_name
 
     e2k_path, etabs_design_path, beam_name_path = const[
         'e2k_path'], const['etabs_design_path'], const['beam_name_path']

@@ -7,7 +7,7 @@ import time
 import wx
 import numpy as np
 
-from app import cut_by_beam, cut_by_frame
+from src.app import cut_by_beam, cut_by_frame
 
 print('Loading interface, please waiting...')
 

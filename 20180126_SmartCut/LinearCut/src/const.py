@@ -9,9 +9,9 @@ const = {  # pylint: disable=invalid-name
     'etabs_design_path': SCRIPT_DIR + '/../data/20190103 v3.0 3floor for v9.xlsx',
     'e2k_path': SCRIPT_DIR + '/../data/20190103 v3.0 3floor for v9.e2k',
 
-    'beam_name_path': SCRIPT_DIR + '/tests/20190103 v3.0 3floor for v9 beam name.xlsx',
+    'beam_name_path': SCRIPT_DIR + '/../tests/20190103 v3.0 3floor for v9 beam name.xlsx',
 
-    'output_dir': SCRIPT_DIR + '/tests',
+    'output_dir': SCRIPT_DIR + '/../tests',
 
     'stirrup_rebar': ['#4', '2#4', '2#5', '2#6'],
     'stirrup_spacing': np.array([10, 12, 15, 18, 20, 22, 25, 30]),

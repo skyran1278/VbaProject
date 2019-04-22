@@ -2,7 +2,7 @@
 """
 import numpy as np
 
-from data.dataset_rebar import rebar_db, rebar_area
+from src.dataset_rebar import rebar_db, rebar_area
 
 
 def _bar_name(loc):
@@ -91,14 +91,14 @@ def calc_db(by, etabs_design, e2k, const):  # pylint: disable=invalid-name
 def main():
     """ test
     """
-    from components.init_beam import init_beam, add_and_alter_beam_id
-    from const import const
+    from src.init_beam import init_beam, add_and_alter_beam_id
+    from src.const import const
 
-    from data.dataset_etabs_design import load_beam_design
-    from data.dataset_e2k import load_e2k
-    from data.dataset_beam_name import load_beam_name
-    from utils.execution_time import Execution
-    from components.stirrups import calc_stirrups
+    from src.dataset_etabs_design import load_beam_design
+    from src.dataset_e2k import load_e2k
+    from src.dataset_beam_name import load_beam_name
+    from src.execution_time import Execution
+    from src.stirrups import calc_stirrups
 
     e2k_path, etabs_design_path, beam_name_path = const[
         'e2k_path'], const['etabs_design_path'], const['beam_name_path']

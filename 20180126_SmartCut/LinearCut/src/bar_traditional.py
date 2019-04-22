@@ -3,9 +3,9 @@ traditional bar
 """
 import numpy as np
 
-from components.bar_functions import concat_num_size, num_to_1st_2nd
+from src.bar_functions import concat_num_size, num_to_1st_2nd
 
-from data.dataset_rebar import rebar_area
+from src.dataset_rebar import rebar_area
 
 
 def _get_group_length(group_num, group, ld):  # pylint: disable=invalid-name
@@ -134,14 +134,14 @@ def main():
     """
     test
     """
-    from components.init_beam import init_beam
-    from const import const
-    from data.dataset_etabs_design import load_beam_design
-    from data.dataset_e2k import load_e2k
-    from utils.execution_time import Execution
-    from components.stirrups import calc_stirrups
-    from components.bar_size_num import calc_db
-    from components.bar_ld import calc_ld
+    from src.init_beam import init_beam
+    from src.const import const
+    from src.dataset_etabs_design import load_beam_design
+    from src.dataset_e2k import load_e2k
+    from src.execution_time import Execution
+    from src.stirrups import calc_stirrups
+    from src.bar_size_num import calc_db
+    from src.bar_ld import calc_ld
 
     e2k_path, etabs_design_path = const[
         'e2k_path'], const['etabs_design_path']

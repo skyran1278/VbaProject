@@ -2,7 +2,11 @@
 """
 import numpy as np
 
-from data.dataset_rebar import double_area
+from src.dataset_rebar import double_area
+
+
+def _calc_vc(beam, etabs_design):
+    pass
 
 
 def _first_calc_dbt_spacing(etabs_design, stirrup_rebar):
@@ -130,11 +134,11 @@ def calc_stirrups(beam, etabs_design, const):
 
 
 def _main():
-    from const import const
-    from components.init_beam import init_beam
-    from data.dataset_e2k import load_e2k
-    from data.dataset_etabs_design import load_beam_design
-    from utils.execution_time import Execution
+    from src.const import const
+    from src.init_beam import init_beam
+    from src.dataset_e2k import load_e2k
+    from src.dataset_etabs_design import load_beam_design
+    from src.execution_time import Execution
 
     e2k_path, etabs_design_path = const['e2k_path'], const['etabs_design_path']
 
