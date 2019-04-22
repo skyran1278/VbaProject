@@ -20,9 +20,9 @@ class Execution():
 
     def _format_title(self, title):
         if title is None:
-            return f'{Fore.BLACK}{Back.WHITE}Lap {self.count}{Style.RESET_ALL}'
+            return f'{Fore.BLACK}{Back.WHITE} Lap {self.count} {Style.RESET_ALL}'
 
-        return f'\n{Fore.BLACK}{Back.WHITE}{title}{Style.RESET_ALL}'
+        return f'\n{Fore.BLACK}{Back.WHITE} {title} {Style.RESET_ALL}'
 
     def time(self, title=None):
         """
@@ -38,7 +38,7 @@ class Execution():
 
         else:
             print(
-                f'{Fore.BLUE}{round(time.time() - self.start_time, 4)}{Style.RESET_ALL} seconds')
+                f'{Fore.RED}{round(time.time() - self.start_time, 4)}{Style.RESET_ALL} seconds')
 
             self.count += 1
             self.start_time = None

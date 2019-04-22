@@ -18,6 +18,9 @@
       "name": "Pythonw",
       "type": "python",
       "request": "launch",
+      "env": {
+        "PYTHONPATH": "${workspaceRoot}"
+      },
       "program": "${file}",
       "pythonPath": "/Users/skyran/anaconda3/envs/smartcut/bin/pythonw",
       "console": "integratedTerminal"

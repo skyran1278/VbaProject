@@ -6,7 +6,14 @@ from src.dataset_rebar import double_area
 
 
 def _calc_vc(beam, etabs_design):
-    pass
+
+    row = 0
+    for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
+        height = beam.at[row, 'RC 梁深']
+        group_max = np.amax(group['StnLoc'])
+        group_min = np.amin(group['StnLoc'])
+
+        row += 4
 
 
 def _first_calc_dbt_spacing(etabs_design, stirrup_rebar):
@@ -125,6 +132,8 @@ def calc_stirrups(beam, etabs_design, const):
 
     # change m to cm
     stirrup_spacing = stirrup_spacing / 100
+
+    a = _calc_vc(beam, etabs_design)
 
     etabs_design = _first_calc_dbt_spacing(etabs_design, stirrup_rebar)
     etabs_design = _upgrade_size(etabs_design, stirrup_rebar, stirrup_spacing)
