@@ -72,9 +72,9 @@ def load_e2k(read_file):
         if checking == '$ LINE CONNECTIVITIES' and words[0] == 'LINE':
             line_name = words[1].strip('"')
             line_type = words[2]
-            lines[(line_name, line_type)] = [
+            lines[(line_name, line_type)] = (
                 words[3].strip('"'), words[4].strip('"')
-            ]
+            )
 
     return {
         'point_coordinates': point_coordinates,
