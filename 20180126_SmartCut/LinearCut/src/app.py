@@ -48,8 +48,10 @@ def cut_by_beam(const, moment=3):
 
     # 計算箍筋
     execution.time('Calculate Stirrup Size and Spacing')
-    beam, dh_design = calc_stirrups(beam, etabs_design, const)
-    beam_traditional, _ = calc_stirrups(beam_traditional, etabs_design, const)
+    beam, dh_design = calc_stirrups(
+        beam, etabs_design, e2k, const, consider_vc=False)
+    beam_traditional, _ = calc_stirrups(
+        beam_traditional, etabs_design, e2k, const, consider_vc=False)
     (beam, beam_traditional, dh_design) = load_pkl(
         output_dir + '/dh_design.pkl', (beam, beam_traditional, dh_design))
     execution.time()
@@ -120,8 +122,10 @@ def cut_by_frame(const, moment=3):
 
     # 計算箍筋
     execution.time('Calculate Stirrup Size and Spacing')
-    beam, dh_design = calc_stirrups(beam, etabs_design, const)
-    beam_traditional, _ = calc_stirrups(beam_traditional, etabs_design, const)
+    beam, dh_design = calc_stirrups(
+        beam, etabs_design, e2k, const, consider_vc=False)
+    beam_traditional, _ = calc_stirrups(
+        beam_traditional, etabs_design, e2k, const, consider_vc=False)
     (beam, beam_traditional, dh_design) = load_pkl(
         output_dir + '/dh_design.pkl', (beam, beam_traditional, dh_design))
     execution.time()

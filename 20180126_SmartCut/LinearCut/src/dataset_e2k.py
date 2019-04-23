@@ -150,3 +150,6 @@ if __name__ == '__main__':
     _init_pkl(READ_FILE, SAVE_FILE)
     E2K = load_e2k(READ_FILE, SAVE_FILE)
     print(E2K['point_coordinates'])
+    print(E2K['lines'])
+    print(E2K['materials'])
+    print(E2K['sections'])

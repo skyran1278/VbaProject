@@ -368,7 +368,8 @@ def main():
 
     beam = init_beam(etabs_design, e2k, moment=3)
     execution = Execution()
-    beam, dh_design = calc_stirrups(beam, etabs_design, const)
+    beam, dh_design = calc_stirrups(
+        beam, etabs_design, e2k, const, consider_vc=False)
 
     db_design = calc_db('BayID', dh_design, e2k, const)
 
