@@ -11,8 +11,7 @@ def _basic_information(header, etabs_design, e2k):
     lines = e2k['lines']
     sections = e2k['sections']
 
-    beam = pd.DataFrame(np.empty([len(etabs_design.groupby(
-        ['Story', 'BayID'])) * 4, len(header)], dtype='<U16'), columns=header)
+    beam = pd.DataFrame(columns=header)
 
     row = 0
     for (story, bay_id), group in etabs_design.groupby(['Story', 'BayID'], sort=False):
@@ -22,10 +21,9 @@ def _basic_information(header, etabs_design, e2k):
         beam.at[row, 'RC 梁寬'] = sections[(group['SecID'].iloc[0], 'B')] * 100
         beam.at[row, 'RC 梁深'] = sections[(group['SecID'].iloc[0], 'D')] * 100
 
-        point_start = lines[(bay_id, 'BEAM', 'START')]
-        point_end = lines[(bay_id, 'BEAM', 'END')]
+        point_start, point_end = lines[(bay_id, 'BEAM')]
         beam_length = math.sqrt(
-            sum((point_coordinates.loc[point_end] - point_coordinates.loc[point_start]) ** 2))
+            sum((point_coordinates[point_end] - point_coordinates[point_start]) ** 2))
 
         beam.at[row, '梁長'] = round(beam_length, 2) * 100
         beam.at[row, ('支承寬', '左')] = round(np.amin(group['StnLoc']), 3) * 100
@@ -46,7 +44,6 @@ def init_beam(etabs_design, e2k, moment=3):
     """
     header_info_1 = [('樓層', ''), ('編號', ''), ('RC 梁寬', ''), ('RC 梁深', '')]
 
-    # header_rebar = [('主筋', ''), ('主筋', '左'), ('主筋', '中'), ('主筋', '右')]
     header_rebar_3 = [('主筋', ''), ('主筋', '左'), ('主筋', '中'),
                       ('主筋', '右'), ('主筋長度', '左'), ('主筋長度', '中'), ('主筋長度', '右')]
     header_rebar_5 = [('主筋', ''), ('主筋', '左1'), ('主筋', '左2'), ('主筋', '中'),
@@ -131,7 +128,7 @@ def main():
     """
     test
     """
-    from src.const import const
+    from tests.const import const
     from src.dataset_e2k import load_e2k
     from src.dataset_etabs_design import load_beam_design
     from src.dataset_beam_name import load_beam_name
@@ -139,10 +136,9 @@ def main():
     e2k_path, etabs_design_path, beam_name_path = const[
         'e2k_path'], const['etabs_design_path'], const['beam_name_path']
 
-    e2k = load_e2k(e2k_path, e2k_path + '.pkl')
-    etabs_design = load_beam_design(
-        etabs_design_path, etabs_design_path + '.pkl')
-    beam_name = load_beam_name(beam_name_path, beam_name_path + '.pkl')
+    e2k = load_e2k(e2k_path)
+    etabs_design = load_beam_design(etabs_design_path)
+    beam_name = load_beam_name(beam_name_path)
 
     beam = init_beam(etabs_design, e2k, moment=3)
     print(beam.head())

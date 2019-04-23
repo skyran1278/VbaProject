@@ -34,6 +34,29 @@ REBARS = {
 }
 
 
+def get_area(size):
+    """
+    get rebar area\n
+    if first char is 2, return double area\n
+    size: string, rebar No. (ex: '#4')
+    """
+    if size[0] == '2':
+        return REBARS[(size[1:], 'AREA')] * 2
+
+    return REBARS[(size, 'AREA')]
+
+
+def get_diameter(size):
+    """
+    get rebar db\n
+    size: string, rebar No. (ex: '#4')
+    """
+    if size[0] == '2':
+        size = size[1:]
+
+    return REBARS[(size, 'DB')]
+
+
 def double_area(number):
     """
     double area, for stirrups\n
