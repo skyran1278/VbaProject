@@ -79,11 +79,11 @@ def _init_e2k(read_file):
         #     rebars[(rebar_name, 'AREA')] = float(words[3])
         #     rebars[(rebar_name, 'DIA')] = float(words[5])
 
-        if checking == '$ CONCRETE SECTIONS' and (
-                words[0] == 'CONCRETESECTION' and words[3] == '"BEAM"'):
-            section_name = words[1].strip('"')
-            sections[(section_name, 'COVERTOP')] = float(words[5])
-            sections[(section_name, 'COVERBOT')] = float(words[7])
+        # if checking == '$ CONCRETE SECTIONS' and (
+        #         words[0] == 'CONCRETESECTION' and words[3] == '"BEAM"'):
+        #     section_name = words[1].strip('"')
+        #     sections[(section_name, 'COVERTOP')] = float(words[5])
+        #     sections[(section_name, 'COVERBOT')] = float(words[7])
 
         if checking == '$ POINT COORDINATES' and words[0] == 'POINT':
             # point_coordinates.append(
