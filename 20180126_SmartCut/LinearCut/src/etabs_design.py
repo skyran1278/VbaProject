@@ -4,14 +4,14 @@ import math
 import pandas as pd
 
 
-def load_beam_design(read_file):
+def load_etabs_design(read_file):
     """ load etabs beam design
     """
     return pd.read_excel(
         read_file, sheet_name='Concrete_Design_2___Beam_Summar')
 
 
-def merge_e2k_to_etbas_design(df, e2k):
+def post_e2k(df, e2k):
     """
     merge e2k imformation to etabs design
     """
@@ -45,17 +45,38 @@ def merge_e2k_to_etbas_design(df, e2k):
     return df
 
 
+def post_beam_name(df, beam_name):
+    """ add beam/frame name id to etabs_design
+    """
+    df = df.assign(BeamID='', FrameID='')
+
+    for (story, bay_id), group in df.groupby(['Story', 'BayID'], sort=False):
+        beam_id, frame_id = beam_name.loc[(story, bay_id), :].values
+        group = group.assign(BeamID=beam_id, FrameID=frame_id)
+        df.loc[
+            group.index, ['BeamID', 'FrameID']] = group[['BeamID', 'FrameID']]
+
+    return df
+
+
 def main():
     """
     test
     """
     from tests.const import const
-    from src.dataset_e2k import load_e2k
+    from src.e2k import load_e2k
+    from src.beam_name import load_beam_name
+
+    etabs_design = load_etabs_design(const['etabs_design_path'])
+    print(etabs_design.head())
 
     e2k = load_e2k(const['e2k_path'])
-    dataset = load_beam_design(const['etabs_design_path'])
-    dataset = merge_e2k_to_etbas_design(dataset, e2k)
-    print(dataset)
+    etabs_design = post_e2k(etabs_design, e2k)
+    print(etabs_design.head())
+
+    beam_name = load_beam_name(const['beam_name_path'])
+    etabs_design = post_beam_name(etabs_design, beam_name)
+    print(etabs_design.head())
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ test
 import numpy as np
 
 from tests.const import const
-from src.dataset_e2k import load_e2k
+from src.e2k import load_e2k
 
 
 def test_load_e2k():

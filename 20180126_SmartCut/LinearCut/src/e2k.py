@@ -1,7 +1,5 @@
 """ load e2k
 """
-import os
-import pickle
 import re
 
 import numpy as np

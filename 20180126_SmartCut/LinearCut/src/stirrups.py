@@ -2,26 +2,21 @@
 """
 import numpy as np
 
-from src.dataset_rebar import double_area
+from src.rebar import double_area
 
 
-def _calc_vc(df, e2k):
+def _calc_vc(df):
     # pylint: disable=invalid-name
     # pylint: disable=no-member
-
-    materials, sections = e2k['materials'], e2k['sections']
-
-    B = df['SecID'].apply(lambda x: sections[x, 'B'])
-    H = df['SecID'].apply(lambda x: sections[x, 'D'])
-    # D = H - 0.1  # 假設雙排 #10 箍筋 #4
-    material = df['SecID'].apply(lambda x: sections[x, 'MATERIAL'])
-    fc = material.apply(lambda x: materials[x, 'FC'])
-    fyt = material.apply(lambda x: materials[x, 'FY'])
 
     amin = df.groupby(['Story', 'BayID'])['StnLoc'].transform('min')
     amax = df.groupby(['Story', 'BayID'])['StnLoc'].transform('max')
 
-    seismic_area = np.maximum((amax - amin) / 4, 2 * H)
+    seismic_area = np.maximum((amax - amin) / 4, 2 * df['H'])
+
+    B = df['B']
+    fc = df['Fc']
+    fyt = df['Fy']
 
     new_av = np.maximum.reduce([
         df['VRebar'] - 0.53 * np.sqrt(fc) * B / fyt,
@@ -41,14 +36,14 @@ def _calc_vc(df, e2k):
     return df
 
 
-def _first_calc_dbt_spacing(etabs_design, stirrup_rebar, vrebar):
+def _calc_init_dbt_spacing(etabs_design, stirrup_rebar, v_rebar):
     # print('Start calculate stirrup spacing and size...')
     # first calc VSize to spacing
     return etabs_design.assign(VSize=stirrup_rebar[0], Spacing=(
-        lambda x: double_area(stirrup_rebar[0]) / x[vrebar]))
+        lambda x: double_area(stirrup_rebar[0]) / x[v_rebar]))
 
 
-def _upgrade_size(etabs_design, stirrup_rebar, stirrup_spacing, vrebar):
+def _upgrade_size(etabs_design, stirrup_rebar, stirrup_spacing, v_rebar):
     # print('Start upgrade stirrup size...')
 
     for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
@@ -61,9 +56,9 @@ def _upgrade_size(etabs_design, stirrup_rebar, stirrup_spacing, vrebar):
 
             if rebar_num == '2':
                 # double stirrups so double * 2
-                spacing = double_area(rebar_size) * 2 / group[vrebar]
+                spacing = double_area(rebar_size) * 2 / group[v_rebar]
             else:
-                spacing = double_area(rebar_size) / group[vrebar]
+                spacing = double_area(rebar_size) / group[v_rebar]
 
             group = group.assign(VSize=stirrup_rebar[loc], Spacing=spacing)
 
@@ -149,74 +144,74 @@ def _merge_segments(beam, etabs_design, stirrup_spacing):
     return beam, etabs_design
 
 
-def _cut_3(beam, etabs_design, stirrup_spacing):
-    print('Start merge to 3 segments...')
+# def _cut_3(beam, etabs_design, stirrup_spacing):
+#     print('Start merge to 3 segments...')
 
-    etabs_design = etabs_design.assign(RealVSize='', RealSpacing=0)
+#     etabs_design = etabs_design.assign(RealVSize='', RealSpacing=0)
 
-    row = 0
-    for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
-        group_max = np.amax(group['StnLoc'])
-        group_min = np.amin(group['StnLoc'])
+#     row = 0
+#     for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
+#         group_max = np.amax(group['StnLoc'])
+#         group_min = np.amin(group['StnLoc'])
 
-        # x < 1/4
-        left = (group_max - group_min) * 1/4 + group_min
-        # x > 3/4
-        right = (group_max - group_min) * 3/4 + group_min
+#         # x < 1/4
+#         left = (group_max - group_min) * 1/4 + group_min
+#         # x > 3/4
+#         right = (group_max - group_min) * 3/4 + group_min
 
-        # rebar size with double
-        rebar_size = group['VSize'].iloc[0]
+#         # rebar size with double
+#         rebar_size = group['VSize'].iloc[0]
 
-        # spacing depands on loc_min, loc_max
-        group_spacing = {
-            '左': _get_spacing(group, group_min, left),
-            '中': _get_spacing(group, left, right),
-            '右': _get_spacing(group, right, group_max)
-        }
+#         # spacing depands on loc_min, loc_max
+#         group_spacing = {
+#             '左': _get_spacing(group, group_min, left),
+#             '中': _get_spacing(group, left, right),
+#             '右': _get_spacing(group, right, group_max)
+#         }
 
-        group_length = {
-            '左': (group_max - group_min) * 1/4,
-            '中': (group_max - group_min) * 2/4,
-            '右': (group_max - group_min) * 1/4
-        }
+#         group_length = {
+#             '左': (group_max - group_min) * 1/4,
+#             '中': (group_max - group_min) * 2/4,
+#             '右': (group_max - group_min) * 1/4
+#         }
 
-        for loc in ('左', '中', '右'):
-            loc_size = rebar_size
-            loc_spacing = group_spacing[loc]
+#         for loc in ('左', '中', '右'):
+#             loc_size = rebar_size
+#             loc_spacing = group_spacing[loc]
 
-            # if double, judge size can drop or not
-            if rebar_size[0] == '2':
-                loc_size, loc_spacing = _drop_size(
-                    loc_size, loc_spacing, stirrup_spacing)
+#             # if double, judge size can drop or not
+#             if rebar_size[0] == '2':
+#                 loc_size, loc_spacing = _drop_size(
+#                     loc_size, loc_spacing, stirrup_spacing)
 
-            # all spacing reduce to usr defined
-            loc_spacing_max = np.amax(
-                stirrup_spacing[np.amin(loc_spacing) >= stirrup_spacing])
+#             # all spacing reduce to usr defined
+#             loc_spacing_max = np.amax(
+#                 stirrup_spacing[np.amin(loc_spacing) >= stirrup_spacing])
 
-            # for next convinience get
-            etabs_design.loc[loc_spacing.index,
-                             'RealSpacing'] = loc_spacing_max
+#             # for next convinience get
+#             etabs_design.loc[loc_spacing.index,
+#                              'RealSpacing'] = loc_spacing_max
 
-            # windows: UnicodeEncodeError so add .encode('utf-8', 'ignore').decode('utf-8')
-            # remove numpy array, use default array instead
-            etabs_design.loc[loc_spacing.index,
-                             'RealVSize'] = loc_size
+#             # windows: UnicodeEncodeError so add .encode('utf-8', 'ignore').decode('utf-8')
+#             # remove numpy array, use default array instead
+#             etabs_design.loc[loc_spacing.index,
+#                              'RealVSize'] = loc_size
 
-            beam.loc[row, ('箍筋', loc)] = (
-                f'{loc_size}@{int(loc_spacing_max * 100)}'
-            )
+#             beam.loc[row, ('箍筋', loc)] = (
+#                 f'{loc_size}@{int(loc_spacing_max * 100)}'
+#             )
 
-            beam.loc[row, ('箍筋長度', loc)] = group_length[loc] * 100
+#             beam.loc[row, ('箍筋長度', loc)] = group_length[loc] * 100
 
-        row = row + 4
+#         row = row + 4
 
-    return beam, etabs_design
+#     return beam, etabs_design
 
 
-def calc_stirrups(beam, etabs_design, e2k, const, consider_vc=False):
+def calc_stirrups(beam, etabs_design, const, consider_vc=False):
     """ calc stirrups
     """
-    vrebar = 'VRebarConsiderVc' if consider_vc else 'VRebar'
+    v_rebar = 'VRebarConsiderVc' if consider_vc else 'VRebar'
 
     stirrup_rebar = const['stirrup_rebar']
     stirrup_spacing = const['stirrup_spacing']
@@ -224,34 +219,36 @@ def calc_stirrups(beam, etabs_design, e2k, const, consider_vc=False):
     # change m to cm
     stirrup_spacing = stirrup_spacing / 100
 
-    etabs_design = _calc_vc(etabs_design, e2k)
+    etabs_design = _calc_vc(etabs_design)
 
-    etabs_design = _first_calc_dbt_spacing(etabs_design, stirrup_rebar, vrebar)
+    etabs_design = _calc_init_dbt_spacing(etabs_design, stirrup_rebar, v_rebar)
     etabs_design = _upgrade_size(
-        etabs_design, stirrup_rebar, stirrup_spacing, vrebar)
+        etabs_design, stirrup_rebar, stirrup_spacing, v_rebar)
     beam, etabs_design = _merge_segments(beam, etabs_design, stirrup_spacing)
 
     return beam, etabs_design
 
 
 def _main():
-    from src.const import const
-    from src.init_beam import init_beam
-    from src.dataset_e2k import load_e2k
-    from src.dataset_etabs_design import load_beam_design
+    from tests.const import const
+    from src.beam import init_beam
+    from src.e2k import load_e2k
+    from src.etabs_design import load_etabs_design, post_e2k
     from src.execution_time import Execution
 
-    e2k_path, etabs_design_path = const['e2k_path'], const['etabs_design_path']
-
-    e2k = load_e2k(e2k_path, e2k_path + '.pkl')
-    etabs_design = load_beam_design(
-        etabs_design_path, etabs_design_path + '.pkl')
-
-    beam = init_beam(etabs_design, e2k, moment=3)
     execution = Execution()
+
+    e2k = load_e2k(const['e2k_path'])
+    etabs_design = load_etabs_design(const['etabs_design_path'])
+    etabs_design = post_e2k(etabs_design, e2k)
+    beam = init_beam(etabs_design, moment=3)
+
     execution.time('Stirrup Time')
-    beam, dh_design = calc_stirrups(
-        beam, etabs_design, e2k, const, consider_vc=False)
+    beam, dh_design = calc_stirrups(beam, etabs_design, const)
+    print(beam.head())
+    print(dh_design.head())
+
+    beam, dh_design = calc_stirrups(beam, etabs_design, const, True)
     print(beam.head())
     print(dh_design.head())
     execution.time()
