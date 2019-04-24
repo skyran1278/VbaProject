@@ -42,10 +42,10 @@ def test_load_e2k():
     }
 
     sections = {
-        ('C80X80', 'MATERIAL'): 'C280', ('C80X80', 'D'): 0.8,
+        ('C80X80', 'MATERIAL'): 'C280', ('C80X80', 'H'): 0.8,
         ('C80X80', 'B'): 0.8, ('B50X60', 'MATERIAL'): 'C280',
-        ('B50X60', 'D'): 0.6, ('B50X60', 'B'): 0.5,
-        ('C60X60', 'MATERIAL'): 'C280', ('C60X60', 'D'): 0.6, ('C60X60', 'B'): 0.6
+        ('B50X60', 'H'): 0.6, ('B50X60', 'B'): 0.5,
+        ('C60X60', 'MATERIAL'): 'C280', ('C60X60', 'H'): 0.6, ('C60X60', 'B'): 0.6
     }
 
     np.testing.assert_equal(dataset['point_coordinates'], point_coordinates)

@@ -61,7 +61,7 @@ def load_e2k(read_file):
                 words[0] == 'FRAMESECTION' and words[5] == '"Rectangular"'):
             section_name = words[1].strip('"')
             sections[(section_name, 'MATERIAL')] = words[3].strip('"')
-            sections[(section_name, 'D')] = float(words[7])
+            sections[(section_name, 'H')] = float(words[7])
             sections[(section_name, 'B')] = float(words[9])
 
         if checking == '$ POINT COORDINATES' and words[0] == 'POINT':
