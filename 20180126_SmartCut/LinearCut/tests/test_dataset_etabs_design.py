@@ -38,8 +38,9 @@ def test_merge_etabs():
         'LSupportWidth', 'RSupportWidth'
     ]
 
-    first_row = df.loc[0, columns].values.astype(float)
+    first_row = df.loc[0, columns].values
 
-    data = [0.5, 0.6, 2800.0, 42000.0, 12.0, 0.3, 0.4]
+    data = np.array(
+        [0.5, 0.6, 2800.0, 42000.0, 12.0, 0.3, 0.4], dtype=object)
 
-    np.testing.assert_allclose(first_row, data)
+    np.testing.assert_array_equal(first_row, data)

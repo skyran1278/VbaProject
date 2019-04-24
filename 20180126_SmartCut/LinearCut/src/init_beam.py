@@ -1,44 +1,34 @@
 """ init beam output table
 """
-import math
-
 import pandas as pd
 import numpy as np
 
 
-def _basic_information(header, etabs_design, e2k):
-    point_coordinates = e2k['point_coordinates']
-    lines = e2k['lines']
-    sections = e2k['sections']
-
+def _basic_information(header, etabs_design):
     beam = pd.DataFrame(columns=header)
+
+    beam = pd.DataFrame(np.empty([len(etabs_design.groupby(
+        ['Story', 'BayID'])) * 4, len(header)], dtype='<U16'), columns=header)
 
     row = 0
     for (story, bay_id), group in etabs_design.groupby(['Story', 'BayID'], sort=False):
-        # print(group['StnLoc'])
         beam.at[row, '樓層'] = story
         beam.at[row, '編號'] = bay_id
-        beam.at[row, 'RC 梁寬'] = sections[(group['SecID'].iloc[0], 'B')] * 100
-        beam.at[row, 'RC 梁深'] = sections[(group['SecID'].iloc[0], 'D')] * 100
+        beam.at[row, 'RC 梁寬'] = group['B'].iloc[0] * 100
+        beam.at[row, 'RC 梁深'] = group['H'].iloc[0] * 100
+        beam.at[row, '梁長'] = group['Length'].iloc[0] * 100
+        beam.at[row, ('支承寬', '左')] = group['LSupportWidth'].iloc[0] * 100
+        beam.at[row, ('支承寬', '右')] = group['RSupportWidth'].iloc[0] * 100
 
-        point_start, point_end = lines[(bay_id, 'BEAM')]
-        beam_length = math.sqrt(
-            sum((point_coordinates[point_end] - point_coordinates[point_start]) ** 2))
-
-        beam.at[row, '梁長'] = round(beam_length, 2) * 100
-        beam.at[row, ('支承寬', '左')] = round(np.amin(group['StnLoc']), 3) * 100
-        beam.at[row, ('支承寬', '右')] = round(
-            (beam_length - np.amax(group['StnLoc'])), 3) * 100
-
-        beam.loc[row: row + 3, ('主筋', '')] = ['上層 第一排',
-                                              '上層 第二排', '下層 第二排', '下層 第一排']
+        beam.loc[row: row + 3, ('主筋', '')] = [
+            '上層 第一排', '上層 第二排', '下層 第二排', '下層 第一排']
 
         row += 4
 
     return beam
 
 
-def init_beam(etabs_design, e2k, moment=3):
+def init_beam(etabs_design, moment=3):
     """
     init output beam table return beam
     """
@@ -65,7 +55,7 @@ def init_beam(etabs_design, e2k, moment=3):
         header = pd.MultiIndex.from_tuples(
             header_info_1 + header_rebar_5 + header_sidebar + header_stirrup + header_info_2)
 
-    return _basic_information(header, etabs_design, e2k)
+    return _basic_information(header, etabs_design)
 
 
 def add_and_alter_beam_id(beam, beam_name, etabs_design):
@@ -130,18 +120,23 @@ def main():
     """
     from tests.const import const
     from src.dataset_e2k import load_e2k
-    from src.dataset_etabs_design import load_beam_design
+    from src.dataset_etabs_design import load_beam_design, merge_e2k_to_etbas_design
     from src.dataset_beam_name import load_beam_name
+    from src.execution_time import Execution
 
     e2k_path, etabs_design_path, beam_name_path = const[
         'e2k_path'], const['etabs_design_path'], const['beam_name_path']
 
     e2k = load_e2k(e2k_path)
     etabs_design = load_beam_design(etabs_design_path)
+    etabs_design = merge_e2k_to_etbas_design(etabs_design, e2k)
     beam_name = load_beam_name(beam_name_path)
 
-    beam = init_beam(etabs_design, e2k, moment=3)
+    execution = Execution()
+    execution.time()
+    beam = init_beam(etabs_design, moment=3)
     print(beam.head())
+    execution.time()
 
     beam_name_empty = init_beam_name(etabs_design)
     print(beam_name_empty.head())

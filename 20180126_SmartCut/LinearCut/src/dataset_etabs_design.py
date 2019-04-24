@@ -23,12 +23,6 @@ def merge_e2k_to_etbas_design(df, e2k):
         # 四捨五入到小數點下第三位
         return round(length, 3)
 
-    def _min(x):  # pylint: disable=invalid-name
-        return round(min(x), 3)
-
-    def _max(x):  # pylint: disable=invalid-name
-        return round(max(x), 3)
-
     coors = e2k['point_coordinates']
     lines = e2k['lines']
     mats = e2k['materials']
@@ -43,9 +37,10 @@ def merge_e2k_to_etbas_design(df, e2k):
     df['Fy'] = sec_mats.apply(lambda x: mats[x, 'FY'])
     df['Length'] = line_ids.apply(_cal_length)
 
-    df['LSupportWidth'] = df.groupby('BayID')['StnLoc'].transform(_min)
-    df['RSupportWidth'] = (
-        df['Length'] - df.groupby('BayID')['StnLoc'].transform(_max))
+    grouped = df.groupby(['Story', 'BayID'])['StnLoc']
+
+    df['LSupportWidth'] = round(grouped.transform('min'), 3)
+    df['RSupportWidth'] = round(df['Length'] - grouped.transform('max'), 3)
 
     return df
 
