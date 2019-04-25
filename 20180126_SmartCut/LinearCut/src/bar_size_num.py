@@ -15,8 +15,7 @@ def _bar_name(loc):
     return (bar_size, bar_num, bar_cap, bar_1st, bar_2nd)
 
 
-def _calc_bar_size_num(rebar_i, loc, e2k, const):
-    sections = e2k['sections']
+def _calc_bar_size_num(rebar_i, loc, const):
     rebar, db_spacing, cover = const['rebar'], const['db_spacing'], const['cover']
 
     bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(loc)
@@ -61,7 +60,7 @@ def _calc_bar_size_num(rebar_i, loc, e2k, const):
     }
 
 
-def calc_db(by, etabs_design, e2k, const):  # pylint: disable=invalid-name
+def calc_db(by, etabs_design, const):  # pylint: disable=invalid-name
     """ calculate db by beam or usr defined frame, should first calculate stirrups
     """
     rebar = const['rebar']
@@ -72,7 +71,7 @@ def calc_db(by, etabs_design, e2k, const):  # pylint: disable=invalid-name
         bar_size, bar_num, bar_cap, bar_1st, bar_2nd = _bar_name(loc)
 
         db_design = db_design.assign(
-            **_calc_bar_size_num(0, loc, e2k, const))
+            **_calc_bar_size_num(0, loc, const))
 
         for _, group in db_design.groupby(['Story', by], sort=False):
             rebar_i = 0
@@ -80,10 +79,10 @@ def calc_db(by, etabs_design, e2k, const):  # pylint: disable=invalid-name
             while np.any(group[bar_num] > 2 * group[bar_cap]):
                 rebar_i += 1
                 group = group.assign(
-                    **_calc_bar_size_num(rebar_i, loc, e2k, const))
+                    **_calc_bar_size_num(rebar_i, loc, const))
 
-            db_design.loc[group.index, [bar_size, bar_num, bar_cap, bar_1st, bar_2nd]
-                          ] = group[[bar_size, bar_num, bar_cap, bar_1st, bar_2nd]]
+            db_design.loc[group.index, [bar_size, bar_num, bar_cap, bar_1st, bar_2nd]] = (
+                group[[bar_size, bar_num, bar_cap, bar_1st, bar_2nd]])
 
     return db_design
 
@@ -91,40 +90,34 @@ def calc_db(by, etabs_design, e2k, const):  # pylint: disable=invalid-name
 def main():
     """ test
     """
-    from src.init_beam import init_beam, add_and_alter_beam_id
-    from src.const import const
-
-    from src.dataset_etabs_design import load_beam_design
-    from src.dataset_e2k import load_e2k
-    from src.dataset_beam_name import load_beam_name
     from src.execution_time import Execution
+    from tests.const import const
+    from src.beam import init_beam
+    from src.e2k import load_e2k
+    from src.beam_name import load_beam_name
+    from src.etabs_design import load_etabs_design, post_e2k, post_beam_name
     from src.stirrups import calc_stirrups
 
-    e2k_path, etabs_design_path, beam_name_path = const[
-        'e2k_path'], const['etabs_design_path'], const['beam_name_path']
-
-    e2k = load_e2k(e2k_path, e2k_path + '.pkl')
-    etabs_design = load_beam_design(
-        etabs_design_path, etabs_design_path + '.pkl')
-    beam_name = load_beam_name(beam_name_path, beam_name_path + '.pkl')
-
-    beam = init_beam(etabs_design, e2k, moment=3)
     execution = Execution()
-    beam, dh_design = calc_stirrups(
-        beam, etabs_design, e2k, const, consider_vc=False)
+
+    e2k = load_e2k(const['e2k_path'])
+    etabs_design = load_etabs_design(const['etabs_design_path'])
+    etabs_design = post_e2k(etabs_design, e2k)
+    beam = init_beam(etabs_design, moment=3)
+    beam, etabs_design = calc_stirrups(beam, etabs_design, const)
 
     execution.time('BayID')
-    db_design = calc_db('BayID', dh_design, e2k, const)
-    print(db_design.head())
+    etabs_design = calc_db('BayID', etabs_design, const)
+    print(etabs_design.head())
     execution.time('BayID')
 
+    beam_name = load_beam_name(const['beam_name_path'])
+    etabs_design = post_beam_name(etabs_design, beam_name)
+
     execution.time('FrameID')
-    beam, dh_design = add_and_alter_beam_id(
-        beam, beam_name, dh_design)
-    db_design = calc_db('FrameID', dh_design, e2k, const)
-    print(db_design.head())
+    etabs_design = calc_db('FrameID', etabs_design, const)
+    print(etabs_design.head())
     execution.time('FrameID')
-    # db_design = load_pkl(SCRIPT_DIR + '/db_design.pkl', db_design)
 
 
 if __name__ == "__main__":

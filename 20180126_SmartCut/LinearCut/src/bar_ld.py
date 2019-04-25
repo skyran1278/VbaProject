@@ -2,7 +2,7 @@
 """
 import numpy as np
 
-from src.dataset_rebar import double_area, rebar_area, rebar_db
+from src.rebar import double_area, rebar_area, rebar_db
 
 
 def _double_size_area(real_v_size):
@@ -11,26 +11,23 @@ def _double_size_area(real_v_size):
     return np.where(rebar_num == '2', double_area(real_v_size), rebar_area(real_v_size))
 
 
-def _ld(df, loc, e2k, cover):
+def _ld(df, loc, cover):
     """
     It is used for nominal concrete in case of phi_e=1.0 & phi_t=1.0.
     Reference:土木401-93
     PI = 3.1415926
     """
-    materials, sections = e2k['materials'], e2k['sections']
-
     bar_size = 'Bar' + loc + 'Size'
     bar_1st = 'Bar' + loc + '1st'
 
     # 延伸長度比較熟悉 cm 操作
     # m => cm
     # pylint: disable=invalid-name
-    B = df['SecID'].apply(lambda x: sections[x, 'B']) * 100
-    material = df['SecID'].apply(lambda x: sections[x, 'MATERIAL'])
+    B = df['B'] * 100
     # pylint: disable=invalid-name
-    fc = material.apply(lambda x: materials[x, 'FC']) / 10
+    fc = df['Fc'] / 10
     # pylint: disable=invalid-name
-    fy = material.apply(lambda x: materials[x, 'FY']) / 10
+    fy = df['Fy'] / 10
     fyh = fy
     cover = cover * 100
     db = df[bar_size].apply(rebar_db) * 100  # pylint: disable=invalid-name
@@ -95,7 +92,7 @@ def _ld(df, loc, e2k, cover):
     }
 
 
-def calc_ld(etbas_design, e2k, const):
+def calc_ld(etbas_design, const):
     """
     It is used for nominal concrete in case of phi_e=1.0 & phi_t=1.0.
     Reference:土木401-93
@@ -105,7 +102,7 @@ def calc_ld(etbas_design, e2k, const):
 
     for loc in rebar:
         etbas_design = etbas_design.assign(
-            **_ld(etbas_design, loc, e2k, cover))
+            **_ld(etbas_design, loc, cover))
 
     return etbas_design
 
@@ -144,8 +141,10 @@ def add_ld(etbas_design, ld_type, rebar):
             for row in iteration:
                 stn_loc = group.at[group.index[row], 'StnLoc']
                 stn_ld = group.at[group.index[row], ld]
-                stn_inter = (group['StnLoc'] >= stn_loc -
-                             stn_ld) & (group['StnLoc'] <= stn_loc + stn_ld)
+                stn_inter = (
+                    (group['StnLoc'] >= stn_loc - stn_ld) &
+                    (group['StnLoc'] <= stn_loc + stn_ld)
+                )
                 group.loc[stn_inter, bar_num_ld] = np.maximum(
                     group.at[group.index[row], bar_num], group.loc[stn_inter, bar_num_ld])
 
@@ -162,40 +161,36 @@ def main():
     """
     test
     """
-    from src.init_beam import init_beam
-    from src.const import const
-    from src.dataset_etabs_design import load_beam_design
-    from src.dataset_e2k import load_e2k
     from src.execution_time import Execution
+    from tests.const import const
+    from src.beam import init_beam
+    from src.e2k import load_e2k
+    from src.etabs_design import load_etabs_design, post_e2k
     from src.stirrups import calc_stirrups
     from src.bar_size_num import calc_db
 
-    e2k_path, etabs_design_path = const['e2k_path'], const['etabs_design_path']
-
-    e2k = load_e2k(e2k_path, e2k_path + '.pkl')
-    etabs_design = load_beam_design(
-        etabs_design_path, etabs_design_path + '.pkl')
-
-    beam = init_beam(etabs_design, e2k, moment=3)
     execution = Execution()
-    beam, dh_design = calc_stirrups(
-        beam, etabs_design, e2k, const, consider_vc=False)
 
-    db_design = calc_db('BayID', dh_design, e2k, const)
+    e2k = load_e2k(const['e2k_path'])
+    etabs_design = load_etabs_design(const['etabs_design_path'])
+    etabs_design = post_e2k(etabs_design, e2k)
+    beam = init_beam(etabs_design, moment=3)
+    beam, etabs_design = calc_stirrups(beam, etabs_design, const)
+    etabs_design = calc_db('BayID', etabs_design, const)
 
     execution.time('ld')
-    ld_design = calc_ld(db_design, e2k, const)
-    print(ld_design.head())
+    etabs_design = calc_ld(etabs_design, const)
+    print(etabs_design.head())
     execution.time('ld')
 
     execution.time('add_ld')
-    ld_design = add_ld(ld_design, 'Ld', const['rebar'])
-    print(ld_design.head())
+    etabs_design = add_ld(etabs_design, 'Ld', const['rebar'])
+    print(etabs_design.head())
     execution.time('add_ld')
 
     execution.time('add_simple_ld')
-    ld_design = add_ld(ld_design, 'SimpleLd', const['rebar'])
-    print(ld_design.head())
+    etabs_design = add_ld(etabs_design, 'SimpleLd', const['rebar'])
+    print(etabs_design.head(100))
     execution.time('add_simple_ld')
 
 
