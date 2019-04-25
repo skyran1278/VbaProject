@@ -1,7 +1,7 @@
 ~$*
 *.pkl
 .DS_Store
-D:\GitHub\VbaProject\20180126_SmartCut\LinearCut\.vscode\setting.json
+/20180126_SmartCut/LinearCut/.vscode/settings.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
