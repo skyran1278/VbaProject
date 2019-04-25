@@ -4,7 +4,7 @@ test
 import numpy as np
 
 
-def test_bar_trational():
+def test_bar_cut():
     """
     test calc_db
     """
@@ -15,7 +15,7 @@ def test_bar_trational():
     from src.stirrups import calc_stirrups
     from src.bar_size_num import calc_db
     from src.bar_ld import calc_ld, add_ld
-    from src.bar_traditional import cut_traditional
+    from src.bar_cut import cut_optimization
 
     e2k = load_e2k(const['e2k_path'])
     etabs_design = load_etabs_design(const['etabs_design_path'])
@@ -26,8 +26,8 @@ def test_bar_trational():
     etabs_design = calc_ld(etabs_design, const)
     etabs_design = add_ld(etabs_design, 'Ld', const['rebar'])
 
-    beam_trational = cut_traditional(beam, etabs_design, const['rebar'])
-    print(beam_trational.head())
+    beam = cut_optimization(beam, etabs_design, const)
+    print(beam.head())
 
     cols = [
         ('主筋', '左'), ('主筋', '中'), ('主筋', '右'),
@@ -35,7 +35,7 @@ def test_bar_trational():
     ]
 
     data = np.array(
-        ['5-#10', '2-#10', '5-#10', 376.667, 376.667, 376.667], dtype=object)
+        ['5-#10', '2-#10', '5-#10', 230, 630, 270], dtype=object)
 
     np.testing.assert_array_equal(
-        beam_trational.loc[0, cols].values, data)
+        beam.loc[0, cols].values, data)

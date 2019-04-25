@@ -5,7 +5,7 @@ import numpy as np
 
 
 from src.bar_functions import concat_num_size, num_to_1st_2nd
-from src.dataset_rebar import rebar_area
+from src.rebar import rebar_area
 
 
 def _calc_num_length(group, split_array):
@@ -32,8 +32,8 @@ def _make_1st_last_diff(group_diff):
 def _get_min_cut(group_loc, group_loc_diff, loc):
     if group_loc_diff[loc] > 0:
         return group_loc.index[loc]
-    else:
-        return group_loc.index[loc + 1]
+
+    return group_loc.index[loc + 1]
 
 
 def cut_5(etabs_design, beam_5, const):
@@ -326,7 +326,7 @@ def output_3(beam, etabs_design, const):
                 loc_length = group_length[bar_loc]
                 beam.at[row, ('主筋', bar_loc)] = concat_num_size(
                     loc_1st, group_size)
-                beam.at[row, ('主筋長度', bar_loc)] = loc_length * 100
+                beam.at[row, ('主筋長度', bar_loc)] = round(loc_length * 100, 3)
                 beam.at[row + to_2nd, ('主筋', bar_loc)
                         ] = concat_num_size(loc_2nd, group_size)
 
@@ -338,11 +338,11 @@ def output_3(beam, etabs_design, const):
     return beam
 
 
-def cut_optimization(moment, beam, etabs_design, const):
+def cut_optimization(beam, etabs_design, const):
     """
     cut 3 or 5, optimization
     """
-    if moment == 3:
+    if ('主筋', '左') in beam:
         return output_3(beam, etabs_design, const)
     return cut_5(beam, etabs_design, const)
 
@@ -351,34 +351,29 @@ def main():
     """
     test
     """
-    from src.init_beam import init_beam
-    from src.const import const
-    from src.dataset_etabs_design import load_beam_design
-    from src.dataset_e2k import load_e2k
     from src.execution_time import Execution
+    from tests.const import const
+    from src.beam import init_beam
+    from src.e2k import load_e2k
+    from src.etabs_design import load_etabs_design, post_e2k
     from src.stirrups import calc_stirrups
     from src.bar_size_num import calc_db
     from src.bar_ld import calc_ld, add_ld
 
-    e2k_path, etabs_design_path = const['e2k_path'], const['etabs_design_path']
-
-    e2k = load_e2k(e2k_path, e2k_path + '.pkl')
-    etabs_design = load_beam_design(
-        etabs_design_path, etabs_design_path + '.pkl')
-
-    beam = init_beam(etabs_design, e2k, moment=3)
     execution = Execution()
-    beam, dh_design = calc_stirrups(
-        beam, etabs_design, e2k, const, consider_vc=False)
 
-    db_design = calc_db('BayID', dh_design, e2k, const)
-
-    ld_design = calc_ld(db_design, e2k, const)
-
-    ld_design = add_ld(ld_design, 'Ld', const['rebar'])
+    e2k = load_e2k(const['e2k_path'])
+    etabs_design = load_etabs_design(const['etabs_design_path'])
+    etabs_design = post_e2k(etabs_design, e2k)
+    beam = init_beam(etabs_design, moment=3)
+    beam, etabs_design = calc_stirrups(beam, etabs_design, const)
+    etabs_design = calc_db('BayID', etabs_design, const)
+    etabs_design = calc_ld(etabs_design, const)
+    etabs_design = add_ld(etabs_design, 'Ld', const['rebar'])
 
     execution.time('cut 3')
-    beam = output_3(beam, ld_design, const)
+    # beam = output_3(beam, etabs_design, const)
+    beam = cut_optimization(beam, etabs_design, const)
     print(beam.head())
     execution.time('cut 3')
 

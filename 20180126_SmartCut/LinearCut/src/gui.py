@@ -3,6 +3,7 @@ GUI for SmartCut.
 """
 import os
 import time
+import threading
 
 import wx
 import numpy as np
@@ -140,11 +141,14 @@ class SmartCutPanel(wx.Panel):
         }
 
     def _run_by_beam(self, event):  # pylint: disable=unused-argument
-        cut_by_beam(self._const())
+        # 建立一個子執行緒
+        threading.Thread(target=cut_by_beam, args=(self._const(),)).start()
+        # cut_by_beam(self._const())
+        # 執行該子執行緒
+        # t.start()
 
     def _run_by_frame(self, event):  # pylint: disable=unused-argument
-        const = self._const()
-        cut_by_frame(const)
+        cut_by_frame(self._const())
 
     def _get_iteration_gap(self):
         return {
@@ -278,7 +282,13 @@ class SmartCutFrame(wx.Frame):
                       wx.OK | wx.ICON_INFORMATION)
 
 
-APP = wx.App()
-FRAME = SmartCutFrame(None, title='Smart Cut', size=(900, 700))
-FRAME.Show()
-APP.MainLoop()
+# 建立一個子執行緒
+# t = threading.Thread(target=cut_by_beam)
+
+# async def t(const):
+#     cut_by_beam(const)
+
+app = wx.App()
+frame = SmartCutFrame(None, title='Smart Cut', size=(900, 700))
+frame.Show()
+app.MainLoop()

@@ -6,6 +6,9 @@ import numpy as np
 
 _test_dir = os.path.dirname(os.path.abspath(__file__))
 
+"""
+公尺的輸出一律四捨五入到小數點下第五位，公分一律第三位。
+"""
 const = {
     'etabs_design_path': _test_dir + '/LowSeimic 4Floor 12M.xlsx',
     'e2k_path': _test_dir + '/LowSeimic 4Floor 12M.e2k',
