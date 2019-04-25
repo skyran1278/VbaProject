@@ -36,13 +36,21 @@ def test_stirrups():
     beam_data = np.array(
         ['#4@12', '#4@15', '#4@10', 282.5, 565, 282.5], dtype=object)
 
+    # 原始數據沒有四捨五入
     dh_design_data = np.array(
-        [0.002104, '#4', 0.120437, '#4', 0.12], dtype=object)
+        [0.00210399995557964, '#4', 0.12043726490012673, '#4', 0.12], dtype=object)
 
-    # 看要不要四捨五入
-    np.testing.assert_array_equal(beam.loc[0, beam_cols].values, beam_data)
+    np.testing.assert_array_equal(
+        beam.loc[0, beam_cols].values, beam_data)
+
     np.testing.assert_array_equal(
         dh_design.loc[0, dh_design_cols].values, dh_design_data)
 
     beam, _ = calc_stirrups(beam, etabs_design, const, True)
     print(beam.head())
+
+    beam_data = np.array(
+        ['#4@12', '#4@20', '#4@10', 282.5, 565, 282.5], dtype=object)
+
+    np.testing.assert_array_equal(
+        beam.loc[0, beam_cols].values, beam_data)

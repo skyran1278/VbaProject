@@ -64,8 +64,8 @@ def _upgrade_size(etabs_design, stirrup_rebar, stirrup_spacing, v_rebar):
 
             loc += 1
 
-        etabs_design.loc[group.index, ['VSize', 'Spacing']] = group[[
-            'VSize', 'Spacing']]
+        etabs_design.loc[
+            group.index, ['VSize', 'Spacing']] = group[['VSize', 'Spacing']]
 
     return etabs_design
 
@@ -125,19 +125,19 @@ def _merge_segments(beam, etabs_design, stirrup_spacing):
                 stirrup_spacing[np.amin(loc_spacing) >= stirrup_spacing])
 
             # for next convinience get
-            etabs_design.loc[loc_spacing.index,
-                             'RealSpacing'] = loc_spacing_max
+            etabs_design.loc[
+                loc_spacing.index, 'RealSpacing'] = loc_spacing_max
 
             # windows: UnicodeEncodeError so add .encode('utf-8', 'ignore').decode('utf-8')
             # remove numpy array, use default array instead
-            etabs_design.loc[loc_spacing.index,
-                             'RealVSize'] = loc_size
+            etabs_design.loc[
+                loc_spacing.index, 'RealVSize'] = loc_size
 
             beam.loc[row, ('箍筋', loc)] = (
                 f'{loc_size}@{int(loc_spacing_max * 100)}'
             )
 
-            beam.loc[row, ('箍筋長度', loc)] = group_length[loc] * 100
+            beam.loc[row, ('箍筋長度', loc)] = round(group_length[loc] * 100, 3)
 
         row = row + 4
 

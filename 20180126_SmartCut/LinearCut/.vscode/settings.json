@@ -1,6 +1,7 @@
 {
   "editor.tabSize": 4,
-  "python.pythonPath": ".venv\\Scripts\\python.exe",
+  "python.pythonPath": "/Users/skyran/.local/share/virtualenvs/LinearCut-wIW4K7CG/bin/python",
+  // "python.pythonPath": ".venv\\Scripts\\python.exe",
   // "python.pythonPath": "/Users/skyran/.local/share/virtualenvs/LinearCut-wIW4K7CG/bin/python",
   // "python.pythonPath": ".venv\\Scripts\\python.exe",
 }

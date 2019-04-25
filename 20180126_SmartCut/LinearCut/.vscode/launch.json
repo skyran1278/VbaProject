@@ -22,7 +22,7 @@
         "PYTHONPATH": "${workspaceRoot}"
       },
       "program": "${file}",
-      "pythonPath": "/Users/skyran/anaconda3/envs/smartcut/bin/pythonw",
+      "pythonPath": "/Users/skyran/.local/share/virtualenvs/LinearCut-wIW4K7CG/bin/pythonw",
       "console": "integratedTerminal"
     },
     {

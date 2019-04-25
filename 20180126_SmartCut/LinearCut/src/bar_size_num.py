@@ -2,7 +2,7 @@
 """
 import numpy as np
 
-from src.dataset_rebar import rebar_db, rebar_area
+from src.rebar import rebar_db, rebar_area
 
 
 def _bar_name(loc):
@@ -30,21 +30,21 @@ def _calc_bar_size_num(rebar_i, loc, e2k, const):
         dh = df['VSize'].apply(lambda x: rebar_db('#' + x.split('#')[1]))
         # pylint: disable=invalid-name
         db = rebar_db(rebar[loc][rebar_i])
-        width = df['SecID'].apply(lambda x: sections[(x, 'B')])
+        width = df['B']
 
         return np.floor((width - 2 * cover - 2 * dh - db) / (db_spacing * db + db)) + 1
 
     def _calc_1st(df):
-        bar_1st = np.where(df[bar_num] > df[bar_cap],
-                           df[bar_cap], df[bar_num])
-        bar_1st[df[bar_num] - df[bar_cap] ==
-                1] = df[bar_cap][df[bar_num] - df[bar_cap] == 1] - 1
+        bar_1st = np.where(
+            df[bar_num] > df[bar_cap], df[bar_cap], df[bar_num])
+        bar_1st[df[bar_num] - df[bar_cap] == 1] = (
+            df[bar_cap][df[bar_num] - df[bar_cap] == 1] - 1)
 
         return bar_1st
 
     def _calc_2nd(df):
-        bar_2nd = np.where(df[bar_num] > df[bar_cap],
-                           df[bar_num] - df[bar_cap], 0)
+        bar_2nd = np.where(
+            df[bar_num] > df[bar_cap], df[bar_num] - df[bar_cap], 0)
         bar_2nd[df[bar_num] - df[bar_cap] == 1] = 2
 
         return bar_2nd
