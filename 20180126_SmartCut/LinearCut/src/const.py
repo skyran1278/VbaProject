@@ -5,7 +5,11 @@ import numpy as np
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 const = {  # pylint: disable=invalid-name
+    """
+    公尺的輸出一律四捨五入到小數點下第五位，公分一律第三位。
+    """
     'etabs_design_path': SCRIPT_DIR + '/../data/20190103 v3.0 3floor for v9.xlsx',
     'e2k_path': SCRIPT_DIR + '/../data/20190103 v3.0 3floor for v9.e2k',
 

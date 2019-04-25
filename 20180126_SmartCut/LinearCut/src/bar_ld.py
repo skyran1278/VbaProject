@@ -188,6 +188,7 @@ def main():
     print(etabs_design.head())
     execution.time('add_ld')
 
+    # 非常有可能會搞錯，不是所有都加 simple ld，只有兩端，所以建議可以不要這個。
     execution.time('add_simple_ld')
     etabs_design = add_ld(etabs_design, 'SimpleLd', const['rebar'])
     print(etabs_design.head(100))
