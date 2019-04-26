@@ -1,6 +1,8 @@
 """ calc stirrups
 """
+from itertools import combinations
 import numpy as np
+
 
 from src.rebar import double_area
 
@@ -227,6 +229,19 @@ def calc_stirrups(beam, etabs_design, const, consider_vc=False):
     beam, etabs_design = _merge_segments(beam, etabs_design, stirrup_spacing)
 
     return beam, etabs_design
+
+
+a = combinations(range(10), 5)
+print(a)
+
+
+def test(x):
+    if x > 0:
+        return test(x - 1)
+    print(x)
+    return x
+
+# product(range(1, 10), range(1, 10))
 
 
 def _main():
