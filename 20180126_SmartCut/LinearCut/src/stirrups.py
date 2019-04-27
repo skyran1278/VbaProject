@@ -146,68 +146,103 @@ def _merge_segments(beam, etabs_design, stirrup_spacing):
     return beam, etabs_design
 
 
-# def _cut_3(beam, etabs_design, stirrup_spacing):
-#     print('Start merge to 3 segments...')
+def _cut_3(beam, etabs_design, stirrup_spacing):
+    # print('Start merge to 3 segments...')
 
-#     etabs_design = etabs_design.assign(RealVSize='', RealSpacing=0)
+    etabs_design = etabs_design.assign(RealVSize='', RealSpacing=0)
 
-#     row = 0
-#     for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
-#         group_max = np.amax(group['StnLoc'])
-#         group_min = np.amin(group['StnLoc'])
+    etabs_design['Spacing'].apply(lambda x: (x >= stirrup_spacing))
 
-#         # x < 1/4
-#         left = (group_max - group_min) * 1/4 + group_min
-#         # x > 3/4
-#         right = (group_max - group_min) * 3/4 + group_min
+    grouped = etabs_design.groupby(['Story', 'BayID'], sort=False)
 
-#         # rebar size with double
-#         rebar_size = group['VSize'].iloc[0]
+    for _, group in grouped:
+        amin = np.amin(group['StnLoc'])
+        amax = np.amax(group['StnLoc'])
 
-#         # spacing depands on loc_min, loc_max
-#         group_spacing = {
-#             '左': _get_spacing(group, group_min, left),
-#             '中': _get_spacing(group, left, right),
-#             '右': _get_spacing(group, right, group_max)
-#         }
+        seismic_area = 2 * group['H'].iloc[0]
 
-#         group_length = {
-#             '左': (group_max - group_min) * 1/4,
-#             '中': (group_max - group_min) * 2/4,
-#             '右': (group_max - group_min) * 1/4
-#         }
+        combination_area = (
+            (group['StnLoc'] > seismic_area + amin) &
+            (group['StnLoc'] < amax - seismic_area)
+        )
 
-#         for loc in ('左', '中', '右'):
-#             loc_size = rebar_size
-#             loc_spacing = group_spacing[loc]
+        # all spacing reduce to usr defined
+        loc_spacing_max = np.amax(
+            stirrup_spacing[np.amin(loc_spacing) >= stirrup_spacing])
 
-#             # if double, judge size can drop or not
-#             if rebar_size[0] == '2':
-#                 loc_size, loc_spacing = _drop_size(
-#                     loc_size, loc_spacing, stirrup_spacing)
+        for target_list in combinations(range(10), 5):
+            pass
 
-#             # all spacing reduce to usr defined
-#             loc_spacing_max = np.amax(
-#                 stirrup_spacing[np.amin(loc_spacing) >= stirrup_spacing])
+        a = combinations(range(10), 5)
+        print(a)
 
-#             # for next convinience get
-#             etabs_design.loc[loc_spacing.index,
-#                              'RealSpacing'] = loc_spacing_max
+    # amin = df.groupby(['Story', 'BayID'])['StnLoc'].transform('min')
+    # amax = df.groupby(['Story', 'BayID'])['StnLoc'].transform('max')
 
-#             # windows: UnicodeEncodeError so add .encode('utf-8', 'ignore').decode('utf-8')
-#             # remove numpy array, use default array instead
-#             etabs_design.loc[loc_spacing.index,
-#                              'RealVSize'] = loc_size
+    # seismic_area = np.maximum((amax - amin) / 4, 2 * df['H'])
 
-#             beam.loc[row, ('箍筋', loc)] = (
-#                 f'{loc_size}@{int(loc_spacing_max * 100)}'
-#             )
+    # (
+    #     (df['StnLoc'] > seismic_area + amin) &
+    #     (df['StnLoc'] < amax - seismic_area)
+    # ),
 
-#             beam.loc[row, ('箍筋長度', loc)] = group_length[loc] * 100
+    row = 0
+    for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
+        group_max = np.amax(group['StnLoc'])
+        group_min = np.amin(group['StnLoc'])
 
-#         row = row + 4
+        # x < 1/4
+        left = (group_max - group_min) * 1/4 + group_min
+        # x > 3/4
+        right = (group_max - group_min) * 3/4 + group_min
 
-#     return beam, etabs_design
+        # rebar size with double
+        rebar_size = group['VSize'].iloc[0]
+
+        # spacing depands on loc_min, loc_max
+        group_spacing = {
+            '左': _get_spacing(group, group_min, left),
+            '中': _get_spacing(group, left, right),
+            '右': _get_spacing(group, right, group_max)
+        }
+
+        group_length = {
+            '左': (group_max - group_min) * 1/4,
+            '中': (group_max - group_min) * 2/4,
+            '右': (group_max - group_min) * 1/4
+        }
+
+        for loc in ('左', '中', '右'):
+            loc_size = rebar_size
+            loc_spacing = group_spacing[loc]
+
+            # if double, judge size can drop or not
+            if rebar_size[0] == '2':
+                loc_size, loc_spacing = _drop_size(
+                    loc_size, loc_spacing, stirrup_spacing)
+
+            # all spacing reduce to usr defined
+            loc_spacing_max = np.amax(
+                stirrup_spacing[np.amin(loc_spacing) >= stirrup_spacing])
+
+            # for next convinience get
+            etabs_design.loc[loc_spacing.index,
+                             'RealSpacing'] = loc_spacing_max
+
+            # windows: UnicodeEncodeError so add .encode('utf-8', 'ignore').decode('utf-8')
+            # remove numpy array, use default array instead
+            etabs_design.loc[loc_spacing.index,
+                             'RealVSize'] = loc_size
+
+            beam.loc[row, ('箍筋', loc)] = (
+                f'{loc_size}@{int(loc_spacing_max * 100)}'
+            )
+
+            beam.loc[row, ('箍筋長度', loc)] = group_length[loc] * 100
+
+        row = row + 4
+
+    return beam, etabs_design
 
 
 def calc_stirrups(beam, etabs_design, const, consider_vc=False):
@@ -226,22 +261,10 @@ def calc_stirrups(beam, etabs_design, const, consider_vc=False):
     etabs_design = _calc_init_dbt_spacing(etabs_design, stirrup_rebar, v_rebar)
     etabs_design = _upgrade_size(
         etabs_design, stirrup_rebar, stirrup_spacing, v_rebar)
+    beam, etabs_design = _cut_3(beam, etabs_design, stirrup_spacing)
     beam, etabs_design = _merge_segments(beam, etabs_design, stirrup_spacing)
 
     return beam, etabs_design
-
-
-a = combinations(range(10), 5)
-print(a)
-
-
-def test(x):
-    if x > 0:
-        return test(x - 1)
-    print(x)
-    return x
-
-# product(range(1, 10), range(1, 10))
 
 
 def _main():
