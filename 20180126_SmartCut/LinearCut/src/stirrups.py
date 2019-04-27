@@ -146,12 +146,32 @@ def _merge_segments(beam, etabs_design, stirrup_spacing):
     return beam, etabs_design
 
 
+def _calc_spacing_length(df, idx):
+    group_num = len(idx) + 1
+    spacing = np.empty(group_num)
+    length = np.empty(group_num)
+
+    if group_num == 1:
+        pass
+
+    for index in idx:
+        pass
+        group.loc[:idx1]
+
+    for counter, _ in enumerate(spacing):
+        num[counter] = np.amax(spacing[counter])
+        length[counter] = group.at[spacing[counter].index[-1], 'StnLoc'] - group.at[
+            spacing[counter].index[0], 'StnLoc']
+    return num, length
+
+
 def _cut_3(beam, etabs_design, stirrup_spacing):
     # print('Start merge to 3 segments...')
 
     etabs_design = etabs_design.assign(RealVSize='', RealSpacing=0)
 
-    etabs_design['Spacing'].apply(lambda x: (x >= stirrup_spacing))
+    etabs_design['UsrSpacing'] = etabs_design['Spacing'].apply(
+        lambda x: stirrup_spacing[x >= stirrup_spacing][-1])
 
     grouped = etabs_design.groupby(['Story', 'BayID'], sort=False)
 
@@ -166,25 +186,18 @@ def _cut_3(beam, etabs_design, stirrup_spacing):
             (group['StnLoc'] < amax - seismic_area)
         )
 
-        # all spacing reduce to usr defined
-        loc_spacing_max = np.amax(
-            stirrup_spacing[np.amin(loc_spacing) >= stirrup_spacing])
+        diff_area = group['UsrSpacing'].diff() != 0
 
-        for target_list in combinations(range(10), 5):
-            pass
+        idx = (
+            group.index[combination_area][0],
+            *group.index[diff_area & combination_area],
+            group.index[combination_area][-1]
+        )
 
-        a = combinations(range(10), 5)
-        print(a)
+        print(idx)
 
-    # amin = df.groupby(['Story', 'BayID'])['StnLoc'].transform('min')
-    # amax = df.groupby(['Story', 'BayID'])['StnLoc'].transform('max')
-
-    # seismic_area = np.maximum((amax - amin) / 4, 2 * df['H'])
-
-    # (
-    #     (df['StnLoc'] > seismic_area + amin) &
-    #     (df['StnLoc'] < amax - seismic_area)
-    # ),
+        for idx1, idx2 in combinations(idx, 2):
+            group.loc[:idx1]
 
     row = 0
     for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
