@@ -4,7 +4,7 @@ from itertools import combinations
 import numpy as np
 
 
-from src.rebar import double_area
+from src.rebar import double_area, get_area
 
 
 def _calc_vc(df):
@@ -89,6 +89,8 @@ def _merge_segments(beam, etabs_design, stirrup_spacing):
 
     row = 0
     for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
+        usage = 0
+
         group_max = np.amax(group['StnLoc'])
         group_min = np.amin(group['StnLoc'])
 
@@ -140,6 +142,11 @@ def _merge_segments(beam, etabs_design, stirrup_spacing):
             )
 
             beam.loc[row, ('箍筋長度', loc)] = round(group_length[loc] * 100, 3)
+
+            usage = usage + (
+                group_length[loc] / loc_spacing_max) * get_area(loc_size)
+
+        beam.loc[row, ('箍筋量', '')] = round(usage * 10000, 3)
 
         row = row + 4
 
@@ -224,6 +231,9 @@ def _cut_3(beam, etabs_design, stirrup_spacing):
             beam.loc[row, ('箍筋長度', position)] = (
                 round(min_length[index] * 100, 3))
 
+        beam.loc[row, ('箍筋量', '')] = (
+            round(min_usage * get_area(v_size) * 10000, 3))
+
         row = row + 4
 
     return beam, etabs_design
@@ -245,8 +255,28 @@ def calc_stirrups(beam, etabs_design, const, consider_vc=False):
     etabs_design = _calc_init_dbt_spacing(etabs_design, stirrup_rebar, v_rebar)
     etabs_design = _upgrade_size(
         etabs_design, stirrup_rebar, stirrup_spacing, v_rebar)
+    beam, etabs_design = _merge_segments(beam, etabs_design, stirrup_spacing)
+
+    return beam, etabs_design
+
+
+def calc_stirrups_3(beam, etabs_design, const, consider_vc=False):
+    """ calc stirrups
+    """
+    v_rebar = 'VRebarConsiderVc' if consider_vc else 'VRebar'
+
+    stirrup_rebar = const['stirrup_rebar']
+    stirrup_spacing = const['stirrup_spacing']
+
+    # change m to cm
+    stirrup_spacing = stirrup_spacing / 100
+
+    etabs_design = _calc_vc(etabs_design)
+
+    etabs_design = _calc_init_dbt_spacing(etabs_design, stirrup_rebar, v_rebar)
+    etabs_design = _upgrade_size(
+        etabs_design, stirrup_rebar, stirrup_spacing, v_rebar)
     beam, etabs_design = _cut_3(beam, etabs_design, stirrup_spacing)
-    # beam, etabs_design = _merge_segments(beam, etabs_design, stirrup_spacing)
 
     return beam, etabs_design
 
@@ -269,8 +299,22 @@ def _main():
     beam, dh_design = calc_stirrups(beam, etabs_design, const)
     print(beam.head())
     print(dh_design.head())
+    execution.time()
 
+    execution.time()
     beam, dh_design = calc_stirrups(beam, etabs_design, const, True)
+    print(beam.head())
+    print(dh_design.head())
+    execution.time()
+
+    execution.time()
+    beam, dh_design = calc_stirrups_3(beam, etabs_design, const)
+    print(beam.head())
+    print(dh_design.head())
+    execution.time()
+
+    execution.time()
+    beam, dh_design = calc_stirrups_3(beam, etabs_design, const, True)
     print(beam.head())
     print(dh_design.head())
     execution.time()
