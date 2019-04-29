@@ -15,5 +15,6 @@ xlrd = "*"
 colorama = "*"
 wxpython = "*"
 openpyxl = "*"
+scipy = "*"
 
 [requires]

@@ -27,7 +27,7 @@ def cut_multiple(etabs_design, const, moment=3, by='BayID', vc=False):
     多點斷筋
     """
     # 初始化輸出表格
-    beam = init_beam(etabs_design, moment=moment)
+    beam = init_beam(etabs_design)
     # 計算箍筋
     beam, etabs_design = calc_stirrups_3(beam, etabs_design, const, vc)
     # 計算主筋

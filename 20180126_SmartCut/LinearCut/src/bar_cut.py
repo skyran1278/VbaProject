@@ -1,40 +1,14 @@
 """
 smart cut
 """
-from itertools import combinations, tee
+from itertools import combinations, product
+
 import numpy as np
+from scipy.signal import argrelextrema
 
 
 from src.bar_functions import concat_num_size, num_to_1st_2nd
 from src.rebar import rebar_area
-
-
-def _calc_num_length(group, split_array):
-    num = np.empty_like(split_array)
-    length = np.empty_like(split_array)
-
-    for counter, _ in enumerate(split_array):
-        num[counter] = np.amax(split_array[counter])
-        length[counter] = group.at[split_array[counter].index[-1], 'StnLoc'] - group.at[
-            split_array[counter].index[0], 'StnLoc']
-    return num, length
-
-
-def _make_1st_last_diff(group_diff):
-    if group_diff[0] == 0:
-        group_diff[0] = 1
-
-    if group_diff[-1] == 0:
-        group_diff[-1] = -1
-
-    return group_diff
-
-
-def _get_min_cut(group_loc, group_loc_diff, loc):
-    if group_loc_diff[loc] > 0:
-        return group_loc.index[loc]
-
-    return group_loc.index[loc + 1]
 
 
 def cut_multiple(df, col, boundary, group_num=5):
@@ -49,21 +23,40 @@ def cut_multiple(df, col, boundary, group_num=5):
     num = np.empty(group_num)
     length = np.empty(group_num)
 
-    diff_area = (
-        (df[col].diff() != 0) |
-        (df[col].shift(-1).diff() != 0)
+    amin = df['StnLoc'].min()
+    amax = df['StnLoc'].max()
+
+    boundarys = (
+        (amax - amin) * boundary['left'][0] + amin,
+        (amax - amin) * boundary['right'][1] + amin,
     )
 
-    for index in combinations(df.index[diff_area], group_num - 1):
+    combination_area = (
+        (df['StnLoc'] > boundarys[0]) &
+        (df['StnLoc'] < boundarys[1])
+    )
 
-        num[0] = df.loc[:index[0], col].max()
-        length[0] = df.loc[index[0], 'StnLoc'] - df['StnLoc'].min()
-        num[-1] = df.loc[index[-1]:, col].max()
-        length[-1] = df['StnLoc'].max() - df.loc[index[-1], 'StnLoc']
+    diff_area = (
+        (df[col].diff() != 0) |
+        (df[col].diff().shift(-1) != 0)
+    )
 
-        for i, j in enumerate(range(len(index), 1)):
-            num[j] = df.loc[i:j, col].max()
-            length[j] = df.loc[j, 'StnLoc'] - df.loc[i, 'StnLoc']
+    idxs = (
+        df.index[combination_area][0],
+        *df.index[diff_area & combination_area],
+        df.index[combination_area][-1]
+    )
+
+    for idx in combinations(idxs, group_num - 1):
+        num[0] = df.loc[:idx[0], col].max()
+        length[0] = df.loc[idx[0], 'StnLoc'] - df['StnLoc'].min()
+        num[-1] = df.loc[idx[-1]:, col].max()
+        length[-1] = df['StnLoc'].max() - df.loc[idx[-1], 'StnLoc']
+
+        for i, j in enumerate(range(1, len(idx))):
+            id0, id1 = idx[i], idx[j]
+            num[j] = df.loc[id0:id1, col].max()
+            length[j] = df.loc[id1, 'StnLoc'] - df.loc[id0, 'StnLoc']
 
         usage = np.sum(num * length)
 
@@ -71,11 +64,20 @@ def cut_multiple(df, col, boundary, group_num=5):
             min_usage = usage
             min_num = num
             min_length = length
-            min_index = index
 
-    if np.diff(min_num):
-        return cut_multiple(df, col, boundary, group_num-1)
-    return min_num, min_length, min_usage, min_index
+    # for local maxima
+    # for local minima
+    # input should be numpy array
+    # return tuple
+    incompatible = ((min_usage == float('Inf')) | (
+        (argrelextrema(min_num, np.greater)[0].size > 0) &
+        (argrelextrema(min_num, np.less)[0].size > 0)
+    ))
+
+    if incompatible:
+        return cut_multiple(df, col, boundary, group_num - 1)
+
+    return min_num, min_length, min_usage
 
 
 def cut_3(df, col, boundary):
@@ -83,73 +85,57 @@ def cut_3(df, col, boundary):
     cut 3, depands on boundary, ex: 0.1~0.45, 0.55~0.9
     """
     # initial
+    idx = {}
     min_usage = float('Inf')
+    num = np.empty(3)
+    length = np.empty(3)
 
     amin = df['StnLoc'].min()
     amax = df['StnLoc'].max()
 
-    left_boundarys = (amax - amin) * boundary['left'] + amin
-    right_boundarys = (amax - amin) * boundary['right'] + amin
+    for index in boundary:
+        boundarys = (amax - amin) * boundary[index] + amin
 
-    left = [
-        (df['StnLoc'] >= left_boundarys[0]) &
-        (df['StnLoc'] <= left_boundarys[1])
-    ]
-    right = [
-        (df['StnLoc'] >= right_boundarys[0]) &
-        (df['StnLoc'] <= right_boundarys[1])
-    ]
+        boundary_area = (
+            (df['StnLoc'] >= boundarys[0]) &
+            (df['StnLoc'] <= boundarys[1])
+        )
 
-    diff_area = (
-        (df[col].diff() != 0) |
-        (df[col].diff().shift(-1) != 0)
-    )
+        diff_area = (
+            (df[col].diff() != 0) |
+            (df[col].diff().shift(-1) != 0)
+        )
 
-    left_idx = (
-        df.index[left][0],
-        *df.index[diff_area & left],
-        df.index[left][-1]
-    )
+        idx[index] = (
+            df.index[boundary_area][0],
+            *df.index[diff_area & boundary_area],
+            df.index[boundary_area][-1]
+        )
 
-    right_idx = (
-        df.index[right][0],
-        *df.index[diff_area & right],
-        df.index[right][-1]
-    )
+    for idx in product(idx['left'], idx['right']):
+        num[0] = df.loc[:idx[0], col].max()
+        num[-1] = df.loc[idx[-1]:, col].max()
+        length[0] = df.loc[idx[0], 'StnLoc'] - df['StnLoc'].min()
+        length[-1] = df['StnLoc'].max() - df.loc[idx[-1], 'StnLoc']
 
-    group_left_diff = np.diff(left)
-    group_right_diff = np.diff(right)
+        for i, j in enumerate(range(1, len(idx))):
+            id0, id1 = idx[i], idx[j]
+            num[j] = df.loc[id0:id1, col].max()
+            length[j] = df.loc[id1, 'StnLoc'] - df.loc[id0, 'StnLoc']
 
-    group_left_diff = _make_1st_last_diff(group_left_diff)
-    group_right_diff = _make_1st_last_diff(group_right_diff)
+        usage = np.sum(num * length)
 
-    for i in np.flatnonzero(group_left_diff):
-        split_left = _get_min_cut(left, group_left_diff, i)
-
-        for j in np.flatnonzero(group_right_diff):
-
-            split_right = _get_min_cut(
-                right, group_right_diff, j)
-            split_3p_array = [
-                df.loc[:split_left, col],
-                df.loc[split_left: split_right, col],
-                df.loc[split_right:, col]
-            ]
-            num, length = _calc_num_length(df, split_3p_array)
-
-            rebar_usage = np.sum(num * length)
-
-            if rebar_usage < min_usage:
-                min_usage = rebar_usage
-                min_num = num
-                min_length = length
+        if usage < min_usage:
+            min_usage = usage
+            min_num = num
+            min_length = length
 
     return min_num, min_length, min_usage
 
 
-def output_3(beam, etabs_design, const):
+def cut_optimization(beam, etabs_design, const, group_num=3):
     """
-    format 3 cut
+    cut 3 or 5, optimization
     """
     rebar = const['rebar']
 
@@ -169,51 +155,56 @@ def output_3(beam, etabs_design, const):
         to_2nd = output_loc[loc]['TO_2nd']
 
         for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
+            output_num = {}
+            output_length = {}
             # group capacity and size
-            group_cap = group.at[group.index[0], 'Bar' + loc + 'Cap']
-            group_size = group.at[group.index[0], 'Bar' + loc + 'Size']
+            cap = group.at[group.index[0], 'Bar' + loc + 'Cap']
+            size = group.at[group.index[0], 'Bar' + loc + 'Size']
 
-            num, length, min_usage = cut_3(
-                group, 'Bar' + loc + 'NumLd', const['boundary'])
+            num, length, usage = cut_multiple(
+                group, 'Bar' + loc + 'NumLd', const['boundary'], group_num)
 
-            group_num = {
-                '左': num_to_1st_2nd(num[0], group_cap),
-                '中': num_to_1st_2nd(num[1], group_cap),
-                '右': num_to_1st_2nd(num[2], group_cap)
-            }
+            # if group_num == 3:
+            #     output_num = {
+            #         '左': num_to_1st_2nd(num[0], cap),
+            #         '中': num_to_1st_2nd(num[1], cap),
+            #         '右': num_to_1st_2nd(num[2], cap)
+            #     }
 
-            group_length = {
-                '左': length[0],
-                # '左': length[0] if num[0] != num[1] else '',
-                '中': length[1],
-                # '右': length[2] if num[2] != num[1] else ''
-                '右': length[2]
-            }
+            #     output_length = {
+            #         '左': length[0],
+            #         # '左': length[0] if num[0] != num[1] else '',
+            #         '中': length[1],
+            #         # '右': length[2] if num[2] != num[1] else ''
+            #         '右': length[2]
+            #     }
 
-            for bar_loc in group_num:
-                loc_1st, loc_2nd = group_num[bar_loc]
-                loc_length = group_length[bar_loc]
-                beam.at[row, ('主筋', bar_loc)] = concat_num_size(
-                    loc_1st, group_size)
-                beam.at[row, ('主筋長度', bar_loc)] = round(loc_length * 100, 3)
-                beam.at[row + to_2nd, ('主筋', bar_loc)
-                        ] = concat_num_size(loc_2nd, group_size)
+            # else:
+            if len(num) % 2 == 1:
+                i = len(num) // 2
+                output_num['中'] = num_to_1st_2nd(num[i], cap)
+                output_length['中'] = length[i]
 
-            beam.at[row, ('NOTE', '')] = min_usage * rebar_area(
-                group_size) * 1000000
+            for i, _ in enumerate(num):
+                output_num[f'左{i+1}'] = num_to_1st_2nd(num[i], cap)
+                output_length[f'左{i+1}'] = length[i]
+                output_num[f'右{i+1}'] = num_to_1st_2nd(num[-i], cap)
+                output_length[f'右{i+1}'] = length[-i]
+
+            for col in output_num:
+                loc_1st, loc_2nd = output_num[col]
+                loc_length = output_length[col]
+                beam.at[row, ('主筋', col)] = concat_num_size(
+                    loc_1st, size)
+                beam.at[row, ('主筋長度', col)] = round(loc_length * 100, 3)
+                beam.at[row + to_2nd, ('主筋', col)
+                        ] = concat_num_size(loc_2nd, size)
+
+            beam.at[row, ('主筋量', '')] = usage * rebar_area(size) * 1000000
 
             row += 4
 
     return beam
-
-
-def cut_optimization(beam, etabs_design, const):
-    """
-    cut 3 or 5, optimization
-    """
-    if ('主筋', '左') in beam:
-        return output_3(beam, etabs_design, const)
-    return cut_5(beam, etabs_design, const)
 
 
 def main():
@@ -229,12 +220,24 @@ def main():
     from src.bar_size_num import calc_db
     from src.bar_ld import calc_ld, add_ld
 
+    # min_num = np.array([1, 2, 3, 2, 3])
+
+    # b = 1
+
+    # a = (b == 1 | (
+    #     (argrelextrema(min_num, np.greater)[0].size > 0) &
+    #     (argrelextrema(min_num, np.less)[0].size > 0)
+    # ))
+
+    # if a:
+    #     print('ok')
+
     execution = Execution()
 
     e2k = load_e2k(const['e2k_path'])
     etabs_design = load_etabs_design(const['etabs_design_path'])
     etabs_design = post_e2k(etabs_design, e2k)
-    beam = init_beam(etabs_design, moment=3)
+    beam = init_beam(etabs_design)
     beam, etabs_design = calc_stirrups(beam, etabs_design, const)
     etabs_design = calc_db('BayID', etabs_design, const)
     etabs_design = calc_ld(etabs_design, const)
@@ -242,7 +245,9 @@ def main():
 
     execution.time('cut 3')
     # beam = output_3(beam, etabs_design, const)
-    beam = cut_optimization(beam, etabs_design, const)
+    beam = cut_optimization(beam, etabs_design, const, 3)
+    print(beam.head())
+    beam = cut_optimization(beam, etabs_design, const, 5)
     print(beam.head())
     execution.time('cut 3')
 

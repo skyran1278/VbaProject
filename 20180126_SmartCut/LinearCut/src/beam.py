@@ -4,22 +4,24 @@ import pandas as pd
 import numpy as np
 
 
-def init_beam(etabs_design, moment=3):
+def init_beam(etabs_design):
     """
     init output beam table return beam
     """
     header_info_1 = [('樓層', ''), ('編號', ''), ('RC 梁寬', ''), ('RC 梁深', '')]
 
-    header_rebar_3 = [
-        ('主筋', ''), ('主筋', '左'), ('主筋', '中'), ('主筋', '右'),
-        ('主筋長度', '左'), ('主筋長度', '中'), ('主筋長度', '右')
-    ]
-    header_rebar_5 = [
-        ('主筋', ''), ('主筋', '左1'), ('主筋', '左2'),
-        ('主筋', '中'), ('主筋', '右2'), ('主筋', '右1'),
-        ('主筋長度', '左1'), ('主筋長度', '左2'),
-        ('主筋長度', '中'), ('主筋長度', '右2'), ('主筋長度', '右1')
-    ]
+    # header_rebar_3 = [
+    #     ('主筋', ''), ('主筋', '左'), ('主筋', '中'), ('主筋', '右'),
+    #     ('主筋長度', '左'), ('主筋長度', '中'), ('主筋長度', '右')
+    # ]
+    # header_rebar_5 = [
+    #     ('主筋', ''), ('主筋', '左1'), ('主筋', '左2'),
+    #     ('主筋', '中'), ('主筋', '右2'), ('主筋', '右1'),
+    #     ('主筋長度', '左1'), ('主筋長度', '左2'),
+    #     ('主筋長度', '中'), ('主筋長度', '右2'), ('主筋長度', '右1')
+    # ]
+
+    header_rebar = [('主筋', '')]
 
     header_sidebar = [('腰筋', '')]
 
@@ -33,13 +35,12 @@ def init_beam(etabs_design, moment=3):
         ('主筋量', ''), ('箍筋量', '')
     ]
 
-    if moment == 3:
-        header = pd.MultiIndex.from_tuples(
-            header_info_1 + header_rebar_3 + header_sidebar + header_stirrup + header_info_2)
+    header = pd.MultiIndex.from_tuples(
+        header_info_1 + header_rebar + header_sidebar + header_stirrup + header_info_2)
 
-    elif moment == 5:
-        header = pd.MultiIndex.from_tuples(
-            header_info_1 + header_rebar_5 + header_sidebar + header_stirrup + header_info_2)
+    # elif moment == 5:
+    #     header = pd.MultiIndex.from_tuples(
+    #         header_info_1 + header_rebar_5 + header_sidebar + header_stirrup + header_info_2)
 
     beam = pd.DataFrame(np.empty([len(etabs_design.groupby(
         ['Story', 'BayID'])) * 4, len(header)], dtype='<U16'), columns=header)
@@ -60,6 +61,14 @@ def init_beam(etabs_design, moment=3):
         row += 4
 
     return beam
+
+
+def put_column_order(df):
+    cols = df.columns.tolist()
+    len(cols) - 1
+    cols = cols[:4] + cols[17:] + cols[5:16]
+
+    return df[cols]
 
 
 def put_beam_id(beam, etabs_design):
@@ -94,10 +103,7 @@ def main():
     etabs_design = load_etabs_design(const['etabs_design_path'])
     etabs_design = post_e2k(etabs_design, e2k)
 
-    beam = init_beam(etabs_design, moment=3)
-    print(beam.head())
-
-    beam = init_beam(etabs_design, moment=5)
+    beam = init_beam(etabs_design)
     print(beam.head())
 
     beam_name = load_beam_name(const['beam_name_path'])
