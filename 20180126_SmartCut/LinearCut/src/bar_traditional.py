@@ -11,9 +11,9 @@ from src.rebar import rebar_area
 def _get_group_length(group_num, group, ld):  # pylint: disable=invalid-name
     span = np.amax(group['StnLoc']) - np.amin(group['StnLoc'])
 
-    left_num = group_num['左'][0]
+    left_num = group_num['左1'][0]
     mid_num = group_num['中'][0]
-    right_num = group_num['右'][0]
+    right_num = group_num['右1'][0]
 
     left_ld = group.at[group.index[0], ld]
     right_ld = group.at[group.index[-1], ld]
@@ -25,9 +25,9 @@ def _get_group_length(group_num, group, ld):  # pylint: disable=invalid-name
     mid_length = span - left_length - right_length
 
     return {
-        '左': left_length,
+        '左1': left_length,
         '中': mid_length,
-        '右': right_length
+        '右1': right_length
     }
 
 
@@ -93,14 +93,14 @@ def cut_traditional(beam, etbas_design, rebar):
             group_size = group.at[group.index[0], bar_size]
 
             group_num = {
-                '左': _get_group_num(group, 0, 1/3),
+                '左1': _get_group_num(group, 0, 1/3),
                 '中': _get_group_num(group, 1/4, 3/4),
-                '右': _get_group_num(group, 2/3, 1)
+                '右1': _get_group_num(group, 2/3, 1)
             }
 
             group_length = _get_group_length(group_num, group, ld)
 
-            for bar_loc in ('左', '中', '右'):
+            for bar_loc in ('中', '左1', '右1'):
                 loc_num, loc_1st, loc_2nd = group_num[bar_loc]
                 loc_length = group_length[bar_loc]
 
@@ -122,8 +122,8 @@ def cut_traditional(beam, etbas_design, rebar):
                 num_usage = num_usage + loc_num * loc_length
 
             # 計算鋼筋體積 cm3
-            beam.at[row, ('NOTE', '')] = num_usage * rebar_area(
-                group_size) * 1000000
+            beam.at[row, ('主筋量', '')] = (
+                num_usage * rebar_area(group_size) * 1000000)
 
             row += 4
 

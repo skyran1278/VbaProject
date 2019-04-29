@@ -7,7 +7,7 @@ import pandas as pd
 from src.execution_time import Execution
 
 from src.beam_name import load_beam_name, init_beam_name
-from src.beam import init_beam
+from src.beam import init_beam, put_column_order
 from src.e2k import load_e2k
 from src.etabs_design import load_etabs_design, post_e2k
 from src.stirrups import calc_stirrups, calc_stirrups_3
@@ -39,6 +39,8 @@ def cut_multiple(etabs_design, const, moment=3, by='BayID', vc=False):
     # 多點斷筋
     beam = cut_optimization(beam, etabs_design, const)
 
+    beam = put_column_order(beam)
+
     return beam, etabs_design
 
 
@@ -56,6 +58,8 @@ def cut_trational(etabs_design, const, by='BayID', vc=False):
     etabs_design = calc_ld(etabs_design, const)
     # 傳統斷筋
     beam = cut_traditional(beam, etabs_design, const['rebar'])
+
+    beam = put_column_order(beam)
 
     return beam, etabs_design
 

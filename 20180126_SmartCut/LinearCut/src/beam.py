@@ -64,9 +64,17 @@ def init_beam(etabs_design):
 
 
 def put_column_order(df):
+    """
+    reorder column
+    """
     cols = df.columns.tolist()
-    len(cols) - 1
-    cols = cols[:4] + cols[17:] + cols[5:16]
+
+    cols = (
+        cols[:5] +
+        cols[19::4] + [cols[17]] + cols[-2:19:-4] +
+        cols[20::4] + [cols[18]] + cols[-1:19:-4] +
+        cols[5:17]
+    )
 
     return df[cols]
 
@@ -95,6 +103,8 @@ def main():
     from src.beam_name import load_beam_name
 
     from src.execution_time import Execution
+
+    print(np.linspace(19, 22, num=4))
 
     execution = Execution()
     execution.time()
