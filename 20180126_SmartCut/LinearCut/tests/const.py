@@ -27,7 +27,7 @@ const = {
 
     'db_spacing': 1.5,
 
-    'iteration_gap': {
+    'boundary': {
         'left': np.array([0.15, 0.45]),
         'right': np.array([0.55, 0.85])
     },

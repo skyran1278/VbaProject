@@ -135,7 +135,7 @@ class SmartCutPanel(wx.Panel):
 
             'db_spacing': float(self.db_spacing.GetValue()),
 
-            'iteration_gap': self._get_iteration_gap(),
+            'boundary': self._get_boundary(),
 
             'cover': 0.04,
         }
@@ -150,7 +150,7 @@ class SmartCutPanel(wx.Panel):
     def _run_by_frame(self, event):  # pylint: disable=unused-argument
         cut_by_frame(self._const())
 
-    def _get_iteration_gap(self):
+    def _get_boundary(self):
         return {
             'left': np.array([self.left.GetValue(), self.leftmid.GetValue()]).astype(np.float),
             'right': np.array([self.rightmid.GetValue(), self.right.GetValue()]).astype(np.float)
