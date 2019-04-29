@@ -14,5 +14,6 @@ numpy = "==1.15.4"
 xlrd = "*"
 colorama = "*"
 wxpython = "*"
+openpyxl = "*"
 
 [requires]

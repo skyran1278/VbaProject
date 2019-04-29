@@ -170,37 +170,46 @@ def _calc_spacing_length(df, idx):
     return spacing, length
 
 
-def _cut_3(beam, etabs_design, stirrup_spacing):
+def _cut_3(beam, etabs_design, usr_spacing):
+    """
+    轉換成 usr defined spacing
+    排列組合
+    drop size
+    輸出
+    """
     # print('Start merge to 3 segments...')
-    etabs_design = etabs_design.assign(
-        RealVSize=etabs_design['VSize'],
-        RealSpacing=0
-    )
+    def _drop_size(v_size, spacing):
+        if (v_size[0] == '2') & (spacing / 2 >= usr_spacing[0]):
+            return v_size[1:], usr_spacing[spacing / 2 >= usr_spacing][-1]
+        return v_size, spacing
 
     etabs_design['UsrSpacing'] = etabs_design['Spacing'].apply(
-        lambda x: stirrup_spacing[x >= stirrup_spacing][-1])
+        lambda x: usr_spacing[x >= usr_spacing][-1])
+
+    etabs_design = etabs_design.assign(
+        RealVSize='',
+        RealSpacing=0
+    )
 
     row = 0
     for _, group in etabs_design.groupby(['Story', 'BayID'], sort=False):
         # initial
         min_usage = float('Inf')
-        spacing = np.empty(3)
-        length = np.empty(3)
 
         # rebar size with double
         v_size = group['VSize'].iloc[0]
 
-        amin = group['StnLoc'].min()
-        amax = group['StnLoc'].max()
-
         seismic_area = 2 * group['H'].iloc[0]
 
         combination_area = (
-            (group['StnLoc'] > seismic_area + amin) &
-            (group['StnLoc'] < amax - seismic_area)
+            (group['StnLoc'] > seismic_area + group['StnLoc'].min()) &
+            (group['StnLoc'] < group['StnLoc'].max() - seismic_area)
         )
 
-        diff_area = group['UsrSpacing'].diff() != 0
+        diff_area = (
+            (group['UsrSpacing'].diff() != 0) |
+            (group['UsrSpacing'].diff().shift(-1) != 0)
+        )
 
         idx = (
             group.index[combination_area][0],
@@ -211,6 +220,7 @@ def _cut_3(beam, etabs_design, stirrup_spacing):
         for idx0, idx1 in combinations(idx, 2):
             spacing, length = _calc_spacing_length(group, (idx0, idx1))
 
+            # 簡單算法 直接四捨五入
             usage = np.sum(length / spacing)
 
             if usage < min_usage:
@@ -219,17 +229,22 @@ def _cut_3(beam, etabs_design, stirrup_spacing):
                 min_length = length
                 min_idx0, min_idx1 = idx0, idx1
 
-        # for next convinience get
-        etabs_design.loc[:min_idx0, 'RealSpacing'] = spacing[0]
-        etabs_design.loc[min_idx0:min_idx1, 'RealSpacing'] = spacing[1]
-        etabs_design.loc[min_idx1:, 'RealSpacing'] = spacing[2]
+        # group index
+        index = [group.index[0], min_idx0, min_idx1, group.index[-1]]
 
-        for index, position in enumerate(('左', '中', '右')):
+        for i, position in enumerate(('左', '中', '右')):
+            local_size, local_spacing = _drop_size(v_size, min_spacing[i])
+
+            etabs_design.loc[
+                index[i]:index[i+1], 'RealVSize'] = local_size
+            etabs_design.loc[
+                index[i]:index[i+1], 'RealSpacing'] = local_spacing
+
             beam.loc[row, ('箍筋', position)] = (
-                f'{v_size}@{int(min_spacing[index] * 100)}')
+                f'{local_size}@{int(local_spacing * 100)}')
 
             beam.loc[row, ('箍筋長度', position)] = (
-                round(min_length[index] * 100, 3))
+                round(min_length[i] * 100, 3))
 
         beam.loc[row, ('箍筋量', '')] = (
             round(min_usage * get_area(v_size) * 10000, 3))
