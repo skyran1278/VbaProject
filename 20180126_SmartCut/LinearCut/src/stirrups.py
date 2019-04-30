@@ -211,6 +211,19 @@ def _cut_3(beam, etabs_design, usr_spacing):
             (group['UsrSpacing'].diff().shift(-1) != 0)
         )
 
+        # 梁深太深，例外處理
+        # 1/4, 3/4
+        if not any(combination_area):
+            amin = group['StnLoc'].min()
+            amax = group['StnLoc'].max()
+
+            # x < 1/4
+            combination_area.loc[
+                combination_area[group['StnLoc'] >= ((amax - amin) * 1/4 + amin)].index[0]] = True
+            # x > 3/4
+            combination_area.loc[
+                combination_area[group['StnLoc'] <= ((amax - amin) * 3/4 + amin)].index[-1]] = True
+
         idx = (
             group.index[combination_area][0],
             *group.index[diff_area & combination_area],

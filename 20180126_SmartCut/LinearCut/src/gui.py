@@ -92,10 +92,10 @@ class SmartCutPanel(wx.Panel):
         fgs_2.AddMany([wx.StaticText(self, label="Stirrup Spacing"),
                        (self.stirrup_spacing, 1, wx.EXPAND | wx.RIGHT | wx.LEFT, 20)])
 
-        self.left = wx.TextCtrl(self, value='0.15', style=wx.TE_CENTRE)
+        self.left = wx.TextCtrl(self, value='0.1', style=wx.TE_CENTRE)
         self.leftmid = wx.TextCtrl(self, value='0.45', style=wx.TE_CENTRE)
         self.rightmid = wx.TextCtrl(self, value='0.55', style=wx.TE_CENTRE)
-        self.right = wx.TextCtrl(self, value='0.85', style=wx.TE_CENTRE)
+        self.right = wx.TextCtrl(self, value='0.9', style=wx.TE_CENTRE)
         fgs_3.AddMany([wx.StaticText(self, label="Boundry Condition"),
                        self.left, self.leftmid, self.rightmid, self.right])
 
