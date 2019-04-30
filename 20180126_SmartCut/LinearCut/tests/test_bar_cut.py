@@ -4,7 +4,7 @@ test
 import numpy as np
 
 
-def test_bar_cut():
+def test_bar_cut_3():
     """
     test calc_db
     """
@@ -12,7 +12,7 @@ def test_bar_cut():
     from src.beam import init_beam
     from src.e2k import load_e2k
     from src.etabs_design import load_etabs_design, post_e2k
-    from src.stirrups import calc_stirrups
+    from src.stirrups import calc_stirrups_3
     from src.bar_size_num import calc_db
     from src.bar_ld import calc_ld, add_ld
     from src.bar_cut import cut_optimization
@@ -26,7 +26,7 @@ def test_bar_cut():
     etabs_design = calc_ld(etabs_design, const)
     etabs_design = add_ld(etabs_design, 'Ld', const['rebar'])
 
-    beam = cut_optimization(beam, etabs_design, const)
+    beam = cut_optimization(beam, etabs_design, const, 3)
     print(beam.head())
 
     cols = [
@@ -41,7 +41,7 @@ def test_bar_cut():
         beam.loc[0, cols].values, data)
 
 
-def test_bar_cut():
+def test_bar_cut_multiple():
     """
     test calc_db
     """
@@ -67,8 +67,9 @@ def test_bar_cut():
     print(beam.head())
 
     cols = [
-        ('主筋', '左1'), ('主筋', '中'), ('主筋', '右1'),
-        ('主筋長度', '左1'), ('主筋長度', '中'), ('主筋長度', '右1')
+        ('主筋', '左1'), ('主筋', '左2'), ('主筋', '中'), ('主筋', '右2'), ('主筋', '右1'),
+        ('主筋長度', '左1'), ('主筋長度', '左2'), ('主筋長度', '中'),
+        ('主筋長度', '右2'), ('主筋長度', '右1')
     ]
 
     data = np.array(
