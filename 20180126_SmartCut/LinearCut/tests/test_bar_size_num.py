@@ -19,7 +19,7 @@ def test_calc_db():
     e2k = load_e2k(const['e2k_path'])
     etabs_design = load_etabs_design(const['etabs_design_path'])
     etabs_design = post_e2k(etabs_design, e2k)
-    beam = init_beam(etabs_design, moment=3)
+    beam = init_beam(etabs_design)
     beam, etabs_design = calc_stirrups(beam, etabs_design, const)
 
     etabs_design = calc_db('BayID', etabs_design, const)

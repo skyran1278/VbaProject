@@ -3,8 +3,8 @@ test
 """
 import numpy as np
 
-from tests.const import const
 from src.e2k import load_e2k
+from tests.const import const
 
 
 def test_load_e2k():
