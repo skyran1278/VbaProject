@@ -3,7 +3,7 @@ import time
 
 import pandas as pd
 
-# from src.pkl import load_pkl
+from src.pkl import load_pkl
 from src.execution_time import Execution
 
 from src.beam_name import load_beam_name, init_beam_name
@@ -22,22 +22,26 @@ from src.bar_traditional import cut_traditional
 # 函數式編程是對於資料更好的操控
 
 
-def cut_multiple(etabs_design, const, moment=3, by='BayID', vc=False):
+def cut_multiple(etabs_design, const, group_num=3, by='BayID', vc=False):
     """
     多點斷筋
     """
-    # 初始化輸出表格
-    beam = init_beam(etabs_design)
-    # 計算箍筋
-    beam, etabs_design = calc_stirrups_3(beam, etabs_design, const, vc)
-    # 計算主筋
-    etabs_design = calc_db(by, etabs_design, const)
-    # 計算延伸長度
-    etabs_design = calc_ld(etabs_design, const)
-    # 加上延伸長度
-    etabs_design = add_ld(etabs_design, 'Ld', const['rebar'])
+    # # 初始化輸出表格
+    # beam = init_beam(etabs_design)
+    # # 計算箍筋
+    # beam, etabs_design = calc_stirrups_3(beam, etabs_design, const, vc)
+    # # 計算主筋
+    # etabs_design = calc_db(by, etabs_design, const)
+    # # 計算延伸長度
+    # etabs_design = calc_ld(etabs_design, const)
+    # # 加上延伸長度
+    # etabs_design = add_ld(etabs_design, 'Ld', const['rebar'])
+
+    etabs_design, beam = load_pkl(
+        const['output_dir'] + '/etabs_design.pkl')
+
     # 多點斷筋
-    beam = cut_optimization(beam, etabs_design, const)
+    beam = cut_optimization(beam, etabs_design, const, group_num)
 
     beam = put_column_order(beam)
 
@@ -64,7 +68,7 @@ def cut_trational(etabs_design, const, by='BayID', vc=False):
     return beam, etabs_design
 
 
-def cut_by_beam(const, moment=3):
+def cut_by_beam(const, group_num=3):
     """ run by beam, no need beam name ID"""
     execution = Execution()
 
@@ -87,7 +91,7 @@ def cut_by_beam(const, moment=3):
 
     execution.time('多點斷筋')
     beam, etabs_design = cut_multiple(
-        etabs_design, const, moment=moment, by='BayID', vc=False)
+        etabs_design, const, group_num=group_num, by='BayID', vc=False)
     execution.time()
 
     beam_name_empty = init_beam_name(etabs_design)

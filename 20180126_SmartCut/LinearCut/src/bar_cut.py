@@ -85,7 +85,7 @@ def cut_3(df, col, boundary):
     cut 3, depands on boundary, ex: 0.1~0.45, 0.55~0.9
     """
     # initial
-    idx = {}
+    idxs = {}
     min_usage = float('Inf')
     num = np.empty(3)
     length = np.empty(3)
@@ -106,13 +106,13 @@ def cut_3(df, col, boundary):
             (df[col].diff().shift(-1) != 0)
         )
 
-        idx[index] = (
+        idxs[index] = (
             df.index[boundary_area][0],
             *df.index[diff_area & boundary_area],
             df.index[boundary_area][-1]
         )
 
-    for idx in product(idx['left'], idx['right']):
+    for idx in product(idxs['left'], idxs['right']):
         num[0] = df.loc[:idx[0], col].max()
         num[-1] = df.loc[idx[-1]:, col].max()
         length[0] = df.loc[idx[0], 'StnLoc'] - df['StnLoc'].min()
