@@ -62,8 +62,8 @@ def cut_multiple(df, col, boundary, group_num=5):
 
         if usage < min_usage:
             min_usage = usage
-            min_num = num
-            min_length = length
+            min_num = num.copy()
+            min_length = length.copy()
 
     # for local maxima
     # for local minima
@@ -127,8 +127,9 @@ def cut_3(df, col, boundary):
 
         if usage < min_usage:
             min_usage = usage
-            min_num = num
-            min_length = length
+            # by reference, so deep copy
+            min_num = num.copy()
+            min_length = length.copy()
 
     return min_num, min_length, min_usage
 

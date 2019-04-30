@@ -26,20 +26,16 @@ def cut_multiple(etabs_design, const, group_num=3, by='BayID', vc=False):
     """
     多點斷筋
     """
-    # # 初始化輸出表格
-    # beam = init_beam(etabs_design)
-    # # 計算箍筋
-    # beam, etabs_design = calc_stirrups_3(beam, etabs_design, const, vc)
-    # # 計算主筋
-    # etabs_design = calc_db(by, etabs_design, const)
-    # # 計算延伸長度
-    # etabs_design = calc_ld(etabs_design, const)
-    # # 加上延伸長度
-    # etabs_design = add_ld(etabs_design, 'Ld', const['rebar'])
-
-    etabs_design, beam = load_pkl(
-        const['output_dir'] + '/etabs_design.pkl')
-
+    # 初始化輸出表格
+    beam = init_beam(etabs_design)
+    # 計算箍筋
+    beam, etabs_design = calc_stirrups_3(beam, etabs_design, const, vc)
+    # 計算主筋
+    etabs_design = calc_db(by, etabs_design, const)
+    # 計算延伸長度
+    etabs_design = calc_ld(etabs_design, const)
+    # 加上延伸長度
+    etabs_design = add_ld(etabs_design, 'Ld', const['rebar'])
     # 多點斷筋
     beam = cut_optimization(beam, etabs_design, const, group_num)
 
@@ -96,6 +92,9 @@ def cut_by_beam(const, group_num=3):
 
     beam_name_empty = init_beam_name(etabs_design)
 
+    # beam_name_empty, beam, beam_tra, etabs_design, etabs_design_tra = load_pkl(
+    #     const['output_dir'] + '/design.pkl')
+
     # 輸出成表格
     execution.time('Output Result')
     beam_name_empty.to_excel(writer, '梁名編號')
@@ -103,50 +102,9 @@ def cut_by_beam(const, group_num=3):
     beam_tra.to_excel(writer, '傳統斷筋')
     etabs_design.to_excel(writer, 'etabs_design')
     etabs_design_tra.to_excel(writer, 'etabs_design_trational')
+    pd.DataFrame.from_dict(const, orient='index').to_excel(writer, 'config')
     writer.save()
     execution.time()
-
-# # 初始化輸出表格
-#     execution.time('傳統斷筋')
-#     beam, etabs_design = cut_trational(etabs_design, const, by='BayID', vc=False)
-#     beam_name_empty = init_beam_name(etabs_design)
-#     beam_tra = init_beam(etabs_design)
-#     beam = init_beam(etabs_design, moment=moment)
-#     execution.time()
-
-#     # 計算箍筋
-#     execution.time('Calculate Stirrup Size and Spacing')
-#     beam, etabs_design = calc_stirrups_3(beam, etabs_design, const)
-#     beam_tra, etabs_design_tra = calc_stirrups(beam_tra, etabs_design, const)
-#     execution.time()
-
-#     # 以一根梁為單位 計算主筋
-#     execution.time('Calculate Rebar Size and Number by Beam')
-#     etabs_design = calc_db('BayID', etabs_design, const)
-#     etabs_design_tra = calc_db('BayID', etabs_design_tra, const)
-#     execution.time()
-
-#     # 計算延伸長度
-#     execution.time('Calculate Ld')
-#     etabs_design = calc_ld(etabs_design, const)
-#     etabs_design_tra = calc_ld(etabs_design_tra, const)
-#     execution.time()
-
-#     # 加上延伸長度
-#     execution.time('Add Ld')
-#     etabs_design = add_ld(etabs_design, 'Ld', const['rebar'])
-#     etabs_design_tra = add_ld(etabs_design_tra, 'Ld', const['rebar'])
-#     execution.time()
-
-#     # 傳統斷筋
-#     execution.time('Traditional Cut')
-#     beam_tra = cut_traditional(beam_tra, etabs_design_tra, const['rebar'])
-#     execution.time()
-
-#     # 多點斷筋
-#     execution.time('Multi Smart Cut')
-#     beam = cut_optimization(beam, etabs_design, const)
-#     execution.time()
 
 
 def cut_by_frame(const, moment=3):

@@ -28,8 +28,8 @@ const = {
     'db_spacing': 1.5,
 
     'boundary': {
-        'left': np.array([0.15, 0.45]),
-        'right': np.array([0.55, 0.85])
+        'left': np.array([0.1, 0.45]),
+        'right': np.array([0.55, 0.9])
     },
 
     'cover': 0.04,
