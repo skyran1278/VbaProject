@@ -73,7 +73,7 @@ def test_bar_cut_multiple():
     ]
 
     data = np.array(
-        ['5-#10', '2-#10', '5-#10', 230, 630, 270], dtype=object)
+        ['5-#10', '5-#10', '2-#10', '5-#10', '5-#10', 160, 70, 630, 80, 190], dtype=object)
 
     np.testing.assert_array_equal(
         beam.loc[0, cols].values, data)
