@@ -65,6 +65,7 @@ def cut_multiple(df, col, boundary, group_num=5):
             min_num = num.copy()
             min_length = length.copy()
 
+    print(df.head(1))
     # for local maxima
     # for local minima
     # input should be numpy array
@@ -75,6 +76,7 @@ def cut_multiple(df, col, boundary, group_num=5):
     ))
 
     if incompatible:
+        print('\n\nINCOMPATIBLE\n\n')
         return cut_multiple(df, col, boundary, group_num - 1)
 
     return min_num, min_length, min_usage

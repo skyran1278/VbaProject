@@ -69,12 +69,20 @@ def put_column_order(df):
     """
     cols = df.columns.tolist()
 
-    cols = (
-        cols[:5] +
-        cols[19::4] + [cols[17]] + cols[-2:19:-4] +
-        cols[20::4] + [cols[18]] + cols[-1:19:-4] +
-        cols[5:17]
-    )
+    if ('主筋', '中') in cols:
+        cols = (
+            cols[:5] +
+            cols[19::4] + [cols[17]] + cols[-2:19:-4] +
+            cols[20::4] + [cols[18]] + cols[-1:19:-4] +
+            cols[5:17]
+        )
+    else:
+        cols = (
+            cols[:5] +
+            cols[17::4] + cols[-2:17:-4] +
+            cols[18::4] + cols[-1:17:-4] +
+            cols[5:17]
+        )
 
     return df[cols]
 
