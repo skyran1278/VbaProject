@@ -171,7 +171,7 @@ def cut_optimization(beam, etabs_design, const, group_num=3):
                 output_num['中'] = num_to_1st_2nd(num[mid], cap)
                 output_length['中'] = length[mid]
 
-            for i in range(mid):
+            for i in range(len(num) // 2):
                 output_num[f'左{i+1}'] = num_to_1st_2nd(num[i], cap)
                 output_length[f'左{i+1}'] = length[i]
                 output_num[f'右{i+1}'] = num_to_1st_2nd(num[-(i+1)], cap)
