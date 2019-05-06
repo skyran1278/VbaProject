@@ -4,7 +4,7 @@ from itertools import combinations
 import numpy as np
 
 
-from src.rebar import double_area, get_area
+from src.rebar import double_area, get_area, rebar_db
 
 
 def _calc_vc(df):
@@ -14,7 +14,7 @@ def _calc_vc(df):
     amin = df.groupby(['Story', 'BayID'])['StnLoc'].transform('min')
     amax = df.groupby(['Story', 'BayID'])['StnLoc'].transform('max')
 
-    seismic_area = np.maximum((amax - amin) / 4, 2 * df['H'])
+    seismic_area = 2 * df['H']
 
     B = df['B']
     fc = df['Fc']
@@ -70,6 +70,39 @@ def _upgrade_size(etabs_design, stirrup_rebar, stirrup_spacing, v_rebar):
             group.index, ['VSize', 'Spacing']] = group[['VSize', 'Spacing']]
 
     return etabs_design
+
+
+def seismic_spacing(df):
+    """
+    seismic check 15.4.3.2
+    but 有效深度不確定 and 主筋直徑不確定, so 先不用
+    """
+    # pylint: disable=no-member
+
+    amin = df.groupby(['Story', 'BayID'])['StnLoc'].transform('min')
+    amax = df.groupby(['Story', 'BayID'])['StnLoc'].transform('max')
+
+    seismic_area = 2 * df['H']
+
+    # 第一個閉合箍筋距支承構材面不得超過 5 cm。閉合箍筋最大間距不得超過
+    # (1)d / 4，(2)最小主鋼筋直徑之 8 倍，(3)閉合箍筋直徑之 24 倍，及(4)30 cm。
+    spacing = np.maximum.reduce([
+        (df['H'] - 0.065) / 4,
+        rebar_db(df['VSize']) * 24,
+        0.3
+    ])
+
+    # pandas where 與 numpy where 相反
+    # Replace values where the condition is False.
+    df['Spacing'].where(
+        (
+            (df['StnLoc'] > seismic_area + amin) |
+            (df['StnLoc'] < amax - seismic_area)
+        ),
+        spacing
+    )
+
+    return df
 
 
 def _drop_size(rebar_size, spacing, stirrup_spacing):
