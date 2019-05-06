@@ -22,7 +22,7 @@ from src.bar_traditional import cut_traditional
 # 函數式編程是對於資料更好的操控
 
 
-def cut_multiple(etabs_design, const, group_num=3, by='BayID', vc=False):
+def cut_multiple(etabs_design, const, vc, by='BayID', group_num=3):
     """
     多點斷筋
     """
@@ -44,7 +44,7 @@ def cut_multiple(etabs_design, const, group_num=3, by='BayID', vc=False):
     return beam, etabs_design
 
 
-def cut_trational(etabs_design, const, by='BayID', vc=False):
+def cut_trational(etabs_design, const, vc, by='BayID'):
     """
     傳統斷筋
     """
@@ -82,12 +82,12 @@ def cut_by_beam(const, group_num=3):
 
     execution.time('傳統斷筋')
     beam_tra, etabs_design_tra = cut_trational(
-        etabs_design, const, by='BayID', vc=False)
+        etabs_design, const, vc=True, by='BayID')
     execution.time()
 
     execution.time('多點斷筋')
     beam, etabs_design = cut_multiple(
-        etabs_design, const, group_num=group_num, by='BayID', vc=False)
+        etabs_design, const, vc=True, by='BayID', group_num=group_num)
     execution.time()
 
     beam_name_empty = init_beam_name(etabs_design)
