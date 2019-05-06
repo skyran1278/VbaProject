@@ -13,7 +13,7 @@ class Design:
 
     def __init__(self, path, sheet_name='多點斷筋'):
         df = pd.read_excel(
-            path, sheet_name=sheet_name, header=[0, 1], usecols=22)
+            path, sheet_name=sheet_name, header=[0, 1])
 
         df = df.rename(columns=lambda x: x if 'Unnamed' not in str(x) else '')
 
@@ -21,9 +21,9 @@ class Design:
 
     def get_len(self):
         """
-        get index length
+        get length
         """
-        return len(self.df.index)
+        return len(self.df.index), len(self.df.columns)
 
     def get(self, index, col=None):
         """

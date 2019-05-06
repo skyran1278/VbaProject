@@ -35,13 +35,13 @@ def multi():
     """
     from tests.config import config
 
-    design = Design(config['design_path_test_v1'])
+    design = Design(config['design_path_test_v5'], '傳統斷筋')
 
-    e2k = E2k(config['e2k_path_test_v1'])
+    e2k = E2k(config['e2k_path_test_v5'])
 
-    new_e2k = NewE2k(config['e2k_path_test_v1'])
+    new_e2k = NewE2k(config['e2k_path_test_v5'])
 
-    for index in range(0, design.get_len(), 4):
+    for index in range(0, design.get_len()[0], 4):
         abs_coors, rel_coors = get_points(index, design, e2k)
 
         story = design.get(index, ('樓層', ''))
@@ -84,20 +84,21 @@ def normal():
     """
     from tests.config import config
 
-    design = Design(config['design_path_test_v1'], '傳統斷筋')
+    design = Design(config['design_path_test_v5'], '傳統斷筋')
 
-    e2k = E2k(config['e2k_path_test_v1'])
+    e2k = E2k(config['e2k_path_test_v5'])
 
-    new_e2k = NewE2k(config['e2k_path_test_v1'])
+    new_e2k = NewE2k(config['e2k_path_test_v5'])
 
-    for index in range(0, design.get_len(), 4):
+    for index in range(0, design.get_len()[0], 4):
         story = design.get(index, ('樓層', ''))
         line_key = design.get(index, ('編號', ''))
         line_length = design.get(index, ('梁長', '')) / 100
 
+        abs_coors = [0, line_length]
+
         # get points rebar
-        point_rebars = get_points_rebar_area(
-            index, [0, line_length], design)
+        point_rebars = get_points_rebar_area(index, abs_coors, design)
 
         # get section
         section_keys = new_e2k.post_sections(
@@ -124,7 +125,7 @@ def main():
     # p = pstats.Stats('restats')
     # p.strip_dirs().sort_stats('cumtime').print_stats(100)
     multi()
-    normal()
+    # normal()
 
 
 if __name__ == "__main__":

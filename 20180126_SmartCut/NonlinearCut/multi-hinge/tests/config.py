@@ -3,6 +3,7 @@ import os
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# pylint: disable=line-too-long
 config = {  # pylint: disable=invalid-name
     # 'e2k_path': SCRIPT_DIR + '/20190103 v3.0 3floor v16.e2k',
     'e2k_path_test_v1': SCRIPT_DIR + '/20190103 v3.0 3floor v16.e2k',
