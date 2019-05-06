@@ -30,8 +30,8 @@ def get_points(section_index, design, e2k):
     """
     # pylint: disable=invalid-name
     positions = [
-        ('左', True, section_index), ('左', False, section_index + 3),
-        ('右', True, section_index), ('右', False, section_index + 3)
+        ('左1', True, section_index), ('左1', False, section_index + 3),
+        ('右1', True, section_index), ('右1', False, section_index + 3)
     ]
 
     section = design.get(section_index)
@@ -69,8 +69,8 @@ def get_points(section_index, design, e2k):
         local_coordinate = length + section[('支承寬', left_or_right)] / 100
 
         # covert to real local coordinate
-        # if '右' should minus '梁長'
-        if left_or_right == '右':
+        # if '右1' should minus '梁長'
+        if left_or_right == '右1':
             local_coordinate = section[('梁長', '')] / 100 - local_coordinate
 
         if not np.allclose(local_coordinate, points, atol=0.1):

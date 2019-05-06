@@ -74,18 +74,18 @@ class Design:
         index = index // 4 * 4
 
         left_boundary = (
-            self.get(index, ('主筋長度', '左')) + self.get(index, ('支承寬', '左'))
+            self.get(index, ('主筋長度', '左1')) + self.get(index, ('支承寬', '左'))
         ) / 100
         right_boundary = (
             self.get(index, ('梁長', '')) -
-            self.get(index, ('主筋長度', '右')) +
+            self.get(index, ('主筋長度', '右1')) +
             self.get(index, ('支承寬', '右'))
         ) / 100
 
         if abs_length < left_boundary:
-            col = ('主筋', '左')
+            col = ('主筋', '左1')
         elif abs_length > right_boundary:
-            col = ('主筋', '右')
+            col = ('主筋', '右1')
         else:
             col = ('主筋', '中')
 
@@ -173,17 +173,17 @@ def main():
 
     print(design.get_len())
     print(design.get(1))
-    print(design.get(3, ('主筋', '左')))
-    print(design.get(2, ('主筋長度', '左')))
-    print(design.get_total_area(11, ('主筋', '左')))
+    print(design.get(3, ('主筋', '左1')))
+    print(design.get(2, ('主筋長度', '左1')))
+    print(design.get_total_area(11, ('主筋', '左1')))
     print(design.get_length_area(11, 0.24))
-    print(design.get_num(6, ('主筋', '右')))
-    print(design.get_diameter(6, ('箍筋', '右')))
-    print(design.get_diameter(6, ('主筋', '右')))
-    print(design.get_area(6, ('主筋', '右')))
-    print(design.get_area(6, ('箍筋', '右')))
-    print(design.get_spacing(10, ('箍筋', '右')))
-    print(design.get_shear(10, ('箍筋', '右')))
+    print(design.get_num(6, ('主筋', '右1')))
+    print(design.get_diameter(6, ('箍筋', '右1')))
+    print(design.get_diameter(6, ('主筋', '右1')))
+    print(design.get_area(6, ('主筋', '右1')))
+    print(design.get_area(6, ('箍筋', '右1')))
+    print(design.get_spacing(10, ('箍筋', '右1')))
+    print(design.get_shear(10, ('箍筋', '右1')))
     print(design.get_shear(10, ('箍筋', '中')))
 
 

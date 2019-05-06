@@ -117,14 +117,14 @@ def main():
     """
     test
     """
-    import cProfile
-    import pstats
+    # import cProfile
+    # import pstats
 
-    cProfile.run('multi()', 'restats')
-    p = pstats.Stats('restats')
-    p.strip_dirs().sort_stats('cumtime').print_stats(100)
-    # multi()
-    # normal()
+    # cProfile.run('multi()', 'restats')
+    # p = pstats.Stats('restats')
+    # p.strip_dirs().sort_stats('cumtime').print_stats(100)
+    multi()
+    normal()
 
 
 if __name__ == "__main__":

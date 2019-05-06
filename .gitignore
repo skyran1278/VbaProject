@@ -2,6 +2,7 @@
 *.pkl
 .DS_Store
 /20180126_SmartCut/LinearCut/.vscode/settings.json
+/20180126_SmartCut/NonlinearCut/multi-hinge/.vscode/settings.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
