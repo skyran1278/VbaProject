@@ -35,7 +35,7 @@ def multi():
     """
     from tests.config import config
 
-    design = Design(config['design_path_test_v5'], '傳統斷筋')
+    design = Design(config['design_path_test_v5'])
 
     e2k = E2k(config['e2k_path_test_v5'])
 

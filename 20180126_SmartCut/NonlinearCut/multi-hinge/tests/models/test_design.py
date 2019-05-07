@@ -4,6 +4,8 @@ test
 # pylint: disable=redefined-outer-name
 from math import isclose
 
+import numpy as np
+
 import pytest
 
 
@@ -32,6 +34,7 @@ def test_get(design):
 
     # col is '主筋'
     assert design.get(3, ('主筋', '左1')) == '7-#7'
+    assert design.get(3, 5) == '7-#7'
 
     # col is '主筋長度'
     assert isclose(design.get(9, ('主筋長度', '中')), 330.000019073486)
@@ -48,6 +51,27 @@ def test_len(design):
     assert design.get_len() == (12, 23)
 
 
+def test_get_abs_length(design):
+    """
+    test abs_length
+    """
+    assert np.allclose(design.get_abs_length(1, 8), (0.45, 2.25))
+
+
+def test_get_group_num(design):
+    """
+    test group_num
+    """
+    assert design.get_group_num() == 3
+
+
+def test_get_colname_by_length(design):
+    """
+    test get_colname_by_length
+    """
+    assert design.get_colname_by_length(2, 3.0) == ('中', '中')
+
+
 def test_total_area(design):
     """
     test total_area
@@ -55,9 +79,9 @@ def test_total_area(design):
     assert design.get_total_area(11, ('主筋', '左1')) == 0.0027097
 
 
-def test_length_area(design):
+def test_area_by_length(design):
     """
-    test length_area
+    test area_by_length
     """
     assert design.get_area_by_length(11, 0.24) == (0.0050323, 0.0027097)
 
