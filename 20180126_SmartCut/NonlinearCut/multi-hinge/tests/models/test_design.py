@@ -59,7 +59,7 @@ def test_length_area(design):
     """
     test length_area
     """
-    assert design.get_length_area(11, 0.24) == (0.0050323, 0.0027097)
+    assert design.get_area_by_length(11, 0.24) == (0.0050323, 0.0027097)
 
 
 def test_num(design):

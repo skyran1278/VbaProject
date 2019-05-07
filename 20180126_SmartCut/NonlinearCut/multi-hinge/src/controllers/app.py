@@ -4,7 +4,7 @@ entry
 from src.models.e2k import E2k
 from src.models.design import Design
 from src.models.new_e2k import NewE2k
-from src.controllers.get_points import get_points
+from src.controllers.get_hinges import get_hinges
 
 
 def get_global_coordinates(bay_id, rel_points, e2k):
@@ -15,18 +15,18 @@ def get_global_coordinates(bay_id, rel_points, e2k):
     return rel_points.reshape(-1, 1) * (coor_end - coor_start) + coor_start
 
 
-def get_points_rebar_area(index, abs_coors, design):
+def get_hinges_rebar_area(index, abs_coors, design):
     """
     get length point rebar area
     """
-    point_rebars = []
+    hinge_rebars = []
 
     for abs_length in abs_coors:
-        top, bot = design.get_length_area(index, abs_length)
+        top, bot = design.get_area_by_length(index, abs_length)
 
-        point_rebars.append((top, bot))
+        hinge_rebars.append((top, bot))
 
-    return point_rebars
+    return hinge_rebars
 
 
 def multi():
@@ -42,7 +42,7 @@ def multi():
     new_e2k = NewE2k(config['e2k_path_test_v5'])
 
     for index in range(0, design.get_len()[0], 4):
-        abs_coors, rel_coors = get_points(index, design, e2k)
+        abs_coors, rel_coors = get_hinges(index, design, e2k)
 
         story = design.get(index, ('樓層', ''))
         line_key = design.get(index, ('編號', ''))
@@ -56,14 +56,14 @@ def multi():
         new_e2k.post_point_assigns(point_keys, story)
 
         # get points rebar
-        point_rebars = get_points_rebar_area(index, abs_coors, design)
+        hinge_rebars = get_hinges_rebar_area(index, abs_coors, design)
 
         # get line keys, by use point keys
         line_keys = new_e2k.post_lines(point_keys)
 
         # get section
         section_keys = new_e2k.post_sections(
-            point_rebars, copy_from=e2k.get_section(story, line_key))
+            hinge_rebars, copy_from=e2k.get_section(story, line_key))
 
         # then post line assigns
         new_e2k.post_line_assigns(
@@ -98,11 +98,11 @@ def normal():
         abs_coors = [0, line_length]
 
         # get points rebar
-        point_rebars = get_points_rebar_area(index, abs_coors, design)
+        hinge_rebars = get_hinges_rebar_area(index, abs_coors, design)
 
         # get section
         section_keys = new_e2k.post_sections(
-            point_rebars, copy_from=e2k.get_section(story, line_key))
+            hinge_rebars, copy_from=e2k.get_section(story, line_key))
 
         # then post line assigns
         new_e2k.post_line_assigns(
