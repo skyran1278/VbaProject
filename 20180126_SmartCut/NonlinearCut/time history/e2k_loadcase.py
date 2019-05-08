@@ -289,10 +289,10 @@ def main():
 
     put_timehistorys(time_historys, peernga_folder)
 
-    with open(script_folder + '/e2k_loadcase.e2k', mode='w', encoding='big5') as f:
+    with open(script_folder + '/e2k_functions.e2k', mode='w', encoding='big5') as f:
         f.writelines(post_functions(time_historys, peernga_folder))
-        f.write('\n\n\n')
 
+    with open(script_folder + '/e2k_loadcase.e2k', mode='w', encoding='big5') as f:
         f.writelines(post_previous_loadcases(
             initial_condition, dead_load, live_load))
         f.writelines(post_pushover_loadcases(
