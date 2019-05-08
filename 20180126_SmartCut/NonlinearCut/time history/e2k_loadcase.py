@@ -5,7 +5,7 @@ import shlex
 
 CONFIG = {
     # different by model
-    'factors': [1, 2, 3, 4],
+    'factors': [0.2, 0.5, 0.772, 1.029, 1.5, 2, 2.5],
     'modal_participating_mass': [0.8528, 0.106, 0.0335, 0.0077],
     'period': [0.094, 0.094 / 10],
     'displacement': 0.8,

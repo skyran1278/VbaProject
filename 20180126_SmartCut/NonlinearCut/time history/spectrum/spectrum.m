@@ -1,7 +1,7 @@
 clc; clear; close all;
 
 structure_period = 1.01;
-ss_s1 = [0.8, 0.675, 1, 0.77];
+ss_s1 = [0.5, 0.3, 0.7, 0.4];
 
 % all(42) time history
 % filenames = [
