@@ -1,4 +1,4 @@
-' @license Version v2.3.5
+' @license Version v3.0.0
 ' Version.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -111,17 +111,17 @@ Private Function CompareVersion(currentVersion As String, latestVersion As Strin
     arrCurrentVersion = Split(currentVersion, ".")
     arrLatestVersion = Split(latestVersion, ".")
 
-    If arrLatestVersion(0) > arrCurrentVersion(0) Then
-        CompareVersion = True
+    If arrCurrentVersion(0) > arrLatestVersion(0) Then
+        CompareVersion = False
 
-    ElseIf arrLatestVersion(1) > arrCurrentVersion(1) Then
-        CompareVersion = True
+    ElseIf arrCurrentVersion(1) > arrLatestVersion(1) Then
+        CompareVersion = False
 
-    ElseIf arrLatestVersion(2) > arrCurrentVersion(2) Then
-        CompareVersion = True
+    ElseIf arrCurrentVersion(2) > arrLatestVersion(2) Then
+        CompareVersion = False
 
     Else
-        CompareVersion = False
+        CompareVersion = True
 
     End If
 
@@ -149,8 +149,26 @@ Private Sub Workbook_Open()
     ' Dim ws_version As Worksheet
     ' Set ws_version = ThisWorkbook.Worksheets("Release Notes")
 
+    On Error GoTo ErrorHandler
+
     Call VerifyPassword
     Call CheckVersion
+
+    Exit Sub
+
+ErrorHandler:
+    MsgBox(Err.Description)
+
+    inputPwd = Trim(Application.InputBox("Please Input Strong Passward.", "No Internet Connect", Type:=2))
+
+    strongPwd = "28862952"
+
+    If inputPwd <> strongPwd Then
+
+        MsgBox "Wrong Password"
+        ThisWorkbook.Close SaveChanges:=False
+
+    End If
 
     ' ws_version.Cells.Font.Name = "微軟正黑體"
     ' ws_version.Cells.Font.Name = "Calibri"
