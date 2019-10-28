@@ -311,6 +311,7 @@ Function GetRatioData()
     ' 計算箍筋與繫筋面積
     For i = LB_REBAR To UB_REBAR
         stirrup = Split(ARR_REBAR(i, COL_BOUND_AREA), "@")
+        ' 箍筋面積
         stirrup = OBJ_REBAR_SIZE.Item(stirrup(0))(COL_AREA)
         ' stirrup = Application.VLookup(stirrup(0), REBAR_SIZE, COL_AREA, False)
         ARR_RATIO(i, COL_TIE_X) = stirrup * (ARR_REBAR(i, COL_TIE_X) + 2)
