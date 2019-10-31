@@ -1,4 +1,4 @@
-' @license Version v3.0.0
+' @license Version v3.0.2
 ' Version.vb
 '
 ' Copyright (c) 2016-present, skyran
@@ -111,17 +111,29 @@ Private Function CompareVersion(currentVersion As String, latestVersion As Strin
     arrCurrentVersion = Split(currentVersion, ".")
     arrLatestVersion = Split(latestVersion, ".")
 
-    If arrCurrentVersion(0) > arrLatestVersion(0) Then
-        CompareVersion = False
-
-    ElseIf arrCurrentVersion(1) > arrLatestVersion(1) Then
-        CompareVersion = False
-
-    ElseIf arrCurrentVersion(2) > arrLatestVersion(2) Then
-        CompareVersion = False
-
-    Else
+    If arrLatestVersion(0) > arrCurrentVersion(0) Then
         CompareVersion = True
+
+    ElseIf arrLatestVersion(0) < arrCurrentVersion(0) Then
+        CompareVersion = False
+
+    ' if  arrLatestVersion(0) == arrCurrentVersion(0)
+    ElseIf arrLatestVersion(1) > arrCurrentVersion(1) Then
+        CompareVersion = True
+
+    ElseIf arrLatestVersion(1) < arrCurrentVersion(1) Then
+        CompareVersion = False
+
+    ' if  arrLatestVersion(1) == arrCurrentVersion(1)
+    ElseIf arrLatestVersion(2) > arrCurrentVersion(2) Then
+        CompareVersion = True
+
+    ElseIf arrLatestVersion(2) < arrCurrentVersion(2) Then
+        CompareVersion = False
+
+    ' all equal
+    Else
+        CompareVersion = False
 
     End If
 
