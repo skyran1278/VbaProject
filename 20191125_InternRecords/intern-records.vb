@@ -103,7 +103,7 @@ Sub MAIN()
             If arrOutput(i, colHour) - 1.5 > 8 Then
                 arrOutput(i, colRealHour) = 8
             Else
-                arrOutput(i, colRealHour) = arrOutput(i, colHour) - 1.5
+                arrOutput(i, colRealHour) = arrOutput(i, colHour)
             End If
 
         Else
