@@ -1,169 +1,139 @@
 Sub FilterData()
 
-    Set Assemble = Worksheets("Assembled Point Masses")
-    Set Material = Worksheets("Material List By Story")
+    Set AssembledPointMasses = Worksheets("Assembled Point Masses")
+    Set MaterialListByStory = Worksheets("Material List By Story")
     Set StoryShears = Worksheets("Story Shears")
     Set Scan = Worksheets("Scan")
+
+    Set Mass = Worksheets("Mass")
+    Set Area = Worksheets("Area")
     Set DL = Worksheets("DL")
     Set LL = Worksheets("LL")
     Set StaticSeismic = Worksheets("靜態地震力")
-    Set Dynamic = Worksheets("動態地震力修正")
+    Set DynamicSeismic = Worksheets("動態地震力修正")
 
-    AssembleLastrow = Sheets("Assembled Point Masses").UsedRange.Rows.Count '------------抓取最後一行
-    MaterialLastrow = Sheets("Material List By Story").UsedRange.Rows.Count '------------抓取最後一行
-    StoryShearsLastrow = Sheets("Story Shears").UsedRange.Rows.Count '------------抓取最後一行
+    AssembledPointMassesLastrow = AssembledPointMasses.UsedRange.Rows.Count '------------抓取最後一行
+    MaterialListByStoryLastrow = MaterialListByStory.UsedRange.Rows.Count '------------抓取最後一行
+    StoryShearsLastrow = StoryShears.UsedRange.Rows.Count '------------抓取最後一行
 
-' ---------先刪除原有的表格，DEBUG
-    DL.Cells.ClearContents
-    LL.Cells.ClearContents
-    StaticSeismic.Cells.ClearContents
-    Dynamic.Cells.ClearContents
+' ---------先刪除原有的表格，DEBUG，都要 clear 兩次才能消除乾淨
+    DL.Cells.Clear
+    DL.Cells.Clear
+    LL.Cells.Clear
+    LL.Cells.Clear
+    StaticSeismic.Cells.Clear
+    StaticSeismic.Cells.Clear
+    DynamicSeismic.Cells.Clear
+    DynamicSeismic.Cells.Clear
+    Area.Cells.Clear
+    Area.Cells.Clear
+    Mass.Cells.Clear
+    Mass.Cells.Clear
+
+    ' 清除前三種
     For i = 3 To 17 Step 7
-        Scan.Range(Cells(14, i), Cells(10000, i + 1)).ClearContents
-        Scan.Range(Cells(14, i + 3), Cells(10000, i + 3)).ClearContents
+        Scan.Range(Scan.Cells(14, i), Scan.Cells(10000, i + 1)).ClearContents
+        Scan.Range(Scan.Cells(14, i + 3), Scan.Cells(10000, i + 3)).ClearContents
     Next
 
-'---------複製Story Shears貼上到各Sheet
+'--------- 複製貼上
 
-    Sheets("Story Shears").Select
-    Cells.Select
-    Selection.Copy
-    Sheets("DL").Select
-    Cells.Select
-    ActiveSheet.Paste
-    Sheets("LL").Select
-    Cells.Select
-    ActiveSheet.Paste
-    Sheets("靜態地震力").Select
-    Cells.Select
-    ActiveSheet.Paste
-    Sheets("動態地震力修正").Select
-    Cells.Select
-    ActiveSheet.Paste
+    '複製 Story Shears 貼上到各 Sheet
+    StoryShears.Cells.Copy
+    DL.Paste (DL.Cells)
+    LL.Paste (LL.Cells)
+    StaticSeismic.Paste (StaticSeismic.Cells)
+    DynamicSeismic.Paste (DynamicSeismic.Cells)
+
+    '複製 Floor 貼上到 Area
+    MaterialListByStory.Cells.Copy
+    Area.Paste (Area.Cells)
+
+    '複製 AssembleMass 貼上到 Mass
+    AssembledPointMasses.Cells.Copy
+    Mass.Paste (Mass.Cells)
 
 '---------篩選
 
     EQfloor = Scan.Cells(2, 4)
 
-    Sheets("Material List By Story").Select
-    Cells.Select
-    Selection.AutoFilter
-    ActiveSheet.Range(Cells(1, 1), Cells(MaterialLastrow, 8)).AutoFilter Field:=2, Criteria1:="Floor"
-    Sheets("DL").Select
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=2, Criteria1:="DL"
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
-    Sheets("LL").Select
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=2, Criteria1:="LL"
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
-    Sheets("靜態地震力").Select
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=2, Criteria1:=Array( _
+    Area.Cells.AutoFilter
+    Area.Range(Area.Cells(1, 1), Area.Cells(MaterialListByStoryLastrow, 8)).AutoFilter Field:=2, Criteria1:="Floor"
+
+    DL.Range(DL.Cells(1, 1), DL.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=2, Criteria1:="DL"
+    DL.Range(DL.Cells(1, 1), DL.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
+
+    LL.Range(LL.Cells(1, 1), LL.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=2, Criteria1:="LL"
+    LL.Range(LL.Cells(1, 1), LL.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
+
+    StaticSeismic.Cells.Sort Key1:=StaticSeismic.Range(StaticSeismic.Cells(2, 2), StaticSeismic.Cells(StoryShearsLastrow, 2)), Order1:=xlAscending, Header:=xlYes
+    StaticSeismic.Range(StaticSeismic.Cells(1, 1), StaticSeismic.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=2, Criteria1:=Array( _
         "DL", "EQXN", "EQXP", "EQYN", "EQYP"), Operator:=xlFilterValues
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=1, Criteria1:=EQfloor
-    Sheets("動態地震力修正").Select
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=2, Criteria1:=Array( _
+    StaticSeismic.Range(StaticSeismic.Cells(1, 1), StaticSeismic.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
+    StaticSeismic.Range(StaticSeismic.Cells(1, 1), StaticSeismic.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=1, Criteria1:=EQfloor
+
+    DynamicSeismic.Cells.Sort Key1:=DynamicSeismic.Range(DynamicSeismic.Cells(2, 2), DynamicSeismic.Cells(StoryShearsLastrow, 2)), Order1:=xlAscending, Header:=xlYes
+    DynamicSeismic.Range(DynamicSeismic.Cells(1, 1), DynamicSeismic.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=2, Criteria1:=Array( _
         "0SPECX", "0SPECY", "EQV", "EQXN", "EQXP", "EQYN", "EQYP", "SPECXF MAX", "SPECYF MAX") _
         , Operator:=xlFilterValues
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
-    ActiveSheet.Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).AutoFilter Field:=1, Criteria1:=EQfloor
-    AssembledSub
+    DynamicSeismic.Range(DynamicSeismic.Cells(1, 1), DynamicSeismic.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
+    DynamicSeismic.Range(DynamicSeismic.Cells(1, 1), DynamicSeismic.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=1, Criteria1:=EQfloor
+
+    Mass.Cells.Sort Key1:=Mass.Range(Mass.Cells(2, 2), Mass.Cells(AssembledPointMassesLastrow, 2)), Order1:=xlAscending, Header:=xlYes
+    Mass.Cells.AutoFilter
+    Mass.Range(Mass.Cells(1, 1), Mass.Cells(AssembledPointMassesLastrow, 11)).AutoFilter Field:=2, Criteria1:="All"
 
 '-----貼上Scan
 
     '------------------貼上STORY
-    Sheets("Assembled Point Masses").Select
-    Range(Cells(2, 1), Cells(AssembleLastrow, 1)).Select
-    Selection.Copy
-    Sheets("Scan").Select
-    Range("C14").Select
-    'ActiveSheet.Paste
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+    Mass.Range(Mass.Cells(2, 1), Mass.Cells(AssembledPointMassesLastrow, 1)).Copy
+    Scan.Range("C14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
-    Range("J14").Select
-    'ActiveSheet.Paste
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+    Scan.Range("J14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
-    Range("Q14").Select
-    'ActiveSheet.Paste
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
-        xlNone, SkipBlanks:=False, Transpose:=False
-
-    '------------------貼上P
-    Sheets("DL").Select
-    Range(Cells(3, 4), Cells(StoryShearsLastrow, 4)).Select
-    Selection.Copy
-    Sheets("Scan").Select
-    Range("D14").Select
-    'ActiveSheet.Paste
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
-        xlNone, SkipBlanks:=False, Transpose:=False
-
-    '------------------貼上P
-    Sheets("LL").Select
-    Range(Cells(3, 4), Cells(StoryShearsLastrow, 4)).Select
-    Selection.Copy
-    Sheets("Scan").Select
-    Range("R14").Select
-    'ActiveSheet.Paste
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+    Scan.Range("Q14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
     '------------------貼上M
-    Sheets("Assembled Point Masses").Select
+    Mass.Range(Mass.Cells(2, 3), Mass.Cells(AssembledPointMassesLastrow, 3)).Copy
+    Scan.Range("D14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+        xlNone, SkipBlanks:=False, Transpose:=False
 
-    Range(Cells(2, 3), Cells(AssembleLastrow, 3)).Select
-    Selection.Copy
-    Sheets("Scan").Select
-    Range("K14").Select
-    'ActiveSheet.Paste
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+    '------------------貼上P
+    DL.Range(DL.Cells(3, 4), DL.Cells(StoryShearsLastrow, 4)).Copy
+    Scan.Range("K14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+        xlNone, SkipBlanks:=False, Transpose:=False
+
+    '------------------貼上P
+    LL.Range(LL.Cells(3, 4), LL.Cells(StoryShearsLastrow, 4)).Copy
+    Scan.Range("R14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
     '------------------貼上FloorArea
-    Sheets("Material List By Story").Select
-    Range(Cells(4, 5), Cells(MaterialLastrow, 5)).Select
-    Selection.Copy
-    Sheets("Scan").Select
-    Range("F14").Select
-    'ActiveSheet.Paste
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+    Area.Range(Area.Cells(4, 5), Area.Cells(MaterialListByStoryLastrow, 5)).Copy
+    Scan.Range("F14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
     '-----------------修正FloorArea
     FloorAreaLastrow = Scan.Cells(Scan.Rows.Count, "F").End(xlUp).Row
     StoryLastrow = Scan.Cells(Scan.Rows.Count, "C").End(xlUp).Row
-    Cells(StoryLastrow, 6) = Cells(FloorAreaLastrow, 6)
-    Cells(FloorAreaLastrow, 6) = ""
-    Range(Cells(14, 6), Cells(StoryLastrow, 6)).Select
-    Selection.Copy
+    Scan.Cells(StoryLastrow, 6) = Scan.Cells(FloorAreaLastrow, 6)
+    Scan.Cells(FloorAreaLastrow, 6) = ""
+    Scan.Range(Scan.Cells(14, 6), Scan.Cells(StoryLastrow, 6)).Copy
     '-----------------重貼FloorArea
-    Range("M14").Select
-    'ActiveSheet.Paste
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+    Scan.Range("M14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
-    Range("T14").Select
-    'ActiveSheet.Paste
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+    Scan.Range("T14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
     '------------------貼上靜態地震力
-    Sheets("靜態地震力").Select
-    Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).Select
-    Selection.Copy
-    Sheets("Scan").Select
-    Range("W14").Select
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+    StaticSeismic.Range(StaticSeismic.Cells(1, 1), StaticSeismic.Cells(StoryShearsLastrow, 9)).Copy
+    Scan.Range("W14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
     '------------------貼上動態地震力修正
-    Sheets("動態地震力修正").Select
-    Range(Cells(1, 1), Cells(StoryShearsLastrow, 9)).Select
-    Selection.Copy
-    Sheets("Scan").Select
-    Range("AG14").Select
-    Selection.PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
+    DynamicSeismic.Range(DynamicSeismic.Cells(1, 1), DynamicSeismic.Cells(StoryShearsLastrow, 9)).Copy
+    Scan.Range("AG14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
 End Sub
-
-
