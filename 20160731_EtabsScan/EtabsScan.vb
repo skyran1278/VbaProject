@@ -79,7 +79,7 @@ Sub FilterData()
     DynamicSeismic.Range(DynamicSeismic.Cells(1, 1), DynamicSeismic.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=3, Criteria1:="Bottom"
     DynamicSeismic.Range(DynamicSeismic.Cells(1, 1), DynamicSeismic.Cells(StoryShearsLastrow, 9)).AutoFilter Field:=1, Criteria1:=EQfloor
 
-    Mass.Cells.Sort Key1:=Mass.Range(Mass.Cells(2, 2), Mass.Cells(AssembledPointMassesLastrow, 2)), Order1:=xlAscending, Header:=xlYes
+    Mass.Cells.Sort Key1:=Mass.Range(Mass.Cells(2, 2), Mass.Cells(AssembledPointMassesLastrow, 2)), Order1:=xlDescending, Header:=xlYes
     Mass.Cells.AutoFilter
     Mass.Range(Mass.Cells(1, 1), Mass.Cells(AssembledPointMassesLastrow, 11)).AutoFilter Field:=2, Criteria1:="All"
 
@@ -135,5 +135,7 @@ Sub FilterData()
     DynamicSeismic.Range(DynamicSeismic.Cells(1, 1), DynamicSeismic.Cells(StoryShearsLastrow, 9)).Copy
     Scan.Range("AG14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
+
+    Scan.Select
 
 End Sub
