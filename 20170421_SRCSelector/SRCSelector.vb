@@ -341,7 +341,7 @@ Function SectionSelector(combo, curves)
     ReDim CONTROL_COMBO(2 To comboUBound, 1 To 1)
 
     ' section 為 combo 除以載重組合數
-    ReDim section(2 To (comboUBound - 1) / comboNumber + 1, 3)
+    ReDim section(2 To (comboUBound - 1) / comboNumber + 1, 4)
 
     sectionNumber = 2
 
@@ -350,13 +350,14 @@ Function SectionSelector(combo, curves)
         ' 每一個柱（包含很多個Combo）重新初始化
         comboSelectNumber = 0
         comboRatio = 0
-        axial_hint = ""
 
         ' 相同的一組
+        ' 很多 combo
         For comboRow = row To row + comboNumber - 1
 
             ' 每一個 Combo 重新初始化
-            ratio = 0
+            pRatio = 0
+            mRatio = 0
             curvesNumber = 1
             loadMid = combo(comboRow, loading)
 
@@ -365,6 +366,8 @@ Function SectionSelector(combo, curves)
             Do While curvesNumber <= curvesBound
 
                 curve = curves(curvesNumber)
+
+                pRatio = Abs(loadMid / curve(60, p))
 
                 ' 軸力要在中間，這樣才能內插
                 If loadMid <= curve(60, p) And loadMid >= curve(1, p) Then
@@ -377,34 +380,27 @@ Function SectionSelector(combo, curves)
                             loadMax = curve(Point, p)
                             loadMin = curve(Point - 1, p)
 
-                            ' 內插
-                            interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
-
                             If combo(comboRow, m2) > combo(comboRow, m3) Then
 
                                 ' 內插
                                 interM0 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m0), curve(Point - 1, m0))
+                                interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
 
-                                If Newton(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3)) Then
-
-                                    ratio = calRatio(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
-
-                                    Exit Do
-
-                                End If
+                                mRatio = calRatio(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
 
                             Else
 
                                 ' 內插
+                                interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
                                 interM90 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m90), curve(Point - 1, m90))
 
-                                If Newton(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3)) Then
+                                mRatio = calRatio(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
 
-                                    ratio = calRatio(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
+                            End If
 
-                                    Exit Do
+                            If mRatio < 1 Then
 
-                                End If
+                                Exit Do
 
                             End If
 
@@ -422,65 +418,18 @@ Function SectionSelector(combo, curves)
 
             CONTROL_COMBO(comboRow, 1) = curvesNumber
 
-            If CURVES_NAME(curvesNumber) = "超過所有斷面，請選擇更大的斷面！" Then
-
-                curve = curves(curvesBound)
-
-                ' 軸力要在中間，這樣才能內插
-                If loadMid <= curve(60, p) And loadMid >= curve(1, p) Then
-
-                    For Point = 1 To 60
-
-                        ' 小於哪個 load
-                        If loadMid < curve(Point, p) Then
-
-                            loadMax = curve(Point, p)
-                            loadMin = curve(Point - 1, p)
-
-                            ' 內插
-                            interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
-
-                            If combo(comboRow, m2) > combo(comboRow, m3) Then
-
-                                ' 內插
-                                interM0 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m0), curve(Point - 1, m0))
-
-                                ratio = calRatioIfExceed(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
-
-                            Else
-
-                                ' 內插
-                                interM90 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m90), curve(Point - 1, m90))
-
-                                ratio = calRatioIfExceed(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
-
-                            End If
-
-                            Exit For
-
-                        End If
-
-                    Next Point
-
-                ' 如果軸力爆掉的話，計算軸力 ratio
-                Else
-                    ratio = loadMid / curve(60, p)
-                    axial_hint = "軸力超過所有斷面"
-
-                End If
-
-            End If
-
-            ' 判斷有沒有大於comboSelectNumber，有的話才寫入
+            ' 判斷有沒有大於 comboSelectNumber，有的話才寫入
             If curvesNumber > comboSelectNumber Then
 
                 comboSelectNumber = curvesNumber
-                comboRatio = ratio
+                comboPRatio = pRatio
+                comboMRatio = mRatio
 
             ' 如果相等的話，判斷有沒有大於Ratio，有的話才寫入
-            ElseIf comboSelectNumber = curvesNumber And ratio > comboRatio Then
+            ElseIf comboSelectNumber = curvesNumber And (mRatio > comboMRatio Or pRatio > comboPRatio) Then
 
-                comboRatio = ratio
+                comboPRatio = pRatio
+                comboMRatio = mRatio
 
             End If
 
@@ -490,11 +439,8 @@ Function SectionSelector(combo, curves)
         section(sectionNumber, 0) = combo(row, comboName)
         section(sectionNumber, 1) = comboSelectNumber
         section(sectionNumber, 2) = CURVES_NAME(comboSelectNumber)
-        section(sectionNumber, 3) = comboRatio
-
-        If axial_hint = "軸力超過所有斷面" Then
-            section(sectionNumber, 2) = axial_hint
-        End If
+        section(sectionNumber, 3) = comboPRatio
+        section(sectionNumber, 4) = comboMRatio
 
         ' 下一組
         sectionNumber = sectionNumber + 1
@@ -524,20 +470,18 @@ Function calRatio(x0, y0, x1, y1, x2, y2)
 ' 回傳：Ratio
 ' Ratio = 點到 (0, 0) 距離 / ( 點到直線距離 + 點到 (0, 0) 距離 )
 
+    ' 直線 y = mx + b
     m = (y1 - y0) / (x1 - x0)
+    b = y0 - m * x0
 
-    calRatio = Sqr(x2 ^ 2 + y2 ^ 2) / ((Abs((y2 - y0) - m * (x2 - x0)) / Sqr(1 + m ^ 2)) + Sqr(x2 ^ 2 + y2 ^ 2))
+    ' 點到 (0, 0)
+    k = y2 / x2
 
-End Function
+    ' 兩條線的交點
+    x3 = b / (k - m)
+    y3 = b / (k - m) * k
 
-Function calRatioIfExceed(x0, y0, x1, y1, x2, y2)
-' 參數：x0, y0, x1, y1, x2, y2
-' 回傳：Ratio
-' Ratio = 點到 (0, 0) 距離 / ( -點到直線距離 + 點到 (0, 0) 距離 )
-
-    m = (y1 - y0) / (x1 - x0)
-
-    calRatioIfExceed = Sqr(x2 ^ 2 + y2 ^ 2) / ( -(Abs((y2 - y0) - m * (x2 - x0)) / Sqr(1 + m ^ 2)) + Sqr(x2 ^ 2 + y2 ^ 2))
+    calRatio = Sqr(x2 ^ 2 + y2 ^ 2) / Sqr(x3 ^ 2 + y3 ^ 2)
 
 End Function
 
@@ -555,12 +499,13 @@ Function PrintSection(section)
 
     ' 寫入資料在 SectionSelector
     Worksheets("SectionSelector").Activate
-    Range(Columns(11), Columns(14)).ClearContents
-    Range(Cells(2, 11), Cells(UBound(section), 14)) = section
+    Range(Columns(11), Columns(15)).ClearContents
+    Range(Cells(2, 11), Cells(UBound(section), 15)) = section
     Cells(1, 11) = "Column"
     Cells(1, 12) = "NO."
     Cells(1, 13) = "SectionName"
-    Cells(1, 14) = "Ratio"
+    Cells(1, 14) = "P Ratio"
+    Cells(1, 15) = "M Ratio"
 
 End Function
 
