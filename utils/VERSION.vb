@@ -182,9 +182,6 @@ ErrorHandler:
 
     End If
 
-    ' ws_version.Cells.Font.Name = "微軟正黑體"
-    ' ws_version.Cells.Font.Name = "Calibri"
-
 End Sub
 
 
