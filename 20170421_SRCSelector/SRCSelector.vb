@@ -426,9 +426,12 @@ Function SectionSelector(combo, curves)
                 comboMRatio = mRatio
 
             ' 如果相等的話，判斷有沒有大於Ratio，有的話才寫入
-            ElseIf comboSelectNumber = curvesNumber And (mRatio > comboMRatio Or pRatio > comboPRatio) Then
+            ElseIf comboSelectNumber = curvesNumber And pRatio > comboPRatio Then
 
                 comboPRatio = pRatio
+
+            ElseIf comboSelectNumber = curvesNumber And mRatio > comboMRatio Then
+
                 comboMRatio = mRatio
 
             End If
