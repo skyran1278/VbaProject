@@ -1,25 +1,13 @@
-' @license UTILS_CLASS v3.0.1
+' @license UTILS_CLASS v3.0.2
 ' UTILS_CLASS.vb
 '
-' Copyright (c) 2016-present, skyran
+' Copyright (c) 2016-present, ran
 '
 ' This source code is licensed under the MIT license found in the
 ' LICENSE file in the root directory of this source tree.
 '
 ' - Getting Start
 ' Dim ran As New UTILS_CLASS
-'
-' - Add
-' ExecutionTime
-'
-' - Change
-' CreateDictionary
-' RoundUp
-'
-' - Remove
-' FontSetting
-' ExecutionTimeVBA
-' QuickSortArray
 '
 ' - All API
 ' CreateDictionary
@@ -39,6 +27,7 @@ Private time0 As Double
 Function CreateDictionary(ByVal arr, ByVal colKey, ByVal colValue)
 '
 ' 取代內建的 VLookup.
+' 也可用作取得 Unique Array
 '
 ' @since 2.0.0
 ' @param {array} [arr] to create dictionary table.
