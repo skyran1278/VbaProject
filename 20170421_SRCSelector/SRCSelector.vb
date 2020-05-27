@@ -308,6 +308,8 @@ Function SectionSelector(combo, curves)
 
     Dim section()
 
+    ratioLimit = Worksheets("SectionSelector").Cells(3, 6)
+
     ' 定義
     ' combo
     comboName = 1
@@ -398,7 +400,7 @@ Function SectionSelector(combo, curves)
 
                             End If
 
-                            If mRatio < 1 Then
+                            If mRatio < ratioLimit Then
 
                                 Exit Do
 
