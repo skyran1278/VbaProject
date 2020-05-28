@@ -32,7 +32,7 @@ Sub Main()
 
         ' 創建公式
         .Range("A2").Formula = "=B2&C2&D2"
-        .Range("A2").AutoFill Destination:=.Range(.Cells(2, 1), .Cells(UBound(arrStoryDrifts), 1))
+        .Range("A2").AutoFill Destination:=.Range(.Cells(2, 1), .Cells(UBound(arrStoryDrifts) + 1, 1))
 
     End With
 
@@ -82,11 +82,11 @@ Sub Main()
         ' 圖表
         Set chartX = .ChartObjects("X 向層間位移").Chart
 
-        chartX.SeriesCollection(1).Name = "+X"
+        chartX.SeriesCollection(1).Name = "X+"
         chartX.SeriesCollection(1).XValues = .Range(.Cells(7, 3), .Cells(botStoryRow, 3))
         chartX.SeriesCollection(1).values = .Range(.Cells(7, 1), .Cells(botStoryRow, 1))
 
-        chartX.SeriesCollection(2).Name = "-X"
+        chartX.SeriesCollection(2).Name = "X-"
         chartX.SeriesCollection(2).XValues = .Range(.Cells(7, 4), .Cells(botStoryRow, 4))
         chartX.SeriesCollection(2).values = .Range(.Cells(7, 1), .Cells(botStoryRow, 1))
 
@@ -100,11 +100,11 @@ Sub Main()
 
         Set chartY = .ChartObjects("Y 向層間位移").Chart
 
-        chartY.SeriesCollection(1).Name = "+Y"
+        chartY.SeriesCollection(1).Name = "Y+"
         chartY.SeriesCollection(1).XValues = .Range(.Cells(7, 5), .Cells(botStoryRow, 5))
         chartY.SeriesCollection(1).values = .Range(.Cells(7, 1), .Cells(botStoryRow, 1))
 
-        chartY.SeriesCollection(2).Name = "-Y"
+        chartY.SeriesCollection(2).Name = "Y-"
         chartY.SeriesCollection(2).XValues = .Range(.Cells(7, 6), .Cells(botStoryRow, 6))
         chartY.SeriesCollection(2).values = .Range(.Cells(7, 1), .Cells(botStoryRow, 1))
 
