@@ -1,6 +1,9 @@
-2.2.1
+2.2.2
 ===
 Release Notes
+2020/5/28	2.2.2
+1	修改 M Ratio Limit => PM Ratio Limit
+
 2020/5/27	2.2.1
 1	新增 M Ratio Limit
 2	以後會再改寫程式演算法，合併 P Ratio 與 M Ratio。

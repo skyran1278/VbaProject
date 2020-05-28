@@ -372,7 +372,7 @@ Function SectionSelector(combo, curves)
                 pRatio = Abs(loadMid / curve(60, p))
 
                 ' 軸力要在中間，這樣才能內插
-                If loadMid <= curve(60, p) And loadMid >= curve(1, p) Then
+                If loadMid <= curve(60, p) * ratioLimit And loadMid >= curve(1, p) * ratioLimit Then
 
                     For Point = 1 To 60
 
@@ -538,7 +538,7 @@ Sub SRCSelector()
 ' 2. 由於 P 不一定會相同，排序內差求值
 ' 3. 以 PMM 點求得該 P 下的 0 45 90 度的 M
 ' 4. 以 PMM 點 M2 M3 判斷要和哪一條線比較
-' 5. 以牛頓法判斷是不是與 (0, 0) 同側
+' 5. 以 Ratio 判斷是不是需要更大的斷面
 '
 '
 ' 測試：
