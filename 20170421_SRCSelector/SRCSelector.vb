@@ -304,7 +304,7 @@ Function Interpolate(varMax, varMid, varMin, aimsMax, aimsMin)
 End Function
 
 
-Function SectionSelector(combo, curves)
+Function SectionSelector(combo, curves, method)
 
     Dim section()
 
@@ -369,48 +369,220 @@ Function SectionSelector(combo, curves)
 
                 curve = curves(curvesNumber)
 
-                pRatio = Abs(loadMid / curve(60, p))
+                If method = "CODE" Then
 
-                ' 軸力要在中間，這樣才能內插
-                If loadMid <= curve(60, p) * ratioLimit And loadMid >= curve(1, p) * ratioLimit Then
+                    If loadMid < 0.2 * 0.85 * curve(60, p) Then
+                        pRatio = loadMid / (0.2 * 0.85 * curve(60, p)) + (combo(comboRow, loading) / (0.9 * ))
 
-                    For Point = 1 To 60
+                ElseIf method = "GEOMETRY" Then
 
-                        ' 小於哪個 load
-                        If loadMid < curve(Point, p) Then
 
-                            loadMax = curve(Point, p)
-                            loadMin = curve(Point - 1, p)
+                    ' 軸力要在中間，這樣才能內插
+                    If loadMid <= curve(60, p) * ratioLimit And loadMid >= curve(1, p) * ratioLimit Then
 
-                            If combo(comboRow, m2) > combo(comboRow, m3) Then
+                        For Point = 1 To 60
 
-                                ' 內插
-                                interM0 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m0), curve(Point - 1, m0))
-                                interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
+                            ' 小於哪個 load
+                            If loadMid < curve(Point, p) Then
 
-                                mRatio = calRatio(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
+                                loadMax = curve(Point, p)
+                                loadMin = curve(Point - 1, p)
 
-                            Else
+                                If combo(comboRow, m2) > combo(comboRow, m3) Then
 
-                                ' 內插
-                                interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
-                                interM90 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m90), curve(Point - 1, m90))
+                                    ' 內插
+                                    interM0 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m0), curve(Point - 1, m0))
+                                    interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
 
-                                mRatio = calRatio(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
+                                    mRatio = calRatio(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
+                                    pRatio = Abs(loadMid / curve(60, p))
+
+                                Else
+
+                                    ' 內插
+                                    interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
+                                    interM90 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m90), curve(Point - 1, m90))
+
+                                    mRatio = calRatio(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
+                                    pRatio = Abs(loadMid / curve(60, p))
+
+                                End If
+
+                                If mRatio < ratioLimit Then
+
+                                    Exit Do
+
+                                End If
+
+                                Exit For
 
                             End If
 
-                            If mRatio < ratioLimit Then
+                        Next Point
 
-                                Exit Do
+                    End If
+
+                End If
+
+                curvesNumber = curvesNumber + 1
+
+            Loop
+
+            CONTROL_COMBO(comboRow, 1) = curvesNumber
+
+            ' 判斷有沒有大於 comboSelectNumber，有的話才寫入
+            If curvesNumber > comboSelectNumber Then
+
+                comboSelectNumber = curvesNumber
+                comboPRatio = pRatio
+                comboMRatio = mRatio
+
+            ' 如果相等的話，判斷有沒有大於Ratio，有的話才寫入
+            ElseIf comboSelectNumber = curvesNumber And pRatio > comboPRatio Then
+
+                comboPRatio = pRatio
+
+            ElseIf comboSelectNumber = curvesNumber And mRatio > comboMRatio Then
+
+                comboMRatio = mRatio
+
+            End If
+
+        Next
+
+        ' 寫入斷面資料
+        section(sectionNumber, 0) = combo(row, comboName)
+        section(sectionNumber, 1) = comboSelectNumber
+        section(sectionNumber, 2) = CURVES_NAME(comboSelectNumber)
+        section(sectionNumber, 3) = comboPRatio
+        section(sectionNumber, 4) = comboMRatio
+
+        ' 下一組
+        sectionNumber = sectionNumber + 1
+
+    Next
+
+    SectionSelector = section()
+
+End Function
+
+Function SectionSelector(combo, curves, method)
+
+    Dim section()
+
+    ratioLimit = Worksheets("SectionSelector").Cells(3, 6)
+
+    ' 定義
+    ' combo
+    comboName = 1
+    loading = 2
+    m2 = 3
+    m3 = 4
+
+    ' 定義
+    ' curve
+    p = 0
+    m0 = 1
+    m45 = 2
+    m90 = 3
+
+    ' 取出上限
+    comboUBound = UBound(combo)
+    curvesBound = UBound(curves)
+
+    ' 計算 combo 數
+    For row = 2 To comboUBound
+
+        ' 計算 combo 數
+        If combo(row, 1) <> combo(row + 1, 1) Then
+            comboNumber = row - 2 + 1
+            Exit For
+        End If
+
+    Next
+
+    ' CONTROL_COMBO 大小和 combo 相同
+    ReDim CONTROL_COMBO(2 To comboUBound, 1 To 1)
+
+    ' section 為 combo 除以載重組合數
+    ReDim section(2 To (comboUBound - 1) / comboNumber + 1, 4)
+
+    sectionNumber = 2
+
+    For row = 2 To comboUBound Step comboNumber
+
+        ' 每一個柱（包含很多個Combo）重新初始化
+        comboSelectNumber = 0
+        comboRatio = 0
+
+        ' 相同的一組
+        ' 很多 combo
+        For comboRow = row To row + comboNumber - 1
+
+            ' 每一個 Combo 重新初始化
+            pRatio = 0
+            mRatio = 0
+            curvesNumber = 1
+            loadMid = combo(comboRow, loading)
+
+            ' 循環 curves
+            ' 為了跳出特定迴圈，使用 do loop
+            Do While curvesNumber <= curvesBound
+
+                curve = curves(curvesNumber)
+
+                If method = "CODE" Then
+
+                    If loadMid < 0.2 * 0.85 * curve(60, p) Then
+                        pRatio = loadMid / (0.2 * 0.85 * curve(60, p)) + (combo(comboRow, loading) / (0.9 * ))
+
+                ElseIf method = "GEOMETRY" Then
+
+
+                    ' 軸力要在中間，這樣才能內插
+                    If loadMid <= curve(60, p) * ratioLimit And loadMid >= curve(1, p) * ratioLimit Then
+
+                        For Point = 1 To 60
+
+                            ' 小於哪個 load
+                            If loadMid < curve(Point, p) Then
+
+                                loadMax = curve(Point, p)
+                                loadMin = curve(Point - 1, p)
+
+                                If combo(comboRow, m2) > combo(comboRow, m3) Then
+
+                                    ' 內插
+                                    interM0 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m0), curve(Point - 1, m0))
+                                    interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
+
+                                    mRatio = calRatio(interM0, 0, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
+                                    pRatio = Abs(loadMid / curve(60, p))
+
+                                Else
+
+                                    ' 內插
+                                    interM45 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m45), curve(Point - 1, m45))
+                                    interM90 = Interpolate(loadMax, loadMid, loadMin, curve(Point, m90), curve(Point - 1, m90))
+
+                                    mRatio = calRatio(0, interM90, interM45 / Sqr(2), interM45 / Sqr(2), combo(comboRow, m2), combo(comboRow, m3))
+                                    pRatio = Abs(loadMid / curve(60, p))
+
+                                End If
+
+                                If mRatio < ratioLimit Then
+
+                                    Exit Do
+
+                                End If
+
+                                Exit For
 
                             End If
 
-                            Exit For
+                        Next Point
 
-                        End If
-
-                    Next Point
+                    End If
 
                 End If
 
@@ -526,7 +698,7 @@ Function ExecutionTime(time0)
 End Function
 
 
-Sub SRCSelector()
+Function SRCSelector(method)
 '
 ' 目的：
 ' 由於在ETABS不會 Design SRC 斷面，所以由 ETABS 輸出 PMM。
@@ -556,10 +728,22 @@ Sub SRCSelector()
 
     ' 有副作用，會修改全域變數 CONTROL_COMBO
     ' 使用全域變數 CURVES_NAME
-    section = SectionSelector(combo, curves)
+    section = SectionSelector(combo, curves, method)
 
     Call PrintSection(section)
 
     ExecutionTime (time0)
+
+End Function
+
+Sub Code()
+
+    Call SRCSelector("CODE")
+
+End Sub
+
+Sub Geometry()
+
+    Call SRCSelector("GEOMETRY")
 
 End Sub
