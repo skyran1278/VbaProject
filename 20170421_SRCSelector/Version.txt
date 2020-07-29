@@ -1,14 +1,6 @@
-2.2.2
+2.2.3
 ===
 Release Notes
-2020/5/28	2.2.2
-1	修改 M Ratio Limit => PM Ratio Limit
+2020/5/28	2.2.3
+1	修正除以零的錯誤
 
-2020/5/27	2.2.1
-1	新增 M Ratio Limit
-2	以後會再改寫程式演算法，合併 P Ratio 與 M Ratio。
-
-2020/5/25	2.2.0
-1	新增 M Ratio 與 P Ratio
-2	Ratio 計算以直線計算，取消點到直線的距離
-3	以 Ratio 做判斷，取消以牛頓法做判斷
