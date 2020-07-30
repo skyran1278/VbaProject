@@ -5,15 +5,16 @@ Dim CONTROL_COMBO
 Function AutoFill()
 ' 公式自動填滿
 
-    ' Worksheets("EtabsPMMCombo").Activate
-    ' comboRowUsed = Cells(Rows.Count, 1).End(xlUp).row
     comboRowUsed = Worksheets("EtabsPMMCombo").Cells(Rows.Count, 1).End(xlUp).row
 
-    ' Worksheets("PMM").Activate
-    ' Range(Cells(3, 1), Cells(3, Cells(Rows.Count, 1).End(xlUp).row)).ClearContents
-    ' Range(Cells(2, 1), Cells(2, 6)).AutoFill Destination:=Range(Cells(2, 1), Cells(comboRowUsed, 6))
-
     With Worksheets("PMM")
+
+        .Range("A2").Formula = "=EtabsPMMCombo!$A2&EtabsPMMCombo!$B2"
+        .Range("B2").Formula = "=EtabsPMMCombo!$C2"
+        .Range("C2").Formula = "=EtabsPMMCombo!$D2"
+        .Range("D2").Formula = "=-EtabsPMMCombo!$E2"
+        .Range("E2").Formula = "=ABS(EtabsPMMCombo!$I2)"
+        .Range("F2").Formula = "=ABS(EtabsPMMCombo!$J2)"
 
         .Range(.Cells(3, 1), .Cells(.Cells(Rows.Count, 1).End(xlUp).row, 7)).ClearContents
         .Range(.Cells(2, 1), .Cells(2, 6)).AutoFill Destination:=.Range(.Cells(2, 1), .Cells(comboRowUsed, 6))
@@ -330,6 +331,11 @@ Function SectionSelector(combo, curves)
 
     ' 計算 combo 數
     For row = 2 To comboUBound
+
+        If row = comboUBound Then
+            comboNumber = row - 2 + 1
+            Exit For
+        End If
 
         ' 計算 combo 數
         If combo(row, 1) <> combo(row + 1, 1) Then
