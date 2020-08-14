@@ -30,36 +30,42 @@ Sub MAIN()
     Call ran.PerformanceVBA(True)
 
     ' Model
-    arrInput = ran.GetRangeToArray(ws, 1, 1, 1, 5)
+    arrInput = ran.GetRangeToArray(ws, 1, 1, 5, 5)
     uBoundInput = UBound(arrInput)
     colAttType = 4
     colDayTime = 5
 
+    errorMsg = ""
+
     ' check input
-    ' for 檢查用
-    For i = 2 To uBoundInput - 1
+    For i = uBoundInput - 1 To 2 Step -1
 
         prevAttType = arrInput(i, colAttType)
-        nextAttType = arrInput(i + 1, colAttType)
+
+        ' 忽略公出公返
+        j = i + 1
+        While arrInput(j, colAttType) = "公出" Or arrInput(j, colAttType) = "公出返回"
+            j = j + 1
+        Wend
+
+        nextAttType = arrInput(j, colAttType)
 
         If prevAttType = "上班" Then
-            If nextAttType = "公出" Then
-                MsgBox "第 " & i & " 列為上班卡。" & vbNewLine & "第 " & i + 1 & " 為公出，建議先暫時移出，等 run 完程式再放回來。", 0, "ERROR"
-                Exit Sub
-            ElseIf nextAttType <> "下班" Then
-                MsgBox "第 " & i & " 列為上班卡。" & vbNewLine & "第 " & i + 1 & " 列應該要打下班卡。", 0, "ERROR"
-                Exit Sub
+            If nextAttType <> "下班" Then
+                errorMsg = errorMsg + "第 " & i & " 列為上班卡。" & vbNewLine & "第 " & i + 1 & " 列應該要打下班卡。" & vbNewLine & vbNewLine
             End If
         ElseIf prevAttType = "加班" Then
-            If nextAttType = "公出" Then
-                MsgBox "第 " & i & " 列為上班卡。" & vbNewLine & "第 " & i + 1 & " 為公出，建議先暫時移出，等 run 完程式再放回來。", 0, "ERROR"
-                Exit Sub
-            ElseIf nextAttType <> "加班結束" Then
-                MsgBox "第 " & i & " 列為加班卡。" & vbNewLine & "第 " & i + 1 & " 列應該要打加班結束卡。", 0, "ERROR"
-                Exit Sub
+            If nextAttType <> "加班結束" Then
+                errorMsg = errorMsg +  "第 " & i & " 列為加班卡。" & vbNewLine & "第 " & i + 1 & " 列應該要打加班結束卡。" & vbNewLine & vbNewLine
             End If
         End If
+
     Next i
+
+    If errorMsg <> "" Then
+        MsgBox errorMsg, 0, "ERROR"
+        Exit Sub
+    End If
 
     ' controller
     ' arrOutput = arrInput
@@ -91,7 +97,14 @@ Sub MAIN()
 
         attType = arrInput(i, colAttType)
         prevTime = arrOutput(i, colTime)
-        nextTime = arrOutput(i + 1, colTime)
+
+        ' 忽略公出公返
+        j = i + 1
+        While arrInput(j, colAttType) = "公出" Or arrInput(j, colAttType) = "公出返回"
+            j = j + 1
+        Wend
+
+        nextTime = arrOutput(j, colTime)
 
         ' 時數
         ' 真實時數扣 1.5
