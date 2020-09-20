@@ -69,15 +69,17 @@ Sub MAIN()
 
     ' controller
     ' arrOutput = arrInput
-    ReDim Preserve arrOutput(1 To uBoundInput + 1, 1 To 14)
-    colWeek = 6
-    colTime = 7
-    colHour = 8
-    colRealHour = 9
-    colLeave = 10
-    colOverTime = 11
-    colOverTime34 = 13
-    colOverTime67 = 14
+    ReDim Preserve arrOutput(1 To uBoundInput + 1, 1 To 15)
+    colTime = 6
+    colHour = 7
+    colIndex = 8
+    colDate = 9
+    colWeek = 10
+    colRealHour = 11
+    colLeave = 12
+    colOverTime = 13
+    colOverTime34 = 14
+    colOverTime67 = 15
     ' 由於後面做比較，所以需要插入一列不同的，這是比較 hack 的部分
     arrOutput(UBound(arrOutput), colDayTime) = Day(arrInput(uBoundInput, colDayTime)) + 1
 
@@ -87,6 +89,8 @@ Sub MAIN()
 
         dayTime = arrInput(i, colDayTime)
 
+        arrOutput(i, colIndex) = i - 1
+        arrOutput(i, colDate) = dayTime
         arrOutput(i, colWeek) = dayTime
         arrOutput(i, colTime) = Hour(dayTime) & ":" & Minute(dayTime)
 
