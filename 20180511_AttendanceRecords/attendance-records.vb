@@ -22,7 +22,7 @@ Sub MAIN()
 
     ' Global Var
     Set ran = New UTILS_CLASS
-    Set ws = Worksheets("修改後DATA")
+    Set ws = Worksheets("工時")
     ' 平日算加班時間
     weekdayOverTime = TimeValue("18:30")
 
@@ -69,7 +69,7 @@ Sub MAIN()
 
     ' controller
     ' arrOutput = arrInput
-    ReDim Preserve arrOutput(1 To uBoundInput + 1, 1 To 15)
+    ReDim Preserve arrOutput(1 To uBoundInput + 1, 1 To 16)
     colTime = 6
     colHour = 7
     colIndex = 8
@@ -78,8 +78,8 @@ Sub MAIN()
     colRealHour = 11
     colLeave = 12
     colOverTime = 13
-    colOverTime34 = 14
-    colOverTime67 = 15
+    colOverTime34 = 15
+    colOverTime67 = 16
     ' 由於後面做比較，所以需要插入一列不同的，這是比較 hack 的部分
     arrOutput(UBound(arrOutput), colDayTime) = Day(arrInput(uBoundInput, colDayTime)) + 1
 
@@ -206,9 +206,9 @@ Sub MAIN()
     Next i
 
     ' view
-    With Worksheets("VBA Output")
+    With Worksheets("工時計算結果")
 
-        .Range(.Columns(1), .Columns(15)).ClearContents
+        .Range(.Columns(1), .Columns(16)).ClearContents
         .Range(.Cells(1, 1), .Cells(uBoundInput, UBound(arrOutput, 2))) = arrOutput
         .Range(.Cells(1, 1), .Cells(uBoundInput, UBound(arrInput, 2))) = arrInput
         .Activate
@@ -225,11 +225,11 @@ End Sub
 
 Function FontSetting()
 
-    With Worksheets("修改後DATA")
+    With Worksheets("工時")
         .Range(.Columns(1), .Columns(5)).Copy
     End With
 
-    With Worksheets("VBA Output")
+    With Worksheets("工時計算結果")
 
         ' Output 顏色同步 Input
         .Cells(1, 1).PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
