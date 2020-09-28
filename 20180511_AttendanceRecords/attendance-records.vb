@@ -208,7 +208,7 @@ Sub MAIN()
     ' view
     With Worksheets("VBA Output")
 
-        .Range(.Columns(1), .Columns(14)).ClearContents
+        .Range(.Columns(1), .Columns(15)).ClearContents
         .Range(.Cells(1, 1), .Cells(uBoundInput, UBound(arrOutput, 2))) = arrOutput
         .Range(.Cells(1, 1), .Cells(uBoundInput, UBound(arrInput, 2))) = arrInput
         .Activate
