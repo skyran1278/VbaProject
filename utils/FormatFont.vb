@@ -1,4 +1,4 @@
-Sub formatting()
+Sub FormatFont()
 '
 ' formatting 巨集
 '
