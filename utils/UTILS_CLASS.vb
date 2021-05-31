@@ -1,4 +1,13 @@
-' @license UTILS_CLASS v3.0.2
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "UTILS_CLASS"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = False
+Attribute VB_Exposed = False
+' @license UTILS_CLASS v3.1.0
 ' UTILS_CLASS.vb
 '
 ' Copyright (c) 2016-present, ran
@@ -18,16 +27,22 @@
 ' PerformanceVBA
 ' Min
 ' Max
-'
-'
+' QuickSortArray
+' ParseJSON
+' ListPaths
+' GetFilteredValues
+' GetFilteredTable
+' OpenTextFile
+
+Option Explicit
 
 Private time0 As Double
-
+Private p&, token, dic
 
 Function CreateDictionary(ByVal arr, ByVal colKey, ByVal colValue)
 '
-' å–ä»£å…§å»ºçš„ VLookup.
-' ä¹Ÿå¯ç”¨ä½œå–å¾— Unique Array
+' ¨ú¥N¤º«Øªº VLookup.
+' ¤]¥i¥Î§@¨ú±o Unique Array
 '
 ' @since 2.0.0
 ' @param {array} [arr] to create dictionary table.
@@ -37,7 +52,7 @@ Function CreateDictionary(ByVal arr, ByVal colKey, ByVal colValue)
 ' @example
 ' objDictionary.Item(key)
 
-    ' è¨­å®š Dictionary
+    ' ³]©w Dictionary
     Set objDictionary = CreateObject("Scripting.Dictionary")
 
     lbArr = LBound(arr, 1)
@@ -52,7 +67,7 @@ Function CreateDictionary(ByVal arr, ByVal colKey, ByVal colValue)
     Else
         For rowArr = lbArr To ubArr
             If Not objDictionary.Exists(arr(rowArr, colKey)) Then
-                ' VBA ä¸èƒ½æ–¹ä¾¿çš„å­˜å–æ•´åˆ—æ•´æ¬„ï¼Œæ‰€ä»¥ç”¨ Index
+                ' VBA ¤£¯à¤è«Kªº¦s¨ú¾ã¦C¾ãÄæ¡A©Ò¥H¥Î Index
                 ' Application.WorksheetFunction.Index(array, 0, columnYouWant)
                 ' Application.WorksheetFunction.Index(array, rowYouWant, 0)
                 Call objDictionary.Add(arr(rowArr, colKey), Application.WorksheetFunction.Index(arr, rowArr, 0))
@@ -68,7 +83,7 @@ End Function
 
 Function GetRangeToArray(ws, rowStart, colStart, rowEnd, colEnd)
 '
-' å–å¾—è¡¨æ ¼è³‡æ–™
+' ¨ú±oªí®æ¸ê®Æ
 '
 ' @returns GetRangeToArray(Array)
 
@@ -81,7 +96,7 @@ End Function
 
 Function GetRowEnd(ws, col)
 '
-' å›å‚³æœ€å¾Œä¸€åˆ— row å€¼
+' ¦^¶Ç³Ì«á¤@¦C row ­È
 '
 ' @param
 ' @returns
@@ -90,19 +105,19 @@ Function GetRowEnd(ws, col)
 
 End Function
 
-' ä½¿ç”¨é€™å€‹è¦å°å¿ƒï¼Œæœƒæ€ªæ€ªçš„
-' ä¼°è¨ˆæ˜¯é‡åˆ°äº† VBA åº•å±¤çš„å•é¡Œ
-' å¥½åƒæ²’æœ‰å…¶ä»–è¾¦æ³•äº†
-' 0.5 + 0.5 å¯èƒ½ç‚º 0.999999999ï¼Œé€™æ˜¯è¦ç¯„çš„å•é¡Œï¼Œæ¯”è¼ƒé›£è™•ç†
-Function RoundUp(ByVal Value As Double)
+' ¨Ï¥Î³o­Ó­n¤p¤ß¡A·|©Ç©Çªº
+' ¦ô­p¬O¹J¨ì¤F VBA ©³¼hªº°İÃD
+' ¦n¹³¨S¦³¨ä¥L¿ìªk¤F
+' 0.5 + 0.5 ¥i¯à¬° 0.999999999¡A³o¬O³W½dªº°İÃD¡A¤ñ¸ûÃø³B²z
+Function RoundUp(ByVal value As Double)
 '
-' å–ä»£å…§å»ºçš„ RoundUp
+' ¨ú¥N¤º«Øªº RoundUp
 '
 
-    If Int(Value) = Value Then
-        RoundUp = Value
+    If Int(value) = value Then
+        RoundUp = value
     Else
-        RoundUp = Int(Value) + 1
+        RoundUp = Int(value) + 1
     End If
 
 End Function
@@ -110,7 +125,7 @@ End Function
 
 Sub ExecutionTime(ByVal isOn As Boolean)
 '
-' è¨ˆç®—åŸ·è¡Œæ™‚é–“ï¼Œå–ä»£ ExecutionTimeVBA
+' ­pºâ°õ¦æ®É¶¡¡A¨ú¥N ExecutionTimeVBA
 '
 ' @since 2.2.0
 ' @param {Boolean} [isOn] True = time0, False = show Msg.
@@ -131,7 +146,7 @@ End Sub
 
 Sub PerformanceVBA(isOn As Boolean)
 '
-' æå‡åŸ·è¡Œæ•ˆèƒ½
+' ´£¤É°õ¦æ®Ä¯à
 '
 ' @param isOn(Boolean)
 
@@ -143,7 +158,7 @@ Sub PerformanceVBA(isOn As Boolean)
 
     Application.EnableEvents = Not (isOn) ' 58.75
 
-    ' FIXME: é€™è£¡éœ€è¦å†æƒ³ä¸€ä¸‹
+    ' FIXME: ³o¸Ì»İ­n¦A·Q¤@¤U
     ' displayPageBreakState = ActiveSheet.DisplayPageBreaks
     ' ActiveSheet.DisplayPageBreaks = False
     ' ActiveSheet.DisplayPageBreaks = IIf(isOn, False, displayPageBreaksState)
@@ -154,8 +169,8 @@ Sub PerformanceVBA(isOn As Boolean)
 
 End Sub
 
-' é€Ÿåº¦æ˜¯ APP.Min çš„ 10 å€
-' FIXME: ä¸çŸ¥é“ç‚ºç”šéº¼ ran ç„¡æ³•
+' ³t«×¬O APP.Min ªº 10 ­¿
+' FIXME: ¤£ª¾¹D¬°¬Æ»ò ran µLªk
 Function Min(ParamArray values() As Variant) As Variant
    Dim minValue, value As Variant
 
@@ -184,99 +199,99 @@ Function Max(ParamArray values() As Variant) As Variant
 End Function
 
 
-' Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin = -1, Optional lngMax = -1, Optional lngColumn = 0)
-'     On Error Resume Next
+Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin = -1, Optional lngMax = -1, Optional lngColumn = 0)
+    On Error Resume Next
 
-'     'Sort a 2-Dimensional array
+    'Sort a 2-Dimensional array
 
-'     ' SampleUsage: sort arrData by the contents of column 3
-'     '
-'     '   QuickSortArray arrData, , , 3
+    ' SampleUsage: sort arrData by the contents of column 3
+    '
+    '   QuickSortArray arrData, , , 3
 
-'     '
-'     'Posted by Jim Rech 10/20/98 Excel.Programming
+    '
+    'Posted by Jim Rech 10/20/98 Excel.Programming
 
-'     'Modifications, Nigel Heffernan:
+    'Modifications, Nigel Heffernan:
 
-'     '       ' Escape failed comparison with empty variant
-'     '       ' Defensive coding: check inputs
+    '       ' Escape failed comparison with empty variant
+    '       ' Defensive coding: check inputs
 
-'     Dim i As Long
-'     Dim j As Long
-'     Dim varMid As Variant
-'     Dim arrRowTemp As Variant
-'     Dim lngColTemp As Long
+    Dim i As Long
+    Dim j As Long
+    Dim varMid As Variant
+    Dim arrRowTemp As Variant
+    Dim lngColTemp As Long
 
-'     If IsEmpty(SortArray) Then
-'         Exit Sub
-'     End If
-'     If InStr(TypeName(SortArray), "()") < 1 Then  'IsArray() is somewhat broken: Look for brackets in the type name
-'         Exit Sub
-'     End If
-'     If lngMin = -1 Then
-'         lngMin = LBound(SortArray, 1)
-'     End If
-'     If lngMax = -1 Then
-'         lngMax = UBound(SortArray, 1)
-'     End If
-'     If lngMin >= lngMax Then    ' no sorting required
-'         Exit Sub
-'     End If
+    If IsEmpty(SortArray) Then
+        Exit Sub
+    End If
+    If InStr(TypeName(SortArray), "()") < 1 Then  'IsArray() is somewhat broken: Look for brackets in the type name
+        Exit Sub
+    End If
+    If lngMin = -1 Then
+        lngMin = LBound(SortArray, 1)
+    End If
+    If lngMax = -1 Then
+        lngMax = UBound(SortArray, 1)
+    End If
+    If lngMin >= lngMax Then    ' no sorting required
+        Exit Sub
+    End If
 
-'     i = lngMin
-'     j = lngMax
+    i = lngMin
+    j = lngMax
 
-'     varMid = Empty
-'     varMid = SortArray((lngMin + lngMax) \ 2, lngColumn)
+    varMid = Empty
+    varMid = SortArray((lngMin + lngMax) \ 2, lngColumn)
 
-'     ' We  send 'Empty' and invalid data items to the end of the list:
-'     If IsObject(varMid) Then  ' note that we don't check isObject(SortArray(n)) - varMid *might* pick up a valid default member or property
-'         i = lngMax
-'         j = lngMin
-'     ElseIf IsEmpty(varMid) Then
-'         i = lngMax
-'         j = lngMin
-'     ElseIf IsNull(varMid) Then
-'         i = lngMax
-'         j = lngMin
-'     ElseIf varMid = "" Then
-'         i = lngMax
-'         j = lngMin
-'     ElseIf VarType(varMid) = vbError Then
-'         i = lngMax
-'         j = lngMin
-'     ElseIf VarType(varMid) > 17 Then
-'         i = lngMax
-'         j = lngMin
-'     End If
+    ' We  send 'Empty' and invalid data items to the end of the list:
+    If IsObject(varMid) Then  ' note that we don't check isObject(SortArray(n)) - varMid *might* pick up a valid default member or property
+        i = lngMax
+        j = lngMin
+    ElseIf IsEmpty(varMid) Then
+        i = lngMax
+        j = lngMin
+    ElseIf IsNull(varMid) Then
+        i = lngMax
+        j = lngMin
+    ElseIf varMid = "" Then
+        i = lngMax
+        j = lngMin
+    ElseIf VarType(varMid) = vbError Then
+        i = lngMax
+        j = lngMin
+    ElseIf VarType(varMid) > 17 Then
+        i = lngMax
+        j = lngMin
+    End If
 
-'     While i <= j
-'         While SortArray(i, lngColumn) < varMid And i < lngMax
-'             i = i + 1
-'         Wend
-'         While varMid < SortArray(j, lngColumn) And j > lngMin
-'             j = j - 1
-'         Wend
+    While i <= j
+        While SortArray(i, lngColumn) < varMid And i < lngMax
+            i = i + 1
+        Wend
+        While varMid < SortArray(j, lngColumn) And j > lngMin
+            j = j - 1
+        Wend
 
-'         If i <= j Then
-'             ' Swap the rows
-'             ReDim arrRowTemp(LBound(SortArray, 2) To UBound(SortArray, 2))
-'             For lngColTemp = LBound(SortArray, 2) To UBound(SortArray, 2)
-'                 arrRowTemp(lngColTemp) = SortArray(i, lngColTemp)
-'                 SortArray(i, lngColTemp) = SortArray(j, lngColTemp)
-'                 SortArray(j, lngColTemp) = arrRowTemp(lngColTemp)
-'             Next lngColTemp
-'             Erase arrRowTemp
+        If i <= j Then
+            ' Swap the rows
+            ReDim arrRowTemp(LBound(SortArray, 2) To UBound(SortArray, 2))
+            For lngColTemp = LBound(SortArray, 2) To UBound(SortArray, 2)
+                arrRowTemp(lngColTemp) = SortArray(i, lngColTemp)
+                SortArray(i, lngColTemp) = SortArray(j, lngColTemp)
+                SortArray(j, lngColTemp) = arrRowTemp(lngColTemp)
+            Next lngColTemp
+            Erase arrRowTemp
 
-'             i = i + 1
-'             j = j - 1
-'         End If
-'     Wend
+            i = i + 1
+            j = j - 1
+        End If
+    Wend
 
-'     If (lngMin < j) Then Call QuickSortArray(SortArray, lngMin, j, lngColumn)
-'     If (i < lngMax) Then Call QuickSortArray(SortArray, i, lngMax, lngColumn)
+    If (lngMin < j) Then Call QuickSortArray(SortArray, lngMin, j, lngColumn)
+    If (i < lngMax) Then Call QuickSortArray(SortArray, i, lngMax, lngColumn)
 
-' End Sub
+End Sub
 
 ' Private Sub Workbook_Open()
 '     application.onkey("^+v", TextOnly)
@@ -284,7 +299,7 @@ End Function
 
 ' Sub TextOnly()
 ' '
-' ' ç´”æ–‡å­—è²¼ä¸Š
+' ' ¯Â¤å¦r¶K¤W
 ' '
 
 '     Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
@@ -293,7 +308,7 @@ End Function
 
 Sub SpeedTest()
 '
-' æ¸¬è©¦é€Ÿåº¦ç”¨
+' ´ú¸Õ³t«×¥Î
 '
 
     Dim time0 As Double
@@ -318,3 +333,131 @@ Sub SpeedTest()
 
 End Sub
 
+'-------------------------------------------------------------------
+' VBA JSON Parser
+' https://medium.com/swlh/excel-vba-parse-json-easily-c2213f4d8e7a
+'-------------------------------------------------------------------
+Function ParseJSON(json$, Optional key$ = "obj") As Object
+    p = 1
+    token = Tokenize(json)
+    Set dic = CreateObject("Scripting.Dictionary")
+    If token(p) = "{" Then ParseObj key Else ParseArr key
+    Set ParseJSON = dic
+End Function
+
+Function ParseObj(key$)
+    Do: p = p + 1
+        Select Case token(p)
+            Case "]"
+            Case "[":  ParseArr key
+            Case "{"
+                       If token(p + 1) = "}" Then
+                           p = p + 1
+                           dic.Add key, "null"
+                       Else
+                           ParseObj key
+                       End If
+
+            Case "}":  key = ReducePath(key): Exit Do
+            Case ":":  key = key & "." & token(p - 1)
+            Case ",":  key = ReducePath(key)
+            Case Else: If token(p + 1) <> ":" Then dic.Add key, token(p)
+        End Select
+    Loop
+End Function
+
+Function ParseArr(key$)
+    Dim e&
+    Do: p = p + 1
+        Select Case token(p)
+            Case "}"
+            Case "{":  ParseObj key & ArrayID(e)
+            Case "[":  ParseArr key
+            Case "]":  Exit Do
+            Case ":":  key = key & ArrayID(e)
+            Case ",":  e = e + 1
+            Case Else: dic.Add key & ArrayID(e), token(p)
+        End Select
+    Loop
+End Function
+
+'-------------------------------------------------------------------
+' Support Functions
+'-------------------------------------------------------------------
+Function Tokenize(s$)
+    Const Pattern = """(([^""\\]|\\.)*)""|[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?|\w+|[^\s""']+?"
+    Tokenize = RExtract(s, Pattern, True)
+End Function
+
+Function RExtract(s$, Pattern, Optional bGroup1Bias As Boolean, Optional bGlobal As Boolean = True)
+  Dim c&, m, n, v
+  With CreateObject("vbscript.regexp")
+    .Global = bGlobal
+    .MultiLine = False
+    .IgnoreCase = True
+    .Pattern = Pattern
+    If .TEST(s) Then
+      Set m = .Execute(s)
+      ReDim v(1 To m.Count)
+      For Each n In m
+        c = c + 1
+        v(c) = n.value
+        If bGroup1Bias Then If Len(n.submatches(0)) Or n.value = """""" Then v(c) = n.submatches(0)
+      Next
+    End If
+  End With
+  RExtract = v
+End Function
+
+Function ArrayID$(e)
+    ArrayID = "(" & e & ")"
+End Function
+
+Function ReducePath$(key$)
+    If InStr(key, ".") Then ReducePath = Left(key, InStrRev(key, ".") - 1) Else ReducePath = key
+End Function
+
+Function ListPaths(dic)
+    Dim s$, v
+    For Each v In dic
+        s = s & v & " --> " & dic(v) & vbLf
+    Next
+    Debug.Print s
+End Function
+
+Function GetFilteredValues(dic, match)
+    Dim c&, i&, v, w
+    v = dic.keys
+    ReDim w(1 To dic.Count)
+    For i = 0 To UBound(v)
+        If v(i) Like match Then
+            c = c + 1
+            w(c) = dic(v(i))
+        End If
+    Next
+    ReDim Preserve w(1 To c)
+    GetFilteredValues = w
+End Function
+
+Function GetFilteredTable(dic, cols)
+    Dim c&, i&, j&, v, w, z
+    v = dic.keys
+    z = GetFilteredValues(dic, cols(0))
+    ReDim w(1 To UBound(z), 1 To UBound(cols) + 1)
+    For j = 1 To UBound(cols) + 1
+         z = GetFilteredValues(dic, cols(j - 1))
+         For i = 1 To UBound(z)
+            w(i, j) = z(i)
+         Next
+    Next
+    GetFilteredTable = w
+End Function
+
+Function OpenTextFile$(f)
+    With CreateObject("ADODB.Stream")
+        .Charset = "utf-8"
+        .Open
+        .LoadFromFile f
+        OpenTextFile = .ReadText
+    End With
+End Function
