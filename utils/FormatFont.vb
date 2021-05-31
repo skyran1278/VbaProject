@@ -1,9 +1,9 @@
 Sub FormatFont()
 '
-' formatting å·¨é›†
+' formatting ¥¨¶°
 '
-' å¿«é€Ÿéµ: Ctrl+q
+' §Ö³tÁä: Ctrl+q
 '
-    Cells.Font.Name = "å¾®è»Ÿæ­£é»‘é«”"
+    Cells.Font.Name = "·L³n¥¿¶ÂÅé"
     Cells.Font.Name = "Calibri"
 End Sub

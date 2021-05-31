@@ -7,15 +7,15 @@
 ' LICENSE file in the root directory of this source tree.
 
 
-' éš¨å·¥ä½œç°¿ä¸åŒè€Œéœ€æ›´æ”¹çš„åƒæ•¸:
-' VERSION_URL: è©²å·¥ä½œç°¿ version.txt
-' DOWNLOAD_URL: è©²å·¥ä½œç°¿ ä¸‹è¼‰æª”æ¡ˆä½ç½®
+' ÀH¤u§@Ã¯¤£¦P¦Ó»İ§ó§ïªº°Ñ¼Æ:
+' VERSION_URL: ¸Ó¤u§@Ã¯ version.txt
+' DOWNLOAD_URL: ¸Ó¤u§@Ã¯ ¤U¸üÀÉ®×¦ì¸m
 Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/utils/example.xlsm"
 Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/utils/Version.txt"
 
 Sub VerifyPassword()
 '
-' é©—è­‰å¯†ç¢¼.
+' ÅçÃÒ±K½X.
 '
 ' @since 1.0.0
 '
@@ -38,7 +38,7 @@ Sub VerifyPassword()
 
     cloudPwd = srvXmlHttp.ResponseText
 
-    ' æ¶ˆé™¤ç©ºç™½è¡Œ
+    ' ®ø°£ªÅ¥Õ¦æ
     cloudPwd = Trim(Replace(cloudPwd, Chr(10), ""))
 
     If inputPwd <> cloudPwd Then
@@ -53,12 +53,12 @@ End Sub
 
 Sub CheckVersion()
 '
-' é©—è­‰ç‰ˆæœ¬è™Ÿ.
+' ÅçÃÒª©¥»¸¹.
 '
 ' @since 1.0.0
 '
 
-    ' æ­¤ç¨‹åºåŒ…å«çš„è®Šæ•¸
+    ' ¦¹µ{§Ç¥]§tªºÅÜ¼Æ
     Dim srvXmlHttp As Object
     Dim shell As Object
     Dim ws_version As Worksheet
@@ -78,7 +78,7 @@ Sub CheckVersion()
 
     currentVersion = ws_version.Cells(3, 3)
 
-    ' å€åˆ†ç‰ˆæœ¬è™Ÿå’Œæ›´æ–°èªªæ˜
+    ' °Ï¤Àª©¥»¸¹©M§ó·s»¡©ú
     latestVersionAndReleaseNotes = Split(latestVersionAndReleaseNotes, Chr(10) & "===" & Chr(10))
     latestVersion = latestVersionAndReleaseNotes(0)
     releaseNotes = latestVersionAndReleaseNotes(1)
@@ -142,21 +142,21 @@ End Function
 
 Private Sub Workbook_Open()
 '
-' * ç›®çš„: é©—è­‰å¯†ç¢¼ï¼Œæª¢æŸ¥ç¨‹å¼æœ€æ–°ç‰ˆæœ¬ï¼Œä¸¦è‡ªå‹•æç¤ºæ›´æ–°
+' * ¥Øªº: ÅçÃÒ±K½X¡AÀË¬dµ{¦¡³Ì·sª©¥»¡A¨Ã¦Û°Ê´£¥Ü§ó·s
 '
-' * éš¨å·¥ä½œç°¿ä¸åŒè€Œéœ€æ›´æ”¹çš„åƒæ•¸:
-'       VERSION_URL: è©²å·¥ä½œç°¿ version.txt
-'       DOWNLOAD_URL: è©²å·¥ä½œç°¿ ä¸‹è¼‰æª”æ¡ˆä½ç½®
+' * ÀH¤u§@Ã¯¤£¦P¦Ó»İ§ó§ïªº°Ñ¼Æ:
+'       VERSION_URL: ¸Ó¤u§@Ã¯ version.txt
+'       DOWNLOAD_URL: ¸Ó¤u§@Ã¯ ¤U¸üÀÉ®×¦ì¸m
 '
-' * é‡è¦ä¸”é€šå¸¸ä¸æœƒæ›´å‹•æ•¸å€¼:
-'       å·¥ä½œè¡¨ä½ç½®: ç‰ˆæœ¬è³‡è¨Š
-'       åç¨±: Cells(2, 3)
-'       ç›®å‰ç‰ˆæœ¬è™Ÿ: Cells(3, 3)
-'       æœ€æ–°ç‰ˆæœ¬è™Ÿ: Cells(4, 3)
+' * ­«­n¥B³q±`¤£·|§ó°Ê¼Æ­È:
+'       ¤u§@ªí¦ì¸m: ª©¥»¸ê°T
+'       ¦WºÙ: Cells(2, 3)
+'       ¥Ø«eª©¥»¸¹: Cells(3, 3)
+'       ³Ì·sª©¥»¸¹: Cells(4, 3)
 '
-' * æ¸¬è©¦ç’°å¢ƒ:
+' * ´ú¸ÕÀô¹Ò:
 '       office 2016 in windows 10
-'       Mac ç‰ˆæœ¬å®¹æ˜“å‡ºç¾éŒ¯èª¤ï¼Œä¸æ¨è–¦åœ¨ Mac åŸ·è¡Œ
+'       Mac ª©¥»®e©ö¥X²{¿ù»~¡A¤£±ÀÂË¦b Mac °õ¦æ
 
     ' Dim ws_version As Worksheet
     ' Set ws_version = ThisWorkbook.Worksheets("Release Notes")
