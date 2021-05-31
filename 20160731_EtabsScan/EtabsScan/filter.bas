@@ -1,3 +1,4 @@
+Attribute VB_Name = "filter"
 Sub FilterData()
 
     Set AssembledPointMasses = Worksheets("Assembled Point Masses")
@@ -9,14 +10,14 @@ Sub FilterData()
     Set Area = Worksheets("Area")
     Set DL = Worksheets("DL")
     Set LL = Worksheets("LL")
-    Set StaticSeismic = Worksheets("éœæ…‹åœ°éœ‡åŠ›")
-    Set DynamicSeismic = Worksheets("å‹•æ…‹åœ°éœ‡åŠ›ä¿®æ­£")
+    Set StaticSeismic = Worksheets("ÀRºA¦a¾_¤O")
+    Set DynamicSeismic = Worksheets("°ÊºA¦a¾_¤O­×¥¿")
 
-    AssembledPointMassesLastrow = AssembledPointMasses.UsedRange.Rows.Count '------------æŠ“å–æœ€å¾Œä¸€è¡Œ
-    MaterialListByStoryLastrow = MaterialListByStory.UsedRange.Rows.Count '------------æŠ“å–æœ€å¾Œä¸€è¡Œ
-    StoryShearsLastrow = StoryShears.UsedRange.Rows.Count '------------æŠ“å–æœ€å¾Œä¸€è¡Œ
+    AssembledPointMassesLastrow = AssembledPointMasses.UsedRange.Rows.Count '------------§ì¨ú³Ì«á¤@¦æ
+    MaterialListByStoryLastrow = MaterialListByStory.UsedRange.Rows.Count '------------§ì¨ú³Ì«á¤@¦æ
+    StoryShearsLastrow = StoryShears.UsedRange.Rows.Count '------------§ì¨ú³Ì«á¤@¦æ
 
-' ---------å…ˆåˆªé™¤åŸæœ‰çš„è¡¨æ ¼ï¼ŒDEBUGï¼Œéƒ½è¦ clear å…©æ¬¡æ‰èƒ½æ¶ˆé™¤ä¹¾æ·¨
+' ---------¥ı§R°£­ì¦³ªºªí®æ¡ADEBUG¡A³£­n clear ¨â¦¸¤~¯à®ø°£°®²b
     DL.Cells.Clear
     DL.Cells.Clear
     LL.Cells.Clear
@@ -30,30 +31,30 @@ Sub FilterData()
     Mass.Cells.Clear
     Mass.Cells.Clear
 
-    ' æ¸…é™¤å‰ä¸‰ç¨®
+    ' ²M°£«e¤TºØ
     For i = 3 To 17 Step 7
         Scan.Range(Scan.Cells(14, i), Scan.Cells(10000, i + 1)).ClearContents
         Scan.Range(Scan.Cells(14, i + 3), Scan.Cells(10000, i + 3)).ClearContents
     Next
 
-'--------- è¤‡è£½è²¼ä¸Š
+'--------- ½Æ»s¶K¤W
 
-    'è¤‡è£½ Story Shears è²¼ä¸Šåˆ°å„ Sheet
+    '½Æ»s Story Shears ¶K¤W¨ì¦U Sheet
     StoryShears.Cells.Copy
     DL.Paste (DL.Cells)
     LL.Paste (LL.Cells)
     StaticSeismic.Paste (StaticSeismic.Cells)
     DynamicSeismic.Paste (DynamicSeismic.Cells)
 
-    'è¤‡è£½ Floor è²¼ä¸Šåˆ° Area
+    '½Æ»s Floor ¶K¤W¨ì Area
     MaterialListByStory.Cells.Copy
     Area.Paste (Area.Cells)
 
-    'è¤‡è£½ AssembleMass è²¼ä¸Šåˆ° Mass
+    '½Æ»s AssembleMass ¶K¤W¨ì Mass
     AssembledPointMasses.Cells.Copy
     Mass.Paste (Mass.Cells)
 
-'---------ç¯©é¸
+'---------¿z¿ï
 
     EQfloor = Scan.Cells(2, 4)
 
@@ -83,9 +84,9 @@ Sub FilterData()
     Mass.Cells.AutoFilter
     Mass.Range(Mass.Cells(1, 1), Mass.Cells(AssembledPointMassesLastrow, 11)).AutoFilter Field:=2, Criteria1:="All"
 
-'-----è²¼ä¸ŠScan
+'-----¶K¤WScan
 
-    '------------------è²¼ä¸ŠSTORY
+    '------------------¶K¤WSTORY
     Mass.Range(Mass.Cells(2, 1), Mass.Cells(AssembledPointMassesLastrow, 1)).Copy
     Scan.Range("C14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
@@ -94,44 +95,44 @@ Sub FilterData()
     Scan.Range("Q14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
-    '------------------è²¼ä¸ŠM
+    '------------------¶K¤WM
     Mass.Range(Mass.Cells(2, 3), Mass.Cells(AssembledPointMassesLastrow, 3)).Copy
     Scan.Range("D14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
-    '------------------è²¼ä¸ŠP
+    '------------------¶K¤WP
     DL.Range(DL.Cells(3, 4), DL.Cells(StoryShearsLastrow, 4)).Copy
     Scan.Range("K14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
-    '------------------è²¼ä¸ŠP
+    '------------------¶K¤WP
     LL.Range(LL.Cells(3, 4), LL.Cells(StoryShearsLastrow, 4)).Copy
     Scan.Range("R14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
-    '------------------è²¼ä¸ŠFloorArea
+    '------------------¶K¤WFloorArea
     Area.Range(Area.Cells(4, 5), Area.Cells(MaterialListByStoryLastrow, 5)).Copy
     Scan.Range("F14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
-    '-----------------ä¿®æ­£FloorArea
+    '-----------------­×¥¿FloorArea
     FloorAreaLastrow = Scan.Cells(Scan.Rows.Count, "F").End(xlUp).Row
     StoryLastrow = Scan.Cells(Scan.Rows.Count, "C").End(xlUp).Row
     Scan.Cells(StoryLastrow, 6) = Scan.Cells(FloorAreaLastrow, 6)
     Scan.Cells(FloorAreaLastrow, 6) = ""
     Scan.Range(Scan.Cells(14, 6), Scan.Cells(StoryLastrow, 6)).Copy
-    '-----------------é‡è²¼FloorArea
+    '-----------------­«¶KFloorArea
     Scan.Range("M14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
     Scan.Range("T14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
-    '------------------è²¼ä¸Šéœæ…‹åœ°éœ‡åŠ›
+    '------------------¶K¤WÀRºA¦a¾_¤O
     StaticSeismic.Range(StaticSeismic.Cells(1, 1), StaticSeismic.Cells(StoryShearsLastrow, 9)).Copy
     Scan.Range("W14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
 
-    '------------------è²¼ä¸Šå‹•æ…‹åœ°éœ‡åŠ›ä¿®æ­£
+    '------------------¶K¤W°ÊºA¦a¾_¤O­×¥¿
     DynamicSeismic.Range(DynamicSeismic.Cells(1, 1), DynamicSeismic.Cells(StoryShearsLastrow, 9)).Copy
     Scan.Range("AG14").PasteSpecial Paste:=xlPasteValuesAndNumberFormats, Operation:= _
         xlNone, SkipBlanks:=False, Transpose:=False
@@ -139,3 +140,5 @@ Sub FilterData()
     Scan.Select
 
 End Sub
+
+
