@@ -57,7 +57,7 @@ ErrorHandler:
 
     inputPwd = Trim(Application.InputBox("Please Input Strong Passward.", "No Internet Connect", Type:=2))
 
-    strongPwd = "28862952"
+    strongPwd = "7U5uE+SMKg^@?qSJ"
 
     If inputPwd <> strongPwd Then
 
@@ -65,9 +65,6 @@ ErrorHandler:
         ThisWorkbook.Close SaveChanges:=False
 
     End If
-
-    ' ws_version.Cells.Font.Name = "·L³n¥¿¶ÂÅé"
-    ' ws_version.Cells.Font.Name = "Calibri"
 
 End Sub
 
@@ -85,7 +82,7 @@ Sub VerifyPassword()
     Dim passwordUrl As String
 
     ' passwordUrl: pwd.txt
-    passwordUrl = "https://oxlynrtpd4.execute-api.ap-southeast-1.amazonaws.com/signin"
+    passwordUrl = "https://oxlynrtpd4.execute-api.ap-southeast-1.amazonaws.com/login"
 
     inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", Type:=2))
 
@@ -99,7 +96,7 @@ Sub VerifyPassword()
     If winHttpRequset.Status <> 200 Then
 
         MsgBox res("obj.message")
-        ' ThisWorkbook.Close SaveChanges:=False
+        ThisWorkbook.Close SaveChanges:=False
 
     End If
 
