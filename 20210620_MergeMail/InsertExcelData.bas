@@ -49,6 +49,7 @@ Sub insertExcelData()
                 userName = excelSheet.Cells(row, 10)
                 .TypeText Text:=userName
 
+                ' https://www.tek-tips.com/viewthread.cfm?qid=1056901
                 ' 字元寬度不一樣造成很難調整位置
                 ' 利用 unicode 進行判斷
                 .TypeText Text:="                                                                                      "
