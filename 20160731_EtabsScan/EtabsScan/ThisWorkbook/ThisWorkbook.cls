@@ -7,20 +7,17 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
-' @license Version v3.0.2
-' Version.vb
-'
-' Copyright (c) 2016-present, skyran
-'
-' This source code is licensed under the MIT license found in the
-' LICENSE file in the root directory of this source tree.
+' @license Version v4.0.0
+Option Explicit
 
+' 每次更新版本都需要修改
+' 由於改成強制更新，所以要拉到 private，不讓 user 可以自己更改
+Private Const CURRENT_VERSION = "3.0.0"
 
 ' 隨工作簿不同而需更改的參數:
-' VERSION_URL: 該工作簿 version.txt
-' DOWNLOAD_URL: 該工作簿 下載檔案位置
-Private Const VERSION_URL = "https://github.com/skyran1278/VbaProject/raw/master/20160731_EtabsScan/EtabsScanVersion.txt"
-Private Const DOWNLOAD_URL = "https://github.com/skyran1278/VbaProject/raw/master/20160731_EtabsScan/EtabsScan.xlsm"
+Private Const WORKBOOK_NAME = "EtabsScan"
+Private Const VERSION_URL = "https://github.com/skyran1278/elements-vba-service/raw/main/" + WORKBOOK_NAME + "/VERSION.json"
+Private Const DOWNLOAD_URL = "https://github.com/skyran1278/elements-vba-service/raw/main/" + WORKBOOK_NAME + "/" + WORKBOOK_NAME + ".xlsm"
 
 Private ran As New UTILS_CLASS
 
@@ -32,163 +29,117 @@ Private Sub Workbook_Open()
 '       VERSION_URL: 該工作簿 version.txt
 '       DOWNLOAD_URL: 該工作簿 下載檔案位置
 '
-' * 重要且通常不會更動數值:
-'       工作表位置: 版本資訊
-'       名稱: Cells(2, 3)
-'       目前版本號: Cells(3, 3)
-'       最新版本號: Cells(4, 3)
-'
 ' * 測試環境:
 '       office 2016 in windows 10
 '       Mac 版本容易出現錯誤，不推薦在 Mac 執行
 
-    ' Dim ws_version As Worksheet
-    ' Set ws_version = ThisWorkbook.Worksheets("Release Notes")
+    Dim inputPassword As String
+    Dim strongPassword As String
 
     On Error GoTo ErrorHandler
 
-    Call VerifyPassword
-    Call CheckVersion
+    If isOutdatedVersion() Then
+        Call downloadLatestFileToCurrentFolder
+        MsgBox "將關閉此檔案，並開啟新版程式。", vbOKOnly
+        Workbooks.Open Filename:=Application.ActiveWorkbook.Path & Application.PathSeparator & WORKBOOK_NAME & " " & CURRENT_VERSION & ".xlsm"
+        ThisWorkbook.Close SaveChanges:=False
+    End If
+
+    Call verifyPassword
 
     Exit Sub
 
+' something error happen, for example
+' no internet connect
+' parse error
+' 存在相同檔案名稱，寫入檔案失敗
 ErrorHandler:
     MsgBox (Err.Description)
 
-    inputPwd = Trim(Application.InputBox("Please Input Strong Passward.", "No Internet Connect", Type:=2))
+    inputPassword = Trim(Application.InputBox("Please input strong passward.", "No internet connect", Type:=2))
 
-    strongPwd = "7U5uE+SMKg^@?qSJ"
+    strongPassword = "7U5uE+SMKg^@?qSJ"
 
-    If inputPwd <> strongPwd Then
-
-        MsgBox "Wrong Password"
+    If inputPassword <> strongPassword Then
+        MsgBox "Wrong strong password, excel will be close."
         ThisWorkbook.Close SaveChanges:=False
-
     End If
 
 End Sub
 
 
-Sub VerifyPassword()
+Sub verifyPassword()
 '
 ' 驗證密碼.
 '
 ' @since 1.0.0
 '
 
-    Dim srvXmlHttp As Object
-    Dim inputPwd As String
-    Dim cloudPwd As String
-    Dim passwordUrl As String
+    Dim winHttpRequset As Object
+    Dim res As Object
+    Dim inputPassword As String
+    Dim securityURL As String
 
-    ' passwordUrl: pwd.txt
-    passwordUrl = "https://oxlynrtpd4.execute-api.ap-southeast-1.amazonaws.com/login"
+    securityURL = "https://tammkyq18g.execute-api.ap-southeast-1.amazonaws.com/login"
 
-    inputPwd = Trim(Application.InputBox("Please Input Passward.", "Verify User Identity", Type:=2))
+    inputPassword = Trim(Application.InputBox("Please input passward.", "Verify user identity", Type:=2))
+
+    Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
+    winHttpRequset.Open "POST", securityURL, False
+    winHttpRequset.send "{""password"":" + inputPassword + "}"
+
+    If winHttpRequset.Status <> 200 Then
+        Set res = ran.ParseJSON(winHttpRequset.ResponseText)
+        MsgBox res("obj.message")
+        ThisWorkbook.Close SaveChanges:=False
+    End If
+
+End Sub
+
+
+Function isOutdatedVersion()
+'
+' check version is latest.
+'
+
+    Dim res As Object
+    Dim winHttpRequset As Object
+    Dim latestVersion As String
 
     Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
 
-    winHttpRequset.Open "POST", passwordUrl, False
-    winHttpRequset.send "{""password"":" + inputPwd + "}"
-
+    winHttpRequset.Open "GET", VERSION_URL, False
+    winHttpRequset.send
     Set res = ran.ParseJSON(winHttpRequset.ResponseText)
 
-    If winHttpRequset.Status <> 200 Then
+    latestVersion = res("obj.version")
 
-        MsgBox res("obj.message")
-        ThisWorkbook.Close SaveChanges:=False
-
-    End If
-
-End Sub
-
-
-Sub CheckVersion()
-'
-' 驗證版本號.
-'
-' @since 1.0.0
-'
-
-    ' 此程序包含的變數
-    Dim srvXmlHttp As Object
-    Dim shell As Object
-    Dim ws_version As Worksheet
-    Dim currentVersion As String
-    Dim latestVersion As String
-    Dim releaseNotes As String
-
-    Set srvXmlHttp = CreateObject("MSXML2.serverXMLHTTP")
-
-    Set ws_version = ThisWorkbook.Worksheets("Release Notes")
-
-    srvXmlHttp.Open "GET", VERSION_URL, False
-
-    srvXmlHttp.send
-
-    latestVersionAndReleaseNotes = srvXmlHttp.ResponseText
-
-    currentVersion = ws_version.Cells(3, 3)
-
-    ' 區分版本號和更新說明
-    latestVersionAndReleaseNotes = Split(latestVersionAndReleaseNotes, Chr(10) & "===" & Chr(10))
-    latestVersion = latestVersionAndReleaseNotes(0)
-    releaseNotes = latestVersionAndReleaseNotes(1)
-
-    If CompareVersion(currentVersion, latestVersion) Then
-
-        If MsgBox(releaseNotes, vbYesNo, "Download Latest Version From Browser") = vbYes Then
-
-            Set shell = CreateObject("Wscript.Shell")
-            shell.Run (DOWNLOAD_URL)
-            MsgBox "Please close this file and use new file from browser.", vbOKOnly
-
-        End If
-
-    End If
-
-End Sub
-
-
-Private Function CompareVersion(currentVersion As String, latestVersion As String)
-'
-' compare which version is latest.
-'
-' @since 1.0.0
-' @param {string} [currentVersion] currentVersion.
-' @param {string} [latestVersion] latestVersion.
-' @return {boolean} [CompareVersion] latestVersion > currentVersion return true.
-'
-
-    arrCurrentVersion = Split(currentVersion, ".")
-    arrLatestVersion = Split(latestVersion, ".")
-
-    If arrLatestVersion(0) > arrCurrentVersion(0) Then
-        CompareVersion = True
-
-    ElseIf arrLatestVersion(0) < arrCurrentVersion(0) Then
-        CompareVersion = False
-
-    ' if  arrLatestVersion(0) == arrCurrentVersion(0)
-    ElseIf arrLatestVersion(1) > arrCurrentVersion(1) Then
-        CompareVersion = True
-
-    ElseIf arrLatestVersion(1) < arrCurrentVersion(1) Then
-        CompareVersion = False
-
-    ' if  arrLatestVersion(1) == arrCurrentVersion(1)
-    ElseIf arrLatestVersion(2) > arrCurrentVersion(2) Then
-        CompareVersion = True
-
-    ElseIf arrLatestVersion(2) < arrCurrentVersion(2) Then
-        CompareVersion = False
-
-    ' all equal
-    Else
-        CompareVersion = False
-
+    isOutdatedVersion = True
+    If CURRENT_VERSION = latestVersion Then
+        isOutdatedVersion = False
     End If
 
 End Function
 
+Sub downloadLatestFileToCurrentFolder()
+'
+' 下載新版本.
+'
+' @since 1.0.0
+'
 
+    Dim oStream As Object
+    Dim winHttpRequset As Object
+
+    Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
+    Set oStream = CreateObject("ADODB.Stream")
+
+    winHttpRequset.Open "GET", DOWNLOAD_URL, False
+    winHttpRequset.send
+
+    oStream.Open
+    oStream.Type = 1
+    oStream.Write winHttpRequset.responseBody
+    oStream.SaveToFile(Application.ActiveWorkbook.Path & Application.PathSeparator & WORKBOOK_NAME & " " & CURRENT_VERSION & ".xlsm")
+    oStream.Close
+End Sub
