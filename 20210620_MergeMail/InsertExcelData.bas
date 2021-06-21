@@ -24,7 +24,7 @@ Sub insertExcelData()
     Dim userBranchNumber As String
     Dim userCheckNumber As String
 
-    Dim tableType As String
+    Dim tableType As Long
 
     ' 這裡有三種寫法
     ' 1. 以絕對路徑替換 excel 名稱
@@ -45,7 +45,7 @@ Sub insertExcelData()
     xlup = -4162
     lastRow = excelSheet.Cells(excelSheet.Rows.Count, 1).End(xlup).row
 
-    pageContainRowNumber = 23
+    pageContainRowNumber = 41
 
     pageFirstRow = 0
 
@@ -57,6 +57,8 @@ Sub insertExcelData()
         With .ParagraphFormat
             .LeftIndent = CentimetersToPoints(-0.75)
             .RightIndent = CentimetersToPoints(-1.38)
+            .LineSpacingRule = wdLineSpaceExactly
+            .LineSpacing = 10
             .SpaceBeforeAuto = False
             .SpaceAfterAuto = False
         End With
@@ -76,7 +78,7 @@ Sub insertExcelData()
                     .TypeParagraph
                 Next pageRow
 
-                Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 4
+                Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 7
                 .TypeText Text:="                 "
                 ' 用戶名稱
                 userName = excelSheet.Cells(row, 10)
@@ -118,40 +120,40 @@ Sub insertExcelData()
                 .TypeText Text:=" "
                 .TypeText Text:=userCheckNumber
 
-                Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 5
+                Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 9
                 .TypeText Text:="                 "
                 ' 用電地址
                 .TypeText Text:=excelSheet.Cells(row, 11)
 
-                Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 11
+                Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 20
                 ' 相別
                 .TypeText Text:="                         "
                 .TypeText Text:=excelSheet.Cells(row, 5)
             End If
 
-            tableType = excelSheet.Cells(row, 3)
+            tableType = CInt(excelSheet.Cells(row, 3))
 
             Select Case tableType
-                Case "1"
-                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 12
-                Case "2"
-                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 13
-                Case "3"
-                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 14
-                Case "4"
-                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 16
-                Case "6"
-                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 17
-                Case "8"
-                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 19
-                Case "9"
-                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 20
-                Case "10"
+                Case 1
                     Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 21
-                Case "11"
-                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 22
-                Case "12"
-                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 23
+                ' Case 2
+                '     Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 13
+                Case 3
+                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 26
+                Case 4
+                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 28
+                ' Case 6
+                '     Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 17
+                ' Case 8
+                '     Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 19
+                ' Case 9
+                '     Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 20
+                ' Case 10
+                '     Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 21
+                Case 11
+                    Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 40
+                ' Case 12
+                '     Selection.GoTo What:=wdGoToLine, Which:=wdGoToAbsolute, Count:=pageFirstRow + 23
             End Select
 
             .TypeText Text:="                      "
@@ -160,10 +162,10 @@ Sub insertExcelData()
             .TypeText Text:="           "
             ' 電表表號
             .TypeText Text:=excelSheet.Cells(row, 6)
-            .TypeText Text:="       "
+            .TypeText Text:="        "
             ' 倍數
             .TypeText Text:=excelSheet.Cells(row, 8)
-            .TypeText Text:="     "
+            .TypeText Text:="   "
             ' 檢定期限
             .TypeText Text:=excelSheet.Cells(row, 9)
 
@@ -176,4 +178,3 @@ Sub insertExcelData()
     Set excelSheet = Nothing
 
 End Sub
-
