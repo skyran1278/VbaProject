@@ -16,9 +16,8 @@ Private Const CURRENT_VERSION = "3.0.0"
 
 ' 隨工作簿不同而需更改的參數:
 Private Const WORKBOOK_NAME = "EtabsScan"
-Private Const VERSION_URL = "https://github.com/skyran1278/elements-vba-service/raw/main/" + WORKBOOK_NAME + "/VERSION.json"
-Private Const DOWNLOAD_URL = "https://github.com/skyran1278/elements-vba-service/raw/main/" + WORKBOOK_NAME + "/" + WORKBOOK_NAME + ".xlsm"
 
+Private Const BASE_URL = "https://tammkyq18g.execute-api.ap-southeast-1.amazonaws.com"
 Private ran As New UTILS_CLASS
 
 Private Sub Workbook_Open()
@@ -80,7 +79,7 @@ Sub verifyPassword()
     Dim inputPassword As String
     Dim securityURL As String
 
-    securityURL = "https://tammkyq18g.execute-api.ap-southeast-1.amazonaws.com/login"
+    securityURL = BASE_URL + "/login"
 
     inputPassword = Trim(Application.InputBox("Please input passward.", "Verify user identity", Type:=2))
 
@@ -105,10 +104,12 @@ Function isOutdatedVersion()
     Dim res As Object
     Dim winHttpRequset As Object
     Dim latestVersion As String
+    Dim versionURL As String
+
+    versionURL = getFileURL(WORKBOOK_NAME + "/VERSION.json")
 
     Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
-
-    winHttpRequset.Open "GET", VERSION_URL, False
+    winHttpRequset.Open "GET", versionURL, False
     winHttpRequset.send
     Set res = ran.ParseJSON(winHttpRequset.ResponseText)
 
@@ -130,16 +131,30 @@ Sub downloadLatestFileToCurrentFolder()
 
     Dim oStream As Object
     Dim winHttpRequset As Object
+    Dim fileURL As String
+
+    fileURL = getFileURL(WORKBOOK_NAME + "/" + WORKBOOK_NAME + ".xlsm")
 
     Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
-    Set oStream = CreateObject("ADODB.Stream")
-
-    winHttpRequset.Open "GET", DOWNLOAD_URL, False
+    winHttpRequset.Open "GET", fileURL, False
     winHttpRequset.send
 
+    Set oStream = CreateObject("ADODB.Stream")
     oStream.Open
     oStream.Type = 1
     oStream.Write winHttpRequset.responseBody
     oStream.SaveToFile(Application.ActiveWorkbook.Path & Application.PathSeparator & WORKBOOK_NAME & " " & CURRENT_VERSION & ".xlsm")
     oStream.Close
 End Sub
+
+Function getFileURL(filePath)
+'
+
+    Dim winHttpRequset As Object
+
+    Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
+    winHttpRequset.Open "GET", BASE_URL + "/file/" + filePath, False
+    winHttpRequset.send
+    getFileURL = winHttpRequset.ResponseText
+
+End Function
