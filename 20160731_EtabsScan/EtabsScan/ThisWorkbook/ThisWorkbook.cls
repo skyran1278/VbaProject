@@ -34,17 +34,23 @@ Private Sub Workbook_Open()
 
     Dim inputPassword As String
     Dim strongPassword As String
+    Dim latestVersion As String
 
     On Error GoTo ErrorHandler
 
-    If isOutdatedVersion() Then
-        Call downloadLatestFileToCurrentFolder
+    latestVersion = getLatestVersion()
+
+    If CURRENT_VERSION <> latestVersion Then
+        downloadLatestFileToCurrentFolder(latestVersion)
         MsgBox "將關閉此檔案，並開啟新版程式。", vbOKOnly
         Workbooks.Open Filename:=Application.ActiveWorkbook.Path & Application.PathSeparator & WORKBOOK_NAME & " " & CURRENT_VERSION & ".xlsm"
         ThisWorkbook.Close SaveChanges:=False
     End If
 
-    Call verifyPassword
+    If isWrongPassword() Then
+        MsgBox "Wrong password, excel will be close."
+        ThisWorkbook.Close SaveChanges:=False
+    End If
 
     Exit Sub
 
@@ -67,7 +73,7 @@ ErrorHandler:
 End Sub
 
 
-Sub verifyPassword()
+Function isWrongPassword()
 '
 ' 驗證密碼.
 '
@@ -87,23 +93,24 @@ Sub verifyPassword()
     winHttpRequset.Open "POST", securityURL, False
     winHttpRequset.send "{""password"":" + inputPassword + "}"
 
-    If winHttpRequset.Status <> 200 Then
+    isWrongPassword = True
+    If winHttpRequset.Status = 200 Then
+        isWrongPassword = False
+    Else
         Set res = ran.ParseJSON(winHttpRequset.ResponseText)
         MsgBox res("obj.message")
-        ThisWorkbook.Close SaveChanges:=False
     End If
 
-End Sub
+End Function
 
 
-Function isOutdatedVersion()
+Function getLatestVersion()
 '
 ' check version is latest.
 '
 
     Dim res As Object
     Dim winHttpRequset As Object
-    Dim latestVersion As String
     Dim versionURL As String
 
     versionURL = getFileURL(WORKBOOK_NAME + "/VERSION.json")
@@ -111,18 +118,13 @@ Function isOutdatedVersion()
     Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
     winHttpRequset.Open "GET", versionURL, False
     winHttpRequset.send
+
     Set res = ran.ParseJSON(winHttpRequset.ResponseText)
-
-    latestVersion = res("obj.version")
-
-    isOutdatedVersion = True
-    If CURRENT_VERSION = latestVersion Then
-        isOutdatedVersion = False
-    End If
+    getLatestVersion = res("obj.version")
 
 End Function
 
-Sub downloadLatestFileToCurrentFolder()
+Function downloadLatestFileToCurrentFolder(latestVersion)
 '
 ' 下載新版本.
 '
@@ -143,9 +145,9 @@ Sub downloadLatestFileToCurrentFolder()
     oStream.Open
     oStream.Type = 1
     oStream.Write winHttpRequset.responseBody
-    oStream.SaveToFile(Application.ActiveWorkbook.Path & Application.PathSeparator & WORKBOOK_NAME & " " & CURRENT_VERSION & ".xlsm")
+    oStream.SaveToFile(Application.ActiveWorkbook.Path & Application.PathSeparator & WORKBOOK_NAME & " " & latestVersion & ".xlsm")
     oStream.Close
-End Sub
+End Function
 
 Function getFileURL(filePath)
 '
@@ -155,6 +157,7 @@ Function getFileURL(filePath)
     Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
     winHttpRequset.Open "GET", BASE_URL + "/file/" + filePath, False
     winHttpRequset.send
+
     getFileURL = winHttpRequset.ResponseText
 
 End Function
