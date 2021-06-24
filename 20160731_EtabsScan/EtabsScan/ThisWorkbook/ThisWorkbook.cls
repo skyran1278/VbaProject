@@ -8,6 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 ' @license Version v4.0.0
+' In the VBE Editor set a reference to "Microsoft Visual Basic For Applications Extensibility 5.3" and to "Microsoft Scripting Runtime" and then save the file.
 Option Explicit
 
 ' 每次更新版本都需要修改
@@ -15,18 +16,16 @@ Option Explicit
 Private Const CURRENT_VERSION = "3.0.0"
 
 ' 隨工作簿不同而需更改的參數:
-Private Const WORKBOOK_NAME = "EtabsScan"
+Private Const SERVICE_NAME = "EtabsScan"
 
 Private Const BASE_URL = "https://tammkyq18g.execute-api.ap-southeast-1.amazonaws.com"
 Private ran As New UTILS_CLASS
 
 Private Sub Workbook_Open()
 '
-' * 目的: 驗證密碼，檢查程式最新版本，並自動提示更新
-'
-' * 隨工作簿不同而需更改的參數:
-'       VERSION_URL: 該工作簿 version.txt
-'       DOWNLOAD_URL: 該工作簿 下載檔案位置
+' 1. 驗證是否是最新版本，如果是舊版本就下載新版本、刪除舊版的程式，並且不再需要密碼登入
+' 2. 驗證雲端密碼，錯誤就關閉 excel
+' 3. 驗證強密碼，錯誤就關閉 excel
 '
 ' * 測試環境:
 '       office 2016 in windows 10
@@ -35,20 +34,30 @@ Private Sub Workbook_Open()
     Dim inputPassword As String
     Dim strongPassword As String
     Dim latestVersion As String
+    Dim newFilePath As String
 
     On Error GoTo ErrorHandler
 
     latestVersion = getLatestVersion()
 
     If CURRENT_VERSION <> latestVersion Then
-        downloadLatestFileToCurrentFolder(latestVersion)
-        MsgBox "將關閉此檔案，並開啟新版程式。", vbOKOnly
-        Workbooks.Open Filename:=Application.ActiveWorkbook.Path & Application.PathSeparator & WORKBOOK_NAME & " " & CURRENT_VERSION & ".xlsm"
-        ThisWorkbook.Close SaveChanges:=False
+        newFilePath = Application.ActiveWorkbook.Path & Application.PathSeparator & SERVICE_NAME & " " & latestVersion & ".xlsm"
+
+        downloadLatestFileToCurrentFolder(newFilePath)
+
+        MsgBox "將開啟新版程式 (舊版本將無法執行程式)", vbOKOnly
+
+        Workbooks.Open Filename:=newFilePath
+
+        'Delete all modules/Userforms from ThisWorkbook
+        Call DeleteVBAModulesAndUserForms
+
+        ' 由於已經刪除程式了，所以不需要使用者再輸入雲端密碼
+        Exit Sub
     End If
 
     If isWrongPassword() Then
-        MsgBox "Wrong password, excel will be close."
+        MsgBox "Wrong password, " & ActiveWorkbook.Name & " will be close."
         ThisWorkbook.Close SaveChanges:=False
     End If
 
@@ -66,7 +75,7 @@ ErrorHandler:
     strongPassword = "7U5uE+SMKg^@?qSJ"
 
     If inputPassword <> strongPassword Then
-        MsgBox "Wrong strong password, excel will be close."
+        MsgBox "Wrong strong password, " & ActiveWorkbook.Name & " will be close."
         ThisWorkbook.Close SaveChanges:=False
     End If
 
@@ -85,13 +94,13 @@ Function isWrongPassword()
     Dim inputPassword As String
     Dim securityURL As String
 
-    securityURL = BASE_URL + "/login"
+    securityURL = BASE_URL & "/login"
 
     inputPassword = Trim(Application.InputBox("Please input passward.", "Verify user identity", Type:=2))
 
     Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
     winHttpRequset.Open "POST", securityURL, False
-    winHttpRequset.send "{""password"":" + inputPassword + "}"
+    winHttpRequset.send "{""password"":" & inputPassword & "}"
 
     isWrongPassword = True
     If winHttpRequset.Status = 200 Then
@@ -113,7 +122,7 @@ Function getLatestVersion()
     Dim winHttpRequset As Object
     Dim versionURL As String
 
-    versionURL = getFileURL(WORKBOOK_NAME + "/VERSION.json")
+    versionURL = getFileURL(SERVICE_NAME & "/VERSION.json")
 
     Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
     winHttpRequset.Open "GET", versionURL, False
@@ -124,7 +133,7 @@ Function getLatestVersion()
 
 End Function
 
-Function downloadLatestFileToCurrentFolder(latestVersion)
+Function downloadLatestFileToCurrentFolder(newFilePath)
 '
 ' 下載新版本.
 '
@@ -135,7 +144,7 @@ Function downloadLatestFileToCurrentFolder(latestVersion)
     Dim winHttpRequset As Object
     Dim fileURL As String
 
-    fileURL = getFileURL(WORKBOOK_NAME + "/" + WORKBOOK_NAME + ".xlsm")
+    fileURL = getFileURL(SERVICE_NAME & "/" & SERVICE_NAME & ".xlsm")
 
     Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
     winHttpRequset.Open "GET", fileURL, False
@@ -145,7 +154,7 @@ Function downloadLatestFileToCurrentFolder(latestVersion)
     oStream.Open
     oStream.Type = 1
     oStream.Write winHttpRequset.responseBody
-    oStream.SaveToFile(Application.ActiveWorkbook.Path & Application.PathSeparator & WORKBOOK_NAME & " " & latestVersion & ".xlsm")
+    oStream.SaveToFile(newFilePath)
     oStream.Close
 End Function
 
@@ -155,9 +164,25 @@ Function getFileURL(filePath)
     Dim winHttpRequset As Object
 
     Set winHttpRequset = CreateObject("WinHttp.WinHttpRequest.5.1")
-    winHttpRequset.Open "GET", BASE_URL + "/file/" + filePath, False
+    winHttpRequset.Open "GET", BASE_URL & "/file/" & filePath, False
     winHttpRequset.send
 
     getFileURL = winHttpRequset.ResponseText
 
+End Function
+
+Function DeleteVBAModulesAndUserForms()
+    Dim VBProj As VBIDE.VBProject
+    Dim VBComp As VBIDE.VBComponent
+
+    Set VBProj = ThisWorkbook.VBProject
+
+    For Each VBComp In VBProj.VBComponents
+        If VBComp.Type = vbext_ct_Document Then
+            'Thisworkbook or worksheet module
+            'We do nothing
+        Else
+            VBProj.VBComponents.Remove VBComp
+        End If
+    Next VBComp
 End Function
