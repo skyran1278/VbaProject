@@ -1,4 +1,5 @@
 ''' https://www.rondebruin.nl/win/s9/win002.htm
+' In the VBE Editor set a reference to "Microsoft Visual Basic For Applications Extensibility 5.3" and to "Microsoft Scripting Runtime" and then save the file.
 Option Explicit
 
 Public Sub ExportModules()
