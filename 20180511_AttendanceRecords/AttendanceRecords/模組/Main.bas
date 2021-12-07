@@ -1,3 +1,4 @@
+Attribute VB_Name = "Main"
 Private ran As UTILS_CLASS
 
 Sub MAIN()
@@ -22,8 +23,8 @@ Sub MAIN()
 
     ' Global Var
     Set ran = New UTILS_CLASS
-    Set ws = Worksheets("å·¥æ™‚")
-    ' å¹³æ—¥ç®—åŠ ç­æ™‚é–“
+    Set ws = Worksheets("¤u®É")
+    ' ¥­¤éºâ¥[¯Z®É¶¡
     weekdayOverTime = TimeValue("18:30")
 
     time0 = Timer
@@ -42,21 +43,21 @@ Sub MAIN()
 
         prevAttType = arrInput(i, colAttType)
 
-        ' å¿½ç•¥å…¬å‡ºå…¬è¿”
+        ' ©¿²¤¤½¥X¤½ªğ
         j = i + 1
-        While arrInput(j, colAttType) = "å…¬å‡º" Or arrInput(j, colAttType) = "å…¬å‡ºè¿”å›"
+        While arrInput(j, colAttType) = "¤½¥X" Or arrInput(j, colAttType) = "¤½¥Xªğ¦^"
             j = j + 1
         Wend
 
         nextAttType = arrInput(j, colAttType)
 
-        If prevAttType = "ä¸Šç­" Then
-            If nextAttType <> "ä¸‹ç­" Then
-                errorMsg = errorMsg + "ç¬¬ " & i & " åˆ—ç‚ºä¸Šç­å¡ã€‚" & vbNewLine & "ç¬¬ " & i + 1 & " åˆ—æ‡‰è©²è¦æ‰“ä¸‹ç­å¡ã€‚" & vbNewLine & vbNewLine
+        If prevAttType = "¤W¯Z" Then
+            If nextAttType <> "¤U¯Z" Then
+                errorMsg = errorMsg + "²Ä " & i & " ¦C¬°¤W¯Z¥d¡C" & vbNewLine & "²Ä " & i + 1 & " ¦CÀ³¸Ó­n¥´¤U¯Z¥d¡C" & vbNewLine & vbNewLine
             End If
-        ElseIf prevAttType = "åŠ ç­" Then
-            If nextAttType <> "åŠ ç­çµæŸ" Then
-                errorMsg = errorMsg +  "ç¬¬ " & i & " åˆ—ç‚ºåŠ ç­å¡ã€‚" & vbNewLine & "ç¬¬ " & i + 1 & " åˆ—æ‡‰è©²è¦æ‰“åŠ ç­çµæŸå¡ã€‚" & vbNewLine & vbNewLine
+        ElseIf prevAttType = "¥[¯Z" Then
+            If nextAttType <> "¥[¯Zµ²§ô" Then
+                errorMsg = errorMsg + "²Ä " & i & " ¦C¬°¥[¯Z¥d¡C" & vbNewLine & "²Ä " & i + 1 & " ¦CÀ³¸Ó­n¥´¥[¯Zµ²§ô¥d¡C" & vbNewLine & vbNewLine
             End If
         End If
 
@@ -80,11 +81,11 @@ Sub MAIN()
     colOverTime = 13
     colOverTime34 = 15
     colOverTime67 = 16
-    ' ç”±æ–¼å¾Œé¢åšæ¯”è¼ƒï¼Œæ‰€ä»¥éœ€è¦æ’å…¥ä¸€åˆ—ä¸åŒçš„ï¼Œé€™æ˜¯æ¯”è¼ƒ hack çš„éƒ¨åˆ†
+    ' ¥Ñ©ó«á­±°µ¤ñ¸û¡A©Ò¥H»İ­n´¡¤J¤@¦C¤£¦Pªº¡A³o¬O¤ñ¸û hack ªº³¡¤À
     arrOutput(UBound(arrOutput), colDayTime) = Day(arrInput(uBoundInput, colDayTime)) + 1
 
-    ' æ˜ŸæœŸå¹¾
-    ' æ™‚é–“
+    ' ¬P´Á´X
+    ' ®É¶¡
     For i = 2 To uBoundInput
 
         dayTime = arrInput(i, colDayTime)
@@ -102,19 +103,19 @@ Sub MAIN()
         attType = arrInput(i, colAttType)
         prevTime = arrOutput(i, colTime)
 
-        ' å¿½ç•¥å…¬å‡ºå…¬è¿”
+        ' ©¿²¤¤½¥X¤½ªğ
         j = i + 1
-        While arrInput(j, colAttType) = "å…¬å‡º" Or arrInput(j, colAttType) = "å…¬å‡ºè¿”å›"
+        While arrInput(j, colAttType) = "¤½¥X" Or arrInput(j, colAttType) = "¤½¥Xªğ¦^"
             j = j + 1
         Wend
 
         nextTime = arrOutput(j, colTime)
 
-        ' æ™‚æ•¸
-        ' çœŸå¯¦æ™‚æ•¸æ‰£ 1.5
-        If attType = "ä¸Šç­" Then
+        ' ®É¼Æ
+        ' ¯u¹ê®É¼Æ¦© 1.5
+        If attType = "¤W¯Z" Then
 
-            ' å››æ¨äº”å…¥
+            ' ¥|±Ë¤­¤J
             arrOutput(i, colHour) = Round((nextTime - prevTime) * 24, 3)
 
             If arrOutput(i, colHour) - 1.5 > 8 Then
@@ -130,18 +131,18 @@ Sub MAIN()
 
         End If
 
-        ' è«‹å‡æ™‚æ•¸
+        ' ½Ğ°²®É¼Æ
         If arrOutput(i, colRealHour) < 8 Then
             arrOutput(i, colLeave) = 8 - arrOutput(i, colRealHour)
         Else
             arrOutput(i, colLeave) = "-"
         End If
 
-        ' åŠ ç­æ™‚æ•¸
-        If attType = "åŠ ç­" Then
+        ' ¥[¯Z®É¼Æ
+        If attType = "¥[¯Z" Then
             dayTime = arrInput(i, colDayTime)
 
-            ' å¦‚æœæ˜¯é€±ä¸€åˆ°é€±äº”æ”¾å‡å°±ç„¡æ³•è™•ç†äº†ï¼Œéœ€è¦äººå·¥åˆ¤æ–·
+            ' ¦pªG¬O¶g¤@¨ì¶g¤­©ñ°²´NµLªk³B²z¤F¡A»İ­n¤H¤u§PÂ_
             If Weekday(dayTime, 2) < 5 And prevTime < weekdayOverTime And nextTime > weekdayOverTime Then
                 overTime = (nextTime - weekdayOverTime) * 24
 
@@ -150,14 +151,14 @@ Sub MAIN()
 
             End If
 
-            ' å››æ¨äº”å…¥
+            ' ¥|±Ë¤­¤J
             arrOutput(i, colOverTime) = Round(overTime, 3)
 
         End If
 
     Next i
 
-    ' è™•ç†åŠ ç­æ˜¯ 1.34 é‚„æ˜¯ 1.67
+    ' ³B²z¥[¯Z¬O 1.34 ÁÙ¬O 1.67
     lower = 2
     For i = 2 To uBoundInput - 1
 
@@ -168,13 +169,13 @@ Sub MAIN()
 
             upper = i
 
-            ' è¨ˆç®—ç•¶å¤©ç¸½æ™‚æ•¸
+            ' ­pºâ·í¤ÑÁ`®É¼Æ
             overTime = 0
             For j = lower To upper
                 overTime = overTime + arrOutput(j, colOverTime)
             Next j
 
-            ' åˆ¤æ–·æ˜¯ 1.34 æˆ– 1.67
+            ' §PÂ_¬O 1.34 ©Î 1.67
             If overTime > 2 Then
                 overTime34 = 2
                 overTime67 = overTime - 2
@@ -183,12 +184,12 @@ Sub MAIN()
                 overTime67 = 0
             End If
 
-            ' æ”¾åœ¨ç¬¬ä¸€å€‹åŠ ç­è™•
+            ' ©ñ¦b²Ä¤@­Ó¥[¯Z³B
             For j = lower To upper
 
                 attType = arrInput(j, colAttType)
 
-                If attType = "åŠ ç­" Then
+                If attType = "¥[¯Z" Then
 
                     arrOutput(j, colOverTime34) = overTime34
                     arrOutput(j, colOverTime67) = overTime67
@@ -206,7 +207,7 @@ Sub MAIN()
     Next i
 
     ' view
-    With Worksheets("å·¥æ™‚è¨ˆç®—çµæœ")
+    With Worksheets("¤u®É­pºâµ²ªG")
 
         .Range(.Columns(1), .Columns(16)).ClearContents
         .Range(.Cells(1, 1), .Cells(uBoundInput, UBound(arrOutput, 2))) = arrOutput
@@ -225,17 +226,17 @@ End Sub
 
 Function FontSetting()
 
-    With Worksheets("å·¥æ™‚")
+    With Worksheets("¤u®É")
         .Range(.Columns(1), .Columns(5)).Copy
     End With
 
-    With Worksheets("å·¥æ™‚è¨ˆç®—çµæœ")
+    With Worksheets("¤u®É­pºâµ²ªG")
 
-        ' Output é¡è‰²åŒæ­¥ Input
+        ' Output ÃC¦â¦P¨B Input
         .Cells(1, 1).PasteSpecial Paste:=xlPasteFormats, Operation:=xlNone, SkipBlanks:=False, Transpose:=False
         Application.CutCopyMode = False
         .Range(.Columns(1), .Columns(5)).Borders.LineStyle = xlContinuous
-        .Cells.Font.Name = "å¾®è»Ÿæ­£é»‘é«”"
+        .Cells.Font.Name = "·L³n¥¿¶ÂÅé"
         .Cells.Font.Name = "Calibri"
         .Cells.HorizontalAlignment = xlCenter
         .Cells.VerticalAlignment = xlCenter
@@ -243,3 +244,4 @@ Function FontSetting()
     End With
 
 End Function
+
