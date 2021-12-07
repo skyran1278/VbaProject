@@ -7,18 +7,78 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-' @license UTILS_CLASS v2.0.0
+' @license UTILS_CLASS v3.1.0
 ' UTILS_CLASS.vb
 '
-' Copyright (c) 2016-present, skyran
+' Copyright (c) 2016-present, ran
 '
 ' This source code is licensed under the MIT license found in the
 ' LICENSE file in the root directory of this source tree.
+'
+' - Getting Start
+' Dim ran As New UTILS_CLASS
+'
+' - All API
+' CreateDictionary
+' GetRangeToArray
+' GetRowEnd
+' RoundUp
+' ExecutionTime
+' PerformanceVBA
+' Min
+' Max
+' QuickSortArray
+' ParseJSON
+' ListPaths
+' GetFilteredValues
+' GetFilteredTable
+' OpenTextFile
 
-' TODO: 參考 lodash 文檔
-' If Then is FASTER than IIF
-' 若想要最佳化效能 還是需要自己寫一個針對的最快
-' 呼叫 function 比本地直接執行慢 3.5 倍左右，但是通常都還是會拆分 function，所以我認為沒差。
+Option Explicit
+
+Private time0 As Double
+Private p&, token, dic
+
+Function CreateDictionary(ByVal arr, ByVal colKey, ByVal colValue)
+'
+' 取代內建的 VLookup.
+' 也可用作取得 Unique Array
+'
+' @since 2.0.0
+' @param {array} [arr] to create dictionary table.
+' @param {number} [colKey] key column.
+' @param {number|boolean} [colValue] value column or false to use all value.
+' @return {object} [CreateDictionary] descrip.
+' @example
+' objDictionary.Item(key)
+
+    ' 設定 Dictionary
+    Set objDictionary = CreateObject("Scripting.Dictionary")
+
+    lbArr = LBound(arr, 1)
+    ubArr = UBound(arr, 1)
+
+    If colValue Then
+        For rowArr = lbArr To ubArr
+            If Not objDictionary.Exists(arr(rowArr, colKey)) Then
+                Call objDictionary.Add(arr(rowArr, colKey), arr(rowArr, colValue))
+            End If
+        Next rowArr
+    Else
+        For rowArr = lbArr To ubArr
+            If Not objDictionary.Exists(arr(rowArr, colKey)) Then
+                ' VBA 不能方便的存取整列整欄，所以用 Index
+                ' Application.WorksheetFunction.Index(array, 0, columnYouWant)
+                ' Application.WorksheetFunction.Index(array, rowYouWant, 0)
+                Call objDictionary.Add(arr(rowArr, colKey), Application.WorksheetFunction.Index(arr, rowArr, 0))
+            End If
+        Next rowArr
+    End If
+
+
+    Set CreateDictionary = objDictionary
+
+End Function
 
 
 Function GetRangeToArray(ws, rowStart, colStart, rowEnd, colEnd)
@@ -45,42 +105,41 @@ Function GetRowEnd(ws, col)
 
 End Function
 
-
-Function FontSetting(ws)
+' 使用這個要小心，會怪怪的
+' 估計是遇到了 VBA 底層的問題
+' 好像沒有其他辦法了
+' 0.5 + 0.5 可能為 0.999999999，這是規範的問題，比較難處理
+Function RoundUp(ByVal value As Double)
 '
-' 美化格式
+' 取代內建的 RoundUp
 '
 
-    With ws
-        .Cells.Font.Name = "微軟正黑體"
-        .Cells.Font.Name = "Calibri"
-        .Cells.HorizontalAlignment = xlCenter
-        .Cells.VerticalAlignment = xlCenter
-    End With
+    If Int(value) = value Then
+        RoundUp = value
+    Else
+        RoundUp = Int(value) + 1
+    End If
 
 End Function
 
 
-Function RoundUp(ByVal Value As Double)
-    If Int(Value) = Value Then
-        RoundUp = Value
-    Else
-        RoundUp = Int(Value) + 1
-    End If
-End Function
-
-
-Sub ExecutionTimeVBA(time0 As Double)
+Sub ExecutionTime(ByVal isOn As Boolean)
 '
-' 計算執行時間
+' 計算執行時間，取代 ExecutionTimeVBA
 '
-' @param time0(Double)
-
-    If Timer - time0 < 60 Then
-        MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
+' @since 2.2.0
+' @param {Boolean} [isOn] True = time0, False = show Msg.
+'
+    If isOn Then
+        time0 = Timer
     Else
-        MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
+        If Timer - time0 < 60 Then
+            MsgBox "Execution Time " & Application.Round((Timer - time0), 2) & " Sec", vbOKOnly
+        Else
+            MsgBox "Execution Time " & Application.Round((Timer - time0) / 60, 2) & " Min", vbOKOnly
+        End If
     End If
+
 
 End Sub
 
@@ -110,14 +169,15 @@ Sub PerformanceVBA(isOn As Boolean)
 
 End Sub
 
-
+' 速度是 APP.Min 的 10 倍
+' FIXME: 不知道為甚麼 ran 無法
 Function Min(ParamArray values() As Variant) As Variant
-   Dim minValue, Value As Variant
+   Dim minValue, value As Variant
 
    minValue = values(0)
 
-   For Each Value In values
-       If Value < minValue Then minValue = Value
+   For Each value In values
+       If value < minValue Then minValue = value
    Next
 
    Min = minValue
@@ -126,12 +186,12 @@ End Function
 
 
 Function Max(ParamArray values() As Variant) As Variant
-   Dim maxValue, Value As Variant
+   Dim maxValue, value As Variant
 
    maxValue = values(0)
 
-   For Each Value In values
-       If Value > maxValue Then maxValue = Value
+   For Each value In values
+       If value > maxValue Then maxValue = value
    Next
 
    Max = maxValue
@@ -139,7 +199,7 @@ Function Max(ParamArray values() As Variant) As Variant
 End Function
 
 
-Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin As Long = -1, Optional lngMax As Long = -1, Optional lngColumn As Long = 0)
+Sub QuickSortArray(ByRef SortArray As Variant, Optional lngMin = -1, Optional lngMax = -1, Optional lngColumn = 0)
     On Error Resume Next
 
     'Sort a 2-Dimensional array
@@ -255,30 +315,149 @@ Sub SpeedTest()
     Dim a As Double
 
     time0 = Timer
+
     Set APP = Application.WorksheetFunction
-    For i = 1 To 1000000
-        a = APP.Max(11, 2, 3)
-    Next i
-    Debug.Print Timer - time0
+    Dim ran As New UTILS_CLASS
 
-    time0 = Timer
-    For i = 1 To 1000000
-        a = Application.WorksheetFunction.Max(11, 2, 3)
-    Next i
-    Debug.Print Timer - time0
+    Dim generalInformation As Worksheet
+    Set generalInformation = Worksheets("General Information")
 
-    time0 = Timer
-    For i = 1 To 1000000
-        a = Application.Max(11, 2, 3)
-    Next i
-    Debug.Print Timer - time0
+    GENERAL_INFORMATION = ran.GetRangeToArray(generalInformation, 1, 4, 4, 12)
 
-    time0 = Timer
-    For i = 1 To 1000000
-        a = Max(11, 2, 3)
-    Next i
+    Set objDictionary = CreateDictionary(GENERAL_INFORMATION, 1, False)
+
+    Debug.Print objDictionary.Item("RF")(1)
+
+
     Debug.Print Timer - time0
 
 End Sub
 
+'-------------------------------------------------------------------
+' VBA JSON Parser
+' https://medium.com/swlh/excel-vba-parse-json-easily-c2213f4d8e7a
+'-------------------------------------------------------------------
+Function ParseJSON(json$, Optional key$ = "obj") As Object
+    p = 1
+    token = Tokenize(json)
+    Set dic = CreateObject("Scripting.Dictionary")
+    If token(p) = "{" Then ParseObj key Else ParseArr key
+    Set ParseJSON = dic
+End Function
 
+Function ParseObj(key$)
+    Do: p = p + 1
+        Select Case token(p)
+            Case "]"
+            Case "[":  ParseArr key
+            Case "{"
+                       If token(p + 1) = "}" Then
+                           p = p + 1
+                           dic.Add key, "null"
+                       Else
+                           ParseObj key
+                       End If
+
+            Case "}":  key = ReducePath(key): Exit Do
+            Case ":":  key = key & "." & token(p - 1)
+            Case ",":  key = ReducePath(key)
+            Case Else: If token(p + 1) <> ":" Then dic.Add key, token(p)
+        End Select
+    Loop
+End Function
+
+Function ParseArr(key$)
+    Dim e&
+    Do: p = p + 1
+        Select Case token(p)
+            Case "}"
+            Case "{":  ParseObj key & ArrayID(e)
+            Case "[":  ParseArr key
+            Case "]":  Exit Do
+            Case ":":  key = key & ArrayID(e)
+            Case ",":  e = e + 1
+            Case Else: dic.Add key & ArrayID(e), token(p)
+        End Select
+    Loop
+End Function
+
+'-------------------------------------------------------------------
+' Support Functions
+'-------------------------------------------------------------------
+Function Tokenize(s$)
+    Const Pattern = """(([^""\\]|\\.)*)""|[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?|\w+|[^\s""']+?"
+    Tokenize = RExtract(s, Pattern, True)
+End Function
+
+Function RExtract(s$, Pattern, Optional bGroup1Bias As Boolean, Optional bGlobal As Boolean = True)
+  Dim c&, m, n, v
+  With CreateObject("vbscript.regexp")
+    .Global = bGlobal
+    .MultiLine = False
+    .IgnoreCase = True
+    .Pattern = Pattern
+    If .TEST(s) Then
+      Set m = .Execute(s)
+      ReDim v(1 To m.Count)
+      For Each n In m
+        c = c + 1
+        v(c) = n.value
+        If bGroup1Bias Then If Len(n.submatches(0)) Or n.value = """""" Then v(c) = n.submatches(0)
+      Next
+    End If
+  End With
+  RExtract = v
+End Function
+
+Function ArrayID$(e)
+    ArrayID = "(" & e & ")"
+End Function
+
+Function ReducePath$(key$)
+    If InStr(key, ".") Then ReducePath = Left(key, InStrRev(key, ".") - 1) Else ReducePath = key
+End Function
+
+Function ListPaths(dic)
+    Dim s$, v
+    For Each v In dic
+        s = s & v & " --> " & dic(v) & vbLf
+    Next
+    Debug.Print s
+End Function
+
+Function GetFilteredValues(dic, match)
+    Dim c&, i&, v, w
+    v = dic.keys
+    ReDim w(1 To dic.Count)
+    For i = 0 To UBound(v)
+        If v(i) Like match Then
+            c = c + 1
+            w(c) = dic(v(i))
+        End If
+    Next
+    ReDim Preserve w(1 To c)
+    GetFilteredValues = w
+End Function
+
+Function GetFilteredTable(dic, cols)
+    Dim c&, i&, j&, v, w, z
+    v = dic.keys
+    z = GetFilteredValues(dic, cols(0))
+    ReDim w(1 To UBound(z), 1 To UBound(cols) + 1)
+    For j = 1 To UBound(cols) + 1
+         z = GetFilteredValues(dic, cols(j - 1))
+         For i = 1 To UBound(z)
+            w(i, j) = z(i)
+         Next
+    Next
+    GetFilteredTable = w
+End Function
+
+Function OpenTextFile$(f)
+    With CreateObject("ADODB.Stream")
+        .Charset = "utf-8"
+        .Open
+        .LoadFromFile f
+        OpenTextFile = .ReadText
+    End With
+End Function
