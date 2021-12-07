@@ -27,12 +27,13 @@ Sub MAIN()
     ' 平日算加班時間
     weekdayOverTime = TimeValue("18:30")
 
-    time0 = Timer
+    Call ran.ExecutionTime(True)
     Call ran.PerformanceVBA(True)
 
     ' Model
     arrInput = ran.GetRangeToArray(ws, 1, 1, 5, 5)
     uBoundInput = UBound(arrInput)
+    colName = 3
     colAttType = 4
     colDayTime = 5
 
@@ -67,6 +68,18 @@ Sub MAIN()
         MsgBox errorMsg, 0, "ERROR"
         Exit Sub
     End If
+
+    If arrInput(2, colName) = "" Then
+        MsgBox "第一列一定要有名字", 0, "ERROR"
+        Exit Sub
+    End If
+
+    ' fill name
+    For i = 2 To uBoundInput - 2
+        If arrInput(i + 1, colName) = "" Then
+            arrInput(i + 1, colName) = arrInput(i, colName)
+        End If
+    Next i
 
     ' controller
     ' arrOutput = arrInput
@@ -165,7 +178,10 @@ Sub MAIN()
         prevDay = Day(arrInput(i, colDayTime))
         nextDay = Day(arrInput(i + 1, colDayTime))
 
-        If prevDay <> nextDay Or i + 1 = uBoundInput Then
+        prevName = arrInput(i, colName)
+        nextName = arrInput(i + 1, colName)
+
+        If prevName <> nextName Or prevDay <> nextDay Or i + 1 = uBoundInput Then
 
             upper = i
 
@@ -219,7 +235,7 @@ Sub MAIN()
     Call FontSetting
 
     Call ran.PerformanceVBA(False)
-    Call ran.ExecutionTimeVBA(time0)
+    Call ran.ExecutionTime(False)
 
 End Sub
 
@@ -244,4 +260,3 @@ Function FontSetting()
     End With
 
 End Function
-
