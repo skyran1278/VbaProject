@@ -7,16 +7,13 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
-' @license Version v4.0.0
+' @license Version v4.1.0
 ' In the VBE Editor set a reference to "Microsoft Visual Basic For Applications Extensibility 5.3" and to "Microsoft Scripting Runtime" and then save the file.
+' 依賴 UTILS_CLASS.cls, version.bas
 Option Explicit
 
-' 每次更新版本都需要修改
-' 由於改成強制更新，所以要拉到 private，不讓 user 可以自己更改
-Private Const CURRENT_VERSION = "3.0.1"
-
 ' 隨工作簿不同而需更改的參數:
-Private Const SERVICE_NAME = "AttendanceRecords"
+Private Const SERVICE_NAME = "AttendanceRecord"
 
 Private Const BASE_URL = "https://tammkyq18g.execute-api.ap-southeast-1.amazonaws.com"
 Private ran As New UTILS_CLASS
@@ -40,10 +37,10 @@ Private Sub Workbook_Open()
 
     latestVersion = getLatestVersion()
 
-    If CURRENT_VERSION <> latestVersion Then
+    If getVersion() <> latestVersion Then
         newFilePath = Application.ActiveWorkbook.Path & Application.PathSeparator & SERVICE_NAME & " " & latestVersion & ".xlsm"
 
-        downloadLatestFileToCurrentFolder(newFilePath)
+        downloadLatestFileToCurrentFolder (newFilePath)
 
         MsgBox "將開啟新版程式 (舊版本將無法執行程式)", vbOKOnly
 
@@ -56,8 +53,8 @@ Private Sub Workbook_Open()
         Exit Sub
     End If
 
-    If isWrongPassword() Then
-        MsgBox "Wrong password, " & ActiveWorkbook.Name & " will be close."
+    If isInvalid() Then
+        MsgBox ActiveWorkbook.Name & " will be close."
         ThisWorkbook.Close SaveChanges:=False
     End If
 
@@ -82,7 +79,7 @@ ErrorHandler:
 End Sub
 
 
-Function isWrongPassword()
+Function isInvalid()
 '
 ' 驗證密碼.
 '
@@ -102,9 +99,9 @@ Function isWrongPassword()
     winHttpRequset.Open "POST", securityURL, False
     winHttpRequset.send "{""password"":" & inputPassword & "}"
 
-    isWrongPassword = True
+    isInvalid = True
     If winHttpRequset.Status = 200 Then
-        isWrongPassword = False
+        isInvalid = False
     Else
         Set res = ran.ParseJSON(winHttpRequset.ResponseText)
         MsgBox res("obj.message")
@@ -154,7 +151,7 @@ Function downloadLatestFileToCurrentFolder(newFilePath)
     oStream.Open
     oStream.Type = 1
     oStream.Write winHttpRequset.responseBody
-    oStream.SaveToFile(newFilePath)
+    oStream.SaveToFile (newFilePath)
     oStream.Close
 End Function
 
