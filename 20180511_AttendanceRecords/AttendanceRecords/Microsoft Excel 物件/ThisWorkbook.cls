@@ -42,7 +42,7 @@ Private Sub Workbook_Open()
 
         downloadLatestFileToCurrentFolder (newFilePath)
 
-        MsgBox "將開啟新版程式 (舊版本將無法執行程式)", vbOKOnly
+        MsgBox "檢查到新版本, 將開啟新版程式 (舊版本將無法執行程式).", vbOKOnly
 
         Workbooks.Open Filename:=newFilePath
 
