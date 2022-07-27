@@ -21,6 +21,13 @@ Sub MAIN()
     Dim nextTime As Date
     Dim weekdayOverTime As Date
 
+    On Error GoTo errorHandler
+
+    If Not isGreaterOrEqualToRequireVersion(getVersion(), getLatestVersion()) Then
+        MsgBox "舊版無法執行程式, 請將資料複製到新版本", vbOKOnly
+        Exit Sub
+    End If
+
     ' Global Var
     Set ran = New UTILS_CLASS
     Set ws = Worksheets("工時")
@@ -64,18 +71,17 @@ Sub MAIN()
 
     Next i
 
-    If errorMsg <> "" Then
-        MsgBox errorMsg, 0, "ERROR"
-        Exit Sub
+    If arrInput(2, colName) = "" Then
+        errorMsg = errorMsg + "第 2 列缺少 userName" & vbNewLine & vbNewLine
     End If
 
-    If arrInput(2, colName) = "" Then
-        MsgBox "第一列一定要有名字", 0, "ERROR"
-        Exit Sub
+    If errorMsg <> "" Then
+        MsgBox errorMsg, 0, "ERROR"
+        GoTo errorHandler
     End If
 
     ' fill name
-    For i = 2 To uBoundInput - 2
+    For i = 2 To uBoundInput - 1
         If arrInput(i + 1, colName) = "" Then
             arrInput(i + 1, colName) = arrInput(i, colName)
         End If
@@ -236,6 +242,11 @@ Sub MAIN()
 
     Call ran.PerformanceVBA(False)
     Call ran.ExecutionTime(False)
+
+    Exit Sub
+
+errorHandler:
+    Call ran.PerformanceVBA(False)
 
 End Sub
 
