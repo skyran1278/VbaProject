@@ -14,7 +14,15 @@
 
 [Paul](https://github.com/skyran1278)
 
-# License
+## SOP
 
-All of the codebases are **MIT licensed** unless otherwise specified.
+   1. 更改 source file
+   2. Import 程式碼 (Ctrl + Shift + I )
+   3. Export 程式碼 (Ctrl + Shift + E )
+   4. 更新 Release Notes 頁籤版本資訊
+   5. version.bas 更新版本資訊
+   6. Commit
+   7. 更新 AWS (VERSION.json, *.xlsm)
+   8. 完成
 
+以後應該可以把更新 AWS 自動化，不用人工操作。一旦 commit 直接部署到 AWS，就可以自動更新。
