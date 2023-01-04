@@ -120,7 +120,11 @@ Function GroupByFixedSizeChunk(ByRef dict As Object, chunkSize As Long) As Colle
             ReDim subArray(1 To chunkSize)
             Dim j As Long
             For j = 1 To chunkSize
-                Set subArray(j) = taipowerModels(j - 1 + i)
+                If IsEmpty(taipowerModels(j - 1 + i)) Then
+                    Set subArray(j) = New TaipowerModel
+                Else
+                    Set subArray(j) = taipowerModels(j - 1 + i)
+                End If
             Next j
             outputCollection.Add subArray
         Next
@@ -157,7 +161,7 @@ Function GroupByElectricNumber(ByRef arr As Variant) As Object
         newModel.DifferentValue = arr(row, 36)
 
         Dim key As String
-        key = newModel.District & "_" & newModel.BusinessArea
+        key = newModel.CalculationDay & "_" & newModel.BusinessArea
 
         Dim taipowerModelCollection As Collection
         If dict.Exists(key) Then
