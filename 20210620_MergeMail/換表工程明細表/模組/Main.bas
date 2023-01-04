@@ -159,21 +159,33 @@ Function GroupByElectricNumber(ByRef arr As Variant) As Object
         Dim key As String
         key = newModel.District & "_" & newModel.BusinessArea
 
-        ' The ReDim Preserve statement is used to resize the array of TaipowerModel objects, but it can cause performance issues if the array needs to be resized frequently.
-        ' Instead, you could consider using a Collection object or a Scripting.Dictionary object to store the TaipowerModel objects, which do not have a fixed size and can be easily added to or removed from.
+        Dim taipowerModelCollection As Collection
         If dict.Exists(key) Then
-            Dim existArray As Variant
-            existArray = dict(key)
-            ReDim Preserve existArray(1 To UBound(existArray) + 1)
-            Set existArray(UBound(existArray)) = newModel
-
-            dict(key) = existArray
+            Set taipowerModelCollection = dict(key)
+            taipowerModelCollection.Add newModel
         Else
-            Dim newArray(1 To 1) As TaipowerModel
-            Set newArray(1) = newModel
-            dict.Add key, newArray
+            Set taipowerModelCollection = New Collection
+            taipowerModelCollection.Add newModel
+            dict.Add key, taipowerModelCollection
         End If
     Next row
 
+    Dim key2 As Variant
+    For Each key2 In dict.keys
+        dict(key2) = collectionToArray(dict(key2))
+    Next
+
     Set GroupByElectricNumber = dict
+End Function
+
+Function collectionToArray(collect As Collection) As Variant()
+    Dim arr() As Variant
+    ReDim arr(1 To collect.count)
+
+    Dim i As Long
+    For i = 1 To collect.count
+        Set arr(i) = collect.item(i)
+    Next
+
+    collectionToArray = arr
 End Function
