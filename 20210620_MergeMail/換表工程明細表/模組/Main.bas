@@ -103,7 +103,7 @@ Sub TaipowerModelToArray2(ByRef TaipowerModel As Variant, row As Long, ByRef out
     outputArray(row + 18, 16) = Mid(TaipowerModel.CurrentValue, 3, 1)
     outputArray(row + 18, 17) = Mid(TaipowerModel.CurrentValue, 4, 1)
     outputArray(row + 18, 18) = Right(TaipowerModel.CurrentValue, 1)
-    outputArray(row + 18, 19) = " (" & Left(TaipowerModel.DifferentValue, 1) & ")"
+    outputArray(row + 18, 19) = " (" & TaipowerModel.DifferentValue & ")"
     outputArray(row + 18, 32) = TaipowerModel.Phone1 & " " & TaipowerModel.Phone2
 End Sub
 
