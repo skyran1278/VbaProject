@@ -4,12 +4,11 @@ Option Explicit
 Dim ran As New Utils
 
 Sub Main()
-    ' ran.PerformanceVBA(True)
     ' input array and sort by 電號
     Dim inputSheet As Worksheet
     Set inputSheet = Worksheets("輸入")
     Dim inputArray As Variant
-    inputArray = ran.GetRangeValues(inputSheet, 2, 1, ran.GetEndRowByCol(inputSheet, 3), 35)
+    inputArray = ran.GetRangeValues(inputSheet, 2, 1, ran.GetEndRowByCol(inputSheet, 3), 36)
     ran.QuickSortArray inputArray, , , 4
 
     ' group by 計算日 and 營業區
@@ -47,8 +46,6 @@ Sub Main()
     ' output array
     outputSheet.Range(outputSheet.Cells(1, 1), outputSheet.Cells(UBound(outputArray, 1), UBound(outputArray, 2))).value = outputArray
 
-    ' ran.PerformanceVBA(False)
-
 End Sub
 
 Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef outputArray As Variant) As Variant
@@ -76,7 +73,7 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
     TaipowerModelToArray = outputArray
 End Function
 
-Sub TaipowerModelToArray2(ByRef taipowerModel As Variant, row As Long, ByRef outputArray As Variant)
+Sub TaipowerModelToArray2(ByRef TaipowerModel As Variant, row As Long, ByRef outputArray As Variant)
     outputArray(row + 13, 1) = Left(TaipowerModel.AccountNumber, 1)
     outputArray(row + 13, 2) = Mid(TaipowerModel.AccountNumber, 2, 1)
     outputArray(row + 13, 3) = Mid(TaipowerModel.AccountNumber, 3, 1)
@@ -86,6 +83,7 @@ Sub TaipowerModelToArray2(ByRef taipowerModel As Variant, row As Long, ByRef out
     outputArray(row + 13, 7) = TaipowerModel.CheckNumber
     outputArray(row + 13, 17) = TaipowerModel.Matter
     outputArray(row + 14, 32) = TaipowerModel.UserName
+    outputArray(row + 14, 57) = TaipowerModel.Coordinate & chr(10) & TaipowerModel.PoleNumber
     outputArray(row + 16, 32) = "用電地址: " & TaipowerModel.ElectricAddress
     outputArray(row + 17, 8) = Left(TaipowerModel.ElectricMeterNumber, 8)
     outputArray(row + 17, 19) = Left(TaipowerModel.Type1, 1)
@@ -100,7 +98,12 @@ Sub TaipowerModelToArray2(ByRef taipowerModel As Variant, row As Long, ByRef out
     outputArray(row + 17, 28) = Mid(TaipowerModel.VerificationDeadline, 5, 1)
     outputArray(row + 17, 29) = Mid(TaipowerModel.VerificationDeadline, 6, 1)
     outputArray(row + 17, 32) = "通訊地址: " & TaipowerModel.MailAddress
-    outputArray(row + 18, 14) = TaipowerModel.CurrentValue
+    outputArray(row + 18, 14) = Left(TaipowerModel.CurrentValue, 1)
+    outputArray(row + 18, 15) = Mid(TaipowerModel.CurrentValue, 2, 1)
+    outputArray(row + 18, 16) = Mid(TaipowerModel.CurrentValue, 3, 1)
+    outputArray(row + 18, 17) = Mid(TaipowerModel.CurrentValue, 4, 1)
+    outputArray(row + 18, 18) = Right(TaipowerModel.CurrentValue, 1)
+    outputArray(row + 18, 19) = " (" & Left(TaipowerModel.DifferentValue, 1) & ")"
     outputArray(row + 18, 32) = TaipowerModel.Phone1 & " " & TaipowerModel.Phone2
 End Sub
 
@@ -149,6 +152,9 @@ Function GroupByElectricNumber(ByRef arr As Variant) As Object
         newModel.MailAddress = arr(row, 26)
         newModel.Phone1 = arr(row, 27)
         newModel.Phone2 = arr(row, 28)
+        newModel.Coordinate = arr(row, 30)
+        newModel.PoleNumber = arr(row, 31)
+        newModel.DifferentValue = arr(row, 36)
 
         Dim key As String
         key = newModel.District & "_" & newModel.BusinessArea

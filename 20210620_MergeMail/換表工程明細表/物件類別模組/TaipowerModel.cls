@@ -25,6 +25,9 @@ Private m_ElectricAddress As String
 Private m_MailAddress As String
 Private m_Phone1 As String
 Private m_Phone2 As String
+Private m_Coordinate As String
+Private m_PoleNumber As String
+Private m_DifferentValue As String
 
 Public Property Get CalculationDay() As String
     CalculationDay = m_CalculationDay
@@ -149,4 +152,25 @@ Public Property Get Matter() As String
 End Property
 Public Property Let Matter(value As String)
     m_Matter = value
+End Property
+
+Public Property Get Coordinate() As String
+    Coordinate = m_Coordinate
+End Property
+Public Property Let Coordinate(value As String)
+    m_Coordinate = value
+End Property
+
+Public Property Get PoleNumber() As String
+    PoleNumber = m_PoleNumber
+End Property
+Public Property Let PoleNumber(value As String)
+    m_PoleNumber = value
+End Property
+
+Public Property Get DifferentValue() As String
+    DifferentValue = m_DifferentValue
+End Property
+Public Property Let DifferentValue(value As String)
+    m_DifferentValue = value
 End Property
