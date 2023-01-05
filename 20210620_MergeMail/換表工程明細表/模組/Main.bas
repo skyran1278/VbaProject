@@ -57,12 +57,12 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
         Dim row As Long
         row = (i - 1) * 41
         outputArray(row + 2, 46) = "頁數 " & i
-        outputArray(row + 7, 2) = Left(taipowerModels(1).CalculationDay, 1)
-        outputArray(row + 7, 3) = Right(taipowerModels(1).CalculationDay, 1)
-        outputArray(row + 7, 4) = Left(taipowerModels(1).District, 1)
-        outputArray(row + 7, 5) = Right(taipowerModels(1).District, 1)
-        outputArray(row + 7, 6) = Left(taipowerModels(1).BusinessArea, 1)
-        outputArray(row + 7, 7) = Right(taipowerModels(1).BusinessArea, 1)
+        outputArray(row + 7, 2) = Mid(taipowerModels(1).CalculationDay, 1, 1)
+        outputArray(row + 7, 3) = Mid(taipowerModels(1).CalculationDay, 2, 1)
+        outputArray(row + 7, 4) = Mid(taipowerModels(1).District, 1, 1)
+        outputArray(row + 7, 5) = Mid(taipowerModels(1).District, 2, 1)
+        outputArray(row + 7, 6) = Mid(taipowerModels(1).BusinessArea, 1, 1)
+        outputArray(row + 7, 7) = Mid(taipowerModels(1).BusinessArea, 2, 1)
 
         TaipowerModelToArray2 taipowerModels(1), row, outputArray
         TaipowerModelToArray2 taipowerModels(2), row + 11, outputArray
@@ -74,35 +74,35 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
 End Function
 
 Sub TaipowerModelToArray2(ByRef TaipowerModel As Variant, row As Long, ByRef outputArray As Variant)
-    outputArray(row + 13, 1) = Left(TaipowerModel.AccountNumber, 1)
+    outputArray(row + 13, 1) = Mid(TaipowerModel.AccountNumber, 1, 1)
     outputArray(row + 13, 2) = Mid(TaipowerModel.AccountNumber, 2, 1)
     outputArray(row + 13, 3) = Mid(TaipowerModel.AccountNumber, 3, 1)
-    outputArray(row + 13, 4) = Right(TaipowerModel.AccountNumber, 1)
-    outputArray(row + 13, 5) = Left(TaipowerModel.CategoryNumber, 1)
-    outputArray(row + 13, 6) = Right(TaipowerModel.CategoryNumber, 1)
+    outputArray(row + 13, 4) = Mid(TaipowerModel.AccountNumber, 4, 1)
+    outputArray(row + 13, 5) = Mid(TaipowerModel.CategoryNumber, 1, 1)
+    outputArray(row + 13, 6) = Mid(TaipowerModel.CategoryNumber, 2, 1)
     outputArray(row + 13, 7) = TaipowerModel.CheckNumber
     outputArray(row + 13, 17) = TaipowerModel.Matter
     outputArray(row + 14, 32) = TaipowerModel.UserName
     outputArray(row + 14, 57) = TaipowerModel.Coordinate & chr(10) & TaipowerModel.PoleNumber
     outputArray(row + 16, 32) = "用電地址: " & TaipowerModel.ElectricAddress
     outputArray(row + 17, 8) = Left(TaipowerModel.ElectricMeterNumber, 8)
-    outputArray(row + 17, 19) = Left(TaipowerModel.Type1, 1)
-    outputArray(row + 17, 20) = Right(TaipowerModel.Type1, 1)
-    outputArray(row + 17, 21) = Left(TaipowerModel.Ampere, 1)
-    outputArray(row + 17, 22) = Right(TaipowerModel.Ampere, 1)
-    outputArray(row + 17, 23) = Left(TaipowerModel.Multiple, 1)
-    outputArray(row + 17, 24) = Right(TaipowerModel.Multiple, 1)
-    outputArray(row + 17, 25) = Left(TaipowerModel.VerificationDeadline, 1)
+    outputArray(row + 17, 19) = Mid(TaipowerModel.Type1, 1, 1)
+    outputArray(row + 17, 20) = Mid(TaipowerModel.Type1, 2, 1)
+    outputArray(row + 17, 21) = Mid(TaipowerModel.Ampere, 1, 1)
+    outputArray(row + 17, 22) = Mid(TaipowerModel.Ampere, 2, 1)
+    outputArray(row + 17, 23) = Mid(TaipowerModel.Multiple, 1, 1)
+    outputArray(row + 17, 24) = Mid(TaipowerModel.Multiple, 2, 1)
+    outputArray(row + 17, 25) = Mid(TaipowerModel.VerificationDeadline, 1, 1)
     outputArray(row + 17, 26) = Mid(TaipowerModel.VerificationDeadline, 2, 1)
     outputArray(row + 17, 27) = Mid(TaipowerModel.VerificationDeadline, 3, 1)
     outputArray(row + 17, 28) = Mid(TaipowerModel.VerificationDeadline, 5, 1)
     outputArray(row + 17, 29) = Mid(TaipowerModel.VerificationDeadline, 6, 1)
     outputArray(row + 17, 32) = "通訊地址: " & TaipowerModel.MailAddress
-    outputArray(row + 18, 14) = Left(TaipowerModel.CurrentValue, 1)
+    outputArray(row + 18, 14) = Mid(TaipowerModel.CurrentValue, 1, 1)
     outputArray(row + 18, 15) = Mid(TaipowerModel.CurrentValue, 2, 1)
     outputArray(row + 18, 16) = Mid(TaipowerModel.CurrentValue, 3, 1)
     outputArray(row + 18, 17) = Mid(TaipowerModel.CurrentValue, 4, 1)
-    outputArray(row + 18, 18) = Right(TaipowerModel.CurrentValue, 1)
+    outputArray(row + 18, 18) = Mid(TaipowerModel.CurrentValue, 5, 1)
     outputArray(row + 18, 19) = " (" & TaipowerModel.DifferentValue & ")"
     outputArray(row + 18, 32) = TaipowerModel.Phone1 & " " & TaipowerModel.Phone2
 End Sub
