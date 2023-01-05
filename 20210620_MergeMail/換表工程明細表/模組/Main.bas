@@ -9,15 +9,10 @@ Sub Main()
     Set inputSheet = Worksheets("輸入")
     Dim inputArray As Variant
     inputArray = ran.GetRangeValues(inputSheet, 2, 1, ran.GetEndRowByCol(inputSheet, 3), 36)
-    ran.QuickSortArray inputArray, , , 4
 
     ' group by 計算日 and 營業區
-    Dim dict As Object
-    Set dict = GroupByElectricNumber(inputArray)
-
-    ' The Collection to store the fixed-size arrays
     Dim outputCollection As New Collection
-    Set outputCollection = GroupByFixedSizeChunk(dict, 3)
+    Set outputCollection = GroupByElectricNumber(inputArray)
 
     ' clear output sheet
     Dim outputSheet As Worksheet
@@ -30,12 +25,7 @@ Sub Main()
     srcSheet.Range("A1:BO41").Copy
     Dim i As Long
     For i = 0 To outputCollection.count - 1
-        With outputSheet.Range(outputSheet.Cells(1 + i * 41, 1), outputSheet.Cells(1 + (i + 1) * 41, 67))
-            .PasteSpecial xlPasteAll
-            ' .PasteSpecial xlPasteColumnWidths
-            ' .PasteSpecial xlPasteValues, , False, False
-            ' .PasteSpecial xlPasteFormats, , False, False
-        End With
+        outputSheet.Range(outputSheet.Cells(1 + i * 41, 1), outputSheet.Cells(1 + (i + 1) * 41, 67)).PasteSpecial xlPasteAll
     Next i
 
     ' fill value
@@ -64,16 +54,21 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
         outputArray(row + 7, 6) = Mid(taipowerModels(1).BusinessArea, 1, 1)
         outputArray(row + 7, 7) = Mid(taipowerModels(1).BusinessArea, 2, 1)
 
-        TaipowerModelToArray2 taipowerModels(1), row, outputArray
-        TaipowerModelToArray2 taipowerModels(2), row + 11, outputArray
-        TaipowerModelToArray2 taipowerModels(3), row + 22, outputArray
+        TaipowerModelToSubArray taipowerModels(1), row, outputArray
+        TaipowerModelToSubArray taipowerModels(2), row + 11, outputArray
+        TaipowerModelToSubArray taipowerModels(3), row + 22, outputArray
 
     Next i
 
     TaipowerModelToArray = outputArray
 End Function
 
-Sub TaipowerModelToArray2(ByRef TaipowerModel As Variant, row As Long, ByRef outputArray As Variant)
+Sub TaipowerModelToSubArray(ByRef TaipowerModel As Variant, row As Long, ByRef outputArray As Variant)
+' 將子表格的資料填入
+    If IsEmpty(TaipowerModel) Then
+        Exit Sub
+    End If
+
     outputArray(row + 13, 1) = Mid(TaipowerModel.AccountNumber, 1, 1)
     outputArray(row + 13, 2) = Mid(TaipowerModel.AccountNumber, 2, 1)
     outputArray(row + 13, 3) = Mid(TaipowerModel.AccountNumber, 3, 1)
@@ -107,35 +102,21 @@ Sub TaipowerModelToArray2(ByRef TaipowerModel As Variant, row As Long, ByRef out
     outputArray(row + 18, 32) = TaipowerModel.Phone1 & " " & TaipowerModel.Phone2
 End Sub
 
-Function GroupByFixedSizeChunk(ByRef dict As Object, chunkSize As Long) As Collection
-    Dim outputCollection As New Collection
+Function GroupByElectricNumber(ByRef arr As Variant) As Collection
+' 1. 按照電號排列
+' 2. 連續且相同的計算日與營業區會變成同一頁
+' 3. 但如果同一頁超過三個要變成下一頁
+    Dim modelsCollection As New Collection
 
-    Dim taipowerModels As Variant
-    For Each taipowerModels In dict.Items
-        ReDim Preserve taipowerModels(1 To ran.RoundUp(UBound(taipowerModels) / 3) * 3)
-        Dim i As Long
-        For i = LBound(taipowerModels) To UBound(taipowerModels) Step chunkSize
-            ' Add the fixed-size array to the Collection
-            Dim subArray As Variant
-            ReDim subArray(1 To chunkSize)
-            Dim j As Long
-            For j = 1 To chunkSize
-                If IsEmpty(taipowerModels(j - 1 + i)) Then
-                    Set subArray(j) = New TaipowerModel
-                Else
-                    Set subArray(j) = taipowerModels(j - 1 + i)
-                End If
-            Next j
-            outputCollection.Add subArray
-        Next
-    Next taipowerModels
+    ran.QuickSortArray arr, , , 4
 
-    Set GroupByFixedSizeChunk = outputCollection
-End Function
+    Dim previousKey As String
+    previousKey = ""
 
-Function GroupByElectricNumber(ByRef arr As Variant) As Object
-    Dim dict As Object
-    Set dict = CreateObject("Scripting.Dictionary")
+    Dim subArray As Variant
+    ReDim subArray(1 To 3)
+    Dim subArrayIndex As Long
+    subArrayIndex = 1
 
     Dim row As Long
     For row = LBound(arr, 1) To UBound(arr, 1)
@@ -160,36 +141,25 @@ Function GroupByElectricNumber(ByRef arr As Variant) As Object
         newModel.PoleNumber = arr(row, 31)
         newModel.DifferentValue = arr(row, 36)
 
-        Dim key As String
-        key = newModel.CalculationDay & "_" & newModel.BusinessArea
-
-        Dim taipowerModelCollection As Collection
-        If dict.Exists(key) Then
-            Set taipowerModelCollection = dict(key)
-            taipowerModelCollection.Add newModel
+        Dim newKey As String
+        newKey = newModel.CalculationDay & "_" & newModel.BusinessArea
+        If previousKey = newKey And subArrayIndex <= UBound(subArray) Then
+            Set subArray(subArrayIndex) = newModel
         Else
-            Set taipowerModelCollection = New Collection
-            taipowerModelCollection.Add newModel
-            dict.Add key, taipowerModelCollection
+            modelsCollection.Add subArray
+
+            subArrayIndex = 1
+            ReDim subArray(1 To 3)
+            Set subArray(subArrayIndex) = newModel
         End If
+
+        subArrayIndex = subArrayIndex + 1
+        previousKey = newKey
     Next row
 
-    Dim key2 As Variant
-    For Each key2 In dict.keys
-        dict(key2) = collectionToArray(dict(key2))
-    Next
+    ' 增加最後一筆資料並刪除第一筆空的資料
+    modelsCollection.Remove 1
+    modelsCollection.Add subArray
 
-    Set GroupByElectricNumber = dict
-End Function
-
-Function collectionToArray(collect As Collection) As Variant()
-    Dim arr() As Variant
-    ReDim arr(1 To collect.count)
-
-    Dim i As Long
-    For i = 1 To collect.count
-        Set arr(i) = collect.item(i)
-    Next
-
-    collectionToArray = arr
+    Set GroupByElectricNumber = modelsCollection
 End Function
