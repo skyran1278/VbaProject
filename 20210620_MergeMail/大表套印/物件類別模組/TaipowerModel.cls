@@ -13,13 +13,10 @@ Option Explicit
 Private m_CalculationDay As String
 Private m_ElectricNumber As String
 Private m_ElectricMeterNumber As String
-Private m_Type1 As String
-Private m_Ampere As String
 Private m_Multiple As String
 Private m_VerificationDeadline As String
 Private m_UserName As String
 Private m_NextDate As String
-Private m_CurrentValue As String
 Private m_Matter As String
 Private m_ElectricAddress As String
 Private m_MailAddress As String
@@ -27,7 +24,12 @@ Private m_Phone1 As String
 Private m_Phone2 As String
 Private m_Coordinate As String
 Private m_PoleNumber As String
-Private m_DifferentValue As String
+Private m_CurrentTransformer As String
+
+Private m_TableTypes As Variant
+Private m_Types As Variant
+Private m_CurrentValues As Variant
+Private m_DifferentValues As Variant
 
 Public Property Get CalculationDay() As String
     CalculationDay = m_CalculationDay
@@ -70,18 +72,26 @@ Public Property Let ElectricMeterNumber(value As String)
     m_ElectricMeterNumber = value
 End Property
 
-Public Property Get Type1() As String
-    Type1 = m_Type1
-End Property
-Public Property Let Type1(value As String)
-    m_Type1 = value
+Public Property Get Ampere() As String
+    If m_Multiple = "01" Then
+        Ampere = "0030"
+    Else
+        Ampere = CStr(Val(m_Multiple) * 5)
+        If Len(Ampere) < 4 Then
+            Ampere = Format(Ampere, "0000")
+        End If
+    End If
 End Property
 
-Public Property Get Ampere() As String
-    Ampere = m_Ampere
-End Property
-Public Property Let Ampere(value As String)
-    m_Ampere = value
+Public Property Get CurrentTransformer() As String
+    If m_Multiple = "01" Then
+        CurrentTransformer = "    "
+    Else
+        CurrentTransformer = CStr(Val(m_Multiple) * 5)
+        If Len(CurrentTransformer) < 4 Then
+            CurrentTransformer = Format(CurrentTransformer, "0000")
+        End If
+    End If
 End Property
 
 Public Property Get Multiple() As String
@@ -126,13 +136,6 @@ Public Property Let MailAddress(value As String)
     m_MailAddress = value
 End Property
 
-Public Property Get CurrentValue() As String
-    CurrentValue = m_CurrentValue
-End Property
-Public Property Let CurrentValue(value As String)
-    m_CurrentValue = value
-End Property
-
 Public Property Get Phone1() As String
     Phone1 = m_Phone1
 End Property
@@ -168,9 +171,30 @@ Public Property Let PoleNumber(value As String)
     m_PoleNumber = value
 End Property
 
-Public Property Get DifferentValue() As String
-    DifferentValue = m_DifferentValue
+Public Property Get Types() As Variant
+    Types = m_Types
 End Property
-Public Property Let DifferentValue(value As String)
-    m_DifferentValue = value
+Public Property Let Types(value As Variant)
+    m_Types = value
+End Property
+
+Public Property Get CurrentValues() As Variant
+    CurrentValues = m_CurrentValues
+End Property
+Public Property Let CurrentValues(value As Variant)
+    m_CurrentValues = value
+End Property
+
+Public Property Get DifferentValues() As Variant
+    DifferentValues = m_DifferentValues
+End Property
+Public Property Let DifferentValues(value As Variant)
+    m_DifferentValues = value
+End Property
+
+Public Property Get TableTypes() As Variant
+    TableTypes = m_TableTypes
+End Property
+Public Property Let TableTypes(value As Variant)
+    m_TableTypes = value
 End Property
