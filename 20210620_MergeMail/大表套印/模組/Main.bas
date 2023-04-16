@@ -47,6 +47,8 @@ Sub Main()
     ' output array
     outputSheet.Range(outputSheet.Cells(1, 1), outputSheet.Cells(UBound(outputArray, 1), UBound(outputArray, 2))).value = outputArray
 
+    outputSheet.Activate
+
 End Sub
 
 Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef outputArray As Variant) As Variant
@@ -76,23 +78,26 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
         outputArray(row + 10, 10) = TaipowerModel.ElectricAddress
         outputArray(row + 12, 10) = TaipowerModel.MailAddress
         outputArray(row + 12, 47) = TaipowerModel.Phone1 & " " & TaipowerModel.Phone2
-        outputArray(row + 13, 79) = TaipowerModel.Coordinate & chr(10) & TaipowerModel.PoleNumber
+        outputArray(row + 13, 72) = TaipowerModel.Coordinate & chr(10) & TaipowerModel.PoleNumber
+        outputArray(row + 13, 88) = TaipowerModel.NextDate
+
         outputArray(row + 23, 16) = TaipowerModel.Matter
         outputArray(row + 23, 17) = Mid(TaipowerModel.Ampere, 1, 1)
         outputArray(row + 23, 18) = Mid(TaipowerModel.Ampere, 2, 1)
         outputArray(row + 23, 19) = Mid(TaipowerModel.Ampere, 3, 1)
         outputArray(row + 23, 20) = Mid(TaipowerModel.Ampere, 4, 1)
-        outputArray(row + 23, 33) = Mid(TaipowerModel.Multiple, 1, 1)
-        outputArray(row + 23, 34) = Mid(TaipowerModel.Multiple, 2, 1)
+        outputArray(row + 23, 21) = 5
+        outputArray(row + 23, 30) = Mid(TaipowerModel.Multiple, 1, 1)
+        outputArray(row + 23, 31) = Mid(TaipowerModel.Multiple, 2, 1)
+        outputArray(row + 23, 32) = Mid(TaipowerModel.Multiple, 3, 1)
+        outputArray(row + 23, 33) = Mid(TaipowerModel.Multiple, 4, 1)
+        outputArray(row + 23, 34) = Mid(TaipowerModel.Multiple, 5, 1)
         outputArray(row + 23, 72) = "W"
 
-
-
-        outputArray(row + 24, 17) = 0
-        outputArray(row + 24, 18) = 2
-        outputArray(row + 24, 19) = 0
-        outputArray(row + 24, 20) = 0
-        outputArray(row + 24, 21) = 5
+        outputArray(row + 24, 17) = Mid(TaipowerModel.Ampere, 1, 1)
+        outputArray(row + 24, 18) = Mid(TaipowerModel.Ampere, 2, 1)
+        outputArray(row + 24, 19) = Mid(TaipowerModel.Ampere, 3, 1)
+        outputArray(row + 24, 20) = Mid(TaipowerModel.Ampere, 4, 1)
         outputArray(row + 24, 22) = Mid(TaipowerModel.ElectricMeterNumber, 1, 1)
         outputArray(row + 24, 23) = Mid(TaipowerModel.ElectricMeterNumber, 2, 1)
         outputArray(row + 24, 24) = Mid(TaipowerModel.ElectricMeterNumber, 3, 1)
@@ -101,35 +106,38 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
         outputArray(row + 24, 27) = Mid(TaipowerModel.ElectricMeterNumber, 6, 1)
         outputArray(row + 24, 28) = Mid(TaipowerModel.ElectricMeterNumber, 7, 1)
         outputArray(row + 24, 29) = Mid(TaipowerModel.ElectricMeterNumber, 8, 1)
-        outputArray(row + 24, 33) = Mid(TaipowerModel.Multiple, 1, 1)
-        outputArray(row + 24, 34) = Mid(TaipowerModel.Multiple, 2, 1)
+        outputArray(row + 24, 30) = Mid(TaipowerModel.Multiple, 1, 1)
+        outputArray(row + 24, 31) = Mid(TaipowerModel.Multiple, 2, 1)
+        outputArray(row + 24, 32) = Mid(TaipowerModel.Multiple, 3, 1)
+        outputArray(row + 24, 33) = Mid(TaipowerModel.Multiple, 4, 1)
+        outputArray(row + 24, 34) = Mid(TaipowerModel.Multiple, 5, 1)
         outputArray(row + 24, 36) = Mid(TaipowerModel.VerificationDeadline, 1, 1)
         outputArray(row + 24, 37) = Mid(TaipowerModel.VerificationDeadline, 2, 1)
         outputArray(row + 24, 38) = Mid(TaipowerModel.VerificationDeadline, 3, 1)
         outputArray(row + 24, 39) = Mid(TaipowerModel.VerificationDeadline, 5, 1)
         outputArray(row + 24, 40) = Mid(TaipowerModel.VerificationDeadline, 6, 1)
+
         outputArray(row + 44, 9) = Mid(TaipowerModel.CurrentTransformer, 1, 1)
         outputArray(row + 44, 10) = Mid(TaipowerModel.CurrentTransformer, 2, 1)
         outputArray(row + 44, 11) = Mid(TaipowerModel.CurrentTransformer, 3, 1)
         outputArray(row + 44, 12) = Mid(TaipowerModel.CurrentTransformer, 4, 1)
 
-        ' outputArray(row + 18, 19) = " (" & taipowerModel.DifferentValue & ")"
         outputArray(row + 46, 95) = i
 
-        Dim tableTypes As Variant
-        tableTypes = TaipowerModel.TableTypes
+        Dim TableTypes As Variant
+        TableTypes = TaipowerModel.TableTypes
 
-        Dim types As Variant
-        types = TaipowerModel.Types
-        Dim currentValues As Variant
-        currentValues = TaipowerModel.CurrentValues
-        Dim differentValues As Variant
-        differentValues = TaipowerModel.DifferentValues
+        Dim Types As Variant
+        Types = TaipowerModel.Types
+        Dim CurrentValues As Variant
+        CurrentValues = TaipowerModel.CurrentValues
+        Dim DifferentValues As Variant
+        DifferentValues = TaipowerModel.DifferentValues
 
         Dim tableTypeIndex As Long
-        For tableTypeIndex = LBound(tableTypes) To UBound(tableTypes)
+        For tableTypeIndex = LBound(TableTypes) To UBound(TableTypes)
             Dim tableTypeRow As Long
-            Select Case tableTypes(tableTypeIndex)
+            Select Case TableTypes(tableTypeIndex)
                 Case "01"
                     tableTypeRow = row + 23
                 Case "02"
@@ -151,24 +159,25 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
                 Case "12"
                     tableTypeRow = row + 41
                 Case Else
-                    MsgBox "出現未知的表別: " & tableTypes(tableTypeIndex)
+                    MsgBox "出現未知的表別: " & TableTypes(tableTypeIndex)
             End Select
             outputArray(tableTypeRow, 8) = 1
             outputArray(tableTypeRow, 9) = 0
             outputArray(tableTypeRow, 10) = 1
-            outputArray(tableTypeRow, 46) = currentValues(tableTypeIndex) & " (" & differentValues(tableTypeIndex) & ")"
+            outputArray(tableTypeRow, 41) = 0
+            outputArray(tableTypeRow, 42) = 0
+            outputArray(tableTypeRow, 43) = 0
+            outputArray(tableTypeRow, 46) = CurrentValues(tableTypeIndex) & "(" & DifferentValues(tableTypeIndex) & ")"
+
             outputArray(tableTypeRow + 1, 8) = 1
             outputArray(tableTypeRow + 1, 9) = 0
             outputArray(tableTypeRow + 1, 10) = 1
 
-            If tableTypeIndex <= UBound(types) Then
-                outputArray(tableTypeRow + 1, 14) = Mid(types(tableTypeIndex), 1, 1)
-                outputArray(tableTypeRow + 1, 15) = Mid(types(tableTypeIndex), 2, 1)
+            If tableTypeIndex <= UBound(Types) Then
+                outputArray(tableTypeRow + 1, 14) = Mid(Types(tableTypeIndex), 1, 1)
+                outputArray(tableTypeRow + 1, 15) = Mid(Types(tableTypeIndex), 2, 1)
             End If
 
-            outputArray(tableTypeRow + 1, 41) = 0
-            outputArray(tableTypeRow + 1, 42) = 0
-            outputArray(tableTypeRow + 1, 43) = 0
 
         Next tableTypeIndex
     Next i

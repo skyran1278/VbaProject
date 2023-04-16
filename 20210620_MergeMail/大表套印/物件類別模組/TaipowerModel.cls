@@ -95,7 +95,9 @@ Public Property Get CurrentTransformer() As String
 End Property
 
 Public Property Get Multiple() As String
-    Multiple = m_Multiple
+    If Len(CurrentTransformer) < 5 Then
+        Multiple = Format(m_Multiple, "00000")
+    End If
 End Property
 Public Property Let Multiple(value As String)
     m_Multiple = value
