@@ -27,15 +27,19 @@ Sub Main()
     ' copy format range
     Dim srcSheet As Worksheet
     Set srcSheet = Worksheets("¥Àª©")
-    srcSheet.Rows("1:47").Copy
+    srcSheet.Rows("1:94").Copy
     Dim i As Long
     For i = 0 To outputCollection.count - 1
-        outputSheet.Range(outputSheet.Cells(1 + i * 47, 1), outputSheet.Cells(1 + (i + 1) * 47, 95)).EntireRow.PasteSpecial Paste:=xlPasteFormats
+        outputSheet.Range(outputSheet.Cells(1 + i * 94, 1), outputSheet.Cells(1 + (i + 1) * 94, 95)).EntireRow.PasteSpecial Paste:=xlPasteFormats
+    Next i
+    srcSheet.Columns("A:CQ").Copy
+    For i = 0 To outputCollection.count - 1
+        outputSheet.Range(outputSheet.Cells(1 + i * 94, 1), outputSheet.Cells(1 + (i + 1) * 94, 95)).EntireColumn.PasteSpecial Paste:=xlPasteFormats
     Next i
 
-    srcSheet.Range("A1:CQ47").Copy
+    srcSheet.Range("A1:CQ94").Copy
     For i = 0 To outputCollection.count - 1
-        outputSheet.Paste Destination:=outputSheet.Cells(1 + i * 47, 1)
+        outputSheet.Paste Destination:=outputSheet.Cells(1 + i * 94, 1)
     Next i
 
     ' fill value
@@ -58,7 +62,7 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
         Set TaipowerModel = outputCollection.item(i)
 
         Dim row As Long
-        row = (i - 1) * 47
+        row = (i - 1) * 94
 
 
         outputArray(row + 8, 66) = Mid(TaipowerModel.CalculationDay, 1, 1)
