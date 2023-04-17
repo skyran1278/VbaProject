@@ -86,10 +86,10 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
         outputArray(row + 13, 88) = TaipowerModel.NextDate
 
         outputArray(row + 23, 16) = TaipowerModel.Matter
-        outputArray(row + 23, 17) = Mid(TaipowerModel.Ampere, 1, 1)
-        outputArray(row + 23, 18) = Mid(TaipowerModel.Ampere, 2, 1)
-        outputArray(row + 23, 19) = Mid(TaipowerModel.Ampere, 3, 1)
-        outputArray(row + 23, 20) = Mid(TaipowerModel.Ampere, 4, 1)
+        outputArray(row + 23, 17) = Mid(TaipowerModel.AmpereFromMultiple, 1, 1)
+        outputArray(row + 23, 18) = Mid(TaipowerModel.AmpereFromMultiple, 2, 1)
+        outputArray(row + 23, 19) = Mid(TaipowerModel.AmpereFromMultiple, 3, 1)
+        outputArray(row + 23, 20) = Mid(TaipowerModel.AmpereFromMultiple, 4, 1)
         outputArray(row + 23, 21) = 5
         outputArray(row + 23, 30) = Mid(TaipowerModel.Multiple, 1, 1)
         outputArray(row + 23, 31) = Mid(TaipowerModel.Multiple, 2, 1)
@@ -98,10 +98,10 @@ Function TaipowerModelToArray(ByRef outputCollection As Collection, ByRef output
         outputArray(row + 23, 34) = Mid(TaipowerModel.Multiple, 5, 1)
         outputArray(row + 23, 72) = "W"
 
-        outputArray(row + 24, 17) = Mid(TaipowerModel.Ampere, 1, 1)
-        outputArray(row + 24, 18) = Mid(TaipowerModel.Ampere, 2, 1)
-        outputArray(row + 24, 19) = Mid(TaipowerModel.Ampere, 3, 1)
-        outputArray(row + 24, 20) = Mid(TaipowerModel.Ampere, 4, 1)
+        outputArray(row + 24, 17) = Mid(TaipowerModel.AmpereFromMultiple, 1, 1)
+        outputArray(row + 24, 18) = Mid(TaipowerModel.AmpereFromMultiple, 2, 1)
+        outputArray(row + 24, 19) = Mid(TaipowerModel.AmpereFromMultiple, 3, 1)
+        outputArray(row + 24, 20) = Mid(TaipowerModel.AmpereFromMultiple, 4, 1)
         outputArray(row + 24, 22) = Mid(TaipowerModel.ElectricMeterNumber, 1, 1)
         outputArray(row + 24, 23) = Mid(TaipowerModel.ElectricMeterNumber, 2, 1)
         outputArray(row + 24, 24) = Mid(TaipowerModel.ElectricMeterNumber, 3, 1)
