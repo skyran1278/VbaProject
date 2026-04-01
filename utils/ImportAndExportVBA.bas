@@ -1,17 +1,39 @@
 ' https://www.rondebruin.nl/win/s9/win002.htm
 '
-' Import Export VBA Code
-' 僅支援 物件類別模組, 表單, 模組, ThisWorkbook
-' 不支援個別工作表的匯出
+' Import & Export VBA Code
+' Supports: Class Modules, UserForms, Standard Modules, ThisWorkbook
+' Does not support exporting worksheets individually
 '
-' 前提條件
-' In the VBE Editor set a reference to "Microsoft Visual Basic For Applications Extensibility 5.3" and to "Microsoft Scripting Runtime" and then save the file.
-' 巨集安全性 > 信任存取 VBA 專案物件模型
+' Prerequisites:
+'   1. VBE Editor > Tools > References, enable:
+'      - "Microsoft Visual Basic For Applications Extensibility 5.3"
+'      - "Microsoft Scripting Runtime"
+'   2. Trust Center > Macro Setting > Trust access to the VBA project object model
 '
-' SOP
-' 創建 > Export > 修改 > Import
+' Setup (save to Personal Macro Workbook / PERSONAL.XLSB):
+'   1. Open Excel and press Alt+F11 to open the VBA Editor
+'   2. In the Project Explorer, find VBAProject (PERSONAL.XLSB)
+'      (If it does not exist, record a dummy macro saving to "Personal Macro Workbook" to create it)
+'   3. Right-click the project > Import File > select this .bas file
+'   4. Close Excel and save PERSONAL.XLSB when prompted
+'   5. Run SetShortcuts once (Alt+F11 > Ctrl+G > type "SetShortcuts" > Enter),
+'      or call it from Workbook_Open in PERSONAL.XLSB to register shortcuts
+'      on every Excel launch:
+'        Private Sub Workbook_Open()
+'            SetShortcuts
+'        End Sub
+'      Shortcuts:
+'      - Ctrl + Shift + I : Import
+'      - Ctrl + Shift + E : Export
+'
+' SOP: Create > Export > Edit > Import
 '
 Option Explicit
+
+Public Sub SetShortcuts()
+    Application.OnKey "^+e", "exportModules"
+    Application.OnKey "^+i", "importModules"
+End Sub
 
 Public Sub exportModules()
     Dim shouldExport As Boolean
